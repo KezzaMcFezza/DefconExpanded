@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cctype>
 #include <optional>
+#include <unordered_map>
 
 #include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
@@ -39,6 +40,186 @@ int BTree<T>::CompareNoCase( std::string_view a, std::string_view b ) noexcept
 	return 0;
 }
 
+//
+// Helper to convert string_view to lowercase string for fast lookups
+// Uses a cache with transparent hash/equality to avoid string allocations on lookup
+//
+// C++23 transparent hash/equality allows string_view lookups without conversion
+
+// Case-insensitive hash function that works with both string and string_view
+// Optimized for speed - uses FNV-1a style hashing with bit operations
+struct CaseInsensitiveHash {
+	using is_transparent = void; // Enable transparent lookup (C++17/20/23)
+	
+	template<typename T>
+	size_t operator()( const T& key ) const noexcept
+	{
+		// FNV-1a hash variant - faster than multiplicative hashing
+		size_t hash = 2166136261U; // FNV offset basis
+		size_t len = key.length();
+		
+		// Process 4 bytes at a time when possible (faster)
+		const char* data = key.data();
+		size_t i = 0;
+		
+		// Process 4-byte chunks
+		while ( i + 4 <= len )
+		{
+			// XOR and multiply in one go - case-insensitive
+			unsigned int chunk = 0;
+			chunk |= ( static_cast<unsigned char>( data[i] ) & 0xDF );
+			chunk |= ( static_cast<unsigned char>( data[i + 1] ) & 0xDF ) << 8;
+			chunk |= ( static_cast<unsigned char>( data[i + 2] ) & 0xDF ) << 16;
+			chunk |= ( static_cast<unsigned char>( data[i + 3] ) & 0xDF ) << 24;
+			
+			hash ^= chunk;
+			hash *= 16777619U; // FNV prime
+			i += 4;
+		}
+		
+		// Handle remaining bytes
+		while ( i < len )
+		{
+			hash ^= ( static_cast<unsigned char>( data[i] ) & 0xDF );
+			hash *= 16777619U;
+			++i;
+		}
+		
+		return hash;
+	}
+};
+
+//
+// Case insensitive equality function that works with both string and string_view
+// compares 4 bytes at a time when possible
+
+struct CaseInsensitiveEqual {
+	using is_transparent = void;
+	
+	template<typename T1, typename T2>
+	bool operator()( const T1& a, const T2& b ) const noexcept
+	{
+		size_t len = a.length();
+		if ( len != b.length() )
+			return false;
+		
+		if ( len == 0 )
+			return true;
+		
+		const char* data1 = a.data();
+		const char* data2 = b.data();
+		size_t i = 0;
+		
+		//
+		// Compare 4 bytes at a time
+
+		while ( i + 4 <= len )
+		{
+			unsigned int chunk1 = 0;
+			unsigned int chunk2 = 0;
+			
+			chunk1 |= ( static_cast<unsigned char>( data1[i] ) & 0xDF );
+			chunk1 |= ( static_cast<unsigned char>( data1[i + 1] ) & 0xDF ) << 8;
+			chunk1 |= ( static_cast<unsigned char>( data1[i + 2] ) & 0xDF ) << 16;
+			chunk1 |= ( static_cast<unsigned char>( data1[i + 3] ) & 0xDF ) << 24;
+			
+			chunk2 |= ( static_cast<unsigned char>( data2[i] ) & 0xDF );
+			chunk2 |= ( static_cast<unsigned char>( data2[i + 1] ) & 0xDF ) << 8;
+			chunk2 |= ( static_cast<unsigned char>( data2[i + 2] ) & 0xDF ) << 16;
+			chunk2 |= ( static_cast<unsigned char>( data2[i + 3] ) & 0xDF ) << 24;
+			
+			if ( chunk1 != chunk2 )
+				return false;
+			
+			i += 4;
+		}
+
+		//
+		// Handle remaining bytes
+
+		while ( i < len )
+		{
+			unsigned char c1 = static_cast<unsigned char>( data1[i] ) & 0xDF;
+			unsigned char c2 = static_cast<unsigned char>( data2[i] ) & 0xDF;
+			if ( c1 != c2 )
+				return false;
+			++i;
+		}
+		
+		return true;
+	}
+};
+
+static std::unordered_map<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual> s_normalizationCache;
+static constexpr size_t MAX_CACHE_SIZE = 512; // Limit cache size to prevent unbounded growth
+
+static const std::string& ToLowerStringCached( std::string_view sv )
+{
+	
+	//
+	// Direct lookup with string_view, no conversion needed
+
+	auto it = s_normalizationCache.find( sv );
+	if ( it != s_normalizationCache.end() )
+	{
+		return it->second;
+	}
+	
+	bool needsConversion = false;
+	for ( unsigned char c : sv )
+	{
+		if ( c >= 'A' && c <= 'Z' )
+		{
+			needsConversion = true;
+			break;
+		}
+	}
+	
+	std::string result;
+	if ( !needsConversion )
+	{
+		result = std::string( sv );
+	}
+	else
+	{
+		//
+		// Convert to lowercase
+
+		result.reserve( sv.size() );
+		for ( unsigned char c : sv )
+		{
+			//
+			// Fast lowercase: 'A'-'Z' (65-90) becomes 'a'-'z' (97-122) by adding 32
+
+			if ( c >= 'A' && c <= 'Z' )
+			{
+				result += static_cast<char>( c + 32 );
+			}
+			else
+			{
+				result += static_cast<char>( c );
+			}
+		}
+	}
+	
+	if ( s_normalizationCache.size() >= MAX_CACHE_SIZE )
+	{
+		s_normalizationCache.clear();
+	}
+	
+	//
+    // Store in cache
+	
+	std::string cacheKey( sv );
+	auto [inserted_it, inserted] = s_normalizationCache.emplace( std::move( cacheKey ), std::move( result ) );
+	return inserted_it->second;
+}
+
+static std::string ToLowerString( std::string_view sv )
+{
+	return ToLowerStringCached( sv );
+}
+
 
 template <class T>
 BTree<T>::BTree()
@@ -49,7 +230,7 @@ BTree<T>::BTree()
 
 template <class T>
 BTree<T>::BTree( std::string_view newid, const T &newdata )
-	: id( newid ), data( newdata )
+	: id( ToLowerString( newid ) ), data( newdata )
 {
 }
 
@@ -138,34 +319,36 @@ void BTree<T>::Empty() noexcept
 template <class T>
 void BTree<T>::PutData( std::string_view newid, const T &newdata )
 {
+	std::string normalizedId = ToLowerString( newid );
+	
 	if ( id.empty() )
 	{
-		id = newid;
+		id = normalizedId;
 		data = newdata;
 		return;
 	}
 
-	const int compareResult = CompareNoCase( newid, id );
+	const int compareResult = normalizedId.compare( id );
 
 	if ( compareResult <= 0 )
 	{
 		if ( ltree )
-			ltree->PutData( newid, newdata );
+			ltree->PutData( normalizedId, newdata );
 		else
-			ltree = std::make_unique<BTree>( newid, newdata );
+			ltree = std::make_unique<BTree>( normalizedId, newdata );
 	}
 	else
 	{
 		if ( rtree )
-			rtree->PutData( newid, newdata );
+			rtree->PutData( normalizedId, newdata );
 		else
-			rtree = std::make_unique<BTree>( newid, newdata );
+			rtree = std::make_unique<BTree>( normalizedId, newdata );
 	}
 }
 
 
 template <class T>
-void BTree<T>::RemoveData( std::string_view newid )
+void BTree<T>::RemoveDataInternal( const std::string &normalizedId )
 {
 	/*
 	  Deletes an element from the list
@@ -178,7 +361,7 @@ void BTree<T>::RemoveData( std::string_view newid )
 		return;
 	}
 
-	const int compareResult = CompareNoCase( newid, id );
+	const int compareResult = normalizedId.compare( id );
 
 	if ( compareResult == 0 )
 	{
@@ -217,26 +400,33 @@ void BTree<T>::RemoveData( std::string_view newid )
 	{
 		if ( Left() )
 		{
-			if ( CompareNoCase( Left()->id, newid ) == 0 && !Left()->Left() && !Left()->Right() )
+			if ( Left()->id == normalizedId && !Left()->Left() && !Left()->Right() )
 			{
 				ltree.reset();
 			}
 			else
-				Left()->RemoveData( newid );
+				Left()->RemoveDataInternal( normalizedId );
 		}
 	}
 	else
 	{
 		if ( Right() )
 		{
-			if ( CompareNoCase( Right()->id, newid ) == 0 && !Right()->Left() && !Right()->Right() )
+			if ( Right()->id == normalizedId && !Right()->Left() && !Right()->Right() )
 			{
 				rtree.reset();
 			}
 			else
-				Right()->RemoveData( newid );
+				Right()->RemoveDataInternal( normalizedId );
 		}
 	}
+}
+
+template <class T>
+void BTree<T>::RemoveData( std::string_view newid )
+{
+	std::string normalizedId = ToLowerString( newid );
+	RemoveDataInternal( normalizedId );
 }
 
 
@@ -279,40 +469,54 @@ void BTree<T>::AppendRight( std::unique_ptr<BTree> tempright )
 
 
 template <class T>
-BTree<T> *BTree<T>::LookupTree( std::string_view searchid )
+BTree<T> *BTree<T>::LookupTreeInternal( const std::string &normalizedSearchId )
 {
 	if ( id.empty() )
 		return nullptr;
 
-	const int compareResult = CompareNoCase( searchid, id );
+	const int compareResult = normalizedSearchId.compare( id );
 
 	if ( compareResult == 0 )
 		return this;
 	else if ( ltree && compareResult < 0 )
-		return ltree->LookupTree( searchid );
+		return ltree->LookupTreeInternal( normalizedSearchId );
 	else if ( rtree && compareResult > 0 )
-		return rtree->LookupTree( searchid );
+		return rtree->LookupTreeInternal( normalizedSearchId );
 	else
 		return nullptr;
 }
 
+template <class T>
+BTree<T> *BTree<T>::LookupTree( std::string_view searchid )
+{
+	const std::string& normalizedSearchId = ToLowerStringCached( searchid );
+	return LookupTreeInternal( normalizedSearchId );
+}
+
 
 template <class T>
-const BTree<T> *BTree<T>::LookupTree( std::string_view searchid ) const
+const BTree<T> *BTree<T>::LookupTreeInternal( const std::string &normalizedSearchId ) const
 {
 	if ( id.empty() )
 		return nullptr;
 
-	const int compareResult = CompareNoCase( searchid, id );
+	const int compareResult = normalizedSearchId.compare( id );
 
 	if ( compareResult == 0 )
 		return this;
 	else if ( ltree && compareResult < 0 )
-		return ltree->LookupTree( searchid );
+		return ltree->LookupTreeInternal( normalizedSearchId );
 	else if ( rtree && compareResult > 0 )
-		return rtree->LookupTree( searchid );
+		return rtree->LookupTreeInternal( normalizedSearchId );
 	else
 		return nullptr;
+}
+
+template <class T>
+const BTree<T> *BTree<T>::LookupTree( std::string_view searchid ) const
+{
+	const std::string& normalizedSearchId = ToLowerStringCached( searchid );
+	return LookupTreeInternal( normalizedSearchId );
 }
 
 
