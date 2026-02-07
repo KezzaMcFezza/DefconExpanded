@@ -7,6 +7,7 @@
 #include <optional>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <type_traits>
 
 //=================================================================
@@ -17,14 +18,108 @@
 // Automatically grows when load factor exceeds 50%
 //=================================================================
 
-inline bool PortableCaseInsensitiveEqual(std::string_view a, std::string_view b) noexcept {
-    if (a.size() != b.size()) return false;
+inline bool PortableCaseInsensitiveEqual(std::string_view a, std::string_view b) noexcept 
+{
+    size_t len = a.length();
     
-    return std::equal(a.begin(), a.end(), b.begin(),
-        [](char ca, char cb) {
-            return std::tolower(static_cast<unsigned char>(ca)) == 
-                   std::tolower(static_cast<unsigned char>(cb));
-        });
+    if ( len != b.length() )
+    {
+        return false;
+    }
+    
+    if ( len == 0 )
+    {
+        return true;
+    }
+    
+    const char* data1 = a.data();
+    const char* data2 = b.data();
+    
+    //
+    // Fast path:
+    // Try exact byte comparison first
+    // This avoids expensive case conversion for the common case
+
+    bool needsCaseInsensitive = false;
+    if (len <= 16)
+    {
+        //
+        // For short strings, compare directly
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            if (data1[i] != data2[i])
+            {
+                needsCaseInsensitive = true;
+                break;
+            }
+        }
+        if (!needsCaseInsensitive)
+        {
+            return true;
+        }
+    }
+    else
+    {
+        //
+        // For longer strings, use memcmp for fast comparison
+
+        if (std::memcmp(data1, data2, len) != 0)
+        {
+            needsCaseInsensitive = true;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    
+    //
+    // Fall back to case insensitive comparison only if exact match failed
+
+    size_t i = 0;
+    
+    //
+    // Compare 4 bytes at a time 
+    
+    while (i + 4 <= len)
+    {
+        unsigned int chunk1 = 0;
+        unsigned int chunk2 = 0;
+        
+        chunk1 |= (static_cast<unsigned char>(data1[i]) & 0xDF);
+        chunk1 |= (static_cast<unsigned char>(data1[i + 1]) & 0xDF) << 8;
+        chunk1 |= (static_cast<unsigned char>(data1[i + 2]) & 0xDF) << 16;
+        chunk1 |= (static_cast<unsigned char>(data1[i + 3]) & 0xDF) << 24;
+        
+        chunk2 |= (static_cast<unsigned char>(data2[i]) & 0xDF);
+        chunk2 |= (static_cast<unsigned char>(data2[i + 1]) & 0xDF) << 8;
+        chunk2 |= (static_cast<unsigned char>(data2[i + 2]) & 0xDF) << 16;
+        chunk2 |= (static_cast<unsigned char>(data2[i + 3]) & 0xDF) << 24;
+        
+        if (chunk1 != chunk2)
+        {
+            return false;
+        }
+        
+        i += 4;
+    }
+    
+    //
+    // Handle remaining bytes
+    
+    while (i < len)
+    {
+        unsigned char c1 = static_cast<unsigned char>(data1[i]) & 0xDF;
+        unsigned char c2 = static_cast<unsigned char>(data2[i]) & 0xDF;
+        if (c1 != c2)
+        {
+            return false;
+        }
+        ++i;
+    }
+    
+    return true;
 }
 
 template <class T>
@@ -39,7 +134,9 @@ protected:
     mutable unsigned int m_numCollisions;
     
     [[nodiscard]] unsigned int HashFunc    ( std::string_view key ) const noexcept;
+    [[nodiscard]] unsigned int HashFunc    ( const char* key )      const noexcept;
     [[nodiscard]] bool CaseInsensitiveEqual( std::string_view a, std::string_view b ) const noexcept;
+    [[nodiscard]] bool CaseInsensitiveEqual( const char* a, std::string_view b )      const noexcept;
 
     void Grow();
     void Rebuild();
@@ -56,9 +153,7 @@ public:
     HashTable& operator= ( HashTable&& ) noexcept = default;
     
     [[nodiscard]] int GetIndex ( std::string_view key ) const;
-    [[nodiscard]] int GetIndex ( const char* key ) const {
-        return GetIndex        ( std::string_view(key ? key : "") );
-    }
+    [[nodiscard]] int GetIndex ( const char* key ) const;
     
     int PutData( std::string_view key, const T& data );
     int PutData( std::string_view key, T&& data );  // Move version

@@ -8,24 +8,48 @@
 template <class T>
 unsigned int HashTable<T>::HashFunc( std::string_view key ) const noexcept
 {
-	unsigned short rv = 0;
+	//
+	// FNV-1a hash variant
+	// Processes 4 bytes at a time when possible for better performance
 
+	unsigned int hash = 2166136261U; // FNV offset
 	size_t len = key.length();
+	
+	if ( len == 0 )
+	{
+		return 0;
+	}	
+	
+	const char* data = key.data();
 	size_t i = 0;
+	
+	//
+	// Process 4 byte chunks
 
-	while ( i + 1 < len )
+	while ( i + 4 <= len )
 	{
-		rv += key[i] & 0xDF;
-		rv += ~( key[i + 1] & 0xDF );
-		i += 2;
-	}
+		//
+		// XOR and multiply in one go (case insensitive)
 
-	if ( i < len )
+		unsigned int chunk = 0;
+		chunk |= ( static_cast<unsigned char>( data[i] ) & 0xDF );
+		chunk |= ( static_cast<unsigned char>( data[i + 1] ) & 0xDF ) << 8;
+		chunk |= ( static_cast<unsigned char>( data[i + 2] ) & 0xDF ) << 16;
+		chunk |= ( static_cast<unsigned char>( data[i + 3] ) & 0xDF ) << 24;
+		
+		hash ^= chunk;
+		hash *= 16777619U; // FNV prime
+		i += 4;
+	}
+	
+	while ( i < len )
 	{
-		rv += key[i] & 0xDF;
+		hash ^= ( static_cast<unsigned char>( data[i] ) & 0xDF );
+		hash *= 16777619U;
+		++i;
 	}
-
-	return rv & m_mask;
+	
+	return hash & m_mask;
 }
 
 
@@ -33,6 +57,51 @@ template <class T>
 bool HashTable<T>::CaseInsensitiveEqual( std::string_view a, std::string_view b ) const noexcept
 {
 	return PortableCaseInsensitiveEqual( a, b );
+}
+
+
+template <class T>
+unsigned int HashTable<T>::HashFunc( const char* key ) const noexcept
+{
+	if ( !key || !*key )
+	{
+		return 0;
+	}
+
+	unsigned int hash = 2166136261U;
+	const char* p = key;
+	
+	while ( p[0] && p[1] && p[2] && p[3] )
+	{
+		unsigned int chunk = 0;
+		chunk |= ( static_cast<unsigned char>( p[0] ) & 0xDF );
+		chunk |= ( static_cast<unsigned char>( p[1] ) & 0xDF ) << 8;
+		chunk |= ( static_cast<unsigned char>( p[2] ) & 0xDF ) << 16;
+		chunk |= ( static_cast<unsigned char>( p[3] ) & 0xDF ) << 24;
+		
+		hash ^= chunk;
+		hash *= 16777619U;
+		p += 4;
+	}
+	
+	while ( *p )
+	{
+		hash ^= ( static_cast<unsigned char>( *p ) & 0xDF );
+		hash *= 16777619U;
+		++p;
+	}
+	
+	return hash & m_mask;
+}
+
+
+template <class T>
+bool HashTable<T>::CaseInsensitiveEqual( const char* a, std::string_view b ) const noexcept
+{
+	if ( !a )
+		return b.empty();
+	
+	return PortableCaseInsensitiveEqual( std::string_view( a ), b );
 }
 
 
@@ -153,6 +222,47 @@ int HashTable<T>::GetIndex( std::string_view key ) const
 	}
 
 	while ( !CaseInsensitiveEqual( m_keys[index], key ) )
+	{
+		index++;
+		index &= m_mask;
+
+		if ( m_keys[index].empty() )
+		{
+			return -1;
+		}
+	}
+
+	return static_cast<int>( index );
+}
+
+
+template <class T>
+int HashTable<T>::GetIndex( const char* key ) const
+{
+	if ( !key || !*key )
+	{
+		//
+		// Empty/null key
+
+		unsigned int index = HashFunc( "" );
+		if ( !m_keys[index].empty() && CaseInsensitiveEqual( m_keys[index], std::string_view( "" ) ) )
+		{
+			return static_cast<int>( index );
+		}
+		return -1;
+	}
+	
+	unsigned int index = HashFunc( key );
+
+	if ( m_keys[index].empty() )
+	{
+		return -1;
+	}
+
+	//
+	// Compare directly without creating string_view for the key
+	
+	while ( !CaseInsensitiveEqual( key, m_keys[index] ) )
 	{
 		index++;
 		index &= m_mask;

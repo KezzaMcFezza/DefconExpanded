@@ -34,7 +34,12 @@ protected:
     void RecursiveConvertIndexToDArray ( DArray <std::string> *darray, BTree <T> *btree );
     void AppendRight                   ( std::unique_ptr<BTree> tempright );
     
-    static int CompareNoCase(std::string_view a, std::string_view b) noexcept;
+    static int CompareNoCase           (std::string_view a, std::string_view b) noexcept;
+    
+    BTree       *LookupTreeInternal    ( const std::string &normalizedSearchId );
+    const BTree *LookupTreeInternal    ( const std::string &normalizedSearchId ) const;
+    
+    void RemoveDataInternal            ( const std::string &normalizedId );
     
 public:
     std::string id;
