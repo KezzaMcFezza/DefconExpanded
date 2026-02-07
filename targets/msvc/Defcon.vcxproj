@@ -484,6 +484,7 @@
     <ClCompile Include="..\..\source\interface\network_window.cpp" />
     <ClCompile Include="..\..\source\interface\placement_icon.cpp" />
     <ClCompile Include="..\..\source\interface\profile_window.cpp" />
+    <ClCompile Include="..\..\source\interface\recording_selection.cpp" />
     <ClCompile Include="..\..\source\interface\resynchronise_window.cpp" />
     <ClCompile Include="..\..\source\interface\screenoptions_window.cpp" />
     <ClCompile Include="..\..\source\interface\serverbrowser_window.cpp" />
@@ -575,6 +576,7 @@
     <ClInclude Include="..\..\source\interface\network_window.h" />
     <ClInclude Include="..\..\source\interface\placement_icon.h" />
     <ClInclude Include="..\..\source\interface\profile_window.h" />
+    <ClInclude Include="..\..\source\interface\recording_selection.h" />
     <ClInclude Include="..\..\source\interface\resynchronise_window.h" />
     <ClInclude Include="..\..\source\interface\screenoptions_window.h" />
     <ClInclude Include="..\..\source\interface\serverbrowser_window.h" />

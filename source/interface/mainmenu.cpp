@@ -26,6 +26,7 @@
 #include "interface/screenoptions_window.h"
 #include "interface/debug_window.h"
 #include "interface/chat_window.h"
+#include "interface/recording_selection.h"
 #include "interface/connecting_window.h"
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
@@ -187,6 +188,9 @@ public:
             EclRegisterWindow( msg );      
             return;
         }
+
+        RecordingSelectionWindow *selectionWindow = new RecordingSelectionWindow();
+        EclRegisterWindow( selectionWindow );
     }
 
     void Render( int realX, int realY, bool highlighted, bool clicked )
