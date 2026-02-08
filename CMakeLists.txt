@@ -518,7 +518,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/app/tutorial_defcon.cpp
     ${ROOT_PATH}/source/app/modsystem.cpp
     ${ROOT_PATH}/source/app/defcon_soundinterface.cpp
-    ${ROOT_PATH}/source/app/synctestrecordings.cpp
     ${ROOT_PATH}/source/app/version_manager.cpp
     ${ROOT_PATH}/source/app/app.cpp
     ${ROOT_PATH}/source/app/game.cpp
@@ -561,6 +560,8 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/network/ClientToServer.cpp
     ${ROOT_PATH}/source/network/Server.cpp
     ${ROOT_PATH}/source/network/ServerToClient.cpp
+    ${ROOT_PATH}/source/network/SyncTestRecordings.cpp
+    ${ROOT_PATH}/source/network/RecordingParser.cpp
     ${ROOT_PATH}/source/interface/mod_window.cpp
     ${ROOT_PATH}/source/interface/badkey_window.cpp
     ${ROOT_PATH}/source/interface/network_window.cpp
@@ -596,7 +597,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/soundstats_window.cpp
     ${ROOT_PATH}/source/interface/styleeditor_window.cpp
     ${ROOT_PATH}/source/interface/recording_selection.cpp
-    ${ROOT_PATH}/source/network/recordingparser.cpp
 )
 
 set(SYSTEMIV_SOURCE

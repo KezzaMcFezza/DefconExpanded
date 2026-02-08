@@ -127,18 +127,18 @@ public:
     int  GetHistoryByteSize ();
 
     bool                StartRecordingPlaybackServer( const std::string &filename );
-    bool                IsRecordingPlaybackMode() const { return m_recordingPlaybackMode; }
+    bool                IsRecordingPlaybackMode() const;
     void                ForceSpectatorMode( int _clientId );
-    bool                ShouldAllowTeamCreation() const { return !m_recordingPlaybackMode; }
-    bool                ShouldAllowServerControls() const { return !m_recordingPlaybackMode; }
+    bool                ShouldAllowTeamCreation() const;
+    bool                ShouldAllowServerControls() const;
     int                 ExtractGameStartFromHeader();
     void                EnableFastForward( int targetSeqId, float speedMultiplier = 500.0f );
     void                CheckDisableFastForward();
     float               GetRecordingAdvanceSpeedMultiplier();
-    bool                IsRecordingFastForwardMode() const { return m_recordingFastForwardMode; }
+    bool                IsRecordingFastForwardMode() const;
     void                SetRecordingPaused( bool paused );
     void                SetRecordingSpeed( float speed );
-    bool                IsRecordingPaused() const { return m_recordingPaused; }
+    bool                IsRecordingPaused() const;
 };
 
 

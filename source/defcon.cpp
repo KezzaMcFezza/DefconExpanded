@@ -35,7 +35,7 @@
 #include "app/app.h"
 #include "app/game.h"
 #include "app/modsystem.h"
-#include "app/synctestrecordings.h"
+#include "network/SyncTestRecordings.h"
 #include "app/version_manager.h"
 
 #include "network/ClientToServer.h"

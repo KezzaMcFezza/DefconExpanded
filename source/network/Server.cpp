@@ -520,6 +520,37 @@ void Server::SetRecordingSpeed( float speed )
     
 }
 
+
+bool Server::IsRecordingPlaybackMode() const
+{
+    return m_recordingPlaybackMode;
+}
+
+
+bool Server::ShouldAllowTeamCreation() const
+{
+    return !m_recordingPlaybackMode;
+}
+
+
+bool Server::ShouldAllowServerControls() const
+{
+    return !m_recordingPlaybackMode;
+}
+
+
+bool Server::IsRecordingFastForwardMode() const
+{
+    return m_recordingFastForwardMode;
+}
+
+
+bool Server::IsRecordingPaused() const
+{
+    return m_recordingPaused;
+}
+
+
 void Server::DebugDumpHistory()
 {
     for( int i = 0; i < m_history.Size(); ++i )

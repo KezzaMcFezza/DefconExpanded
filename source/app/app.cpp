@@ -50,7 +50,7 @@
 #include "app/tutorial.h"
 #include "app/modsystem.h"
 #include "app/macutil.h"
-#include "app/synctestrecordings.h"
+#include "network/SyncTestRecordings.h"
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"

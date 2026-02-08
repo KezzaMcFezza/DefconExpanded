@@ -48,9 +48,6 @@
     <ClCompile Include="..\..\source\app\statusicon.cpp">
       <Filter>app</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\app\synctestrecordings.cpp">
-      <Filter>app</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\app\trayicon.cpp">
       <Filter>app</Filter>
     </ClCompile>
@@ -73,9 +70,6 @@
       <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp">
-      <Filter>network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\network\recordingparser.cpp">
       <Filter>network</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\network\Server.cpp">
@@ -283,6 +277,12 @@
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\network\RecordingParser.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\network\SyncTestRecordings.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -304,9 +304,6 @@
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\app\statusicon.h">
-      <Filter>app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\app\synctestrecordings.h">
       <Filter>app</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\app\trayicon.h">
@@ -334,9 +331,6 @@
       <Filter>network</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\network\network_defines_debug.h">
-      <Filter>network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\network\recordingparser.h">
       <Filter>network</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\network\Server.h">
@@ -539,6 +533,12 @@
     </ClInclude>
     <ClInclude Include="..\..\source\interface\playback_control_window.h">
       <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\network\RecordingParser.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\network\SyncTestRecordings.h">
+      <Filter>network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

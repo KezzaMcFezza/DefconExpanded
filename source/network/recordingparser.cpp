@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
 
-#include "recordingparser.h"
+#include "RecordingParser.h"
 
 #include "lib/tosser/directory.h"
 #include "lib/hi_res_time.h"

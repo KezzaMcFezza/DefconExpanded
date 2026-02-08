@@ -1,8 +1,8 @@
 #include "lib/universal_include.h"
 
-#include "synctestrecordings.h"
+#include "SyncTestRecordings.h"
 
-#include "app.h"
+#include "app/app.h"
 #include "app/globals.h"
 
 #include "interface/connecting_window.h"
