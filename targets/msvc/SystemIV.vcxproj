@@ -237,6 +237,7 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\file_system.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.cpp" />
+    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\native_dialog.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\input_sdl.cpp" />
@@ -360,6 +361,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\file_system.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.h" />
+    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\native_dialog.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h" />

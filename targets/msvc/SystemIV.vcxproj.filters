@@ -110,6 +110,9 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.cpp">
       <Filter>lib\filesys</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\native_dialog.cpp">
+      <Filter>lib\filesys</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
@@ -468,6 +471,9 @@
       <Filter>lib\filesys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.h">
+      <Filter>lib\filesys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\native_dialog.h">
       <Filter>lib\filesys</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h">

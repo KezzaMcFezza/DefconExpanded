@@ -7,6 +7,7 @@
 #include "lib/netlib/net_lib.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
+#include "lib/filesys/native_dialog.h"
 
 #include "interface/recording_selection.h"
 #include "interface/connecting_window.h"
@@ -278,15 +279,71 @@ void PlayFromGameStartButton::MouseUp()
 }
 
 //
-// We now use the file dialog system from multiwinia for complete cross-platform
-// dcrec loading, its actually brilliant introversion created such a great system
+// Browse button for selecting .dcrec recording files
 
 class BrowseRecordingButton : public InterfaceButton 
 {
 public:
+    static void FileDialogCallback(void *userdata, const char *const *paths, int filterIndex)
+    {
+        (void)filterIndex;
+        
+        if (!paths) 
+        {
+            // Error?
+            AppDebugOut("BrowseRecordingButton: File dialog error\n");
+            return;
+        }
+        
+        if (!*paths) 
+        {
+            return;
+        }
+        
+        const char *selectedFile = paths[0];
+        RecordingSelectionWindow *window = (RecordingSelectionWindow *)userdata;
+        
+        strncpy(window->m_recordingFilename, selectedFile, sizeof(window->m_recordingFilename) - 1);
+        window->m_recordingFilename[sizeof(window->m_recordingFilename) - 1] = '\0';
+        
+        //
+        // Update window title to show the selected file
+
+        char title[256];
+        snprintf(title, sizeof(title), "Recording Playback (%s)", selectedFile);
+        title[sizeof(title) - 1] = '\0';
+        window->SetTitle(title);
+        
+    }
+    
     void MouseUp() override 
     {
-        AppDebugOut("BrowseRecordingButton: Opened file dialog\n");
+        RecordingSelectionWindow *parent = (RecordingSelectionWindow *)m_parent;
+        
+        //
+        // Set up file filters for .dcrec files
+
+        static const NativeDialogFilter filters[] = {
+            { "DEFCON Recordings", "dcrec" },
+            { "All Files", "*" }
+        };
+        
+        void *window = g_windowManager ? g_windowManager->GetSDLWindow() : NULL;
+        
+        //
+        // Open the native file dialog
+
+        NativeShowOpenFileDialog(
+            window,
+            NULL,
+            0,
+            filters,
+            2,
+            FileDialogCallback,
+            parent
+        );
+        
+        AppDebugOut("BrowseRecordingButton: Opened native file dialog\n");
     }
 };
 

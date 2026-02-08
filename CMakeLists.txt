@@ -518,6 +518,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/app/tutorial_defcon.cpp
     ${ROOT_PATH}/source/app/modsystem.cpp
     ${ROOT_PATH}/source/app/defcon_soundinterface.cpp
+    ${ROOT_PATH}/source/app/synctestrecordings.cpp
     ${ROOT_PATH}/source/app/version_manager.cpp
     ${ROOT_PATH}/source/app/app.cpp
     ${ROOT_PATH}/source/app/game.cpp
@@ -593,6 +594,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/soundparameter_window.cpp
     ${ROOT_PATH}/source/interface/soundstats_window.cpp
     ${ROOT_PATH}/source/interface/styleeditor_window.cpp
+    ${ROOT_PATH}/source/interface/recording_selection.cpp
     ${ROOT_PATH}/source/network/recordingparser.cpp
 )
 
@@ -612,6 +614,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/filesys/filesys_utils.cpp
     ${SYSTEMIV_PATH}/lib/filesys/text_file_writer.cpp
     ${SYSTEMIV_PATH}/lib/filesys/text_stream_readers.cpp
+    ${SYSTEMIV_PATH}/lib/filesys/native_dialog.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_float.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_64.cpp
     ${SYSTEMIV_PATH}/lib/math/matrix33.cpp
