@@ -426,6 +426,10 @@ bool GlobeRenderer::ShouldUse3DNukeTrajectories()
     return true;
 #endif
     
+    if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+        return true;
+    }
+    
     return (g_app->GetWorld()->m_myTeamId == -1);
 }
 

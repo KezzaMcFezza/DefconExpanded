@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -10,9 +11,14 @@
 
 #include "interface/lobby_window.h"
 #include "interface/chat_window.h"
+#include "interface/playback_control_window.h"
 
 #include "app/app.h"
 #include "app/globals.h"
+
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#include "interface/interface.h"
+#endif
 
 #include "connecting_window.h"
 
@@ -22,10 +28,35 @@ class AbortButton : public InterfaceButton
 {
     void MouseUp()
     {
-        EclRemoveWindow( "LOBBY" );        
-        EclRemoveWindow( m_parent->m_name );
+        //
+        // check if were in seek mode
         
-        g_app->ShutdownCurrentGame();
+        ConnectingWindow *connectingWindow = (ConnectingWindow*)m_parent;
+        if (connectingWindow && connectingWindow->m_isSeekMode) {
+            CancelSeeking();
+        } else {
+            EclRemoveWindow( "LOBBY" );        
+            EclRemoveWindow( m_parent->m_name );
+            
+            g_app->ShutdownCurrentGame();
+            
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+            // In replay viewer mode, go back to recording selection window instead of main menu
+            g_app->GetInterface()->OpenReplayViewerWindow();
+#endif
+        }
+    }
+    
+private:
+    void CancelSeeking()
+    {
+        if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+            g_app->GetServer()->SetRecordingSpeed(1.0f);
+#endif
+        }
+        
+        EclRemoveWindow(m_parent->m_name);
     }
 };
 
@@ -36,9 +67,26 @@ ConnectingWindow::ConnectingWindow()
     m_maxLagRemaining(0),
     m_popupLobbyAtEnd(false),
     m_stage(0),
-    m_stageStartTime(-1.0f)
+    m_stageStartTime(-1.0f),
+    m_fastForwardMode(false),
+    m_fastForwardTarget(0),
+    m_fastForwardCurrent(0),
+    m_isSeekMode(false)
 {
-    SetSize( 300, 280 );
+    // Initial window sizing - check if we're in replay mode
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
+    
+    if( isReplayMode )
+    {
+        // Smaller window for replay viewer mode
+        SetSize( 350, 200 );
+    }
+    else
+    {
+        // Original larger window for normal server connections
+        SetSize( 300, 280 );
+    }
+    
     SetPosition( g_windowManager->WindowW()/2-m_w/2, 
                  g_windowManager->WindowH()/2-m_h/2 );
 
@@ -63,8 +111,37 @@ void ConnectingWindow::Create()
     box->SetProperties( "invert", 10, 30, m_w-20, m_h-70, " ", " ", false, false );
     RegisterButton( box );
 
+    // Adaptive button positioning based on window size
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) || 
+                        m_fastForwardMode || m_isSeekMode;
+    
     AbortButton *abort = new AbortButton();
-    abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, "dialog_abort", "dialog_abort_current_connection", true, true );
+    
+    //
+    // determine button text and tooltip based on mode
+
+    const char* buttonText;
+    const char* buttonTooltip;
+
+    if( m_isSeekMode )
+    {
+        buttonText = LANGUAGEPHRASE( "dialog_cancel" );
+        buttonTooltip =  LANGUAGEPHRASE( "dialog_cancel_seeking" );
+    }
+    else
+    {
+        buttonText = LANGUAGEPHRASE("dialog_abort");
+        buttonTooltip = LANGUAGEPHRASE("dialog_abort_current_connection");
+    }
+    
+    if( isReplayMode )
+    {
+        abort->SetProperties( "Abort", 10, m_h-30, 80, 20, buttonText, buttonTooltip, false, true );
+    }
+    else
+    {
+        abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, buttonText, buttonTooltip, false, true );
+    }
     RegisterButton( abort );
 }
 
@@ -134,7 +211,39 @@ void ConnectingWindow::Render( bool _hasFocus )
 
     yPos += 40;
 
-    if( g_app->GetClientToServer()->IsConnected() )
+    //
+    // Fast-forward recording synchronization status
+    
+    if( m_fastForwardMode )
+    {
+        const char* fastForwardText = m_isSeekMode ? "I'm goiNg as Fast as I caN!" : "Fast FoRWaRdiNg to gamE staRt...";
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, White, 16, fastForwardText );
+        yPos += 20;
+        
+        if( m_fastForwardTarget > 0 )
+        {
+            float progress = (float)m_fastForwardCurrent / (float)m_fastForwardTarget;
+            progress = std::min(progress, 1.0f);
+            
+            Colour progressCol(0, 255, 255, 255);  // Cyan for fast-forward
+            g_renderer2d->RectFill( m_x + 30, yPos, (m_w-60)*progress, 15, progressCol );
+            g_renderer2d->Rect( m_x+30, yPos, (m_w-60), 15, White );
+            
+            yPos += 20;
+            
+            char progressText[128];
+            sprintf( progressText, "SEquENcE %d / %d (%.1f%%)", 
+                    m_fastForwardCurrent, m_fastForwardTarget, progress * 100.0f );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, White, 12, progressText );
+        }
+        
+        yPos += 30;
+    }
+
+    //
+    // Normal sync status (original logic restored for non-replay connections)
+    
+    if( !m_fastForwardMode && g_app->GetClientToServer()->IsConnected() )
     {
         if( m_stage == 0 )
         {
@@ -231,7 +340,7 @@ void ConnectingWindow::Render( bool _hasFocus )
         {
             if( m_popupLobbyAtEnd )
             {
-                if( !EclGetWindow( "LOBBY" ) )              
+                if( !m_fastForwardMode && !EclGetWindow( "LOBBY" ) )              
                 {
                     LobbyWindow *lobby = new LobbyWindow();                   
                     ChatWindow *chat = new ChatWindow();
@@ -245,10 +354,23 @@ void ConnectingWindow::Render( bool _hasFocus )
                     lobbyY = std::max( lobbyY, 0.0f );
                     lobby->SetPosition(lobbyX, lobbyY);
                     EclRegisterWindow( lobby );
+
+                    //
+                    // If we're in recording playback mode, also register the playback control window
+                    // This allows seeking and speed control during lobby phase of recordings
+                    
+                    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && 
+                        !EclGetWindow( "Playback Controls" ) )
+                    {
+                        EclRegisterWindow( new PlaybackControlWindow() );
+                    }
                 }
             }
 
-            if( numRemaining < 5 && lagRemaining < 5 )
+            bool syncComplete = (numRemaining < 5 && lagRemaining < 5);
+            bool fastForwardComplete = !m_fastForwardMode;
+            
+            if( syncComplete && fastForwardComplete )
             {
                 EclRemoveWindow(m_name);
             }
@@ -295,4 +417,55 @@ void ConnectingWindow::RenderTimeRemaining( float _fractionDone )
 		LPREPLACESTRINGFLAG( 'S', number, caption );
         g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, 14, caption );
     }
+}
+
+// Fast-forward recording methods
+void ConnectingWindow::UpdateWindowSize()
+{
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) || 
+                        m_fastForwardMode || m_isSeekMode;
+    
+    if( isReplayMode )
+    {
+        // Smaller window for replay viewer mode
+        SetSize( 350, 200 );
+    }
+    else
+    {
+        // Original larger window for normal server connections
+        SetSize( 300, 280 );
+    }
+    
+    SetPosition( g_windowManager->WindowW()/2-m_w/2, 
+                 g_windowManager->WindowH()/2-m_h/2 );
+}
+
+void ConnectingWindow::SetFastForwardMode( bool enabled, int target, bool isSeekMode )
+{
+    m_fastForwardMode = enabled;
+    m_fastForwardTarget = target;
+    m_fastForwardCurrent = 0;
+    m_isSeekMode = isSeekMode;
+    
+    // Update window size based on new mode
+    UpdateWindowSize();
+    
+    if( enabled )
+    {
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+        const char* modeType = isSeekMode ? "seek" : "game start";
+        AppDebugOut("ConnectingWindow: Fast-forward mode enabled (%s), target: %d\n", modeType, target);
+#endif
+    }
+    else
+    {
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+        AppDebugOut("ConnectingWindow: Fast-forward mode disabled\n");
+#endif
+    }
+}
+
+void ConnectingWindow::UpdateFastForwardProgress( int current )
+{
+    m_fastForwardCurrent = current;
 }

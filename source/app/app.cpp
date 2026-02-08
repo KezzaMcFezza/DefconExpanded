@@ -50,7 +50,7 @@
 #include "app/tutorial.h"
 #include "app/modsystem.h"
 #include "app/macutil.h"
-#include "app/synctestrecordings.h"
+
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
@@ -58,6 +58,10 @@
 
 #include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
+
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#include "interface/recording_selection.h"
+#endif
 
 #ifdef SYNC_PRACTICE
 #include "interface/lobby_window.h"
@@ -134,7 +138,6 @@ App::App()
     m_globeRenderer(NULL),
     m_lobbyRenderer(NULL),
     m_earthData(NULL),
-    m_syncTestRecordings(NULL),
     m_netLib(NULL),
 	m_mousePointerVisible(false),
 	m_pendingWindowReinit(false),
@@ -167,7 +170,6 @@ App::~App()
 #ifdef TARGET_MSVC
     timeEndPeriod(1);
 #endif
-    delete m_syncTestRecordings;
     delete m_clientToServer;
 	delete m_game;
 	delete m_earthData;
@@ -672,8 +674,6 @@ void App::FinishInit()
 
     InitStatusIcon();
     NotifyStartupErrors();
-    m_syncTestRecordings = new SyncTestRecordings();
-    m_syncTestRecordings->Initialise();
 
 	m_inited = true;
 }
@@ -753,12 +753,67 @@ void App::InitFonts()
 
 void App::ParseCommandLine()
 {
+    AppDebugOut("Parsing command line: %d arguments\n", g_argc);
+    for( int i = 0; i < g_argc; ++i )
+    {
+        AppDebugOut("  argv[%d] = '%s'\n", i, g_argv[i]);
+    }
+    
     for( int i = 1; i < g_argc; ++i )
     {
         if( strcmp( g_argv[i], "-print-client-letters" ) == 0 )
         {
             m_debugPrintClientLetters = true;
         }
+        else if( strcmp( g_argv[i], "-l" ) == 0 )
+        {
+            // Handle -l argument for loading replay files
+            if( i + 1 < g_argc )
+            {
+                const char* filename = g_argv[i + 1];
+                
+                // Validate filename length
+                if( strlen(filename) < sizeof(m_replayFilename) )
+                {
+                    // Copy the filename
+                    strncpy( m_replayFilename, filename, sizeof(m_replayFilename) - 1 );
+                    m_replayFilename[sizeof(m_replayFilename) - 1] = '\0';
+                    
+                    // Validate file extension (.dcrec)
+                    const char* extension = strrchr( m_replayFilename, '.' );
+                    if( extension && strcmp( extension, ".dcrec" ) == 0 )
+                    {
+                        AppDebugOut("Command line: Loading replay file '%s'\n", m_replayFilename);
+                    }
+                    else
+                    {
+                        AppDebugOut("Command line: Warning - '%s' does not have .dcrec extension\n", m_replayFilename);
+                        // Keep the filename anyway - let the parser handle invalid files
+                    }
+                }
+                else
+                {
+                    AppDebugOut("Command line: Error - replay filename too long: '%s'\n", filename);
+                    m_replayFilename[0] = '\0'; // Clear filename
+                }
+                
+                ++i; // Skip the filename argument
+            }
+            else
+            {
+                AppDebugOut("Command line: Error - no filename specified after -l\n");
+            }
+        }
+    }
+    
+    // Debug output for final state
+    if( strlen(m_replayFilename) > 0 )
+    {
+        AppDebugOut("Command line parsing complete: Replay filename set to '%s'\n", m_replayFilename);
+    }
+    else
+    {
+        AppDebugOut("Command line parsing complete: No replay filename specified\n");
     }
 }
 
@@ -1144,7 +1199,6 @@ void App::ReinitialiseWindow()
     
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
-    g_soundSystem->RestartSoundLibrary();
 
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
     delete g_imguiManager;
@@ -2075,11 +2129,6 @@ Tutorial *App::GetTutorial()
     return m_tutorial;
 }
 
-SyncTestRecordings *App::GetSyncTestRecordings()
-{
-    return m_syncTestRecordings;
-}
-
 const char *App::GetPrefsPath()
 {
     static std::string result;
@@ -2182,7 +2231,7 @@ void App::SetMousePointerVisible(bool visible)
 void App::SaveGameName()
 {
 	// Check m_server to be sure it's a game created by us.
-	if( m_server && m_game )
+	if( m_server && m_game && !(m_server->IsRecordingPlaybackMode()) )
 	{
 		int serverNameIndex = m_game->GetOptionIndex( "ServerName" );
 		if( serverNameIndex != -1 )
@@ -2224,4 +2273,14 @@ void App::RestartAmbienceMusic()
 void App::ToggleHideUI()
 {
 	g_hideUI = !g_hideUI;
+}
+
+const char* App::GetReplayFilename() const
+{
+	return m_replayFilename;
+}
+
+bool App::HasReplayFilename() const
+{
+	return strlen(m_replayFilename) > 0;
 }

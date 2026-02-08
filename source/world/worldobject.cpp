@@ -419,6 +419,8 @@ void WorldObject::Render2D()
         }
         colour.m_a /= 2;
     }
+
+    RenderHealthBar2D();
 }
 
 void WorldObject::Render3D()
@@ -479,6 +481,184 @@ void WorldObject::Render3D()
             }
             colour.m_a /= 2;
         }
+    }
+    RenderHealthBar3D();
+}
+
+void WorldObject::RenderHealthBar2D()
+{
+    //
+    // Only render if the user has enabled the health bars
+
+    extern bool g_healthBarsEnabled;
+    if( !g_healthBarsEnabled )
+    {
+        return;
+    }
+
+    //
+    // Only render health bar if the unit is alive and has 
+    // an m_maxLife value, and its m_life is greater than 1
+
+    if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
+    {
+        return;
+    }
+
+    float healthPercentage = (float)m_life / (float)m_maxLife;
+    if( healthPercentage > 1.0f ) healthPercentage = 1.0f;
+
+    //
+    // Get unit position and size
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float unitSize = GetSize().DoubleValue();
+
+    //
+    // Health bar positioned below the unit
+
+    float barWidth = unitSize * 1.5f;
+    float barHeight = unitSize * 0.15f; 
+    float barX = predictedLongitude - barWidth * 0.5f;
+    float barY = predictedLatitude - unitSize * 0.8f; 
+    
+    //
+    // Adjust positioning for specific unit types
+    
+    if( m_type == TypeBattleShip )
+    {
+        barY -= 0.1f; // slightly lower for battleships
+    }
+    else if( m_type == TypeSilo )
+    {
+        barY -= 1.3f; // much lower for silos
+    }
+    else if( m_type == TypeCarrier )
+    {
+        barY -= 0.25f; // a bit lower for carriers
+    }
+    else if ( m_type == TypeAirBase )
+    {
+        barY -= 0.4f; // proper spacing for airbases
+    }
+    
+    Colour bgColour(0, 0, 0, 180);
+    g_renderer2d->RectFill(barX, barY, barWidth, barHeight, bgColour);
+    
+    float damagePercentage = 1.0f - healthPercentage;
+    if( damagePercentage > 0 )
+    {
+        float damageBarWidth = barWidth * damagePercentage;
+        Colour damageColour(255, 0, 0, 200); // red for damage
+        g_renderer2d->RectFill(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
+    }
+    
+    if( healthPercentage > 0 )
+    {
+        float healthBarWidth = barWidth * healthPercentage;
+        Colour healthColour(0, 255, 0, 200); // green for health
+        
+        if( healthPercentage < 0.3f )
+        {
+            healthColour.Set(255, 128, 0, 200); // orange for low health
+        }
+        else if( healthPercentage < 0.6f )
+        {
+            healthColour.Set(255, 255, 0, 200); // yellow for if the health is not 100 percent
+        }
+        
+        g_renderer2d->RectFill(barX, barY, healthBarWidth, barHeight, healthColour);
+    }
+}
+
+void WorldObject::RenderHealthBar3D()
+{
+    extern bool g_healthBarsEnabled;
+    if( !g_healthBarsEnabled )
+    {
+        return;
+    }
+
+    if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
+    {
+        return;
+    }
+
+    float healthPercentage = (float)m_life / (float)m_maxLife;
+    if( healthPercentage > 1.0f ) healthPercentage = 1.0f;
+
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( !globeRenderer )
+    {
+        return;
+    }
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float unitSize = GetSize3D().DoubleValue();
+
+    Vector3<float> unitPos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+    Vector3<float> normal = unitPos;
+    normal.Normalise();
+    unitPos = globeRenderer->GetElevatedPosition(unitPos);
+
+    Vector3<float> tangent1, tangent2;
+    globeRenderer->GetSurfaceTangents(normal, tangent1, tangent2);
+
+    float barWidth = unitSize * 1.5f;
+    float barHeight = unitSize * 0.15f;
+    
+    float offsetY = unitSize * 0.8f;
+    if( m_type == TypeBattleShip )
+    {
+        offsetY += unitSize * 0.05f;
+    }
+    else if( m_type == TypeSilo )
+    {
+        offsetY += unitSize * 0.65f;
+    }
+    else if( m_type == TypeCarrier )
+    {
+        offsetY += unitSize * 0.12f;
+    }
+    else if ( m_type == TypeAirBase )
+    {
+        offsetY += unitSize * 0.2f;
+    }
+
+    Vector3<float> barPos = unitPos - tangent2 * offsetY;
+
+    Colour bgColour(0, 0, 0, 180);
+    g_renderer3d->RectFill3D(barPos, tangent1, tangent2, barWidth, barHeight, bgColour);
+    
+    float damagePercentage = 1.0f - healthPercentage;
+    if( damagePercentage > 0 )
+    {
+        float damageBarWidth = barWidth * damagePercentage;
+        Colour damageColour(255, 0, 0, 200);
+        Vector3<float> damageBarPos = barPos + tangent1 * (barWidth * 0.5f - damageBarWidth * 0.5f);
+        g_renderer3d->RectFill3D(damageBarPos, tangent1, tangent2, damageBarWidth, barHeight, damageColour);
+    }
+    
+    if( healthPercentage > 0 )
+    {
+        float healthBarWidth = barWidth * healthPercentage;
+        Colour healthColour(0, 255, 0, 200);
+        
+        if( healthPercentage < 0.3f )
+        {
+            healthColour.Set(255, 128, 0, 200);
+        }
+        else if( healthPercentage < 0.6f )
+        {
+            healthColour.Set(255, 255, 0, 200);
+        }
+        
+        Vector3<float> healthBarPos = barPos - tangent1 * (barWidth * 0.5f - healthBarWidth * 0.5f);
+        g_renderer3d->RectFill3D(healthBarPos, tangent1, tangent2, healthBarWidth, barHeight, healthColour);
     }
 }
 

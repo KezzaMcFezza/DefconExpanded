@@ -102,6 +102,7 @@ void SyncTestRecordings::Update()
 
     if( !g_app->GetServer() && m_paths.empty() )
     {
+        g_app->Shutdown();
         return;
     }
 

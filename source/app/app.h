@@ -28,7 +28,6 @@ class NetMutex;
 class Server;
 class SoundSystem;
 class StatusIcon;
-class SyncTestRecordings;
 class Tutorial;
 class World;
 class RecordingFileDialog;
@@ -82,7 +81,6 @@ private:
     ClientToServer      *m_clientToServer;          // Clients connection to Server
     StatusIcon			*m_statusIcon;
     Tutorial            *m_tutorial;
-    SyncTestRecordings  *m_syncTestRecordings;
     NetLib              *m_netLib;
     SoundDebugOverlay   *m_soundOverlay;
     DebugConsole        *m_debugConsole;
@@ -144,7 +142,6 @@ public:
     Game            *GetGame();
     StatusIcon      *GetStatusIcon();
     Tutorial        *GetTutorial();
-    SyncTestRecordings *GetSyncTestRecordings();
 	
 	static const char *GetAuthKeyPath();
     static const char *GetPrefsPath();
@@ -156,7 +153,13 @@ public:
     void    SetMousePointerVisible(bool visible);
 
 	void    SaveGameName();
-    void    ToggleHideUI();
+	
+	const char* GetReplayFilename() const;
+	bool HasReplayFilename() const;
+
+
+    bool                HasServerPrivileges()           { return m_server && m_server->ShouldAllowServerControls(); }
+    void                ToggleHideUI();
 };
 
 void	ConfirmExit( const char *_parentWindowName );

@@ -124,6 +124,8 @@ public:
     virtual bool        IsHiddenFrom    ();
 
     virtual bool        Update          ();
+    virtual void        RenderHealthBar2D ();
+    virtual void        RenderHealthBar3D ();
     
 	virtual void		RunAI			();
 

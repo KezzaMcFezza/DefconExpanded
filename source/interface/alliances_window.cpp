@@ -750,9 +750,10 @@ public:
 
     void MouseUp()
     {
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
         int isSpectator = g_app->GetWorld()->IsSpectating( g_app->GetClientToServer()->m_clientId );
         
-        if( isSpectator != -1 ) return;
+        if( isReplayMode || isSpectator != -1 ) return;
         
         AlliancesWindow *parent = (AlliancesWindow *)m_parent;
         int voteId = parent->m_votes[m_voteIndex];
