@@ -50,7 +50,7 @@
 #include "app/tutorial.h"
 #include "app/modsystem.h"
 #include "app/macutil.h"
-
+#include "app/synctestrecordings.h"
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
@@ -58,10 +58,6 @@
 
 #include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
-
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/recording_selection.h"
-#endif
 
 #ifdef SYNC_PRACTICE
 #include "interface/lobby_window.h"
@@ -138,6 +134,7 @@ App::App()
     m_globeRenderer(NULL),
     m_lobbyRenderer(NULL),
     m_earthData(NULL),
+    m_syncTestRecordings(NULL),
     m_netLib(NULL),
 	m_mousePointerVisible(false),
 	m_pendingWindowReinit(false),
@@ -170,6 +167,7 @@ App::~App()
 #ifdef TARGET_MSVC
     timeEndPeriod(1);
 #endif
+    delete m_syncTestRecordings;
     delete m_clientToServer;
 	delete m_game;
 	delete m_earthData;
@@ -674,6 +672,8 @@ void App::FinishInit()
 
     InitStatusIcon();
     NotifyStartupErrors();
+    m_syncTestRecordings = new SyncTestRecordings();
+    m_syncTestRecordings->Initialise();
 
 	m_inited = true;
 }
@@ -1818,7 +1818,7 @@ void App::StartGame()
 
     m_interface->OpenGameWindows();
     
-    if( connectingWindowOpen ) EclRegisterWindow( new ConnectingWindow() );
+    if( connectingWindowOpen || IsSyncTestRecordingsMode() ) EclRegisterWindow( new ConnectingWindow() );
 
     int randSeed = 0;
     for( int i = 0; i < m_world->m_teams.Size(); ++i )
@@ -2127,6 +2127,16 @@ StatusIcon *App::GetStatusIcon()
 Tutorial *App::GetTutorial()
 {
     return m_tutorial;
+}
+
+SyncTestRecordings *App::GetSyncTestRecordings()
+{
+    return m_syncTestRecordings;
+}
+
+bool App::IsSyncTestRecordingsMode() const
+{
+    return m_syncTestRecordings && m_syncTestRecordings->IsEnabled();
 }
 
 const char *App::GetPrefsPath()

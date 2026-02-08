@@ -22,5 +22,6 @@ public:
     SyncTestRecordings();
     void Initialise();
     void Update();
+    bool IsEnabled();
 
 };

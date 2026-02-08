@@ -102,7 +102,6 @@ void SyncTestRecordings::Update()
 
     if( !g_app->GetServer() && m_paths.empty() )
     {
-        g_app->Shutdown();
         return;
     }
 
@@ -187,4 +186,9 @@ void SyncTestRecordings::Update()
         m_dumpSyncAt = -1;
     }
     
+}
+
+bool SyncTestRecordings::IsEnabled()
+{
+    return m_enabled;
 }

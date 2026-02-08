@@ -35,6 +35,7 @@
 #include "app/app.h"
 #include "app/game.h"
 #include "app/modsystem.h"
+#include "app/synctestrecordings.h"
 #include "app/version_manager.h"
 
 #include "network/ClientToServer.h"
@@ -853,7 +854,10 @@ void EmscriptenMainLoop()
 #endif
     }
 
-
+    if( g_app->GetSyncTestRecordings() )
+    {
+        g_app->GetSyncTestRecordings()->Update();
+    }
 
     if( g_app->GetClientToServer() )
     {            
@@ -1189,6 +1193,10 @@ void DefconMain()
 
         }
 
+        if( g_app->GetSyncTestRecordings() )
+        {
+            g_app->GetSyncTestRecordings()->Update();
+        }
 
         if( g_app->GetClientToServer() )
         {            

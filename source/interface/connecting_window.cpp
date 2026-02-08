@@ -369,8 +369,7 @@ void ConnectingWindow::Render( bool _hasFocus )
 
             bool syncComplete = (numRemaining < 5 && lagRemaining < 5);
             bool fastForwardComplete = !m_fastForwardMode;
-            
-            if( syncComplete && fastForwardComplete )
+            if( syncComplete && fastForwardComplete && !g_app->IsSyncTestRecordingsMode() )
             {
                 EclRemoveWindow(m_name);
             }

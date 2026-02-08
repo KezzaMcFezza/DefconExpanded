@@ -213,6 +213,125 @@ int RecordingParser::ExtractGameStartFromHeader()
     return seqIDStart;
 }
 
+//
+// Parse function that is used by synctestrecordings
+
+bool RecordingParser::Parse( bool debugPrint )
+{
+    Directory matchHeader;
+    if( !ReadHeaderPacket( matchHeader  ) ) return false;
+
+    bool zeroMarker;
+    bool suppressUpdate = false;
+    int lastRecordedSeqId = 0;
+    int maxClientId = -1;
+    std::unique_ptr<Directory> gameUpdates;
+    int expectedGameCommandCount = 0;
+    bool syncErrorInRecording = false;
+
+    m_server->m_recordingSyncBytes.Empty();
+
+    while( true )
+    {
+        Directory dir;
+        if( !ReadPacket( dir, zeroMarker ) ) break;
+
+        if( debugPrint )
+        {
+            dir.DebugPrint( 0 );
+        }
+
+        if( strcmp( dir.m_name.c_str(), "sq" ) == 0 )
+        {
+            suppressUpdate = false;
+
+            if( expectedGameCommandCount != 0 )
+            {
+                AppDebugOut( "WARNING: Was expecting some more updates before starting a new game update\n" );
+            }
+
+            expectedGameCommandCount = dir.GetDataInt( "ct" );
+            int nextSeqId = dir.GetDataInt( "z" );
+
+            for( int i = 0; i < nextSeqId - lastRecordedSeqId - 1; ++i )
+            {
+                // Insert empty updates to catch up.
+
+                Directory *empty = new Directory;
+                empty->SetName( NET_DEFCON_MESSAGE );
+                empty->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+
+                Send(empty);
+            }
+
+            if( dir.HasData( NET_DEFCON_SYNCVALUE ) && !syncErrorInRecording )
+            {
+                m_server->m_recordingSyncBytes.PutData( dir.GetDataUChar( NET_DEFCON_SYNCVALUE ), nextSeqId );
+            }
+
+            lastRecordedSeqId = nextSeqId;
+
+            gameUpdates.reset( new Directory );
+            gameUpdates->SetName( NET_DEFCON_MESSAGE );
+            gameUpdates->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+        }
+        else
+        {
+            if( strcmp( dir.m_name.c_str(), NET_DEFCON_MESSAGE ) == 0 )
+            {
+                if( dir.HasData( NET_DEFCON_COMMAND ) )
+                {
+                    const char *cmd = dir.GetDataString( NET_DEFCON_COMMAND );
+                    if( *cmd == 'c' )
+                    {
+                        // Game update: bundle it into game updates.
+                        gameUpdates->AddDirectory( new Directory( dir ) );
+                        --expectedGameCommandCount;
+                    }
+                    else
+                    {
+                        // Server message
+                        if( dir.HasData( NET_DEFCON_CLIENTID ) )
+                        {
+                            maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
+                        }
+
+                        if( strcmp( cmd, NET_DEFCON_NETSYNCERROR ) == 0 )
+                        {
+                            // The recording has a sync error. Record this so that we don't
+                            // compare any sync values after this point.
+                            AppDebugOut( "WARNING: Recording has a sync error at sequence id %d\n", lastRecordedSeqId );
+                            syncErrorInRecording = true;
+                        }
+
+                        // Due to a bug in DEDCON, sometimes a server message can
+                        // interrupt a sequence of updates.
+                        if( gameUpdates.get() ) suppressUpdate = true;
+
+                        // Management/Server command: send it separately.
+                        Send( new Directory( dir ) );
+                    }
+                }
+            }
+        }
+
+        if( expectedGameCommandCount == 0 && gameUpdates.get() &&
+            gameUpdates->m_subDirectories.Size() > 0 )
+        {
+            if( !suppressUpdate ) Send( gameUpdates.release() );
+        }
+    }
+
+    m_server->m_nextClientId = maxClientId + 1;
+    m_server->m_replayingRecording = true;
+    m_server->m_lastRecordedSeqId = lastRecordedSeqId;
+
+    return true;
+}
+
+//
+// Parse function that is used by the recording playback system
+
 bool RecordingParser::ParseToHistory()
 {
     if (!m_in) 
@@ -342,4 +461,11 @@ bool RecordingParser::ParseToHistory()
     int gameStartSeqId = ExtractGameStartFromHeader();
 
     return true;
+}
+
+void RecordingParser::Send( Directory *dir )
+{
+    ServerToClientLetter *letter = new ServerToClientLetter;
+    letter->m_data = dir;
+    m_server->SendLetter( letter );
 }

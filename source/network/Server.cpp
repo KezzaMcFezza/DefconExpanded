@@ -238,7 +238,7 @@ bool Server::LoadRecording( const std::string &filename, bool debugPrint )
     }
 
     RecordingParser parser( in, filename, this );
-    return parser.ParseToHistory();
+    return parser.Parse( debugPrint );
 }
 
 
@@ -2090,10 +2090,17 @@ void Server::Advance()
     }
 
     //
-    // Always send letters through the normal path for proper sequence ID management
-    // Recording playback now injects recorded data into the normal flow
+    // In synctestrecordings mode, recorded messages are sent directly by RecordingParser 
+    // so dont send the constructed letter.
 
-    SendLetter( letter );
+    if( m_replayingRecording && !m_recordingPlaybackMode )
+    {
+        delete letter;
+    }
+    else
+    {
+        SendLetter( letter );
+    }
 
 
     //

@@ -28,6 +28,7 @@ class NetMutex;
 class Server;
 class SoundSystem;
 class StatusIcon;
+class SyncTestRecordings;
 class Tutorial;
 class World;
 class RecordingFileDialog;
@@ -81,6 +82,7 @@ private:
     ClientToServer      *m_clientToServer;          // Clients connection to Server
     StatusIcon			*m_statusIcon;
     Tutorial            *m_tutorial;
+    SyncTestRecordings  *m_syncTestRecordings;
     NetLib              *m_netLib;
     SoundDebugOverlay   *m_soundOverlay;
     DebugConsole        *m_debugConsole;
@@ -142,7 +144,10 @@ public:
     Game            *GetGame();
     StatusIcon      *GetStatusIcon();
     Tutorial        *GetTutorial();
-	
+    SyncTestRecordings *GetSyncTestRecordings();
+    
+    bool IsSyncTestRecordingsMode() const;
+
 	static const char *GetAuthKeyPath();
     static const char *GetPrefsPath();
     static const char *GetGameHistoryPath();

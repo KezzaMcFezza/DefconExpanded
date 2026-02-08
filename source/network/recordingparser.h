@@ -12,7 +12,8 @@ public:
     RecordingParser           ( const std::string &filename, Server *server );  // Direct file loading
     ~RecordingParser          ();
 
-    bool ParseToHistory       ();                                       // Load into server history for playback
+    bool ParseToHistory       ();
+    bool Parse                ( bool debugPrint );                      // Load into server history for playback
     bool ReadHeaderPacket     ( Directory &matchHeader );               // Made public for header parsing
 
 private:
@@ -24,5 +25,6 @@ private:
 
     bool ReadPacket            ( Directory &dir, bool &zeroMarker );
     void AddToHistory          ( Directory *dir );
+    void Send                  ( Directory *dir );
     int  ExtractGameStartFromHeader  ();                                // Extract game start from DCGR header
 };
