@@ -13,6 +13,7 @@ private:
     bool                               m_enabled;
     bool                               m_printRecording;
     int                                m_dumpSyncAt;
+    bool                               m_writeResults;
     std::queue<std::string>            m_paths;
     std::string                        m_currentRecordingFilename;
     double                             m_currentRecordingStartTime;

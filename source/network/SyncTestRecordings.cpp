@@ -15,6 +15,7 @@
 #include "network/ClientToServer.h"
 #include "network/Server.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <memory>
 
@@ -24,6 +25,7 @@ SyncTestRecordings::SyncTestRecordings()
 :   m_enabled( false ),
     m_printRecording( false ),
     m_dumpSyncAt( -1 ),
+    m_writeResults( false ),
     m_currentRecordingStartTime( 0.0 )
 {
 }
@@ -81,6 +83,10 @@ void SyncTestRecordings::Initialise()
             if( i >= g_argc ) break;
 
             m_dumpSyncAt = atoi( g_argv[i] );
+        }
+        else if( strcmp( g_argv[i], "-write-results" ) == 0 )
+        {
+            m_writeResults = true;
         }
     }
 
@@ -160,6 +166,19 @@ void SyncTestRecordings::Update()
                          elapsedTime,
                          m_currentRecordingFilename.c_str(),
                          bytesCompared );
+
+            if( m_writeResults )
+            {
+                FILE *file = fopen( "results.txt", "a" );
+                if( file )
+                {
+                    fprintf( file, "RECORDING Finished in %.1fs: %s. %d Sync Bytes matched.\n",
+                             elapsedTime,
+                             m_currentRecordingFilename.c_str(),
+                             bytesCompared );
+                    fclose( file );
+                }
+            }
         }
         else
         {
@@ -168,6 +187,20 @@ void SyncTestRecordings::Update()
                          m_currentRecordingFilename.c_str(),
                          bytesCompared,
                          firstMismatch );
+
+            if( m_writeResults )
+            {
+                FILE *file = fopen( "results.txt", "a" );
+                if( file )
+                {
+                    fprintf( file, "RECORDING Finished in %.1fs: %s. %d Sync Bytes compared, MISMATCH at %d.\n",
+                             elapsedTime,
+                             m_currentRecordingFilename.c_str(),
+                             bytesCompared,
+                             firstMismatch );
+                    fclose( file );
+                }
+            }
         }
         g_app->ShutdownCurrentGame();
         g_app->m_renderingEnabled = true;
