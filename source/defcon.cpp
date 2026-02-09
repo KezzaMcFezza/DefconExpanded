@@ -1068,7 +1068,7 @@ void DefconMain()
     g_lastRenderTime = GetHighResTime();
     g_serverRunning = false;
     
-#ifndef REPLAY_VIEWER
+#ifdef SYNC_PRACTICE
 
     //
     // target 200 fps for non replay builds

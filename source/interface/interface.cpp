@@ -939,7 +939,7 @@ void Interface::OpenSetupWindows()
 
 void Interface::OpenReplayViewerWindow()
 {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     // Close any existing windows first
     if( EclGetWindow("Recording Playback") )
     {

@@ -7,18 +7,26 @@ import glob
 from pathlib import Path
 
 
-def copy_files(source_dir, target_dir, file_prefix, include_map=False):
+def copy_files(source_dir, target_dir, file_prefix, include_map=False, exact_names=False):
     try:
         os.makedirs(target_dir, exist_ok=True)
         
-        patterns = [
-            f"{file_prefix}_*.js",
-            f"{file_prefix}_*.wasm",
-            f"{file_prefix}_*.data"
-        ]
-        
-        if include_map:
-            patterns.append(f"{file_prefix}_*.wasm.map")
+        if exact_names:
+            patterns = [
+                f"{file_prefix}.js",
+                f"{file_prefix}.wasm",
+                f"{file_prefix}.data"
+            ]
+            if include_map:
+                patterns.append(f"{file_prefix}.wasm.map")
+        else:
+            patterns = [
+                f"{file_prefix}_*.js",
+                f"{file_prefix}_*.wasm",
+                f"{file_prefix}_*.data"
+            ]
+            if include_map:
+                patterns.append(f"{file_prefix}_*.wasm.map")
         
         copied_files = []
         missing_files = []
@@ -59,17 +67,25 @@ def copy_files(source_dir, target_dir, file_prefix, include_map=False):
         return False
 
 
-def clean_target_directory(target_dir, file_prefix):
+def clean_target_directory(target_dir, file_prefix, exact_names=False):
     try:
         if not os.path.exists(target_dir):
             return
         
-        patterns = [
-            f"{file_prefix}_*.js",
-            f"{file_prefix}_*.wasm",
-            f"{file_prefix}_*.data",
-            f"{file_prefix}_*.wasm.map"
-        ]
+        if exact_names:
+            patterns = [
+                f"{file_prefix}.js",
+                f"{file_prefix}.wasm",
+                f"{file_prefix}.data",
+                f"{file_prefix}.wasm.map"
+            ]
+        else:
+            patterns = [
+                f"{file_prefix}_*.js",
+                f"{file_prefix}_*.wasm",
+                f"{file_prefix}_*.data",
+                f"{file_prefix}_*.wasm.map"
+            ]
         
         for pattern in patterns:
             pattern_path = os.path.join(target_dir, pattern)
@@ -83,7 +99,7 @@ def clean_target_directory(target_dir, file_prefix):
 def main():
     if len(sys.argv) != 5:
         print("Usage: python copy_files.py <project_type> <build_type> <source_dir> <target_dir>")
-        print("  project_type: 'replay' or 'sync'")
+        print("  project_type: 'replay', 'sync', or 'vanilla'")
         print("  build_type: 'release' or 'debug'")
         print("  source_dir: Source directory containing built files")
         print("  target_dir: Target directory to copy files to")
@@ -94,8 +110,8 @@ def main():
     source_dir = sys.argv[3]
     target_dir = sys.argv[4]
     
-    if project_type not in ['replay', 'sync']:
-        print("Error: project_type must be 'replay' or 'sync'")
+    if project_type not in ['replay', 'sync', 'vanilla']:
+        print("Error: project_type must be 'replay', 'sync', or 'vanilla'")
         sys.exit(1)
     
     if build_type not in ['release', 'debug']:
@@ -104,14 +120,19 @@ def main():
     
     if project_type == 'replay':
         file_prefix = 'replay_viewer'
-    else:
+        exact_names = False
+    elif project_type == 'sync':
         file_prefix = 'sync_practice'
+        exact_names = False
+    else:
+        file_prefix = 'defcon'
+        exact_names = False
     
     include_map = (build_type == 'debug')
     
-    clean_target_directory(target_dir, file_prefix)
+    clean_target_directory(target_dir, file_prefix, exact_names)
     
-    success = copy_files(source_dir, target_dir, file_prefix, include_map)
+    success = copy_files(source_dir, target_dir, file_prefix, include_map, exact_names)
     
     if success:
         print("File copying completed successfully!")

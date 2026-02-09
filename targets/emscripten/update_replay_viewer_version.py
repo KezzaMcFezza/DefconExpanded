@@ -13,7 +13,7 @@ def extract_version_from_cmake():
         with open(cmake_file, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        pattern = r'set\(REPLAY_VIEWER_VERSION\s+"([^"]+)"'
+        pattern = r'set\(DEFCON_VERSION\s+"([^"]+)"'
         match = re.search(pattern, content)
         
         if match:
@@ -21,7 +21,7 @@ def extract_version_from_cmake():
             print(f"Found version in CMakeLists.txt: {version}")
             return version
         else:
-            print("ERROR: Could not find REPLAY_VIEWER_VERSION in CMakeLists.txt")
+            print("ERROR: Could not find DEFCON_VERSION in CMakeLists.txt")
             return None
             
     except Exception as e:

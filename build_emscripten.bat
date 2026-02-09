@@ -6,8 +6,9 @@ echo Type --Release or --Debug after entering your number
 echo.
 echo 1. Replay Viewer
 echo 2. Sync Practice
+echo 3. Vanilla Defcon
 echo.
-echo Examples: "1 --Release", "2 --Debug", "1", "2"
+echo Examples: "1 --Release", "2 --Debug", "3", "3 --Release"
 set /p choice="Enter your choice: "
 
 for /f "tokens=1,2" %%a in ("%choice%") do (
@@ -18,7 +19,8 @@ for /f "tokens=1,2" %%a in ("%choice%") do (
 if "%build_type%"=="" set "build_type="
 if "%project_choice%"=="1" goto replay_parse
 if "%project_choice%"=="2" goto sync_parse
-echo Invalid choice. Please enter 1 or 2.
+if "%project_choice%"=="3" goto vanilla_parse
+echo Invalid choice. Please enter 1, 2, or 3.
 echo.
 goto menu
 
@@ -94,6 +96,30 @@ set BUILD_TYPE=debug
 set PROJECT_NAME=Sync Practice
 goto build_start
 
+:vanilla_parse
+echo.
+echo Vanilla Defcon selected.
+if "%build_type%"=="" goto vanilla_menu
+if /i "%build_type%"=="--Release" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
+if /i "%build_type%"=="--Debug" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
+if "%build_type%"=="1" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
+if "%build_type%"=="2" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
+echo Invalid build type. Please enter --Release or --Debug.
+echo.
+goto vanilla_menu
+
+:vanilla_menu
+echo Choose build type:
+echo 1. Release
+echo 2. Debug
+echo.
+set /p build_type="Enter build type (1 or 2): "
+if "%build_type%"=="1" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
+if "%build_type%"=="2" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
+echo Invalid choice. Please enter 1 or 2.
+echo.
+goto vanilla_menu
+
 :build_start
 echo.
 echo Building Defcon WebAssembly %BUILD_TYPE% (%PROJECT_NAME%)...
@@ -118,12 +144,18 @@ if "%PROJECT_TYPE%"=="replay" (
     set CMAKE_DEFINES=-DREPLAY_VIEWER=1
     set TARGET_DIR=replay_viewer
     set UPDATE_SCRIPT=update_replay_viewer_version.py
-) else (
+) else if "%PROJECT_TYPE%"=="sync" (
     set BUILD_DIR=wasm-sync_practice-%BUILD_TYPE%
     set CMAKE_BUILD_FLAG=-DSYNC_PRACTICE_BUILD=ON
     set CMAKE_DEFINES=-DSYNC_PRACTICE=1 -DNOT_REPLAY_VIEWER=1
     set TARGET_DIR=sync_practice
     set UPDATE_SCRIPT=update_sync_practice_client.py
+) else (
+    set BUILD_DIR=wasm-vanilla-%BUILD_TYPE%
+    set CMAKE_BUILD_FLAG=-DREPLAY_VIEWER_BUILD=OFF -DSYNC_PRACTICE_BUILD=OFF -DDEFCON_BUILD=ON
+    set CMAKE_DEFINES=
+    set TARGET_DIR=defcon
+    set UPDATE_SCRIPT=update_defcon_version.py
 )
 
 if not exist build\%BUILD_DIR% mkdir build\%BUILD_DIR%
@@ -190,19 +222,19 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo.
-echo Updating HTML file versions automatically...
-python "%ORIGINAL_DIR%\targets\emscripten\%UPDATE_SCRIPT%"
-
-if %ERRORLEVEL% equ 0 (
+if not "%UPDATE_SCRIPT%"=="" (
+    echo.
+    echo Updating HTML file versions automatically...
+    python "%ORIGINAL_DIR%\targets\emscripten\%UPDATE_SCRIPT%"
+    if errorlevel 1 (
+        echo ERROR: HTML version update failed. You may need to update manually.
+        echo Manual steps:
+        echo 1. Rename %TARGET_DIR%_*.html to match the new version
+        echo 2. Update the script tag inside the HTML file
+        pause
+        exit /b 1
+    )
     echo HTML version update completed successfully!
-) else (
-    echo ERROR: HTML version update failed. You may need to update manually.
-    echo Manual steps:
-    echo 1. Rename %TARGET_DIR%_*.html to match the new version
-    echo 2. Update the script tag inside the HTML file
-    pause
-    exit /b 1
 )
 
 echo.

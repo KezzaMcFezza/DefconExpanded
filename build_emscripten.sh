@@ -6,8 +6,9 @@ show_menu() {
     echo
     echo "1. Replay Viewer"
     echo "2. Sync Practice"
+    echo "3. Vanilla Defcon"
     echo
-    echo "Examples: \"1 --Release\", \"2 --Debug\", \"1\", \"2\""
+    echo "Examples: \"1 --Release\", \"2 --Debug\", \"3\", \"3 --Release\""
     read -p "Enter your choice: " choice
     
     read -r project_choice build_type <<< "$choice"
@@ -19,7 +20,8 @@ show_menu() {
     case "$project_choice" in
         1) handle_replay_choice "$build_type" ;;
         2) handle_sync_choice "$build_type" ;;
-        *) echo "Invalid choice. Please enter 1 or 2."
+        3) handle_vanilla_choice "$build_type" ;;
+        *) echo "Invalid choice. Please enter 1, 2, or 3."
            echo
            show_menu ;;
     esac
@@ -61,6 +63,24 @@ handle_sync_choice() {
     fi
 }
 
+handle_vanilla_choice() {
+    local build_type="$1"
+    echo
+    echo "Vanilla Defcon selected."
+    
+    if [[ -z "$build_type" ]]; then
+        show_vanilla_menu
+    else
+        case "${build_type,,}" in
+            --Release|1) start_build "vanilla" "release" "Vanilla Defcon" ;;
+            --Debug|2) start_build "vanilla" "debug" "Vanilla Defcon" ;;
+            *) echo "Invalid build type. Please enter --Release or --Debug."
+               echo
+               show_vanilla_menu ;;
+        esac
+    fi
+}
+
 show_replay_menu() {
     echo "Choose build type:"
     echo "1. Release"
@@ -90,6 +110,22 @@ show_sync_menu() {
         *) echo "Invalid choice. Please enter 1 or 2."
            echo
            show_sync_menu ;;
+    esac
+}
+
+show_vanilla_menu() {
+    echo "Choose build type:"
+    echo "1. Release"
+    echo "2. Debug"
+    echo
+    read -p "Enter build type (1 or 2): " build_type
+    
+    case "$build_type" in
+        1) start_build "vanilla" "release" "Vanilla Defcon" ;;
+        2) start_build "vanilla" "debug" "Vanilla Defcon" ;;
+        *) echo "Invalid choice. Please enter 1 or 2."
+           echo
+           show_vanilla_menu ;;
     esac
 }
 
@@ -140,12 +176,18 @@ start_build() {
         CMAKE_DEFINES="-DREPLAY_VIEWER=1"
         TARGET_DIR="replay_viewer"
         UPDATE_SCRIPT="update_replay_viewer_version.py"
-    else
+    elif [[ "$project_type" == "sync" ]]; then
         BUILD_DIR="wasm-sync_practice-$build_type"
         CMAKE_BUILD_FLAG="-DSYNC_PRACTICE_BUILD=ON"
         CMAKE_DEFINES="-DSYNC_PRACTICE=1 -DNOT_REPLAY_VIEWER=1"
         TARGET_DIR="sync_practice"
         UPDATE_SCRIPT="update_sync_practice_client.py"
+    else
+        BUILD_DIR="wasm-vanilla-$build_type"
+        CMAKE_BUILD_FLAG="-DREPLAY_VIEWER_BUILD=OFF -DSYNC_PRACTICE_BUILD=OFF -DDEFCON_BUILD=ON"
+        CMAKE_DEFINES=""
+        TARGET_DIR="defcon"
+        UPDATE_SCRIPT="update_defcon_version.py"
     fi
     
     mkdir -p "build/$BUILD_DIR"
@@ -213,18 +255,18 @@ start_build() {
         exit 1
     fi
     
-    echo
-    echo "Updating HTML file versions automatically..."
-    python3 "$ORIGINAL_DIR/targets/emscripten/$UPDATE_SCRIPT"
-    
-    if [[ $? -eq 0 ]]; then
+    if [[ -n "$UPDATE_SCRIPT" ]]; then
+        echo
+        echo "Updating HTML file versions automatically..."
+        python3 "$ORIGINAL_DIR/targets/emscripten/$UPDATE_SCRIPT"
+        if [[ $? -ne 0 ]]; then
+            echo "ERROR: HTML version update failed. You may need to update manually."
+            echo "Manual steps:"
+            echo "1. Rename ${TARGET_DIR}_*.html to match the new version"
+            echo "2. Update the script tag inside the HTML file"
+            exit 1
+        fi
         echo "HTML version update completed successfully!"
-    else
-        echo "ERROR: HTML version update failed. You may need to update manually."
-        echo "Manual steps:"
-        echo "1. Rename ${TARGET_DIR}_*.html to match the new version"
-        echo "2. Update the script tag inside the HTML file"
-        exit 1
     fi
     
     echo

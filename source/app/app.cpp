@@ -662,7 +662,7 @@ void App::FinishInit()
             lobby->SetPosition(lobbyX, lobbyY);
             EclRegisterWindow( lobby );
         }
-#elif defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 
         //
         // Skip main menu and open recording selection window directly
