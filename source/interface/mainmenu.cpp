@@ -785,17 +785,14 @@ void AttemptQuitImmediately()
 MainMenu::MainMenu()
 :   InterfaceWindow( "Main Menu", "dialog_mainmenu", true )
 {
-#if TARGET_EMSCRIPTEN
-    // REPLAY VIEWER MODE: Block main menu creation completely
-    // This should never happen, but just in case...
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly Replay Viewer: WARNING - MainMenu constructor called (should be blocked!)\n");
-#endif
-    // Set invisible size and don't centralize
+#if defined(TARGET_EMSCRIPTEN) && defined(REPLAY_VIEWER)
+    
+    //
+    // Block main menu creation completely
+
     SetSize( 0, 0 );
-    SetPosition( -1000, -1000 );  // Move off-screen
+    SetPosition( -1000, -1000 );
 #else
-    // NORMAL MODE: Standard main menu setup
 #ifdef TARGET_OS_MACOSX
 	// HACK: Make room for User Manual button
 	SetSize( 190, 325 );
@@ -809,8 +806,7 @@ MainMenu::MainMenu()
 
 void MainMenu::Create()
 {
-#if TARGET_EMSCRIPTEN
-    // Don't even call InterfaceWindow::Create() to avoid any initialization
+#if defined(TARGET_EMSCRIPTEN) && defined(REPLAY_VIEWER)
     return;
 #else
     InterfaceWindow::Create();

@@ -213,7 +213,10 @@ static void BoundMouseXY( int &_x, int &_y )
 
 
 #ifdef TARGET_EMSCRIPTEN
+
+//
 // For WebAssembly, use simple vector to avoid template issues
+
 typedef uint32_t wchar32;
 typedef std::vector<wchar32> LString;
 #else
@@ -224,23 +227,29 @@ typedef std::basic_string<wchar32> LString;
 static LString ToUTF32( const char *str /* UTF8 */ )
 {
 #ifdef TARGET_EMSCRIPTEN
+
+	//
 	// Simple WebAssembly implementation - just convert ASCII to wchar32
 	// This avoids complex template instantiation issues with std::char_traits
+
 	if ( !str )
 		return LString();
 
 	LString result;
 	for ( const char *p = str; *p; ++p )
 	{
-		// Only handle basic ASCII for WebAssembly to avoid template issues
 		if ( static_cast<unsigned char>( *p ) < 128 )
 		{
 			result.push_back( static_cast<wchar32>( *p ) );
 		}
 	}
+
 	return result;
 #elif defined( TARGET_OS_MACOSX )
+
+	//
 	// Using iconv works on MacOSX and Linux
+
 	if ( !str )
 		return LString();
 	size_t strSize = strlen( str );
@@ -265,6 +274,8 @@ static LString ToUTF32( const char *str /* UTF8 */ )
 
 	return convertedString;
 #elif defined( TARGET_OS_LINUX )
+
+	
 	// Linux implementation using similar iconv approach
 	if ( !str )
 		return LString();

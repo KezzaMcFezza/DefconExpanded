@@ -1123,8 +1123,7 @@ public:
 		g_app->SaveGameName();
         g_app->ShutdownCurrentGame();
         
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        // In replay viewer mode, go back to recording selection window instead of main menu
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
         g_app->GetInterface()->OpenReplayViewerWindow();
 #endif
     }

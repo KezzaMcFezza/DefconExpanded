@@ -402,7 +402,7 @@ void Interface::Update()
     if( !g_app->m_gameRunning &&
         EclGetWindows()->Size() == 0 )
     {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 
         //
         // Open recording selection window instead of main menu
@@ -925,8 +925,7 @@ void Interface::Shutdown()
 
 void Interface::OpenSetupWindows()
 {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    // In replay viewer mode, open recording selection window instead of main menu
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     OpenReplayViewerWindow();
 #else
     if( !EclGetWindow("Main Menu" ) )

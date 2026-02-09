@@ -71,12 +71,7 @@ void LobbyRenderer::Initialise()
 
 void LobbyRenderer::InitialiseLanguage()
 {
-#if TARGET_EMSCRIPTEN
-    // REPLAY VIEWER MODE: Skip overlay initialization for better performance
-    // No overlays will be rendered, so no need to count them
-    m_maxOverlays = 0;
-#else
-    // NORMAL MODE: Initialize overlays as usual
+    // 
     // Overlay
 
     while( true )
@@ -91,7 +86,6 @@ void LobbyRenderer::InitialiseLanguage()
 
         ++m_maxOverlays;
     }
-#endif
 
     // Motd
 
@@ -181,9 +175,6 @@ void LobbyRenderer::Render()
 
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
-#if TARGET_EMSCRIPTEN
-        // Disable lobby overlays completely for replay mode
-#else
         g_renderer2d->BeginRectFillBatch();
 
         START_PROFILE( "Overlay" );
@@ -191,7 +182,6 @@ void LobbyRenderer::Render()
         END_PROFILE( "Overlay" );
 
         g_renderer2d->EndRectFillBatch();
-#endif
     }
 
     g_renderer2d->EndTextBatch();
@@ -586,7 +576,6 @@ void LobbyRenderer::RenderVersionInfo()
         delete updateUrlDir; 
 }
 
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
 void LobbyRenderer::RenderAuthStatus()
 {
     Colour fontBold( 0, 255, 0, 255 );
@@ -618,7 +607,6 @@ void LobbyRenderer::RenderAuthStatus()
 
 	g_renderer->SetFont();
 }
-#endif
 
 void LobbyRenderer::RenderMotd()
 {

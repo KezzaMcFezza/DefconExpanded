@@ -89,7 +89,6 @@ void MenuBar::Render()
 			ImGui::EndMenu();
 		}
 
-#ifndef TARGET_EMSCRIPTEN
 		if ( ImGui::BeginMenu( "Window" ) )
 		{
 			if ( ImGui::MenuItem( "Reinitialize Window" ) )
@@ -108,7 +107,6 @@ void MenuBar::Render()
 
 			ImGui::EndMenu();
 		}
-#endif
 
 		if ( ImGui::BeginMenu( "Rendering" ) )
 		{

@@ -94,19 +94,13 @@ void InterfaceWindow::OnResize( int newWidth, int newHeight, int oldWidth, int o
 	if ( m_y < 0 )
 		m_y = 0;
 }
-#ifdef TARGET_EMSCRIPTEN
-void InterfaceWindow::Create()
-{
-	// do nothing
-}
-#else
+
 void InterfaceWindow::Create()
 {
 	CloseButton *cb = new CloseButton();
 	cb->SetProperties( "Close", m_w - 17, 4, 13, 13, " ", "tooltip_close_window", false, true );
 	RegisterButton( cb );
 }
-#endif
 
 void InterfaceWindow::CreateValueControl( const char *name, int x, int y, int w, int h,
 										  int dataType, void *value, float change, float _lowBound, float _highBound,

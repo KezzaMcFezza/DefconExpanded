@@ -27,9 +27,7 @@ protected:
     void RenderBorder();
     void RenderTestHours();
     void RenderVersionInfo();
-#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
     void RenderAuthStatus();
-#endif
     void RenderMotd();
     void RenderDemoLimits();
     void RenderOverlay();

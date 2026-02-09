@@ -462,9 +462,8 @@ int Directory::GetDataInt( const char *dataName ) const
 	}
 	else
 	{
-#ifndef TARGET_EMSCRIPTEN
 		AppDebugOut( "Int Data not found : %s\n", dataName );
-#endif
+
 		return DIRECTORY_SAFEINT;
 	}
 }
