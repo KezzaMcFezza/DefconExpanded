@@ -65,6 +65,7 @@ const {
     demoDir,
     replayViewerDir,
     syncPracticeDir,
+    defconDir,
     adminPages,
     publicDir,
     gameLogsDir
@@ -136,6 +137,7 @@ const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
 const replayViewerExtensionRoutes = require('./apis/replay-viewer/replay-viewer-extension');
 const replayViewerRoutes = require('./apis/replay-viewer/replay-viewer');
 const syncPracticeRoutes = require('./apis/sync-practice/sync-practice');
+const defconRoutes = require('./apis/defcon/defcon');
 
 // global error handler, created properly for the first time
 const errorHandler = (err, req, res, next) => {
@@ -213,6 +215,7 @@ app.use((req, res, next) => {
     // static resources we also set resource policy
     if (req.url.includes('/replay-viewer/') || 
         req.url.includes('/sync-practice/') ||
+        req.url.includes('/defcon/') ||
         req.url.endsWith('.wasm') || 
         req.url.endsWith('.wasm.map') || 
         req.url.endsWith('.js') || 
@@ -339,6 +342,7 @@ app.use(smurfCheckerRoutes);
 app.use(replayViewerExtensionRoutes);
 app.use(replayViewerRoutes);
 app.use(syncPracticeRoutes);
+app.use(defconRoutes);
 
 // added this here for when i need to verify my ssl certificate from zerossl 
 // as no-ip.com does not allow cname validation for some reason?

@@ -1,2 +1,3 @@
-[2025-12-17T22:32:04.950Z] [ERROR] (node:15056) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
+[2026-02-09T04:01:28.519Z] [WARN] Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
