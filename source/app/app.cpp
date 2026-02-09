@@ -56,6 +56,10 @@
 #include "interface/connecting_window.h"
 #include "interface/profile_window.h"
 
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+#include "interface/recording_selection.h"
+#endif
+
 #include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
 
