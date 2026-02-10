@@ -277,9 +277,6 @@
     <ClCompile Include="..\..\source\interface\recording_selection.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\recordings\RecordingParser.cpp">
       <Filter>recordings</Filter>
     </ClCompile>
@@ -544,9 +541,6 @@
       <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\recording_selection.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\interface\playback_control_window.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\recordings\RecordingParser.h">

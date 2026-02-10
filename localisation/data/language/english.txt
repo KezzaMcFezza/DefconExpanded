@@ -440,6 +440,7 @@ dialog_units                        Units
 dialog_place_fleet                  Place Fleet
 
 dialog_paused                       PAUSED
+dialog_recording_paused             RECORDING PAUSED
 dialog_gameover                     GAME OVER
 dialog_saved_screenshot             /me saved a screenshot
 # /me will be replaced by the Team Name

@@ -593,7 +593,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/worldobject_window.cpp
     ${ROOT_PATH}/source/interface/info_window.cpp
     ${ROOT_PATH}/source/interface/placement_icon.cpp
-    ${ROOT_PATH}/source/interface/playback_control_window.cpp
     ${ROOT_PATH}/source/interface/screenoptions_window.cpp
     ${ROOT_PATH}/source/interface/soundoptions_window.cpp
     ${ROOT_PATH}/source/interface/soundeditor_window.cpp

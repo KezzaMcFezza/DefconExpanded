@@ -51,7 +51,6 @@
 #include "interface/info_window.h"
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
-#include "interface/playback_control_window.h"
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 #include "interface/recording_selection.h"
 #endif
@@ -718,13 +717,16 @@ void Interface::Render()
 
         if( g_app->m_gameRunning )
         {
-            if( g_app->GetWorld()->GetTimeScaleFactor() == 0 && g_app->GetGame()->m_winner == -1 )
+            bool gamePaused = ( g_app->GetWorld()->GetTimeScaleFactor() == 0 && g_app->GetGame()->m_winner == -1 );
+            bool recordingPaused = ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && g_app->GetServer()->IsRecordingPaused() );
+            if( gamePaused || recordingPaused )
             {
                 float xPos = g_windowManager->WindowW()/2.0f;
                 float yPos = g_windowManager->WindowH()*0.5f;
                 float size = ( g_windowManager->WindowW() / 20.0f );
 
-                g_renderer2d->TextCentreSimple( xPos, yPos, White, size, LANGUAGEPHRASE("dialog_paused") );
+                const char *msg = recordingPaused ? LANGUAGEPHRASE("dialog_recording_paused") : LANGUAGEPHRASE("dialog_paused");
+                g_renderer2d->TextCentreSimple( xPos, yPos, White, size, msg );
             }
         }
 
@@ -1028,13 +1030,6 @@ void Interface::OpenGameWindows()
         EclRegisterWindow( new TutorialWindow() );
     }   
 
-    //
-    // If we're in recording playback mode, open the playback control window
-
-    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-    {
-        EclRegisterWindow( new PlaybackControlWindow() );
-    }
 }
 
 

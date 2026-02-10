@@ -117,6 +117,8 @@ int mkdir(const char *pathname, mode_t mode) {
 
 App *g_app = NULL;
 bool g_hideUI = false;
+int  g_desiredPerspectiveTeamId = -1;
+bool g_healthBarsEnabled = false;
 
 App::App()
 :   m_interface(NULL),

@@ -51,7 +51,6 @@
 #include "interface/connecting_window.h"
 #include "interface/interface.h"
 #include "interface/badkey_window.h"
-#include "interface/playback_control_window.h"
 
 #ifdef TARGET_OS_MACOSX
 #include "lib/netlib/net_mutex.h"

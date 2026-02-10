@@ -46,6 +46,10 @@ struct CityLocation;
 #define GAMESPEED_MEDIUM        10
 #define GAMESPEED_FAST          20
 
+#define RECORDINGSPEED_REALTIME  1
+#define RECORDINGSPEED_SLOW      10
+#define RECORDINGSPEED_MEDIUM    100
+#define RECORDINGSPEED_FAST      2500
 
 class World
 {
