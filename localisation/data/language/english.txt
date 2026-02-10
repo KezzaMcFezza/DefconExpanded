@@ -456,6 +456,9 @@ dialog_autocam                      AUTOCAM
 dialog_non_playable_demo            NON-PLAYABLE DEMO
 dialog_tracking_synchronisation     TRACKING SYNCHRONISATION
 
+dialog_checksum_missing             No security checksum found in Recording
+dialog_checksum_failed              Checksum Validation Failed
+
 dialog_warning                      Warning
 
 dialog_enterpassword                Enter Server Password

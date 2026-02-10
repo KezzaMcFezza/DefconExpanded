@@ -73,8 +73,8 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(DEFCON_VERSION "R1.31.4" CACHE STRING "Version prefix for replay viewer and vanilla defcon (e.g., A1.04, B1.6, R1.0)")
-set(SYNC_PRACTICE_VERSION "B1.18.1" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
+set(DEFCON_VERSION "R1.34" CACHE STRING "Version prefix for replay viewer and vanilla defcon (e.g., A1.04, B1.6, R1.0)")
+set(SYNC_PRACTICE_VERSION "B1.21" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
 if(NOT REPLAY_VIEWER_BUILD AND NOT SYNC_PRACTICE_BUILD)
@@ -564,6 +564,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/recordings/RecordingParser.cpp
     ${ROOT_PATH}/source/recordings/RecordingWriter.cpp
     ${ROOT_PATH}/source/recordings/RecordingController.cpp
+    ${ROOT_PATH}/source/recordings/SecChecksum.cpp
     ${ROOT_PATH}/source/interface/mod_window.cpp
     ${ROOT_PATH}/source/interface/badkey_window.cpp
     ${ROOT_PATH}/source/interface/network_window.cpp

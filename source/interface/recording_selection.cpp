@@ -140,13 +140,6 @@ void PlayFromLobbyButton::MouseUp()
             connectingWindow->m_popupLobbyAtEnd = true;
             EclRegisterWindow( connectingWindow );
         }
-        else
-        {
-            MessageDialog *msg = new MessageDialog( "RECORDING ERROR",
-                                                    "Failed to load recording file. Please check that the file exists.", 
-                                                    false, "dialog_recording_failed", true );
-            EclRegisterWindow( msg );
-        }
     }
 }
 
@@ -276,13 +269,6 @@ void PlayFromGameStartButton::MouseUp()
             connectingWindow->m_popupLobbyAtEnd = true;                         // Skip lobby and go straight to game
             connectingWindow->SetFastForwardMode( true, gameStartSeqId );       // Enable fast-forward display
             EclRegisterWindow( connectingWindow );
-        }
-        else
-        {
-            MessageDialog *msg = new MessageDialog( "RECORDING ERROR",
-                                                    "Failed to load recording file. Please check that the file exists.", 
-                                                    false, "dialog_recording_failed", true );
-            EclRegisterWindow( msg );
         }
     }
 }

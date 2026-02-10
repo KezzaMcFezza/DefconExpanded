@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "RecordingWriter.h"
+#include "SecChecksum.h"
 
 #include "lib/tosser/directory.h"
 #include "lib/filesys/filesys_utils.h"
@@ -169,6 +170,12 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
 #endif
 
     //
+    // Initialize security checksum for this recording
+
+    static SecChecksum secChecksum;
+    secChecksum = SecChecksum();
+
+    //
     // Packet stream: 
     // for each sequence, one "sq" then the "d" packets in order.
     // Precompute game update count per seq for "ct".
@@ -194,6 +201,7 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
             sq.SetName( "sq" );
             sq.CreateData( "z", seqId );
             sq.CreateData( "ct", ct );
+            sq.CreateData( "vs", (int)secChecksum.Get() );
 
             //
             // Sync value: 
@@ -235,6 +243,9 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
             }
         }
 
+        //
+        // Write the data packet and add it to the cumulative checksum
+
         if( !writePacket( out, *letter->m_data ) )
         {
 #ifdef _DEBUG
@@ -242,6 +253,11 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
 #endif
             return false;
         }
+
+        //
+        // Add this packet to the security checksum for next sequence
+
+        secChecksum.Add( *letter->m_data );
     }
 
 #ifdef _DEBUG

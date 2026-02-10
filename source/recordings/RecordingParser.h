@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
-#include <fstream> 
+#include <fstream>
+#include <vector> 
+
+#include "SecChecksum.h"
 
 class Directory;
 class Server;
@@ -26,7 +29,7 @@ private:
     Server                     *m_server;
     bool                       m_ownStream;                             // Track if we own the stream
 
-    bool ReadPacket            ( Directory &dir, bool &zeroMarker );
+    bool ReadPacket            ( Directory &dir, bool &zeroMarker, SecChecksum *checksumToAdd = nullptr, std::vector<char> *rawBytesOut = nullptr );
     void AddToHistory          ( Directory *dir );
     void Send                  ( Directory *dir );
 };

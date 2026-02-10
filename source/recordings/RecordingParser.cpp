@@ -2,9 +2,12 @@
 
 #include "RecordingParser.h"
 #include "RecordingWriter.h"
+#include "SecChecksum.h"
 
 #include "lib/tosser/directory.h"
 #include "lib/hi_res_time.h"
+#include "lib/eclipse/eclipse.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "network/network_defines.h"
 #include "network/Server.h"
 #include "app/app.h"
@@ -14,6 +17,8 @@
 #include <cstring>
 #include <memory>
 #include <fstream>
+#include <vector>
+#include <sstream>
 
 inline void reverseCopy( char *_dest, const char *_src, size_t count )
 {
@@ -89,7 +94,7 @@ RecordingParser::~RecordingParser()
 typedef int int32_t;
 #endif
 
-bool RecordingParser::ReadPacket( Directory &dir, bool &zeroMarker )
+bool RecordingParser::ReadPacket( Directory &dir, bool &zeroMarker, SecChecksum *checksumToAdd, std::vector<char> *rawBytesOut )
 {
     if (!m_in) return false; 
     
@@ -101,7 +106,39 @@ bool RecordingParser::ReadPacket( Directory &dir, bool &zeroMarker )
         if( count == 0 ) zeroMarker = true;
     }
 
-    if( !dir.Read( *m_in ) )
+    //
+    // Read raw packet bytes for checksum
+    // Dedcon adds raw CompressedTag bytes, not Directory serialization
+
+    std::vector<char> rawBytes( count );
+    m_in->read( rawBytes.data(), count );
+    
+    if( !*m_in || m_in->gcount() != count )
+    {
+        return false;
+    }
+
+    //
+    // Return raw bytes 
+    
+    if( rawBytesOut )
+    {
+        *rawBytesOut = rawBytes;
+    }
+
+    //
+    // Add raw bytes to checksum
+    
+    if( checksumToAdd )
+    {
+        checksumToAdd->Add( reinterpret_cast<const unsigned char *>( rawBytes.data() ), count );
+    }
+
+    //
+    // Parse the Directory from the raw bytes
+    
+    std::istringstream packetStream( std::string( rawBytes.data(), count ) );
+    if( !dir.Read( packetStream ) )
     {
         return false;
     }
@@ -170,7 +207,6 @@ bool RecordingParser::ExtractHeader(const std::string &filename, DcgrHeader &hea
 
     //
     // Parse header metadata like DedCon does
-
     
     Directory matchHeader;
     RecordingParser parser(file, filename, server);
@@ -232,6 +268,19 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     Directory matchHeader;
     if( !ReadHeaderPacket( matchHeader  ) ) return false;
 
+    //
+    // Initialize security checksum for this recording
+
+    static SecChecksum secChecksum;
+    static bool warnedAboutChecksum = false;
+    static bool warnedAboutMissingChecksum = false;
+    secChecksum = SecChecksum();
+    warnedAboutChecksum = false;
+    warnedAboutMissingChecksum = false;
+
+    //
+    // Initialize base recording variables
+
     bool zeroMarker;
     bool suppressUpdate = false;
     int lastRecordedSeqId = 0;
@@ -239,6 +288,9 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     std::unique_ptr<Directory> gameUpdates;
     int expectedGameCommandCount = 0;
     bool syncErrorInRecording = false;
+
+    //
+    // Initialize sync bytes tracking if enabled
 
     if( trackSyncBytes )
     {
@@ -248,14 +300,33 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     while( true )
     {
         Directory dir;
-        if( !ReadPacket( dir, zeroMarker ) ) break;
+        std::vector<char> rawPacketBytes;
+        
+        //
+        // Read packet and capture raw bytes
+        // sq packets are NOT added to checksum
+
+        if( !ReadPacket( dir, zeroMarker, nullptr, &rawPacketBytes ) ) 
+        {
+            break;
+        }
+        
+        bool isSqPacket = ( strcmp( dir.m_name.c_str(), "sq" ) == 0 );
+        
+        //
+        // Add raw bytes to checksum for non sq
+
+        if( !isSqPacket && rawPacketBytes.size() > 0 )
+        {
+            secChecksum.Add( reinterpret_cast<const unsigned char *>( rawPacketBytes.data() ), (unsigned int)rawPacketBytes.size() );
+        }
 
         if( debugPrint )
         {
             dir.DebugPrint( 0 );
         }
 
-        if( strcmp( dir.m_name.c_str(), "sq" ) == 0 )
+        if( isSqPacket )
         {
             suppressUpdate = false;
 
@@ -267,8 +338,69 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
             expectedGameCommandCount = dir.GetDataInt( "ct" );
             int nextSeqId = dir.GetDataInt( "z" );
 
+            //
+            // Dedcon compatibility:
+            // Comments must be added to checksum BEFORE validating vs
+
+            if( dir.HasData( "c" ) )
+            {
+                std::string comment = dir.GetDataString( "c" );
+                secChecksum.Add( comment );
+            }
+
+            //
+            // Validate security checksum if present
+
+            if( dir.HasData( "vs" ) )
+            {
+                int expectedChecksum = dir.GetDataInt( "vs" );
+                if( (int)secChecksum.Get() != expectedChecksum )
+                {
+                    if( !warnedAboutChecksum )
+                    {
+                        #ifdef _DEBUG
+                        AppDebugOut( "ERROR: Invalid security checksum at sequence %d. The recording has been modified or corrupted.\n", nextSeqId );
+                        #else
+                        AppDebugOut( "ERROR: Invalid security checksum. The recording has been modified or corrupted.\n");
+                        #endif
+                        warnedAboutChecksum = true;
+
+                        //
+                        // Show error dialog and refuse to load
+
+                        MessageDialog *msg = new MessageDialog( "CHECKSUM VALIDATION FAILED",
+                                                                "This recording has an invalid security checksum.\n\n"
+                                                                "The file may have been corrupted during transfer\n"
+                                                                "or modified manually.\n\n"
+                                                                "Recording playback has been blocked for safety.",
+                                                                false,
+                                                                "dialog_checksum_failed", true );
+                        EclRegisterWindow( msg );
+                    }
+                    return false;
+                }
+            }
+            else if( !warnedAboutMissingChecksum )
+            {
+                AppDebugOut( "ERROR: No security checksum found in recording.\n" );
+                warnedAboutMissingChecksum = true;
+
+                //
+                // Show error dialog and refuse to load
+
+                MessageDialog *msg = new MessageDialog( "MISSING SECURITY CHECKSUM",
+                                                        "This recording does not contain security checksums.\n\n"
+                                                        "It may be an old recording from Dedcon 0.7 or earlier,\n"
+                                                        "Recording playback has been blocked for safety.\n\n",
+                                                        false,
+                                                        "dialog_checksum_missing", true );
+                EclRegisterWindow( msg );
+                return false;
+            }
+
             for( int i = 0; i < nextSeqId - lastRecordedSeqId - 1; ++i )
             {
+                //
                 // Insert empty updates to catch up.
 
                 Directory *empty = new Directory;

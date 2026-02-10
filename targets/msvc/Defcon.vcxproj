@@ -514,6 +514,7 @@
     <ClCompile Include="..\..\source\recordings\RecordingController.cpp" />
     <ClCompile Include="..\..\source\recordings\RecordingParser.cpp" />
     <ClCompile Include="..\..\source\recordings\RecordingWriter.cpp" />
+    <ClCompile Include="..\..\source\recordings\SecChecksum.cpp" />
     <ClCompile Include="..\..\source\recordings\SyncTestRecordings.cpp" />
     <ClCompile Include="..\..\source\renderer\animated_icon.cpp" />
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp" />
@@ -605,6 +606,7 @@
     <ClInclude Include="..\..\source\recordings\RecordingParser.h" />
     <ClInclude Include="..\..\source\recordings\RecordingController.h" />
     <ClInclude Include="..\..\source\recordings\RecordingWriter.h" />
+    <ClInclude Include="..\..\source\recordings\SecChecksum.h" />
     <ClInclude Include="..\..\source\recordings\SyncTestRecordings.h" />
     <ClInclude Include="..\..\source\renderer\animated_icon.h" />
     <ClInclude Include="..\..\source\renderer\lobby_renderer.h" />
