@@ -509,6 +509,7 @@
     </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp" />
     <ClCompile Include="..\..\source\network\RecordingParser.cpp" />
+    <ClCompile Include="..\..\source\network\RecordingWriter.cpp" />
     <ClCompile Include="..\..\source\network\Server.cpp" />
     <ClCompile Include="..\..\source\network\ServerToClient.cpp" />
     <ClCompile Include="..\..\source\network\SyncTestRecordings.cpp" />
@@ -598,6 +599,7 @@
     <ClInclude Include="..\..\source\network\network_defines.h" />
     <ClInclude Include="..\..\source\network\network_defines_debug.h" />
     <ClInclude Include="..\..\source\network\RecordingParser.h" />
+    <ClInclude Include="..\..\source\network\RecordingWriter.h" />
     <ClInclude Include="..\..\source\network\Server.h" />
     <ClInclude Include="..\..\source\network\ServerToClient.h" />
     <ClInclude Include="..\..\source\network\SyncTestRecordings.h" />

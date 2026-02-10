@@ -562,6 +562,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/network/ServerToClient.cpp
     ${ROOT_PATH}/source/network/SyncTestRecordings.cpp
     ${ROOT_PATH}/source/network/RecordingParser.cpp
+    ${ROOT_PATH}/source/network/RecordingWriter.cpp
     ${ROOT_PATH}/source/interface/mod_window.cpp
     ${ROOT_PATH}/source/interface/badkey_window.cpp
     ${ROOT_PATH}/source/interface/network_window.cpp

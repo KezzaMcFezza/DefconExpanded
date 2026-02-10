@@ -1805,7 +1805,15 @@ void App::Shutdown()
 
 
 void App::StartGame()
-{    
+{
+    //
+    // Record seq id for .dcrec ssid header 
+
+    if ( m_server && m_server->IsRunning() )
+    {
+        m_server->m_gameStartSeqId = m_server->m_sequenceId;
+    }
+
     int numSpectators = g_app->GetGame()->GetOptionValue( "MaxSpectators" );
     if( numSpectators == 0 )
     {

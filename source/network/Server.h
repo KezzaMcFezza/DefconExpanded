@@ -66,6 +66,7 @@ public:
     std::string     m_recordingFilename;           // Filename of current recording
     bool            m_recordingPaused;             // True when playback is paused
     float           m_recordingSpeed;              // Current playback speed (0.0 = paused)
+    int             m_gameStartSeqId;
 
 public:
     Server();
@@ -126,19 +127,24 @@ public:
     bool TestBedReadyToContinue();
     int  GetHistoryByteSize ();
 
-    bool                StartRecordingPlaybackServer( const std::string &filename );
-    bool                IsRecordingPlaybackMode() const;
-    void                ForceSpectatorMode( int _clientId );
-    bool                ShouldAllowTeamCreation() const;
-    bool                ShouldAllowServerControls() const;
-    int                 ExtractGameStartFromHeader();
-    void                EnableFastForward( int targetSeqId, float speedMultiplier = 500.0f );
-    void                CheckDisableFastForward();
-    float               GetRecordingAdvanceSpeedMultiplier();
-    bool                IsRecordingFastForwardMode() const;
-    void                SetRecordingPaused( bool paused );
-    void                SetRecordingSpeed( float speed );
-    bool                IsRecordingPaused() const;
+    ServerToClientLetter *GetRecordingHistoryLetter( int index ) const;
+
+    bool  StartRecordingPlaybackServer( const std::string &filename );
+    void  EnableFastForward ( int targetSeqId, float speedMultiplier = 500.0f );
+    void  ForceSpectatorMode( int _clientId );
+    void  SetRecordingPaused( bool paused );
+    void  SetRecordingSpeed ( float speed );
+
+    int   ExtractGameStartFromHeader();
+    void  CheckDisableFastForward();
+    float GetRecordingAdvanceSpeedMultiplier();
+
+    int  GetRecordingHistorySize    () const;
+    bool IsRecordingFastForwardMode () const;
+    bool ShouldAllowTeamCreation    () const;
+    bool ShouldAllowServerControls  () const;
+    bool IsRecordingPaused          () const;
+    bool IsRecordingPlaybackMode    () const;
 };
 
 

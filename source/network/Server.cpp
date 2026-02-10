@@ -35,7 +35,8 @@
 #include "network/ClientToServer.h"
 #include "network/network_defines.h"
 #include "network/recordingparser.h"
-#include "interface/connecting_window.h" 
+#include "network/RecordingWriter.h"
+#include "interface/connecting_window.h"
 
 #include <fstream>
 #include <memory>
@@ -121,7 +122,8 @@ Server::Server()
     m_recordingTargetSeqId(0),
     m_recordingFastForwardSpeed(500.0f),
     m_recordingPaused(false),
-    m_recordingSpeed(1.0f)
+    m_recordingSpeed(1.0f),
+    m_gameStartSeqId(-1)
 {
 }
 
@@ -153,6 +155,8 @@ void Server::ListenThread( ThreadFunctions *threadFunctions )
 // *** Initialise
 bool Server::Initialise()
 {
+    m_gameStartSeqId = -1;
+
     int ourPort = g_preferences->GetInt( PREFS_NETWORKSERVERPORT );
 
     m_inboxMutex = new NetMutex();
@@ -634,8 +638,12 @@ void Server::Shutdown()
 
         NetSleep(100);
     }
-    
-    
+
+    //
+    // Save .dcrec to recordings/ (servername_YYYY_MM_DD_HH-MM.dcrec) before clearing history
+
+    RecordingWriter writer;
+    writer.SaveToRecordingsFolder( this );
 
     //
     // Delete everything
@@ -2766,4 +2774,21 @@ bool Server::TestBedReadyToContinue()
     }
 
     return( numFailed <= 2 );
+}
+
+
+int Server::GetRecordingHistorySize() const
+{
+    return m_history.Size();
+}
+
+
+ServerToClientLetter *Server::GetRecordingHistoryLetter( int index ) const
+{
+    if ( !m_history.ValidIndex( index ) )
+    {
+        return NULL;
+    }
+
+    return m_history.GetData( index );
 }

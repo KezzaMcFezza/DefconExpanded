@@ -451,14 +451,14 @@ bool RecordingParser::ParseToHistory()
     
     g_app->GetServer()->m_recordingPlaybackMode = true;
     g_app->GetServer()->m_recordingCurrentSeqId = 0;
-    g_app->GetServer()->m_recordingStartSeqId = 0;
     g_app->GetServer()->m_recordingEndSeqId = lastRecordedSeqId;
     g_app->GetServer()->m_recordingLastAdvanceTime = GetHighResTime();
 
     //
-    // Find and report the game start sequence ID
+    // Game start sequence ID from DCGR header
     
     int gameStartSeqId = ExtractGameStartFromHeader();
+    g_app->GetServer()->m_recordingStartSeqId = gameStartSeqId;
 
     return true;
 }
