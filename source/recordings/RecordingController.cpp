@@ -22,8 +22,8 @@ RecordingController::RecordingController(Server *server)
     m_speed(1.0f),
     m_lastAdvanceTime(0.0),
     m_fastForwardMode(false),
-    m_fastForwardTargetSeqId(0),
-    m_fastForwardSpeed(500.0f)
+    m_seekingMode(false),
+    m_seekingTargetSeqId(0)
 {
 }
 
@@ -108,6 +108,8 @@ bool RecordingController::LoadRecording(const std::string &filename)
     m_paused = false;
     m_speed = 1.0f;
     m_fastForwardMode = false;
+    m_seekingMode = false;
+    m_seekingTargetSeqId = 0;
 
 #ifdef _DEBUG
     AppDebugOut("RecordingController: Loaded '%s' with %d messages (seqId %d-%d)\n",
@@ -130,8 +132,16 @@ void RecordingController::Reset()
     m_speed = 1.0f;
     m_lastAdvanceTime = 0.0;
     m_fastForwardMode = false;
-    m_fastForwardTargetSeqId = 0;
-    m_fastForwardSpeed = 500.0f;
+    m_seekingMode = false;
+    m_seekingTargetSeqId = 0;
+    
+    //
+    // Ensure m_unlimitedSend is disabled when resetting
+
+    if (m_server)
+    {
+        m_server->m_unlimitedSend = false;
+    }
 }
 
 void RecordingController::SetPaused(bool paused)
@@ -151,6 +161,14 @@ void RecordingController::SetSpeed(float speed)
         return;
     }
 
+    //
+    // Dont change speed if we are currently seeking
+
+    if (m_seekingMode)
+    {
+        return;
+    }
+
     m_speed = fmax(0.0f, speed);
 
     if (speed > 0.0f)
@@ -161,38 +179,60 @@ void RecordingController::SetSpeed(float speed)
     if (speed > 1.0f)
     {
         m_fastForwardMode = true;
-        m_fastForwardSpeed = speed;
-        m_fastForwardTargetSeqId = m_endSeqId;  // Target end of recording
     }
     else if (speed == 1.0f)
     {
         m_fastForwardMode = false;
-        m_fastForwardSpeed = 1.0f;
     }
 }
 
-void RecordingController::EnableFastForward(int targetSeqId, float speedMultiplier)
+void RecordingController::EnableSeeking(int targetSeqId)
 {
     if (!m_active || targetSeqId <= m_currentSeqId)
     {
         return;
     }
 
-    m_fastForwardMode = true;
-    m_fastForwardTargetSeqId = targetSeqId;
-    m_fastForwardSpeed = speedMultiplier;
+    if (m_fastForwardMode)
+    {
+        m_fastForwardMode = false;
+    }
+
+    m_seekingMode = true;
+    m_seekingTargetSeqId = targetSeqId;
+    
+    if (m_server)
+    {
+        m_server->m_unlimitedSend = true;
+    }
 }
 
-void RecordingController::CheckDisableFastForward()
+void RecordingController::DisableSeeking()
 {
-    if (!m_fastForwardMode)
+    if (!m_seekingMode)
     {
         return;
     }
 
-    if (m_currentSeqId >= m_fastForwardTargetSeqId)
+    m_seekingMode = false;
+    m_seekingTargetSeqId = 0;
+    
+    if (m_server)
     {
-        m_fastForwardMode = false;
+        m_server->m_unlimitedSend = false;
+    }
+}
+
+void RecordingController::CheckDisableSeeking()
+{
+    if (!m_seekingMode)
+    {
+        return;
+    }
+
+    if (m_currentSeqId >= m_seekingTargetSeqId)
+    {
+        DisableSeeking();
 
         //
         // Notify connecting window that fast forward is complete
@@ -215,11 +255,6 @@ float RecordingController::GetAdvanceSpeedMultiplier() const
     //
     // Pause is handled at main loop level, so always return actual speed
 
-    if (m_fastForwardMode)
-    {
-        return m_fastForwardSpeed;
-    }
-
     return m_speed;
 }
 
@@ -230,9 +265,12 @@ ServerToClientLetter* RecordingController::GetNextRecordedLetter()
         return NULL;
     }
 
-    CheckDisableFastForward();
+    CheckDisableSeeking();
 
-    if (m_fastForwardMode)
+    //
+    // Update progress UI for both seeking and fast forward
+
+    if (m_seekingMode || m_fastForwardMode)
     {
         ConnectingWindow *connectingWindow = (ConnectingWindow*)EclGetWindow("Connection Status");
         if (connectingWindow)
@@ -278,6 +316,11 @@ bool RecordingController::IsPaused() const
 bool RecordingController::IsInFastForward() const
 {
     return m_fastForwardMode;
+}
+
+bool RecordingController::IsSeeking() const
+{
+    return m_seekingMode;
 }
 
 int RecordingController::GetCurrentSeqId() const

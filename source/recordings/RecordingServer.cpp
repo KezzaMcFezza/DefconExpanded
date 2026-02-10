@@ -94,7 +94,7 @@ bool RecordingServer::StartPlayback(const std::string& filename, bool startFromL
         int gameStartSeqId = g_app->GetServer()->m_playbackController->GetStartSeqId();
         if (gameStartSeqId > 0)
         {
-            g_app->GetServer()->EnableFastForward(gameStartSeqId, 500.0f);
+            g_app->GetServer()->EnableSeeking(gameStartSeqId);
         }
     }
 

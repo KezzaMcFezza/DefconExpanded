@@ -51,9 +51,32 @@ private:
     void CancelSeeking()
     {
         if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-            g_app->GetServer()->SetRecordingSpeed(1.0f);
-#endif
+            //
+            // Get current position before disabling seeking
+
+            int currentSeqId = g_app->GetServer()->GetRecordingCurrentSeqId();
+            int totalSeqIds = g_app->GetServer()->GetRecordingHistorySize();
+
+            g_app->GetServer()->DisableSeeking();
+            
+            //
+            // Reset seek bar to current position
+
+            PlaybackControlWindow *playbackWindow = (PlaybackControlWindow*)EclGetWindow("Playback Controls");
+            if (playbackWindow) {
+                if (totalSeqIds > 0) 
+                {
+                    float currentProgress = (float)currentSeqId / (float)totalSeqIds;
+                    currentProgress = max(0.0f, min(1.0f, currentProgress));
+                    
+                    SeekBar *seekBar = (SeekBar*)playbackWindow->GetButton("SeekBar");
+                    if (seekBar) 
+                    {
+                        seekBar->SetProgress(currentProgress);
+                        seekBar->SetSeeking(false);
+                    }
+                }
+            }
         }
         
         EclRemoveWindow(m_parent->m_name);

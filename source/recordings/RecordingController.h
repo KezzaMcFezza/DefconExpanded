@@ -21,11 +21,13 @@ public:
     void SetPaused(bool paused);
     void SetSpeed (float speed);
 
-    void EnableFastForward(int targetSeqId, float speedMultiplier = 500.0f);
+    void EnableSeeking (int targetSeqId);
+    void DisableSeeking();
 
-    bool IsActive       () const;
-    bool IsPaused       () const;
-    bool IsInFastForward() const;
+    bool IsActive        () const;
+    bool IsPaused        () const;
+    bool IsInFastForward () const;
+    bool IsSeeking       () const;
 
     int   GetCurrentSeqId() const;
     int   GetStartSeqId  () const;
@@ -33,13 +35,12 @@ public:
     float GetSpeed       () const;
     int   GetHistorySize () const;
 
-    const std::string& GetFilename() const;
-    const DcgrHeader&  GetHeader  () const;
+    float GetAdvanceSpeedMultiplier() const;                 // Get current speed multiplier for time advancement
 
-    void  CheckDisableFastForward  ();                           // Check if we've reached fast-forward target
-    float GetAdvanceSpeedMultiplier() const;                     // Get current speed multiplier for time advancement
+    const std::string& GetFilename () const;
+    const DcgrHeader&  GetHeader   () const;
 
-    ServerToClientLetter* GetNextRecordedLetter();               // Returns next letter to inject, or NULL if not ready
+    ServerToClientLetter* GetNextRecordedLetter();           // Returns next letter to inject, or NULL if not ready
     ServerToClientLetter* GetHistoryLetter     (int index) const;
 
 private:
@@ -58,11 +59,13 @@ private:
     float m_speed;                                           // Current playback speed
     double m_lastAdvanceTime;                                // Last time we advanced for timing
 
-    bool m_fastForwardMode;
-    int m_fastForwardTargetSeqId;
-    float m_fastForwardSpeed;
+    bool m_fastForwardMode;                                  // Fast forward mode for speed control
+
+    bool m_seekingMode;                                      // Seeking mode
+    int m_seekingTargetSeqId;                                // Target sequence ID for seeking
 
     void ClearHistory();
+    void CheckDisableSeeking();                              // Check if seeking is complete
 };
 
 #endif

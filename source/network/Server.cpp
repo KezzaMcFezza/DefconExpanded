@@ -2553,9 +2553,23 @@ int Server::GetRecordingHistorySize() const
     return m_history.Size();
 }
 
-void Server::EnableFastForward( int targetSeqId, float speedMultiplier )
+int Server::GetRecordingCurrentSeqId() const
 {
-    m_playbackController->EnableFastForward( targetSeqId, speedMultiplier );
+    if (!m_playbackController)
+    {
+        return 0;
+    }
+    return m_playbackController->GetCurrentSeqId();
+}
+
+void Server::EnableSeeking( int targetSeqId )
+{
+    m_playbackController->EnableSeeking( targetSeqId );
+}
+
+void Server::DisableSeeking()
+{
+    m_playbackController->DisableSeeking();
 }
 
 void Server::SetRecordingPaused( bool paused )
@@ -2588,6 +2602,10 @@ bool Server::IsRecordingFastForwardMode() const
     return m_playbackController->IsInFastForward();
 }
 
+bool Server::IsRecordingSeeking() const
+{
+    return m_playbackController->IsSeeking();
+}
 
 bool Server::ShouldAllowTeamCreation() const
 {

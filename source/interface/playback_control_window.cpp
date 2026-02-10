@@ -601,8 +601,8 @@ void PlaybackControlWindow::SeekToPosition(float position)
             seekBar->SetSeeking(true);
         }
         
-        // Enable fast-forward to target position at maximum speed for fastest seeking
-        g_app->GetServer()->EnableFastForward(targetSeqId, 1000.0f);
+        // Enable seeking mode
+        g_app->GetServer()->EnableSeeking(targetSeqId);
         
         // Show connecting window for progress feedback
         if (!EclGetWindow("Connection Status")) {
@@ -825,9 +825,9 @@ void SeekBar::Update()
     
     // Check if seeking is complete
     if (m_seeking) {
-        // Check if fast-forward mode is disabled (meaning seek completed)
+        // Check if seeking mode is disabled (meaning seek completed)
         if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
-            if (!g_app->GetServer()->IsRecordingFastForwardMode()) {
+            if (!g_app->GetServer()->IsRecordingSeeking()) {
                 m_seeking = false;
             }
         }

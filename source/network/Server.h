@@ -119,7 +119,8 @@ public:
 
     bool  StartRecordingPlaybackServer( const std::string &filename );
     void  ForceSpectatorMode( int _clientId );
-    void  EnableFastForward ( int targetSeqId, float speedMultiplier = 500.0f );
+    void  EnableSeeking     ( int targetSeqId );                        // Enable seeking mode (uses m_unlimitedSend)
+    void  DisableSeeking    ();                                          // Disable seeking mode
     void  SetRecordingPaused( bool paused );
     void  SetRecordingSpeed ( float speed );
 
@@ -127,11 +128,13 @@ public:
     bool  IsRecordingPlaybackMode           () const;
     bool  IsRecordingPaused                 () const;
     bool  IsRecordingFastForwardMode        () const;
+    bool  IsRecordingSeeking                () const;
     bool  ShouldAllowTeamCreation           () const;
     bool  ShouldAllowServerControls         () const;
     
     ServerToClientLetter *GetRecordingHistoryLetter( int index ) const;
     int  GetRecordingHistorySize() const;
+    int  GetRecordingCurrentSeqId() const;                              // Get current playback position
 };
 
 
