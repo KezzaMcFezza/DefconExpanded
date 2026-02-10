@@ -404,26 +404,6 @@ void PlaybackControlWindow::Render(bool _hasFocus)
         return;
     }
     
-    float progressX = m_x + 95;
-    float progressY = m_y + 25;
-    float progressW = m_w - 105;
-    float progressH = 10;  
-    
-    // Background
-    g_renderer2d->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
-    
-    // Progress fill
-    if (m_totalSeqIds > 0) {
-        float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
-        float fillW = progressW * progress;
-        g_renderer2d->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
-    }
-    
-    // Progress text centered on the progress bar
-    float progressCenterX = progressX + progressW / 2;
-    g_renderer2d->TextCentreSimple(progressCenterX, progressY, Colour(200, 200, 200, 255), 11.0f, m_cachedProgressText);
-    
-    
     // radar perspective label
     char perspectiveText[64];
     if( m_currentPerspective == -1 )

@@ -119,8 +119,8 @@ public:
 
     bool  StartRecordingPlaybackServer( const std::string &filename );
     void  ForceSpectatorMode( int _clientId );
-    void  EnableSeeking     ( int targetSeqId );                        // Enable seeking mode (uses m_unlimitedSend)
-    void  DisableSeeking    ();                                          // Disable seeking mode
+    void  EnableSeeking     ( int targetSeqId );
+    void  DisableSeeking    ();        
     void  SetRecordingPaused( bool paused );
     void  SetRecordingSpeed ( float speed );
 
@@ -133,8 +133,8 @@ public:
     bool  ShouldAllowServerControls         () const;
     
     ServerToClientLetter *GetRecordingHistoryLetter( int index ) const;
-    int  GetRecordingHistorySize() const;
-    int  GetRecordingCurrentSeqId() const;                              // Get current playback position
+    int  GetRecordingHistorySize () const;
+    int  GetRecordingCurrentSeqId() const;
 };
 
 

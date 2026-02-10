@@ -15,6 +15,7 @@
 #include "network/ClientToServer.h"
 #include "network/ServerToClient.h"
 #include "network/Server.h"
+#include "recordings/RecordingController.h"
 
 #include "world/world.h"
 
@@ -207,12 +208,40 @@ public:
 
 WorldStatusWindow::WorldStatusWindow( const char *name )
 :   FadingWindow( name ),
-    m_lastKnownDefcon(4)
+    m_lastKnownDefcon(4),
+    m_currentSeqId(0),
+    m_totalSeqIds(0)
 {
-    SetSize( 420, 25 );
+    bool hasPauseButton = g_app->GetGame()->GetOptionValue("SlowestSpeed") == 0;
+    int windowWidth = hasPauseButton ? 420 : 393;
+    
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        SetSize( windowWidth, 40 );
+    }
+    else
+    {
+        SetSize( windowWidth, 25 );
+    }
+
     SetPosition( g_windowManager->WindowW()/2 - m_w/2, 0 );
 
     LoadProperties( "WindowWorldStatus" );
+
+    //
+    // Re apply size after LoadProperties
+
+    hasPauseButton = g_app->GetGame()->GetOptionValue("SlowestSpeed") == 0;
+    windowWidth = hasPauseButton ? 420 : 393;
+    
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        SetSize( windowWidth, 40 );
+    }
+    else
+    {
+        SetSize( windowWidth, 25 );
+    }
 }
 
 
@@ -252,7 +281,7 @@ void WorldStatusWindow::Create()
     //
     // Time accel buttons
 
-    int x = 250;
+    int x = 255;
     int w = 25;
     int h = 17;
     int g = w+2;
@@ -364,6 +393,40 @@ void WorldStatusWindow::Render( bool hasFocus )
         g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y + 30, col, 14, caption );
     }
 
+
+    //
+    // Render progress bar for recording playback mode
+
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        //
+        // Update progress data from server
+
+        Server *server = g_app->GetServer();
+        m_currentSeqId = server->m_playbackController->GetCurrentSeqId();
+        m_totalSeqIds = server->m_playbackController->GetEndSeqId();
+        
+        //
+        // Render progress bar underneath the controls
+
+        float progressX = m_x + 4;
+        float progressY = m_y + 25;
+        float progressW = m_w - 9.0f;
+        float progressH = 10;
+        
+        g_renderer2d->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
+        
+        //
+        // Progress fill
+
+        if (m_totalSeqIds > 0) 
+        {
+            float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
+            float fillW = progressW * progress;
+
+            g_renderer2d->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
+        }
+    }
 }
 
 

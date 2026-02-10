@@ -9,6 +9,8 @@ class WorldStatusWindow : public FadingWindow
 {
 protected:
     int m_lastKnownDefcon;
+    int m_currentSeqId;
+    int m_totalSeqIds;
         
 public:
     WorldStatusWindow( const char *name );
