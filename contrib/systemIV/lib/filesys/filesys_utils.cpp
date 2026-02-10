@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
 #endif
 
 #include <stdio.h>
@@ -359,20 +360,26 @@ bool CreateDirectory( const char *_directory )
 	else
 		return false;
 #else
-	if ( access( _directory, W_OK | X_OK | R_OK ) == 0 )
+	struct stat st;
+	if ( stat( _directory, &st ) == 0 )
+		return S_ISDIR( st.st_mode );
+	if ( mkdir( _directory, 0755 ) == 0 )
 		return true;
-	return mkdir( _directory, 0755 ) == 0;
+	if ( errno == EEXIST )
+		return true;
+	return false;
 #endif
 }
 
 bool CreateDirectoryRecursively( const char *_directory )
 {
+	if ( strlen( _directory ) == 0 )
+		return false;
+
+#if defined(WIN32)
 	const char *p;
 	char *buffer;
 	bool error = false;
-
-	if ( strlen( _directory ) == 0 )
-		return false;
 
 	buffer = new char[strlen( _directory ) + 1];
 	p = _directory;
@@ -389,9 +396,22 @@ bool CreateDirectoryRecursively( const char *_directory )
 	}
 
 	if ( error )
+	{
+		delete[] buffer;
 		return false;
-	else
-		return CreateDirectory( _directory );
+	}
+	delete[] buffer;
+	return CreateDirectory( _directory );
+#else
+	try
+	{
+		return fs::create_directories( fs::path( _directory ) );
+	}
+	catch ( ... )
+	{
+		return false;
+	}
+#endif
 }
 
 
