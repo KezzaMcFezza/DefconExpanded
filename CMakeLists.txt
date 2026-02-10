@@ -564,6 +564,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/recordings/RecordingParser.cpp
     ${ROOT_PATH}/source/recordings/RecordingWriter.cpp
     ${ROOT_PATH}/source/recordings/RecordingController.cpp
+    ${ROOT_PATH}/source/recordings/RecordingServer.cpp
     ${ROOT_PATH}/source/recordings/SecChecksum.cpp
     ${ROOT_PATH}/source/interface/mod_window.cpp
     ${ROOT_PATH}/source/interface/badkey_window.cpp

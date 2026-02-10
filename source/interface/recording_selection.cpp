@@ -4,21 +4,15 @@
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
-#include "lib/hi_res_time.h"
-#include "lib/netlib/net_lib.h"
 #include "lib/render/styletable.h"
-#include "lib/gucci/window_manager.h"
 
-#include "recordings/RecordingController.h"
+#include "recordings/RecordingServer.h"
 #include "interface/recording_selection.h"
-#include "interface/connecting_window.h"
 #include "lib/eclipse/components/message_dialog.h"
+#include "lib/eclipse/eclipse.h"
 
 #include "app/app.h"
 #include "app/globals.h"
-
-#include "network/Server.h"
-#include "network/ClientToServer.h"
 
 
 // ============================================================================
@@ -81,66 +75,25 @@ void PlayFromLobbyButton::MouseUp()
         EclRegisterWindow(msg);
         return;
     }
-    
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("User selected: Play from Lobby\n");
-#endif
-
-    g_app->ShutdownCurrentGame();
 
     //
-    // ClientToServer listener opened ok?
+    // Copy filename to avoid corruption when window is destroyed
 
-    if( !g_app->GetClientToServer()->m_listener )
-    {
-        char msgtext[2048];
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support") );
-        msgtext[sizeof(msgtext) - 1] = '\0';  // Ensure null termination
+    char recordingFilename[512];
+    strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
+    recordingFilename[sizeof(recordingFilename) - 1] = '\0';
+    
+    //
+    // Close main menu and recording selection window BEFORE doing anything else
+    
+    EclRemoveWindow( "Main Menu" );
+    EclRemoveWindow( parent->m_name );
+    
+    //
+    // Start recording playback
 
-        MessageDialog *msg = new MessageDialog( "NETWORK ERROR",
-                                                msgtext, false, 
-                                                "dialog_client_failedtitle", true ); 
-        EclRegisterWindow( msg );      
-        return;
-    }
-
-    char ourIp[256];
-    GetLocalHostIP( ourIp, sizeof(ourIp) );
-
-    bool success = g_app->InitServer();
-
-    if( success )
-    {
-        //
-        // Copy filename to avoid corruption when window is destroyed
-
-        char recordingFilename[512];
-        strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
-        recordingFilename[sizeof(recordingFilename) - 1] = '\0';
-        
-        //
-        // Close main menu and recording selection window BEFORE doing anything else
-        
-        EclRemoveWindow( "Main Menu" );
-        EclRemoveWindow( parent->m_name );
-        
-        //
-        // Start recording server using the copied filename
-
-        bool recordingLoaded = g_app->GetServer()->StartRecordingPlaybackServer( recordingFilename );
-
-        if( recordingLoaded )
-        {
-            int ourPort = g_app->GetServer()->GetLocalPort();
-            g_app->GetClientToServer()->ClientJoin( ourIp, ourPort );
-
-            g_app->InitWorld();
-            
-            ConnectingWindow *connectingWindow = new ConnectingWindow();
-            connectingWindow->m_popupLobbyAtEnd = true;
-            EclRegisterWindow( connectingWindow );
-        }
-    }
+    RecordingServer recordingServer;
+    recordingServer.StartPlayback( recordingFilename, true );
 }
 
 void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bool clicked )
@@ -201,76 +154,19 @@ void PlayFromGameStartButton::MouseUp()
         EclRegisterWindow(msg);
         return;
     }
-    
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("User selected: Play from Game Start\n");
-#endif
-
-    g_app->ShutdownCurrentGame();
 
     //
-    // ClientToServer listener opened ok?
+    // Copy filename to avoid corruption when window is destroyed
 
-    if( !g_app->GetClientToServer()->m_listener )
-    {
-        char msgtext[2048];
-#if defined(RETAIL_BRANDING_UK)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail_uk") );
-#elif defined(RETAIL_BRANDING)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail") );
-#elif defined(RETAIL_BRANDING_MULTI_LANGUAGE)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail_multi_language") );
-#elif defined(TARGET_OS_MACOSX)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_macosx") );
-#else
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support") );
-#endif
-        msgtext[sizeof(msgtext) - 1] = '\0';  // Ensure null termination
+    char recordingFilename[512];
+    strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
+    recordingFilename[sizeof(recordingFilename) - 1] = '\0';
+    
+    EclRemoveWindow( "Main Menu" );
+    EclRemoveWindow( parent->m_name );
 
-        MessageDialog *msg = new MessageDialog( "NETWORK ERROR",
-                                                msgtext, false, 
-                                                "dialog_client_failedtitle", true ); 
-        EclRegisterWindow( msg );      
-        return;
-    }
-
-    char ourIp[256];
-    GetLocalHostIP( ourIp, sizeof(ourIp) );
-
-    bool success = g_app->InitServer();
-
-    if( success )
-    {
-        char recordingFilename[512];
-        strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
-        recordingFilename[sizeof(recordingFilename) - 1] = '\0';
-        
-        EclRemoveWindow( "Main Menu" );
-        EclRemoveWindow( parent->m_name );
-        
-        g_app->InitWorld();
-        
-        // Start recording server using the copied filename
-        bool recordingLoaded = g_app->GetServer()->StartRecordingPlaybackServer( recordingFilename );
-
-        if( recordingLoaded )
-        {
-            // Skip to game start
-            int gameStartSeqId = g_app->GetServer()->m_playbackController->GetStartSeqId();
-            if( gameStartSeqId > 0 )
-            {
-                g_app->GetServer()->EnableFastForward( gameStartSeqId, 500.0f );
-            }
-            
-            int ourPort = g_app->GetServer()->GetLocalPort();
-            g_app->GetClientToServer()->ClientJoin( ourIp, ourPort );
-            
-            ConnectingWindow *connectingWindow = new ConnectingWindow();
-            connectingWindow->m_popupLobbyAtEnd = true;                         // Skip lobby and go straight to game
-            connectingWindow->SetFastForwardMode( true, gameStartSeqId );       // Enable fast-forward display
-            EclRegisterWindow( connectingWindow );
-        }
-    }
+    RecordingServer recordingServer;
+    recordingServer.StartPlayback( recordingFilename, false );
 }
 
 //

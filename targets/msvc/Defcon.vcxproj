@@ -513,6 +513,7 @@
     <ClCompile Include="..\..\source\random_object.cpp" />
     <ClCompile Include="..\..\source\recordings\RecordingController.cpp" />
     <ClCompile Include="..\..\source\recordings\RecordingParser.cpp" />
+    <ClCompile Include="..\..\source\recordings\RecordingServer.cpp" />
     <ClCompile Include="..\..\source\recordings\RecordingWriter.cpp" />
     <ClCompile Include="..\..\source\recordings\SecChecksum.cpp" />
     <ClCompile Include="..\..\source\recordings\SyncTestRecordings.cpp" />
@@ -605,6 +606,7 @@
     <ClInclude Include="..\..\source\random_object.h" />
     <ClInclude Include="..\..\source\recordings\RecordingParser.h" />
     <ClInclude Include="..\..\source\recordings\RecordingController.h" />
+    <ClInclude Include="..\..\source\recordings\RecordingServer.h" />
     <ClInclude Include="..\..\source\recordings\RecordingWriter.h" />
     <ClInclude Include="..\..\source\recordings\SecChecksum.h" />
     <ClInclude Include="..\..\source\recordings\SyncTestRecordings.h" />

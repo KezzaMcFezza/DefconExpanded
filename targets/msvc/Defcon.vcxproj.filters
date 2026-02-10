@@ -295,6 +295,9 @@
     <ClCompile Include="..\..\source\recordings\SecChecksum.cpp">
       <Filter>recordings</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\recordings\RecordingServer.cpp">
+      <Filter>recordings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -559,6 +562,9 @@
       <Filter>recordings</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\recordings\SecChecksum.h">
+      <Filter>recordings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\recordings\RecordingServer.h">
       <Filter>recordings</Filter>
     </ClInclude>
   </ItemGroup>
