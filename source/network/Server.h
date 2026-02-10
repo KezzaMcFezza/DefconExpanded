@@ -12,6 +12,7 @@ class NetSocketListener;
 class ServerToClient;
 class ServerToClientLetter;
 class ServerTeam;
+class RecordingController;
 
 #define UDP_HEADER_SIZE     32           // 12 bytes for UDP header, 20 bytes for IP header
 
@@ -52,21 +53,10 @@ public:
     DArray          <unsigned char>    m_recordingSyncBytes;
     int             m_lastRecordedSeqId;
 
-    bool            m_recordingPlaybackMode;
-    double          m_recordingLastAdvanceTime;
-    int             m_recordingCurrentSeqId;
-    int             m_recordingStartSeqId;
-    int             m_recordingEndSeqId;
-
-    LList           <ServerToClientLetter *> m_recordingHistory;
-    bool            m_recordingStarted;
-    bool            m_recordingFastForwardMode;
-    int             m_recordingTargetSeqId;        // Sequence ID to fast-forward to
-    float           m_recordingFastForwardSpeed;   // Multiplier for advance speed (e.g., 20.0f)
-    std::string     m_recordingFilename;           // Filename of current recording
-    bool            m_recordingPaused;             // True when playback is paused
-    float           m_recordingSpeed;              // Current playback speed (0.0 = paused)
-    int             m_gameStartSeqId;
+    
+    RecordingController *m_playbackController;
+    LList           <ServerToClientLetter *> m_recordingParseBuffer;    // Temporary storage during ParseRecording()
+    int             m_gameStartSeqId;                               // Game start seqId for recording writes
 
 public:
     Server();
@@ -127,24 +117,21 @@ public:
     bool TestBedReadyToContinue();
     int  GetHistoryByteSize ();
 
-    ServerToClientLetter *GetRecordingHistoryLetter( int index ) const;
-
     bool  StartRecordingPlaybackServer( const std::string &filename );
-    void  EnableFastForward ( int targetSeqId, float speedMultiplier = 500.0f );
     void  ForceSpectatorMode( int _clientId );
+    void  EnableFastForward ( int targetSeqId, float speedMultiplier = 500.0f );
     void  SetRecordingPaused( bool paused );
     void  SetRecordingSpeed ( float speed );
 
-    int   ExtractGameStartFromHeader();
-    void  CheckDisableFastForward();
-    float GetRecordingAdvanceSpeedMultiplier();
-
-    int  GetRecordingHistorySize    () const;
-    bool IsRecordingFastForwardMode () const;
-    bool ShouldAllowTeamCreation    () const;
-    bool ShouldAllowServerControls  () const;
-    bool IsRecordingPaused          () const;
-    bool IsRecordingPlaybackMode    () const;
+    float GetRecordingAdvanceSpeedMultiplier() const;
+    bool  IsRecordingPlaybackMode           () const;
+    bool  IsRecordingPaused                 () const;
+    bool  IsRecordingFastForwardMode        () const;
+    bool  ShouldAllowTeamCreation           () const;
+    bool  ShouldAllowServerControls         () const;
+    
+    ServerToClientLetter *GetRecordingHistoryLetter( int index ) const;
+    int  GetRecordingHistorySize() const;
 };
 
 

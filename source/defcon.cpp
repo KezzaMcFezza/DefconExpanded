@@ -35,7 +35,7 @@
 #include "app/app.h"
 #include "app/game.h"
 #include "app/modsystem.h"
-#include "network/SyncTestRecordings.h"
+#include "recordings/SyncTestRecordings.h"
 #include "app/version_manager.h"
 
 #include "network/ClientToServer.h"
@@ -409,7 +409,7 @@ bool ProcessServerLetters( Directory *letter )
         // override teamId if we are in replay mode, this way we can manipulate 
         // it to see other teams radar perspective
         
-        if( g_app->GetServer() && g_app->GetServer()->m_recordingPlaybackMode )
+        if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
         {
             if( g_desiredPerspectiveTeamId != -1 )
             {

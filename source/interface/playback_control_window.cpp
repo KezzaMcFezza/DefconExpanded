@@ -12,6 +12,7 @@
 #include "interface/playback_control_window.h"
 #include "lib/eclipse/components/message_dialog.h"
 #include "interface/connecting_window.h"
+#include "recordings/RecordingController.h"
 
 #include "app/app.h"
 #include "world/world.h"
@@ -455,9 +456,9 @@ void PlaybackControlWindow::Update()
     
     // Update current state from server
     if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
-        // Get current progress
-        m_currentSeqId = g_app->GetServer()->m_recordingCurrentSeqId;
-        m_totalSeqIds = g_app->GetServer()->m_recordingEndSeqId;
+        Server *server = g_app->GetServer();
+        m_currentSeqId = server->m_playbackController->GetCurrentSeqId();
+        m_totalSeqIds = server->m_playbackController->GetEndSeqId();
         
         // Only update cached progress text if values changed (expensive string formatting)
         if (m_currentSeqId != m_lastRenderedSeqId || m_totalSeqIds != m_lastRenderedTotalSeqIds) {
@@ -474,11 +475,9 @@ void PlaybackControlWindow::Update()
         RefreshPlayerColors();
         
         // Update pause state
-        m_isPaused = g_app->GetServer()->IsRecordingPaused();
+        m_isPaused = server->IsRecordingPaused();
         
-        // Get current speed - since pause is now handled at main loop level, 
-        // we can always use the speed multiplier
-        m_currentSpeed = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
+        m_currentSpeed = server->m_playbackController->GetAdvanceSpeedMultiplier();
         
         // Update play/pause button caption (only when needed)
         EclButton *playPauseBtn = GetButton("PlayPause");
@@ -574,7 +573,7 @@ void PlaybackControlWindow::SeekToPosition(float position)
     int targetSeqId = (int)(position * m_totalSeqIds);
     targetSeqId = max(0, min(targetSeqId, m_totalSeqIds));
     
-    int currentSeqId = g_app->GetServer()->m_recordingCurrentSeqId;
+    int currentSeqId = g_app->GetServer()->m_playbackController->GetCurrentSeqId();
     
     // If seeking backwards or to current position, we need to restart the recording
     // since we can't go backwards in time

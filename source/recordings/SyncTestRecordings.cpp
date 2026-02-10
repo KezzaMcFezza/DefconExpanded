@@ -204,8 +204,13 @@ void SyncTestRecordings::Update()
         }
         g_app->ShutdownCurrentGame();
         g_app->m_renderingEnabled = true;
+
+        if( m_paths.empty() )
+        {
+            m_enabled = false;
+        }
     }
-        
+
     if( m_dumpSyncAt != -1 && g_lastProcessedSequenceId == m_dumpSyncAt )
     {
 

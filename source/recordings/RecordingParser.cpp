@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "RecordingParser.h"
+#include "RecordingWriter.h"
 
 #include "lib/tosser/directory.h"
 #include "lib/hi_res_time.h"
@@ -147,76 +148,86 @@ void RecordingParser::AddToHistory( Directory *dir )
     ServerToClientLetter *letter = new ServerToClientLetter;
     letter->m_data = dir;
     
-    g_app->GetServer()->m_recordingHistory.PutDataAtEnd( letter );
+    g_app->GetServer()->m_recordingParseBuffer.PutDataAtEnd( letter );
 }
 
 //
 // Function to extract game start sequence ID from DCGR header like DedCon does
 
-int RecordingParser::ExtractGameStartFromHeader()
+bool RecordingParser::ExtractHeader(const std::string &filename, DcgrHeader &header, Server *server)
 {
     //
-    // Parse header using new direct file loading constructor
-
-    Directory matchHeader;
-    RecordingParser headerParser(m_filename, g_app->GetServer());
-    if (!headerParser.ReadHeaderPacket(matchHeader))
+    // Open the file and read just the header
+    
+    std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
+    if (!file.good())
     {
-        AppDebugOut("Failed to read DCGR header\n");
-        return 0;
+#ifdef _DEBUG
+        AppDebugOut("RecordingParser::ExtractHeader: Failed to open file '%s'\n", filename.c_str());
+#endif
+        return false;
     }
 
     //
     // Parse header metadata like DedCon does
 
-    int seqIDStart = 0;        // Default to 0 if not found
-    int seqIDEnd = 0x7fffffff;
+    
+    Directory matchHeader;
+    RecordingParser parser(file, filename, server);
+    if (!parser.ReadHeaderPacket(matchHeader))
+    {
+#ifdef _DEBUG
+        AppDebugOut("RecordingParser::ExtractHeader: Failed to read DCGR header\n");
+#endif
+        return false;
+    }
+
+    //
+    // Extract all metadata fields from the header
+
+    header.gameStartSeqId = 0;
+    header.endSeqId = 0x7fffffff;
+    header.nextClientId = 0;
+    header.serverVersion = "unknown";
+    header.pack = false;
 
     if (matchHeader.HasData("ssid"))
     {
-        seqIDStart = matchHeader.GetDataInt("ssid");
-#ifdef _DEBUG
-        AppDebugOut("Found 'ssid' in header: %d\n", seqIDStart);
-#endif
-    }
-    else
-    {
-#ifdef _DEBUG
-        AppDebugOut("No 'ssid' field found in header, using default 0\n");
-#endif
+        header.gameStartSeqId = matchHeader.GetDataInt("ssid");
     }
     
     if (matchHeader.HasData("esid"))
     {
-        seqIDEnd = matchHeader.GetDataInt("esid");
-#ifdef _DEBUG
-        AppDebugOut("Found 'esid' in header: %d\n", seqIDEnd);
-#endif
+        header.endSeqId = matchHeader.GetDataInt("esid");
     }
     
     if (matchHeader.HasData("cid"))
     {
-        int clientID = matchHeader.GetDataInt("cid");
-#ifdef _DEBUG
-        AppDebugOut("Found 'cid' in header: %d\n", clientID);
-#endif
+        header.nextClientId = matchHeader.GetDataInt("cid");
     }
     
     if (matchHeader.HasData("sv"))
     {
-        const char* serverVersion = matchHeader.GetDataString("sv");
-#ifdef _DEBUG
-        AppDebugOut("Found 'sv' in header: %s\n", serverVersion);
-#endif
+        header.serverVersion = matchHeader.GetDataString("sv");
+    }
+    
+    if (matchHeader.HasData("pack"))
+    {
+        header.pack = matchHeader.GetDataBool("pack");
     }
 
-    return seqIDStart;
+#ifdef _DEBUG
+    AppDebugOut("RecordingParser::ExtractHeader: ssid=%d, esid=%d, cid=%d, sv=%s\n",
+                header.gameStartSeqId, header.endSeqId, header.nextClientId, header.serverVersion.c_str());
+#endif
+
+    return true;
 }
 
 //
-// Parse function that is used by synctestrecordings
+// Parse the recording file
 
-bool RecordingParser::Parse( bool debugPrint )
+bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool trackSyncBytes )
 {
     Directory matchHeader;
     if( !ReadHeaderPacket( matchHeader  ) ) return false;
@@ -229,7 +240,10 @@ bool RecordingParser::Parse( bool debugPrint )
     int expectedGameCommandCount = 0;
     bool syncErrorInRecording = false;
 
-    m_server->m_recordingSyncBytes.Empty();
+    if( trackSyncBytes )
+    {
+        m_server->m_recordingSyncBytes.Empty();
+    }
 
     while( true )
     {
@@ -261,10 +275,13 @@ bool RecordingParser::Parse( bool debugPrint )
                 empty->SetName( NET_DEFCON_MESSAGE );
                 empty->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
 
-                Send(empty);
+                if( sendDirectly )
+                    Send(empty);
+                else
+                    AddToHistory(empty);
             }
 
-            if( dir.HasData( NET_DEFCON_SYNCVALUE ) && !syncErrorInRecording )
+            if( trackSyncBytes && dir.HasData( NET_DEFCON_SYNCVALUE ) && !syncErrorInRecording )
             {
                 m_server->m_recordingSyncBytes.PutData( dir.GetDataUChar( NET_DEFCON_SYNCVALUE ), nextSeqId );
             }
@@ -296,7 +313,7 @@ bool RecordingParser::Parse( bool debugPrint )
                             maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
                         }
 
-                        if( strcmp( cmd, NET_DEFCON_NETSYNCERROR ) == 0 )
+                        if( trackSyncBytes && strcmp( cmd, NET_DEFCON_NETSYNCERROR ) == 0 )
                         {
                             // The recording has a sync error. Record this so that we don't
                             // compare any sync values after this point.
@@ -309,7 +326,10 @@ bool RecordingParser::Parse( bool debugPrint )
                         if( gameUpdates.get() ) suppressUpdate = true;
 
                         // Management/Server command: send it separately.
-                        Send( new Directory( dir ) );
+                        if( sendDirectly )
+                            Send( new Directory( dir ) );
+                        else
+                            AddToHistory( new Directory( dir ) );
                     }
                 }
             }
@@ -318,147 +338,19 @@ bool RecordingParser::Parse( bool debugPrint )
         if( expectedGameCommandCount == 0 && gameUpdates.get() &&
             gameUpdates->m_subDirectories.Size() > 0 )
         {
-            if( !suppressUpdate ) Send( gameUpdates.release() );
+            if( !suppressUpdate )
+            {
+                if( sendDirectly )
+                    Send( gameUpdates.release() );
+                else
+                    AddToHistory( gameUpdates.release() );
+            }
         }
     }
 
     m_server->m_nextClientId = maxClientId + 1;
     m_server->m_replayingRecording = true;
     m_server->m_lastRecordedSeqId = lastRecordedSeqId;
-
-    return true;
-}
-
-//
-// Parse function that is used by the recording playback system
-
-bool RecordingParser::ParseToHistory()
-{
-    if (!m_in) 
-    {
-        return false; 
-    }
-    
-    Directory matchHeader;
-    if( !ReadHeaderPacket( matchHeader  ) ) 
-    {
-#ifdef _DEBUG
-        AppDebugOut("RecordingParser::ParseToHistory: Failed to read header packet\n");
-#endif
-        return false;
-    }
-
-    bool zeroMarker;
-    bool suppressUpdate = false;
-    int lastRecordedSeqId = 0;
-    int maxClientId = -1;
-    std::unique_ptr<Directory> gameUpdates;
-    int expectedGameCommandCount = 0;
-
-    while( true )
-    {
-        Directory dir;
-        if( !ReadPacket( dir, zeroMarker ) ) break;
-
-        if( strcmp( dir.m_name.c_str(), "sq" ) == 0 )
-        {
-            suppressUpdate = false;
-
-            if( expectedGameCommandCount != 0 )
-            {
-                //
-                // Insert any remaining updates from previous sequence
-                
-                if( gameUpdates.get() && gameUpdates->m_subDirectories.Size() > 0 )
-                {
-                    AddToHistory( gameUpdates.release() );
-                }
-                gameUpdates.reset();
-            }
-
-            expectedGameCommandCount = dir.GetDataInt( "ct" );
-            int nextSeqId = dir.GetDataInt( "z" );
-
-            //
-            // Insert empty updates to catch up
-
-            for( int i = 0; i < nextSeqId - lastRecordedSeqId - 1; ++i )
-            {
-                Directory *empty = new Directory;
-                empty->SetName( NET_DEFCON_MESSAGE );
-                empty->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
-                AddToHistory(empty);
-            }
-
-            lastRecordedSeqId = nextSeqId;
-
-            gameUpdates.reset( new Directory );
-            gameUpdates->SetName( NET_DEFCON_MESSAGE );
-            gameUpdates->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
-        }
-        else
-        {
-            if( strcmp( dir.m_name.c_str(), NET_DEFCON_MESSAGE ) == 0 )
-            {
-                if( dir.HasData( NET_DEFCON_COMMAND ) )
-                {
-                    const char *cmd = dir.GetDataString( NET_DEFCON_COMMAND );
-                    if( *cmd == 'c' )
-                    {
-                        //
-                        // Game update: bundle it into game updates
-                        
-                        gameUpdates->AddDirectory( new Directory( dir ) );
-                        --expectedGameCommandCount;
-                    }
-                    else
-                    {
-                        //
-                        // Server message
-                        
-                        if( dir.HasData( NET_DEFCON_CLIENTID ) )
-                        {
-                            maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
-                        }
-
-                        //
-                        // Server message can interrupt a sequence of updates
-                        
-                        if( gameUpdates.get() ) suppressUpdate = true;
-
-                        //
-                        // Management/Server command: add to history
-                        
-                        AddToHistory( new Directory( dir ) );
-                    }
-                }
-            }
-        }
-
-        if( expectedGameCommandCount == 0 && gameUpdates.get() &&
-            gameUpdates->m_subDirectories.Size() > 0 )
-        {
-            if( !suppressUpdate ) AddToHistory( gameUpdates.release() );
-        }
-    }
-
-    g_app->GetServer()->m_nextClientId = maxClientId + 1;
-    g_app->GetServer()->m_replayingRecording = true;
-    g_app->GetServer()->m_lastRecordedSeqId = lastRecordedSeqId;
-    
-    //
-    // Set up recording playback state
-    
-    g_app->GetServer()->m_recordingPlaybackMode = true;
-    g_app->GetServer()->m_recordingCurrentSeqId = 0;
-    g_app->GetServer()->m_recordingEndSeqId = lastRecordedSeqId;
-    g_app->GetServer()->m_recordingLastAdvanceTime = GetHighResTime();
-
-    //
-    // Game start sequence ID from DCGR header
-    
-    int gameStartSeqId = ExtractGameStartFromHeader();
-    g_app->GetServer()->m_recordingStartSeqId = gameStartSeqId;
 
     return true;
 }

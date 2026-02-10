@@ -508,12 +508,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp" />
-    <ClCompile Include="..\..\source\network\RecordingParser.cpp" />
-    <ClCompile Include="..\..\source\network\RecordingWriter.cpp" />
     <ClCompile Include="..\..\source\network\Server.cpp" />
     <ClCompile Include="..\..\source\network\ServerToClient.cpp" />
-    <ClCompile Include="..\..\source\network\SyncTestRecordings.cpp" />
     <ClCompile Include="..\..\source\random_object.cpp" />
+    <ClCompile Include="..\..\source\recordings\RecordingController.cpp" />
+    <ClCompile Include="..\..\source\recordings\RecordingParser.cpp" />
+    <ClCompile Include="..\..\source\recordings\RecordingWriter.cpp" />
+    <ClCompile Include="..\..\source\recordings\SyncTestRecordings.cpp" />
     <ClCompile Include="..\..\source\renderer\animated_icon.cpp" />
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp" />
     <ClCompile Include="..\..\source\renderer\lobby_renderer.cpp" />
@@ -598,12 +599,13 @@
     <ClInclude Include="..\..\source\network\ClientToServer.h" />
     <ClInclude Include="..\..\source\network\network_defines.h" />
     <ClInclude Include="..\..\source\network\network_defines_debug.h" />
-    <ClInclude Include="..\..\source\network\RecordingParser.h" />
-    <ClInclude Include="..\..\source\network\RecordingWriter.h" />
     <ClInclude Include="..\..\source\network\Server.h" />
     <ClInclude Include="..\..\source\network\ServerToClient.h" />
-    <ClInclude Include="..\..\source\network\SyncTestRecordings.h" />
     <ClInclude Include="..\..\source\random_object.h" />
+    <ClInclude Include="..\..\source\recordings\RecordingParser.h" />
+    <ClInclude Include="..\..\source\recordings\RecordingController.h" />
+    <ClInclude Include="..\..\source\recordings\RecordingWriter.h" />
+    <ClInclude Include="..\..\source\recordings\SyncTestRecordings.h" />
     <ClInclude Include="..\..\source\renderer\animated_icon.h" />
     <ClInclude Include="..\..\source\renderer\lobby_renderer.h" />
     <ClInclude Include="..\..\source\renderer\map_renderer.h" />

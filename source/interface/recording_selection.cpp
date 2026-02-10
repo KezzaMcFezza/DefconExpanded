@@ -7,8 +7,9 @@
 #include "lib/hi_res_time.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/render/styletable.h"
-#include "lib/gucci/window_manager.h"  // NEW: For EclGetWindow function
+#include "lib/gucci/window_manager.h"
 
+#include "recordings/RecordingController.h"
 #include "interface/recording_selection.h"
 #include "interface/connecting_window.h"
 #include "lib/eclipse/components/message_dialog.h"
@@ -262,7 +263,7 @@ void PlayFromGameStartButton::MouseUp()
         if( recordingLoaded )
         {
             // Skip to game start
-            int gameStartSeqId = g_app->GetServer()->ExtractGameStartFromHeader();
+            int gameStartSeqId = g_app->GetServer()->m_playbackController->GetStartSeqId();
             if( gameStartSeqId > 0 )
             {
                 g_app->GetServer()->EnableFastForward( gameStartSeqId, 500.0f );

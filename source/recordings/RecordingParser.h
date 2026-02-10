@@ -4,6 +4,7 @@
 
 class Directory;
 class Server;
+struct DcgrHeader;
 
 class RecordingParser
 {
@@ -12,9 +13,11 @@ public:
     RecordingParser           ( const std::string &filename, Server *server );  // Direct file loading
     ~RecordingParser          ();
 
-    bool ParseToHistory       ();
-    bool Parse                ( bool debugPrint );                      // Load into server history for playback
-    bool ReadHeaderPacket     ( Directory &matchHeader );               // Made public for header parsing
+    bool ParseRecording       ( bool sendDirectly, bool debugPrint = false, bool trackSyncBytes = false );
+    bool Parse                ( bool debugPrint );
+    bool ReadHeaderPacket     ( Directory &matchHeader );   
+
+    static bool ExtractHeader ( const std::string &filename, DcgrHeader &header, Server *server );
 
 private:
     std::istream               *m_in;                                   // Changed to pointer for optional ownership
@@ -26,5 +29,4 @@ private:
     bool ReadPacket            ( Directory &dir, bool &zeroMarker );
     void AddToHistory          ( Directory *dir );
     void Send                  ( Directory *dir );
-    int  ExtractGameStartFromHeader  ();                                // Extract game start from DCGR header
 };

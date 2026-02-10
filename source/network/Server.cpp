@@ -34,8 +34,11 @@
 #include "network/ServerToClient.h"
 #include "network/ClientToServer.h"
 #include "network/network_defines.h"
-#include "network/recordingparser.h"
-#include "network/RecordingWriter.h"
+
+#include "recordings/RecordingParser.h"
+#include "recordings/RecordingWriter.h"
+#include "recordings/RecordingController.h"
+
 #include "interface/connecting_window.h"
 
 #include <fstream>
@@ -104,42 +107,35 @@ static void ServerListenCallback( NetUdpPacket const &udpData )
 Server::Server()
 :   m_listener(NULL),
     m_sequenceId(0),
+    m_nextClientId(0),
     m_inboxMutex(NULL),
     m_outboxMutex(NULL),
     m_syncronised(true),
     m_sendRate(0.0f),
-    m_nextClientId(0),
     m_unlimitedSend(false),
     m_replayingRecording(false),
     m_lastRecordedSeqId(0),
-    m_recordingPlaybackMode(false),
-    m_recordingLastAdvanceTime(0.0),
-    m_recordingCurrentSeqId(0),
-    m_recordingStartSeqId(0),
-    m_recordingEndSeqId(0),
-    m_recordingStarted(false),
-    m_recordingFastForwardMode(false),
-    m_recordingTargetSeqId(0),
-    m_recordingFastForwardSpeed(500.0f),
-    m_recordingPaused(false),
-    m_recordingSpeed(1.0f),
+    m_playbackController(NULL),
     m_gameStartSeqId(-1)
 {
+    m_playbackController = new RecordingController(this);
 }
 
 
 Server::~Server()
 {
-    // Clean up recording history
-    for( int i = 0; i < m_recordingHistory.Size(); ++i )
+    delete m_playbackController;
+    m_playbackController = NULL;
+    
+    for( int i = 0; i < m_recordingParseBuffer.Size(); ++i )
     {
-        if( m_recordingHistory.ValidIndex(i) )
+        if( m_recordingParseBuffer.ValidIndex(i) )
         {
-            ServerToClientLetter *letter = m_recordingHistory[i];
+            ServerToClientLetter *letter = m_recordingParseBuffer[i];
             delete letter;
         }
     }
-    m_recordingHistory.Empty();
+    m_recordingParseBuffer.Empty();
 }
 
 
@@ -242,7 +238,7 @@ bool Server::LoadRecording( const std::string &filename, bool debugPrint )
     }
 
     RecordingParser parser( in, filename, this );
-    return parser.Parse( debugPrint );
+    return parser.ParseRecording( true, debugPrint, true );
 }
 
 
@@ -312,29 +308,6 @@ bool Server::RecordingFinishedPlaying()
 bool Server::StartRecordingPlaybackServer( const std::string &filename )
 {
     //
-    // Load the recording into history instead of immediate playback
-
-    std::ifstream in(filename.c_str(), std::ios::binary|std::ios::in);
-    if( !in )
-    {
-#ifdef _DEBUG
-        AppDebugOut( "SERVER: Failed to open recording file for reading\n" );
-#endif
-        return false;
-    }
-
-    RecordingParser parser( in, filename, this );
-    if( !parser.ParseToHistory() )
-    {
-#ifdef _DEBUG
-        AppDebugOut( "SERVER: Failed to parse recording file\n" );
-#endif
-        return false;
-    }
-    
-    m_recordingFilename = filename;
-    
-    //
     // Initialize the server if not already done
     
     if( !IsRunning() )
@@ -346,14 +319,12 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
     }
     
     //
-    // Set up recording playback state
+    // Load the recording through the playback controller
     
-    m_recordingPlaybackMode = true;
-    m_recordingStarted = false;
-    m_recordingCurrentSeqId = 0;
-    m_recordingStartSeqId = 0;
-    m_recordingEndSeqId = m_lastRecordedSeqId;
-    m_recordingLastAdvanceTime = GetHighResTime();
+    if( !m_playbackController->LoadRecording( filename ) )
+    {
+        return false;
+    }
     
     //
     // Start sequence ID at 0 to match client expectations
@@ -364,194 +335,14 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
 }
 
 //
-// Extract game start sequence ID from DCGR header
-
-int Server::ExtractGameStartFromHeader()
-{
-    if( m_recordingFilename.empty() )
-    {
-        return 0;
-    }
-    
-    //
-    // Re-open the file to read the header again
-
-    std::ifstream headerFile(m_recordingFilename.c_str(), std::ios::in | std::ios::binary);
-    if (!headerFile.good())
-    {
-        return 0;
-    }
-
-    Directory matchHeader;
-    RecordingParser headerParser(headerFile, m_recordingFilename, this);
-    if (!headerParser.ReadHeaderPacket(matchHeader))
-    {
-#ifdef _DEBUG
-        AppDebugOut("SERVER: Failed to read DCGR header\n");
-#endif
-        return 0;
-    }
-
-    //
-    // Parse header metadata
-    
-    int seqIDStart = 0;  // Default to 0 if not found
-    
-    //
-    // Check if the header contains metadata fields
-
-    if (matchHeader.HasData("ssid"))
-    {
-        seqIDStart = matchHeader.GetDataInt("ssid");
-    }
-    else
-    {
-        // Do nothing
-    }
-    
-    if (matchHeader.HasData("esid"))
-    {
-        int seqIDEnd = matchHeader.GetDataInt("esid");
-    }
-    
-    if (matchHeader.HasData("cid"))
-    {
-        int clientID = matchHeader.GetDataInt("cid");
-    }
-    
-    if (matchHeader.HasData("sv"))
-    {
-        const char* serverVersion = matchHeader.GetDataString("sv");
-    }
-
-    return seqIDStart;
-}
-
-//
 // Force connecting clients to spectator mode during recording playback
 
 void Server::ForceSpectatorMode( int _clientId )
 {
-    if( m_recordingPlaybackMode )
+    if( m_playbackController->IsActive() )
     {
         RegisterSpectator( _clientId );
     }
-}
-
-//
-// Enable fast-forward mode to quickly reach a target sequence ID
-
-void Server::EnableFastForward( int targetSeqId, float speedMultiplier )
-{
-    if( m_recordingPlaybackMode && targetSeqId > m_recordingCurrentSeqId )
-    {
-        m_recordingFastForwardMode = true;
-        m_recordingTargetSeqId = targetSeqId;
-        m_recordingFastForwardSpeed = speedMultiplier;
-    }
-}
-
-//
-// Check if we should disable fast-forward
-
-void Server::CheckDisableFastForward()
-{
-    if( m_recordingFastForwardMode && m_recordingCurrentSeqId >= m_recordingTargetSeqId )
-    {
-        m_recordingFastForwardMode = false;
-        
-        //
-        // Notify connecting window that fast-forward is complete
-
-        ConnectingWindow *connectingWindow = (ConnectingWindow*)EclGetWindow("Connection Status");
-        if( connectingWindow )
-        {
-            connectingWindow->SetFastForwardMode( false, 0 );
-        }
-    }
-}
-
-float Server::GetRecordingAdvanceSpeedMultiplier()
-{
-    if( !m_recordingPlaybackMode ) return 1.0f;
-    
-    //
-    // Pause is now handled at the main loop level, so always return actual speed
-    
-    if( m_recordingFastForwardMode )
-    {
-        return m_recordingFastForwardSpeed;
-    }
-    
-    return m_recordingSpeed;
-}
-
-void Server::SetRecordingPaused( bool paused )
-{
-    if( !m_recordingPlaybackMode ) return;
-    
-    m_recordingPaused = paused;
-}
-
-void Server::SetRecordingSpeed( float speed )
-{
-    if( !m_recordingPlaybackMode ) return;
-    
-    //
-    // Ensure non-negative
-
-    m_recordingSpeed = max(0.0f, speed);
-    
-    //
-    // If setting any speed > 0, unpause the recording
-
-    if( speed > 0.0f )
-    {
-        m_recordingPaused = false;
-    }
-
-    if( speed > 1.0f )
-    {
-        m_recordingFastForwardMode = true;
-        m_recordingFastForwardSpeed = speed;
-        m_recordingTargetSeqId = m_recordingEndSeqId; // Target end of recording
-    }
-    else if( speed == 1.0f )
-    {
-        m_recordingFastForwardMode = false;
-        m_recordingFastForwardSpeed = 1.0f;
-    }
-    
-}
-
-
-bool Server::IsRecordingPlaybackMode() const
-{
-    return m_recordingPlaybackMode;
-}
-
-
-bool Server::ShouldAllowTeamCreation() const
-{
-    return !m_recordingPlaybackMode;
-}
-
-
-bool Server::ShouldAllowServerControls() const
-{
-    return !m_recordingPlaybackMode;
-}
-
-
-bool Server::IsRecordingFastForwardMode() const
-{
-    return m_recordingFastForwardMode;
-}
-
-
-bool Server::IsRecordingPaused() const
-{
-    return m_recordingPaused;
 }
 
 
@@ -1918,7 +1709,7 @@ void Server::Advance()
 
             SendClientId( clientId );
             
-            if( m_recordingPlaybackMode && clientId != -1 )
+            if( m_playbackController->IsActive() && clientId != -1 )
             {
 #ifndef SYNC_PRACTICE
                 ForceSpectatorMode( clientId );
@@ -1950,7 +1741,7 @@ void Server::Advance()
         {
             if( clientId != -1 && !g_app->m_gameRunning )
             {
-                if( m_recordingPlaybackMode )
+                if( m_playbackController->IsActive() )
                 {
 #ifndef SYNC_PRACTICE
                     ForceSpectatorMode( clientId );
@@ -2050,23 +1841,9 @@ void Server::Advance()
     //
     // Inject recorded messages instead of processing live messages
 
-    if( m_recordingPlaybackMode && m_recordingCurrentSeqId < m_recordingHistory.Size() )
+    if( m_playbackController->IsActive() )
     {
-        CheckDisableFastForward();
-        
-        if( m_recordingFastForwardMode )
-        {
-            ConnectingWindow *connectingWindow = (ConnectingWindow*)EclGetWindow("Connection Status");
-            if( connectingWindow )
-            {
-                connectingWindow->UpdateFastForwardProgress( m_recordingCurrentSeqId );
-            }
-        }
-        
-        //
-        // Get the next recorded message
-
-        ServerToClientLetter *recordedLetter = m_recordingHistory[m_recordingCurrentSeqId];
+        ServerToClientLetter *recordedLetter = m_playbackController->GetNextRecordedLetter();
         if( recordedLetter && recordedLetter->m_data )
         {
             //
@@ -2119,12 +1896,6 @@ void Server::Advance()
             {
                 letter->m_data->AddDirectory( spectatorCommands[i] );
             }
-            
-            //
-            // Advance to next recorded message
-
-            m_recordingCurrentSeqId++;
-            
         }
     }
 
@@ -2132,7 +1903,7 @@ void Server::Advance()
     // In synctestrecordings mode, recorded messages are sent directly by RecordingParser 
     // so dont send the constructed letter.
 
-    if( m_replayingRecording && !m_recordingPlaybackMode )
+    if( m_replayingRecording && !m_playbackController->IsActive() )
     {
         delete letter;
     }
@@ -2227,7 +1998,7 @@ void Server::Advertise()
     // Dont advertise the server to prevent external clients from messing up the RNG state
     // Because these clients will not have the GenerateSyncValue skipping logic.
 
-    if( m_recordingPlaybackMode )
+    if( m_playbackController->IsActive() )
     {
         return;
     }
@@ -2780,6 +2551,52 @@ bool Server::TestBedReadyToContinue()
 int Server::GetRecordingHistorySize() const
 {
     return m_history.Size();
+}
+
+void Server::EnableFastForward( int targetSeqId, float speedMultiplier )
+{
+    m_playbackController->EnableFastForward( targetSeqId, speedMultiplier );
+}
+
+void Server::SetRecordingPaused( bool paused )
+{
+    m_playbackController->SetPaused( paused );
+}
+
+void Server::SetRecordingSpeed( float speed )
+{
+    m_playbackController->SetSpeed( speed );
+}
+
+float Server::GetRecordingAdvanceSpeedMultiplier() const
+{
+    return m_playbackController->GetAdvanceSpeedMultiplier();
+}
+
+bool Server::IsRecordingPlaybackMode() const
+{
+    return m_playbackController->IsActive();
+}
+
+bool Server::IsRecordingPaused() const
+{
+    return m_playbackController->IsPaused();
+}
+
+bool Server::IsRecordingFastForwardMode() const
+{
+    return m_playbackController->IsInFastForward();
+}
+
+
+bool Server::ShouldAllowTeamCreation() const
+{
+    return !m_playbackController->IsActive();
+}
+
+bool Server::ShouldAllowServerControls() const
+{
+    return !m_playbackController->IsActive();
 }
 
 

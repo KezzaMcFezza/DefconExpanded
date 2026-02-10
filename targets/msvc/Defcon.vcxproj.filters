@@ -28,6 +28,9 @@
     <Filter Include="lib">
       <UniqueIdentifier>{9bea68fa-cae6-4a59-a17a-ac26d370d6d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="recordings">
+      <UniqueIdentifier>{ef688a13-0090-4d63-bc40-89c29946a211}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -277,14 +280,17 @@
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\network\RecordingParser.cpp">
-      <Filter>network</Filter>
+    <ClCompile Include="..\..\source\recordings\RecordingParser.cpp">
+      <Filter>recordings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\network\RecordingWriter.cpp">
-      <Filter>network</Filter>
+    <ClCompile Include="..\..\source\recordings\RecordingWriter.cpp">
+      <Filter>recordings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\network\SyncTestRecordings.cpp">
-      <Filter>network</Filter>
+    <ClCompile Include="..\..\source\recordings\SyncTestRecordings.cpp">
+      <Filter>recordings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\recordings\RecordingController.cpp">
+      <Filter>recordings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -537,14 +543,17 @@
     <ClInclude Include="..\..\source\interface\playback_control_window.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\network\RecordingParser.h">
-      <Filter>network</Filter>
+    <ClInclude Include="..\..\source\recordings\RecordingParser.h">
+      <Filter>recordings</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\network\RecordingWriter.h">
-      <Filter>network</Filter>
+    <ClInclude Include="..\..\source\recordings\RecordingController.h">
+      <Filter>recordings</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\network\SyncTestRecordings.h">
-      <Filter>network</Filter>
+    <ClInclude Include="..\..\source\recordings\RecordingWriter.h">
+      <Filter>recordings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\recordings\SyncTestRecordings.h">
+      <Filter>recordings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
