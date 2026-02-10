@@ -491,7 +491,7 @@ public:
 
 Toolbar::Toolbar()
 :   FadingWindow( "Toolbar" ),
-    m_numButtons(11)
+    m_numButtons(12)
 {
     bool chatWindow = false;
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
@@ -590,6 +590,12 @@ void Toolbar::Create()
     radar->m_value = &g_app->GetWorldRenderer()->m_showRadar;
     strcpy(radar->m_iconFilename, "gui/tb_radar.bmp");
     RegisterButton( radar );
+
+    ToggleBoolButton *radiation = new ToggleBoolButton();
+    radiation->SetProperties( "Radiation", x+=gap, y, iconSize, iconSize, "dialog_toolbar_radiation", "tooltip_toolbar_radiation", true, true );
+    radiation->m_value = &g_app->GetWorldRenderer()->m_showRadiation;
+    strcpy(radiation->m_iconFilename, "gui/tb_radiation.bmp");
+    RegisterButton( radiation );
 
     ToggleBoolButton *population = new ToggleBoolButton();
     population->SetProperties( "Population", x+=gap, y, iconSize, iconSize, "dialog_toolbar_people", "tooltip_toolbar_pop", true, true );

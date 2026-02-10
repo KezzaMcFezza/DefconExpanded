@@ -48,7 +48,6 @@ RenderWhiteboardThickness = 3.0
 RenderCityNames = 1
 RenderCountryNames = 0
 RenderWater = 2
-RenderRadiation = 0
 RenderLowDetailWorld = 0
 RenderObjectTrails = 1
 RenderLobbyEffects = 1

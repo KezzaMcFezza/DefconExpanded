@@ -279,21 +279,10 @@ void MapRenderer::Render()
 
         RenderExplosions();
         RenderAnimations();
-        
-        bool showRadiation  = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
-        if( showRadiation )
+
+        if( g_app->GetWorldRenderer()->m_showRadiation ) 
         {
-            
-            Image *boom = g_resource->GetImage( "graphics/population.bmp" );
-            for( int i = 0; i < g_app->GetWorld()->m_radiation.Size(); ++i )
-            {
-                Colour col = Colour(40+sinf(g_gameTime+i*.14)*30,
-                                    100+sinf(g_gameTime+i*1.2)*30,
-                                    40+cosf(g_gameTime+i*1.5)*30,
-                                    20+sinf(g_gameTime+i*1.1)*5);
-                Vector3<Fixed> *pos = (Vector3<Fixed> *)g_app->GetWorld()->m_radiation[i];
-                g_renderer2d->StaticSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
-            }
+            RenderRadiation();
         }
 
         if( m_highlightUnit != -1 )
@@ -491,6 +480,21 @@ void MapRenderer::RenderAnimations()
         }
     }
     
+}
+
+
+void MapRenderer::RenderRadiation()
+{
+    Image *boom = g_resource->GetImage( "graphics/population.bmp" );
+    for( int i = 0; i < g_app->GetWorld()->m_radiation.Size(); ++i )
+    {
+        Colour col = Colour( 40+sinf(g_gameTime+i*.14)*30,
+                            100+sinf(g_gameTime+i*1.2)*30,
+                            40+cosf(g_gameTime+i*1.5)*30,
+                            20+sinf(g_gameTime+i*1.1)*5 );
+        Vector3<Fixed> *pos = (Vector3<Fixed> *)g_app->GetWorld()->m_radiation[i];
+        g_renderer2d->StaticSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
+    }
 }
 
 

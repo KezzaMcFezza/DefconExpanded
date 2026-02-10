@@ -18,7 +18,6 @@ class AnimatedIcon;
 #define    PREFS_GRAPHICS_CITYNAMES                   "RenderCityNames"
 #define    PREFS_GRAPHICS_COUNTRYNAMES                "RenderCountryNames"
 #define    PREFS_GRAPHICS_WATER                       "RenderWater"
-#define    PREFS_GRAPHICS_RADIATION                   "RenderRadiation"
 #define    PREFS_GRAPHICS_TRAILS                      "RenderObjectTrails"
 
 #define    STYLE_WORLD_COASTLINES                     "WorldCoastlines"
@@ -154,6 +153,7 @@ public:
     void    RenderGunfire();
     void    RenderExplosions();
     void    RenderAnimations();
+    void    RenderRadiation();
     void    RenderBlips();
     void    RenderUnitHighlight( int _objectId );
     void    RenderNukeUnits();

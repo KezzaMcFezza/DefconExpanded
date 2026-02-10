@@ -1034,6 +1034,11 @@ void GlobeRenderer::Render()
         RenderPopulationDensity();
     }
 
+    if( g_app->GetWorldRenderer()->m_showRadiation )
+    {
+        RenderRadiation();
+    }
+
     if( g_app->GetWorldRenderer()->m_showNukeUnits )           
     {
         RenderNukeUnits();
@@ -1910,6 +1915,41 @@ void GlobeRenderer::RenderPopulationDensity()
     }
 
     END_PROFILE( "Population Density" );
+}
+
+void GlobeRenderer::RenderRadiation()
+{
+    START_PROFILE( "Radiation" );
+
+    Image *boom = g_resource->GetImage( "graphics/population.bmp" );
+    if( !boom ) return;
+
+    Vector3<float> cameraPos = GetCameraPosition();
+
+    for( int i = 0; i < g_app->GetWorld()->m_radiation.Size(); ++i )
+    {
+        Vector3<Fixed> *pos = (Vector3<Fixed> *)g_app->GetWorld()->m_radiation[i];
+        float lon = pos->x.DoubleValue();
+        float lat = pos->y.DoubleValue();
+
+        Vector3<float> spherePos = ConvertLongLatTo3DPosition( lon, lat );
+        if( !IsPointVisible( spherePos, cameraPos, GLOBE_RADIUS ) )
+            continue;
+
+        Colour col = Colour( 40+sinf(g_gameTime+i*.14f)*30,
+                            100+sinf(g_gameTime+i*1.2f)*30,
+                            40+cosf(g_gameTime+i*1.5f)*30,
+                            20+sinf(g_gameTime+i*1.1f)*5 );
+
+        Vector3<float> renderPos = GetElevatedPosition( spherePos );
+        float size3D = 15.0f * GLOBE_OBJECT_SIZE;
+
+        g_renderer3d->StaticSprite3D( boom,
+                                       renderPos.x, renderPos.y, renderPos.z,
+                                       size3D * 2.0f, size3D * 2.0f, col, BILLBOARD_SURFACE_ALIGNED );
+    }
+
+    END_PROFILE( "Radiation" );
 }
 
 void GlobeRenderer::RenderNukeUnits()

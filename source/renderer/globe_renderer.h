@@ -163,6 +163,7 @@ public:
     void    RenderExplosions();
     void    RenderAnimations();
     void    RenderPopulationDensity();
+    void    RenderRadiation();
     void    RenderNukeUnits();
     void    RenderUnitHighlight( int _objectId );
     void    RenderWhiteBoard();

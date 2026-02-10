@@ -69,6 +69,7 @@ public:
     bool    m_showRadar;
     bool    m_radarLocked;
     bool    m_showPopulation;
+    bool    m_showRadiation;
     bool    m_showOrders;
     bool    m_showNukeUnits;
 

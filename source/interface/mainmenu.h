@@ -43,7 +43,6 @@ public:
     int     m_cityNames;
     int     m_countryNames;
     int     m_water;
-    int     m_radiation;
     int     m_lowResWorld;
     int     m_trails;
     int     m_lobbyEffects;

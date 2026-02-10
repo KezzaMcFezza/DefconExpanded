@@ -38,6 +38,7 @@ WorldRenderer::WorldRenderer()
 	m_showRadar(false),
 	m_radarLocked(false),
 	m_showPopulation(false),
+	m_showRadiation(false),
 	m_showOrders(false),
 	m_showNukeUnits(false)
 {

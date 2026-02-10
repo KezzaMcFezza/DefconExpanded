@@ -1136,7 +1136,6 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_CITYNAMES, gow->m_cityNames );
         g_preferences->SetInt( PREFS_GRAPHICS_COUNTRYNAMES, gow->m_countryNames );
         g_preferences->SetInt( PREFS_GRAPHICS_WATER, gow->m_water );
-        g_preferences->SetInt( PREFS_GRAPHICS_RADIATION, gow->m_radiation );
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
@@ -1155,9 +1154,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 390, 440 );
+    SetSize( 390, 410 );
 #else
-    SetSize( 390, 400 );
+    SetSize( 390, 370 );
 #endif
 
     Centralise();
@@ -1173,7 +1172,6 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_cityNames          = g_preferences->GetInt( PREFS_GRAPHICS_CITYNAMES );
     m_countryNames       = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
     m_water              = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
-    m_radiation          = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
     m_trails             = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
 }
@@ -1238,13 +1236,6 @@ void GraphicsOptionsWindow::Create()
     RegisterButton(dropDown);
 
     dropDown = new DropDownMenu();
-    dropDown->SetProperties( "Show Radiation", x, y+=h, w, 20, "dialog_radiation", " ", true, false );
-    dropDown->AddOption( "dialog_enabled", 1, true );
-    dropDown->AddOption( "dialog_disabled", 0, true );
-    dropDown->RegisterInt( &m_radiation );
-    RegisterButton(dropDown);
-
-    dropDown = new DropDownMenu();
     dropDown->SetProperties( "Show Object Trails", x, y+=h, w, 20, "dialog_objecttrails", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
     dropDown->AddOption( "dialog_disabled", 0, true );
@@ -1289,7 +1280,6 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_radiation") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
 }

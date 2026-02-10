@@ -516,6 +516,7 @@ dialog_toolbar_orders               orders
 dialog_toolbar_territory            territory
 dialog_toolbar_globe                globe
 dialog_toolbar_nukes                nukes
+dialog_toolbar_radiation            radiation
 dialog_toolbar_white_board          white board
 dialog_toolbar_info                 info
 
@@ -850,6 +851,7 @@ tooltip_toolbar_orders              Toggle Orders
 tooltip_toolbar_info                Show Unit Info window
 tooltip_toolbar_territory           Toggle Territories
 tooltip_toolbar_nukes               Show Units with Nukes
+tooltip_toolbar_radiation           Toggle Radiation Display
 
 tooltip_whiteboard_planning         Toggle drawing on the White Board. Left click to draw, Right click to erase.
 tooltip_whiteboard_eraseall         Erase everything drawn on the White Board.
