@@ -80,6 +80,11 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 
+#if defined(WIN32) || defined(_WIN32)
+#include <direct.h>
+#elif !defined(WIN32) && !defined(_WIN32)
+#include <unistd.h>
+#endif
 
 #ifdef TRACK_MEMORY_LEAKS
 #include "lib/memory_leak.h"
@@ -2206,6 +2211,39 @@ const char *App::GetLogDirectoryPath()
     static std::string result;
 
     if( result.empty() ) result = GetDefconDirectory();
+
+    return result.c_str();
+}
+
+
+const char *App::GetRecordingsDirectory()
+{
+    static std::string result;
+
+    if( result.empty() )
+    {
+        std::string baseDir = GetDefconDirectory();
+        if( baseDir.empty() )
+        {
+            //
+            // On Windows, GetDefconDirectory() returns empty, so use current directory
+            
+            char cwd[512];
+#if defined(WIN32) || defined(_WIN32)
+            if( _getcwd( cwd, (int)sizeof(cwd) ) )
+#else
+            if( getcwd( cwd, (int)sizeof(cwd) ) )
+#endif
+            {
+                baseDir = cwd;
+            }
+            else
+            {
+                baseDir = ".";
+            }
+        }
+        result = baseDir + "/recordings/";
+    }
 
     return result.c_str();
 }

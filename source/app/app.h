@@ -154,6 +154,7 @@ public:
     static const char *GetPrefsPath();
     static const char *GetGameHistoryPath();
     static const char *GetLogDirectoryPath();
+    static const char *GetRecordingsDirectory();
 
     void    HideWindow();   // panic button pressed in office mode
     bool    MousePointerIsVisible();
