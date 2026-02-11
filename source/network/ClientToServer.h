@@ -3,6 +3,7 @@
 
 #include "lib/netlib/thread_controller.h"
 #include "lib/tosser/llist.h"
+#include "lib/tosser/darray.h"
 #include "lib/tosser/directory.h"
 
 class NetLib;
@@ -28,6 +29,9 @@ public:
     NetMutex            *m_outboxMutex;
     LList               <Directory *> m_inbox;
     LList               <Directory *> m_outbox;
+    LList               <Directory *> m_history;
+    DArray              <unsigned char> m_recordingSyncBytes;
+    int                 m_gameStartSeqId;
 
     LList               <ChatMessage *> m_chatSendQueue;
     int                 m_nextChatMessageId;
@@ -155,7 +159,13 @@ public:
     void StopIdentifying    ();
     bool GetIdentity        ( char *_ip, int *_port );
     bool GetServerDetails   ( char *_ip, int *_port );   
-    int  GetLocalPort();                                             // Returns local port client is listening on
+    int  GetLocalPort       ();                                      // Returns local port client is listening on
+    
+    int       GetRecordingHistorySize   () const;
+    Directory *GetRecordingHistoryLetter( int index ) const;
+
+    void      SetGameStartSeqId( int seqId );
+    int       GetGameStartSeqId();
 
 #ifdef TARGET_EMSCRIPTEN
     void RouteServerMessageToClient( Directory *serverMessage );     // Route server messages to client inbox in WebAssembly mode

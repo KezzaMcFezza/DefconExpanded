@@ -95,6 +95,7 @@ ClientToServer::ClientToServer()
 {
     m_lastValidSequenceIdFromServer = -1;
     m_serverSequenceId = -1;
+    m_gameStartSeqId = -1;
     m_connectionState = StateDisconnected;
 
     m_inboxMutex = new NetMutex();
@@ -110,6 +111,10 @@ ClientToServer::~ClientToServer()
     if( m_listener ) m_listener->StopListening( &m_listenerThread );
     delete m_listener;
     m_listener = NULL;
+
+    m_history.EmptyAndDelete();
+    m_recordingSyncBytes.Empty();
+    m_gameStartSeqId = -1;
 
     //
     // Tidy any pending fleet placement buffers
@@ -615,8 +620,82 @@ Directory *ClientToServer::GetNextLetter()
         if( seqId == g_lastProcessedSequenceId+1 ||
             seqId == -1 )
         {
-            // This is the next letter, remove from list
-            // (assume its now dealt with)
+            //
+            // Server stores one canonical entry per sequence, compressed empty runs
+            // numEmptyUpdates must be expanded so playback matches server format.
+            // Only the first letter of a run expands. Continuation letters must not 
+            // append again.
+
+            if( seqId >= 0 )
+            {
+                if( letter->m_subDirectories.Size() == 0 &&
+                    letter->HasData( NET_DEFCON_NUMEMPTYUPDATES, DIRECTORY_TYPE_INT ) )
+                {
+                    int numEmpty = letter->GetDataInt( NET_DEFCON_NUMEMPTYUPDATES );
+                    if( numEmpty > 0 )
+                    {
+                        int lastSeqInHistory = -1;
+                        if( m_history.Size() > 0 )
+                        {
+                            Directory *lastLetter = m_history.GetData( m_history.Size() - 1 );
+                            if( lastLetter && lastLetter->HasData( NET_DEFCON_SEQID, DIRECTORY_TYPE_INT ) )
+                            {
+                                lastSeqInHistory = lastLetter->GetDataInt( NET_DEFCON_SEQID );
+                            }
+                        }
+                        for( int k = 0; k < numEmpty; ++k )
+                        {
+                            int entrySeqId = seqId + k;
+                            if( entrySeqId > lastSeqInHistory )
+                            {
+                                Directory *canonical = new Directory();
+                                canonical->SetName( NET_DEFCON_MESSAGE );
+                                canonical->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+                                canonical->CreateData( NET_DEFCON_SEQID, entrySeqId );
+
+                                m_history.PutDataAtEnd( canonical );
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //
+                    // LASTSEQID "l" is added at send time, we never store it so 
+                    // clienttoserver .dcrec matches the right format for playback.
+
+                    Directory *copy = new Directory( *letter );
+                    copy->RemoveData( NET_DEFCON_LASTSEQID );
+
+                    //
+                    // If we already have an entry for this seqId, merge
+                    // subdirectories into it so we keep one entry per seqId like the server.
+
+                    if( m_history.Size() > 0 )
+                    {
+                        Directory *lastEntry = m_history.GetData( m_history.Size() - 1 );
+                        if( lastEntry && lastEntry->HasData( NET_DEFCON_SEQID, DIRECTORY_TYPE_INT ) &&
+                            lastEntry->GetDataInt( NET_DEFCON_SEQID ) == seqId )
+                        {
+                            for( int j = 0; j < copy->m_subDirectories.Size(); ++j )
+                            {
+                                if( copy->m_subDirectories.ValidIndex( j ) && copy->m_subDirectories[j] )
+                                {
+                                    lastEntry->AddDirectory( new Directory( *copy->m_subDirectories[j] ) );
+                                }
+                            }
+
+                            delete copy;
+                            copy = NULL;
+                        }
+                    }
+                    if( copy )
+                    {
+                        m_history.PutDataAtEnd( copy );
+                    }
+                }
+            }
+
             m_inbox.RemoveData(0);
         }
         else if( seqId < g_lastProcessedSequenceId+1 )
@@ -635,6 +714,33 @@ Directory *ClientToServer::GetNextLetter()
     m_inboxMutex->Unlock();
 
     return letter;
+}
+
+
+int ClientToServer::GetRecordingHistorySize() const
+{
+    return m_history.Size();
+}
+
+
+Directory *ClientToServer::GetRecordingHistoryLetter( int index ) const
+{
+    if( index < 0 || index >= m_history.Size() )
+    {
+        return NULL;
+    }
+    return m_history.GetData( index );
+}
+
+
+void ClientToServer::SetGameStartSeqId( int seqId )
+{
+    m_gameStartSeqId = seqId;
+}
+
+int ClientToServer::GetGameStartSeqId()
+{   
+    return m_gameStartSeqId;
 }
 
 #ifdef TARGET_EMSCRIPTEN
@@ -1089,6 +1195,10 @@ void ClientToServer::ClientLeave( bool _notifyServer )
     m_inbox.EmptyAndDelete();
     m_inboxMutex->Unlock();
 
+    m_history.EmptyAndDelete();
+    m_recordingSyncBytes.Empty();
+    m_gameStartSeqId = -1;
+
     g_lastProcessedSequenceId = -2;
 
     AppDebugOut( "CLIENT : Disconnected\n" );
@@ -1452,6 +1562,8 @@ void ClientToServer::CastVote( unsigned char teamId, unsigned char voteId, unsig
 
 void ClientToServer::SendSyncronisation( int _lastProcessedId, unsigned char _sync )
 {
+    m_recordingSyncBytes.PutData( _sync, _lastProcessedId );
+
     Directory *letter = new Directory();
 
     letter->CreateData( NET_DEFCON_COMMAND,             NET_DEFCON_SYNCHRONISE );
@@ -2003,6 +2115,10 @@ void ClientToServer::Resynchronise()
     //m_clientId = -1;
 
     m_resynchronising = GetHighResTime();
+
+    m_history.EmptyAndDelete();
+    m_recordingSyncBytes.Empty();
+    m_gameStartSeqId = -1;
 
     //
     // Drop any queued placements

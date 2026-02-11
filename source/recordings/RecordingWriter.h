@@ -4,6 +4,7 @@
 #include <string>
 
 class Server;
+class ClientToServer;
 
 //
 // DCGR header:
@@ -19,15 +20,21 @@ struct DcgrHeader
     DcgrHeader();
 };
 
+template<typename SourceType>
+struct RecordingSourceTraits;
+
 //
-// Writes Defcon server history to .dcrec files in the same format
+// Writes Defcon server/client history to .dcrec files in the same format
 // that RecordingParser and Dedcon produce and expect.
 
 class RecordingWriter
 {
 public:
-    bool WriteToFile( Server *server, const std::string &filename );
-    bool SaveToRecordingsFolder( Server *server );
+    template<typename SourceType>
+    bool WriteToFile( SourceType *source, const std::string &filename );
+    
+    template<typename SourceType>
+    bool SaveToRecordingsFolder( SourceType *source );
 };
 
 #endif

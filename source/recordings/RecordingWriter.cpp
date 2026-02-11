@@ -8,6 +8,7 @@
 #include "lib/debug/debug_utils.h"
 #include "network/Server.h"
 #include "network/ServerToClient.h"
+#include "network/ClientToServer.h"
 #include "network/network_defines.h"
 #include "app/globals.h"
 #include "app/app.h"
@@ -72,32 +73,147 @@ bool writePacket( std::ostream &out, const Directory &dir )
     return out.good();
 }
 
+template<>
+struct RecordingSourceTraits<Server>
+{
+    static Directory *GetLetterData( Server *s, int index )
+    {
+        ServerToClientLetter *letter = s->GetRecordingHistoryLetter( index );
+        return letter ? letter->m_data : nullptr;
+    }
+    
+    static void GetHeader( Server *s, DcgrHeader &h )
+    {
+        h.nextClientId   = s->m_nextClientId;
+        h.gameStartSeqId = s->m_gameStartSeqId >= 0 ? s->m_gameStartSeqId : 0;
+        h.endSeqId       = s->m_sequenceId;
+        h.serverVersion  = APP_VERSION;
+        h.pack           = false;
+    }
+    
+    static bool GetSyncByte( Server *s, int seqId, unsigned char &out )
+    {
+        if( s->m_recordingSyncBytes.ValidIndex( seqId ) )
+        {
+            out = s->m_recordingSyncBytes[seqId];
+            return true;
+        }
+
+        //
+        // Fallback: try to get from connected clients
+
+        for( int j = 0; j < s->m_clients.Size(); ++j )
+        {
+            if( s->m_clients.ValidIndex( j ) )
+            {
+                ServerToClient *s2c = s->m_clients[j];
+                if( s2c->m_sync.ValidIndex( seqId ) )
+                {
+                    out = s2c->m_sync[seqId];
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static bool IsReplaying( Server *s )
+    {
+        return s->m_replayingRecording;
+    }
+    
+    static int GetGameStartSeqId( Server *s )
+    {
+        return s->m_gameStartSeqId;
+    }
+};
+
+
+template<>
+struct RecordingSourceTraits<ClientToServer>
+{
+    static Directory *GetLetterData( ClientToServer *c, int index )
+    {
+        return c->GetRecordingHistoryLetter( index );
+    }
+    
+    static void GetHeader( ClientToServer *c, DcgrHeader &h )
+    {
+        h.nextClientId   = 0;  // Client doesn't assign client IDs
+        h.gameStartSeqId = c->GetGameStartSeqId() >= 0 ? c->GetGameStartSeqId() : 0;
+        h.serverVersion  = APP_VERSION;
+        h.pack           = false;
+
+        //
+        // Get endSeqId from last history entry
+
+        int size = c->GetRecordingHistorySize();
+        if( size > 0 )
+        {
+            Directory *last = c->GetRecordingHistoryLetter( size - 1 );
+            if( last && last->HasData( NET_DEFCON_SEQID ) )
+            {
+                h.endSeqId = last->GetDataInt( NET_DEFCON_SEQID );
+            }
+            else
+            {
+                h.endSeqId = 0;
+            }
+        }
+        else
+        {
+            h.endSeqId = 0;
+        }
+    }
+    
+    static bool GetSyncByte( ClientToServer *c, int seqId, unsigned char &out )
+    {
+        if( c->m_recordingSyncBytes.ValidIndex( seqId ) )
+        {
+            out = c->m_recordingSyncBytes[seqId];
+            return true;
+        }
+        return false;
+    }
+    
+    static bool IsReplaying( ClientToServer *c )
+    {
+        return false;
+    }
+    
+    static int GetGameStartSeqId( ClientToServer *c )
+    {
+        return c->GetGameStartSeqId();
+    }
+};
+
 //
-// Return number of game update packets n history for the 
+// Return number of game update packets in history for the 
 // given sequence id. Used to fill "ct" in "sq" packets
 
-int countGameUpdatesInSequence( Server *server, int seqId )
+template<typename SourceType>
+int countGameUpdatesInSequence( SourceType *source, int seqId )
 {
     int count = 0;
-    int size = server->GetRecordingHistorySize();
+    int size = source->GetRecordingHistorySize();
 
     for( int i = 0; i < size; ++i )
     {
-        ServerToClientLetter *letter = server->GetRecordingHistoryLetter( i );
-        if( !letter || !letter->m_data )
+        Directory *data = RecordingSourceTraits<SourceType>::GetLetterData( source, i );
+        if( !data )
         {
             continue;
         }
-        if( letter->m_data->GetDataInt( NET_DEFCON_SEQID ) != seqId )
+        if( data->GetDataInt( NET_DEFCON_SEQID ) != seqId )
         {
             continue;
         }
-        if( !letter->m_data->HasData( NET_DEFCON_COMMAND ) )
+        if( !data->HasData( NET_DEFCON_COMMAND ) )
         {
             continue;
         }
 
-        const char *cmd = letter->m_data->GetDataString( NET_DEFCON_COMMAND );
+        const char *cmd = data->GetDataString( NET_DEFCON_COMMAND );
         if( cmd && *cmd == 'c' )
         {
             ++count;
@@ -130,9 +246,11 @@ DcgrHeader::DcgrHeader()
 {
 }
 
-bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
+
+template<typename SourceType>
+bool RecordingWriter::WriteToFile( SourceType *source, const std::string &filename )
 {
-    if( !server || filename.empty() )
+    if( !source || filename.empty() )
     {
         return false;
     }
@@ -151,11 +269,7 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
 #endif
 
     DcgrHeader header;
-    header.nextClientId   = server->m_nextClientId;
-    header.gameStartSeqId = server->m_gameStartSeqId >= 0 ? server->m_gameStartSeqId : 0;
-    header.endSeqId       = server->m_sequenceId;
-    header.serverVersion  = APP_VERSION;
-    header.pack           = false;
+    RecordingSourceTraits<SourceType>::GetHeader( source, header );
 
     if( !writeDcgrHeader( out, header ) )
     {
@@ -181,22 +295,22 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
     // Precompute game update count per seq for "ct".
 
     int lastSeqId = -1;
-    int historySize = server->GetRecordingHistorySize();
+    int historySize = source->GetRecordingHistorySize();
 
     for( int i = 0; i < historySize; ++i )
     {
-        ServerToClientLetter *letter = server->GetRecordingHistoryLetter( i );
-        if( !letter || !letter->m_data )
+        Directory *data = RecordingSourceTraits<SourceType>::GetLetterData( source, i );
+        if( !data )
         {
             continue;
         }
 
-        int seqId = letter->m_data->GetDataInt( NET_DEFCON_SEQID );
+        int seqId = data->GetDataInt( NET_DEFCON_SEQID );
 
         if( seqId != lastSeqId )
         {
             lastSeqId = seqId;
-            int ct = countGameUpdatesInSequence( server, seqId );
+            int ct = countGameUpdatesInSequence( source, seqId );
             Directory sq;
             sq.SetName( "sq" );
             sq.CreateData( "z", seqId );
@@ -209,31 +323,11 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
             // m_sync for this sequence.
 
             unsigned char syncByte = 0;
-            bool haveSync = server->m_recordingSyncBytes.ValidIndex( seqId );
-            if( haveSync )
-            {
-                syncByte = server->m_recordingSyncBytes[seqId];
-            }
-            else
-            {
-                for( int j = 0; j < server->m_clients.Size(); ++j )
-                {
-                    if( server->m_clients.ValidIndex( j ) )
-                    {
-                        ServerToClient *s2c = server->m_clients[j];
-                        if( s2c->m_sync.ValidIndex( seqId ) )
-                        {
-                            syncByte = s2c->m_sync[seqId];
-                            haveSync = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if( haveSync )
+            if( RecordingSourceTraits<SourceType>::GetSyncByte( source, seqId, syncByte ) )
             {
                 sq.CreateData( NET_DEFCON_SYNCVALUE, syncByte );
             }
+            
             if( !writePacket( out, sq ) )
             {
 #ifdef _DEBUG
@@ -246,7 +340,7 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
         //
         // Write the data packet and add it to the cumulative checksum
 
-        if( !writePacket( out, *letter->m_data ) )
+        if( !writePacket( out, *data ) )
         {
 #ifdef _DEBUG
             AppDebugOut( "RecordingWriter: Failed to write packet at history index %d\n", i );
@@ -257,7 +351,7 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
         //
         // Add this packet to the security checksum for next sequence
 
-        secChecksum.Add( *letter->m_data );
+        secChecksum.Add( *data );
     }
 
 #ifdef _DEBUG
@@ -267,10 +361,13 @@ bool RecordingWriter::WriteToFile( Server *server, const std::string &filename )
     return out.good();
 }
 
+template bool RecordingWriter::WriteToFile<Server>        ( Server *source, const std::string &filename );
+template bool RecordingWriter::WriteToFile<ClientToServer>( ClientToServer *source, const std::string &filename );
 
-bool RecordingWriter::SaveToRecordingsFolder( Server *server )
+template<typename SourceType>
+bool RecordingWriter::SaveToRecordingsFolder( SourceType *source )
 {
-    if( !server || server->m_replayingRecording || server->GetRecordingHistorySize() == 0 )
+    if( !source || RecordingSourceTraits<SourceType>::IsReplaying( source ) || source->GetRecordingHistorySize() == 0 )
     {
         return false;
     }
@@ -278,7 +375,7 @@ bool RecordingWriter::SaveToRecordingsFolder( Server *server )
     //
     // Only save .dcrec if the game actually makes it past the lobby
 
-    if( server->m_gameStartSeqId < 0 )
+    if( RecordingSourceTraits<SourceType>::GetGameStartSeqId( source ) < 0 )
     {
 #ifdef _DEBUG
         AppDebugOut( "RecordingWriter: Skipping save (game not started)\n" );
@@ -377,7 +474,7 @@ bool RecordingWriter::SaveToRecordingsFolder( Server *server )
     snprintf( path, sizeof(path), "%s/%s_%s.dcrec", recordingsDir.c_str(), serverName, dateTime );
     path[sizeof(path)-1] = '\0';
 
-    if( !WriteToFile( server, path ) )
+    if( !WriteToFile( source, path ) )
     {
         return false;
     }
@@ -386,3 +483,6 @@ bool RecordingWriter::SaveToRecordingsFolder( Server *server )
 
     return true;
 }
+
+template bool RecordingWriter::SaveToRecordingsFolder<Server>        ( Server *source );
+template bool RecordingWriter::SaveToRecordingsFolder<ClientToServer>( ClientToServer *source );

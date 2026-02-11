@@ -1043,7 +1043,12 @@ void HandleGameStart()
                 g_app->m_gameStartTimer -= 0.5f;
                 if( g_app->m_gameStartTimer <= 0 )
                 {
-                    g_app->StartGame();     
+                    if( !g_app->GetServer() && g_app->GetClientToServer()->IsConnected() )
+                    {
+                        g_app->GetClientToServer()->SetGameStartSeqId( g_lastProcessedSequenceId );
+                    }
+                    
+                    g_app->StartGame();
                 }
             }
         }

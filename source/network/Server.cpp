@@ -431,12 +431,6 @@ void Server::Shutdown()
     }
 
     //
-    // Save .dcrec to recordings/ (servername_YYYY_MM_DD_HH-MM.dcrec) before clearing history
-
-    RecordingWriter writer;
-    writer.SaveToRecordingsFolder( this );
-
-    //
     // Delete everything
 
     m_clients.EmptyAndDelete();
