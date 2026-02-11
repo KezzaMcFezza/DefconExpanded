@@ -80,7 +80,7 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(TARGET_MSVC)
 #include <direct.h>
 #elif !defined(WIN32) && !defined(_WIN32)
 #include <unistd.h>
@@ -2229,7 +2229,7 @@ const char *App::GetRecordingsDirectory()
             // On Windows, GetDefconDirectory() returns empty, so use current directory
             
             char cwd[512];
-#if defined(WIN32) || defined(_WIN32)
+#if defined(TARGET_MSVC)
             if( _getcwd( cwd, (int)sizeof(cwd) ) )
 #else
             if( getcwd( cwd, (int)sizeof(cwd) ) )
