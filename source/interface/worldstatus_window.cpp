@@ -24,6 +24,8 @@
 #include "interface/interface.h"
 #include "interface/worldstatus_window.h"
 #include "interface/alliances_window.h"
+#include "interface/connecting_window.h"
+#include "lib/gucci/input.h"
 
 
 static float GetRecordingSpeedForButton( int gameSpeed )
@@ -110,7 +112,10 @@ public:
 
         char newTooltip[1024];
         strcpy( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_x_faster_realtime") );
-		LPREPLACEINTEGERFLAG( 'S', m_timeScale.IntValue(), newTooltip );
+        int speedForTooltip = m_timeScale.IntValue();
+        if( isReplayMode && m_timeScale != GAMESPEED_PAUSED )
+            speedForTooltip = (int)GetRecordingSpeedForButton( m_timeScale.IntValue() );
+        LPREPLACEINTEGERFLAG( 'S', speedForTooltip, newTooltip );
 
         if( speedControllable )
         {
@@ -223,6 +228,77 @@ public:
         {
             g_app->GetClientToServer()->RequestGameSpeed( g_app->GetWorld()->m_myTeamId, m_timeScale.IntValue() );
         }
+    }
+};
+
+
+//
+// Seek bar for recording playback
+
+class RecordingSeekBar : public InterfaceButton
+{
+public:
+    float m_value;
+    bool  m_dragging;
+    bool  m_seeking;
+
+    RecordingSeekBar() : m_value(0.0f), m_dragging(false), m_seeking(false) {}
+
+    void MouseDown()
+    {
+        if( !g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode() ) 
+        {
+            return;
+        }
+        m_dragging = true;
+
+        UpdateValueFromMouse();
+    }
+
+    void MouseUp()
+    {
+        if( !m_dragging ) 
+        {
+            return;
+        }
+        m_dragging = false;
+
+        if( !g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode() ) 
+        {
+            return;
+        }
+
+        Server *server = g_app->GetServer();
+        int totalSeqIds = server->m_playbackController->GetEndSeqId();
+        int currentSeqId = server->m_playbackController->GetCurrentSeqId();
+        int targetSeqId = (int)( m_value * totalSeqIds );
+        targetSeqId = max( 0, min( targetSeqId, totalSeqIds ) );
+
+        if( targetSeqId > currentSeqId )
+        {
+            m_seeking = true;
+            server->EnableSeeking( targetSeqId );
+            if( !EclGetWindow( "Connection Status" ) )
+            {
+                ConnectingWindow *connectingWindow = new ConnectingWindow();
+                connectingWindow->m_popupLobbyAtEnd = false;
+                connectingWindow->SetFastForwardMode( true, targetSeqId, true );
+                EclRegisterWindow( connectingWindow );
+            }
+        }
+    }
+
+    void UpdateValueFromMouse()
+    {
+        int barLeft = m_parent->m_x + m_x;
+        float rel = ( g_inputManager->m_mouseX - barLeft ) / (float)m_w;
+        m_value = max( 0.0f, min( 1.0f, rel ) );
+    }
+
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        (void) highlighted;
+        (void) clicked;
     }
 };
 
@@ -361,6 +437,46 @@ void WorldStatusWindow::Create()
     twenty->SetProperties( "Fast", x+=g, 2, w, h, " ", "tooltip_timeaccel4", false, true );
     twenty->m_timeScale = GAMESPEED_FAST;
     RegisterButton( twenty );
+
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        RecordingSeekBar *seekBar = new RecordingSeekBar();
+        seekBar->SetProperties( "RecordingSeekBar", 4, 25, m_w - 9, 10, " ", "dialog_worldstatus_seek_recording", false, true );
+        RegisterButton( seekBar );
+    }
+}
+
+
+void WorldStatusWindow::Update()
+{
+    if( !g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode() ) 
+    {
+        return;
+    }
+
+    RecordingSeekBar *seekBar = (RecordingSeekBar*)GetButton( "RecordingSeekBar" );
+    if( !seekBar ) 
+    {
+        return;
+    }
+
+    Server *server = g_app->GetServer();
+    if( seekBar->m_dragging )
+    {
+        seekBar->UpdateValueFromMouse();
+    }
+    else if( !seekBar->m_seeking )
+    {
+        int total = server->m_playbackController->GetEndSeqId();
+        if( total > 0 )
+        {
+            seekBar->m_value = (float)server->m_playbackController->GetCurrentSeqId() / (float)total;
+        }
+    }
+    if( seekBar->m_seeking && !server->IsRecordingSeeking() )
+    {
+        seekBar->m_seeking = false;
+    }
 }
 
 
@@ -443,7 +559,10 @@ void WorldStatusWindow::Render( bool hasFocus )
 
 
     //
-    // Render progress bar for recording playback mode
+    // Render progress bar for recording playback mode:
+    // blue elapsed
+    // red gap when seeking ahead of elapsed
+    // orange seek thumb
 
     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
     {
@@ -461,18 +580,31 @@ void WorldStatusWindow::Render( bool hasFocus )
         float progressY = m_y + 25;
         float progressW = m_w - 9.0f;
         float progressH = 10;
-        
-        g_renderer2d->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
-        
-        //
-        // Progress fill
 
-        if (m_totalSeqIds > 0) 
+        g_renderer2d->RectFill( progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200) );
+
+        if( m_totalSeqIds > 0 )
         {
             float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
             float fillW = progressW * progress;
+            g_renderer2d->RectFill( progressX, progressY, fillW, progressH, Colour(100, 200, 100, 200) );
 
-            g_renderer2d->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
+            RecordingSeekBar *seekBar = (RecordingSeekBar*)GetButton( "RecordingSeekBar" );
+            if( seekBar )
+            {
+                float seekVal = max( 0.0f, min( 1.0f, seekBar->m_value ) );
+                float seekX = progressX + progressW * seekVal;
+
+                if( seekVal > progress + 0.001f )
+                {
+                    float gapW = ( seekVal - progress ) * progressW;
+                    g_renderer2d->RectFill( progressX + fillW, progressY, gapW, progressH, Colour(180, 60, 60, 200) );
+                }
+
+                const float thumbW = 3.0f;
+                float thumbX = seekX - thumbW * 0.5f;
+                g_renderer2d->RectFill( thumbX, progressY, thumbW, progressH, Colour(255, 140, 0, 255) );
+            }
         }
     }
 }

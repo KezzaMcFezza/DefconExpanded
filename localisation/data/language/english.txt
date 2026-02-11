@@ -696,6 +696,7 @@ dialog_worldstatus_points_value     Points Value:
 dialog_worldstatus_pop_in_millions  *P m
 # P = Population in millions
 dialog_worldstatus_classified       [classified]
+dialog_worldstatus_seek_recording   Click or drag to seek in recording
 dialog_stats                        Stats
 
 dialog_casualties_city              City

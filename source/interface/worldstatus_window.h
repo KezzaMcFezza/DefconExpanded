@@ -17,6 +17,7 @@ public:
     ~WorldStatusWindow();
 
     void Create();
+    void Update();
     void Render( bool hasFocus );
 };
 
