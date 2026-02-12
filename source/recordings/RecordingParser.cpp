@@ -189,6 +189,21 @@ void RecordingParser::AddToHistory( Directory *dir )
     g_app->GetServer()->m_recordingParseBuffer.PutDataAtEnd( letter );
 }
 
+static void FillDcgrHeaderFromDirectory( Directory &matchHeader, DcgrHeader &header )
+{
+    header.gameStartSeqId = 0;
+    header.endSeqId = 0x7fffffff;
+    header.nextClientId = 0;
+    header.serverVersion = "unknown";
+    header.pack = false;
+
+    if (matchHeader.HasData("ssid")) header.gameStartSeqId = matchHeader.GetDataInt("ssid");
+    if (matchHeader.HasData("esid")) header.endSeqId = matchHeader.GetDataInt("esid");
+    if (matchHeader.HasData("cid"))  header.nextClientId = matchHeader.GetDataInt("cid");
+    if (matchHeader.HasData("sv"))   header.serverVersion = matchHeader.GetDataString("sv");
+    if (matchHeader.HasData("pack")) header.pack = matchHeader.GetDataBool("pack");
+}
+
 //
 // Function to extract game start sequence ID from DCGR header like DedCon does
 
@@ -222,36 +237,7 @@ bool RecordingParser::ExtractHeader(const std::string &filename, DcgrHeader &hea
     //
     // Extract all metadata fields from the header
 
-    header.gameStartSeqId = 0;
-    header.endSeqId = 0x7fffffff;
-    header.nextClientId = 0;
-    header.serverVersion = "unknown";
-    header.pack = false;
-
-    if (matchHeader.HasData("ssid"))
-    {
-        header.gameStartSeqId = matchHeader.GetDataInt("ssid");
-    }
-    
-    if (matchHeader.HasData("esid"))
-    {
-        header.endSeqId = matchHeader.GetDataInt("esid");
-    }
-    
-    if (matchHeader.HasData("cid"))
-    {
-        header.nextClientId = matchHeader.GetDataInt("cid");
-    }
-    
-    if (matchHeader.HasData("sv"))
-    {
-        header.serverVersion = matchHeader.GetDataString("sv");
-    }
-    
-    if (matchHeader.HasData("pack"))
-    {
-        header.pack = matchHeader.GetDataBool("pack");
-    }
+    FillDcgrHeaderFromDirectory( matchHeader, header );
 
 #ifdef _DEBUG
     AppDebugOut("RecordingParser::ExtractHeader: ssid=%d, esid=%d, cid=%d, sv=%s\n",
@@ -268,6 +254,8 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
 {
     Directory matchHeader;
     if( !ReadHeaderPacket( matchHeader  ) ) return false;
+
+    FillDcgrHeaderFromDirectory( matchHeader, m_parsedHeader );
 
     //
     // Initialize security checksum for this recording
@@ -494,6 +482,11 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     m_server->m_lastRecordedSeqId = lastRecordedSeqId;
 
     return true;
+}
+
+const DcgrHeader &RecordingParser::GetParsedHeader() const
+{ 
+    return m_parsedHeader; 
 }
 
 void RecordingParser::Send( Directory *dir )

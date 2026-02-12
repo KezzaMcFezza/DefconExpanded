@@ -85,15 +85,9 @@ bool RecordingController::LoadRecording(const std::string &filename)
     m_server->m_recordingParseBuffer.Empty();
 
     //
-    // Extract metadata from header
+    // Get DCGR header from parser
 
-    if (!RecordingParser::ExtractHeader(filename, m_header, m_server))
-    {
-#ifdef _DEBUG
-        AppDebugOut("RecordingController: Failed to extract header metadata\n");
-#endif
-        return false;
-    }
+    m_header = parser.GetParsedHeader();
 
     m_filename = filename;
     m_startSeqId = m_header.gameStartSeqId;
