@@ -10,6 +10,7 @@
 
 #include "app/app.h"
 #include "app/globals.h"
+#include "world/world.h"
 #include "lib/multiline_text.h"
 
 #include "network/ClientToServer.h"

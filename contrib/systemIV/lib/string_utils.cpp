@@ -217,7 +217,7 @@ std::string Join( std::vector<std::string> _strings, const std::string &_separat
 {
 	std::ostringstream s;
 
-	int secondLast = _strings.size() - 1;
+	int secondLast = static_cast<int>(_strings.size()) - 1;
 	for ( int i = 0; i < secondLast; i++ )
 	{
 		s << _strings[i] << _separator;

@@ -328,7 +328,7 @@ void LobbyRenderer::RenderOverlay()
         else if( lastLineChars == -1 )
         {
             //lastLineChars = strlen(string) - (currentChars - maxChars);
-            lastLineChars = maxChars - (currentChars - (int) strlen(string));
+            lastLineChars = static_cast<int>(maxChars - (currentChars - (int) strlen(string)));
             Clamp( lastLineChars, 0, (int) strlen(string) );
         }
 

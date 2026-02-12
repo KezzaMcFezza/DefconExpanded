@@ -8,7 +8,10 @@ DWORD WinNT()
   {
     OSVERSIONINFO WinVer;
     WinVer.dwOSVersionInfoSize=sizeof(WinVer);
+#pragma warning(push)
+#pragma warning(disable: 4996)
     GetVersionEx(&WinVer);
+#pragma warning(pop)
     dwPlatformId=WinVer.dwPlatformId;
     dwMajorVersion=WinVer.dwMajorVersion;
     dwMinorVersion=WinVer.dwMinorVersion;
@@ -99,7 +102,10 @@ bool IsWindows11OrGreater()
   {
     OSVERSIONINFO WinVer;
     WinVer.dwOSVersionInfoSize=sizeof(WinVer);
+#pragma warning(push)
+#pragma warning(disable: 4996)
     GetVersionEx(&WinVer);
+#pragma warning(pop)
     IsWin11=WinVer.dwMajorVersion>10 || 
           WinVer.dwMajorVersion==10 && WinVer.dwBuildNumber >= 22000 && !WMI_IsWindows10();
     IsSet=true;

@@ -250,7 +250,7 @@ void AirBase::RunAI()
                                 obj->m_visible[m_teamId] &&
                                 g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude ) <= aggressionDistance * aggressionDistance )
                             {
-                                targetList.PutData( obj->m_objectId );
+                                (void)targetList.PutData( obj->m_objectId );
                             }
                         }
                     }

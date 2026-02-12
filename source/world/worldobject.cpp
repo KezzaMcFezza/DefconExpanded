@@ -963,7 +963,7 @@ void WorldObject::FireGun( Fixed range )
     bullet->m_origin = m_objectId;
     bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude );
     bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
-    g_app->GetWorld()->m_gunfire.PutData( bullet );
+    (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
 }
 
 int WorldObject::GetAttackOdds( int _defenderType )
@@ -1305,8 +1305,8 @@ char *WorldObject::LogState()
         char thisTeam[512];
         sprintf( thisTeam, "\n\tTeam %d visible[%d] seen[%d] pos[%s %s] vel[%s %s] seen[%s] state[%d]",
                             team->m_teamId,
-                            m_visible[team->m_teamId],
-                            m_seen[team->m_teamId],
+                            static_cast<int>(static_cast<bool>(m_visible[team->m_teamId])),
+                            static_cast<int>(static_cast<bool>(m_seen[team->m_teamId])),
                             HashDouble( m_lastKnownPosition[team->m_teamId].x.DoubleValue(), buf1 ),
                             HashDouble( m_lastKnownPosition[team->m_teamId].y.DoubleValue(), buf2 ),
                             HashDouble( m_lastKnownVelocity[team->m_teamId].x.DoubleValue(), buf3 ),

@@ -179,7 +179,7 @@ void TutorialWindow::Render( bool _hasFocus )
 					
                 g_renderer2d->TextSimple( xPos, yPos, White, 11, wrapped[i] );
 
-                charsSoFar += strlen( wrapped[i] );
+                charsSoFar += static_cast<int>(strlen( wrapped[i] ));
                 if( charsSoFar >= maxChars ) break;
             }
 

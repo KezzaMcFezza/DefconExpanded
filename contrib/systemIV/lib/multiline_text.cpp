@@ -45,7 +45,7 @@ MultiLineText::MultiLineText( const char *string, float lineSize, float fontSize
 		return;
 	}
 
-	fullLineLen = strlen( string );
+	fullLineLen = static_cast<unsigned int>(strlen( string ));
 	m_fullLine = Substring( string, fullLineLen );
 	fullLineEnd = m_fullLine + fullLineLen;
 

@@ -12,7 +12,7 @@ MemMappedFile::MemMappedFile(char const *_filename, unsigned int _size)
 {
 	m_data = new unsigned char[_size];
 	m_filename = strdup(_filename);
-	unsigned int len = strlen(_filename);
+	unsigned int len = static_cast<unsigned int>(strlen(_filename));
 	for (unsigned int i = 0; i < len; ++i)
 	{
 		if (m_filename[i] == '\\') 

@@ -1423,8 +1423,8 @@ char *MovingObject::LogState()
         char thisTeam[512];
         sprintf( thisTeam, "\n\tTeam %d visible[%d] seen[%d] pos[%s %s] vel[%s %s] seen[%s] state[%d]",
             team->m_teamId,
-            m_visible[team->m_teamId],
-            m_seen[team->m_teamId],
+            static_cast<int>(static_cast<bool>(m_visible[team->m_teamId])),
+            static_cast<int>(static_cast<bool>(m_seen[team->m_teamId])),
             HashDouble( m_lastKnownPosition[team->m_teamId].x.DoubleValue(), longitude ),
             HashDouble( m_lastKnownPosition[team->m_teamId].y.DoubleValue(), latitude ),
             HashDouble( m_lastKnownVelocity[team->m_teamId].x.DoubleValue(), velX ),

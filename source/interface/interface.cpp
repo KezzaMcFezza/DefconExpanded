@@ -62,7 +62,7 @@ void TruncateText(char *dest, const char *src, int maxLength, int suffixLength)
     if (!src || !dest) return;
 
     if (dest == src) {
-        int len = strlen(src);
+        int len = static_cast<int>(strlen(src));
         if (len <= maxLength) {
             return;
         }
@@ -74,7 +74,7 @@ void TruncateText(char *dest, const char *src, int maxLength, int suffixLength)
         return;
     }
     
-    int srcLen = strlen(src);
+    int srcLen = static_cast<int>(strlen(src));
     if (srcLen <= maxLength) {
         strcpy(dest, src);
         return;

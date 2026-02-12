@@ -520,7 +520,7 @@ void Carrier::FireGun( Fixed range)
     bullet->m_origin = m_objectId;
     bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type );
     bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude );
-    g_app->GetWorld()->m_gunfire.PutData( bullet );
+    (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
 }
 
 void Carrier::FleetAction( int targetObjectId )

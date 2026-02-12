@@ -286,7 +286,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		return false;
 	}
 
-	if ( SDL_GL_MakeCurrent( m_sdlWindow, m_glContext ) < 0 )
+	if ( !SDL_GL_MakeCurrent( m_sdlWindow, m_glContext ) )
 	{
 		printf( "Could not make SDL OpenGL context current: %s\n", SDL_GetError() );
 

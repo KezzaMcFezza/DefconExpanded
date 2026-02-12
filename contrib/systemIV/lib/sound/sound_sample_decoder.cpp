@@ -414,7 +414,7 @@ void SoundSampleDecoder::ReadWavHeader()
 static size_t ReadFunc( void *ptr, size_t size, size_t nmemb, void *datasource )
 {
 	BinaryReader *in = (BinaryReader *)datasource;
-	return in->ReadBytes( size * nmemb, (unsigned char *)ptr );
+	return in->ReadBytes( static_cast<unsigned int>(size * nmemb), (unsigned char *)ptr );
 }
 
 

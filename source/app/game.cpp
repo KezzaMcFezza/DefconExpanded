@@ -65,7 +65,7 @@ Game::Game()
                 char *subOption = newStr( in->GetRestOfLine() );
                 
                 // Strip trailing \n and \r
-                int stringLength = strlen(subOption);
+                int stringLength = static_cast<int>(strlen(subOption));
                 if( subOption[stringLength-1] == '\n' ) subOption[stringLength-1] = '\x0';                
                 if( subOption[stringLength-2] == '\r' ) subOption[stringLength-2] = '\x0';
                 

@@ -449,7 +449,7 @@ void Preferences::AddLine( const char *_line )
 		if ( !DoesKeyExist( item.m_key ) )
 		{
 			char *lineCopy = newStr( _line );
-			m_fileText.PutData( lineCopy );
+			(void)m_fileText.PutData( lineCopy );
 		}
 
 		switch ( item.m_type )
@@ -468,7 +468,7 @@ void Preferences::AddLine( const char *_line )
 	else
 	{
 		char *lineCopy = newStr( _line );
-		m_fileText.PutData( lineCopy );
+		(void)m_fileText.PutData( lineCopy );
 	}
 }
 

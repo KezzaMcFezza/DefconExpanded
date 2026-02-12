@@ -20,8 +20,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 
-#include <windows.h>
-
 //Fall back for getaddrinfo on older platform, see end of
 // http://msdn.microsoft.com/en-us/library/ms738520.aspx
 #include <ws2tcpip.h>

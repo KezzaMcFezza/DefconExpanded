@@ -83,14 +83,14 @@ UnicodeString::UnicodeString( wchar_t const *warray )
 	: m_unicodestring( NULL ),
 	  m_charstring( NULL )
 {
-	int length = wcslen( warray ) + 1;
+	int length = static_cast<int>(wcslen( warray )) + 1;
 	Init( length, warray, length );
 }
 
 
 UnicodeString::UnicodeString( char const *carray )
 {
-	m_linelength = strlen( carray ) + 1; // + 1 null terminator (which already exists in the char*).
+	m_linelength = static_cast<int>(strlen( carray )) + 1; // + 1 null terminator (which already exists in the char*).
 	m_unicodestring = new wchar_t[m_linelength];
 	m_charstring = new char[m_linelength];
 
@@ -172,8 +172,8 @@ UnicodeString::operator wchar_t *()
 
 UnicodeString UnicodeString::operator+( const UnicodeString &_other ) const
 {
-	int this_total_length = wcslen( m_unicodestring );
-	int that_total_length = wcslen( _other.m_unicodestring );
+	int this_total_length = static_cast<int>(wcslen( m_unicodestring ));
+	int that_total_length = static_cast<int>(wcslen( _other.m_unicodestring ));
 
 	UnicodeString newUstring( this_total_length + that_total_length + 1 );
 	memcpy( newUstring.m_unicodestring, m_unicodestring, this_total_length * sizeof( wchar_t ) );
@@ -229,7 +229,7 @@ bool UnicodeString::operator<( const UnicodeString &_other ) const
 
 static int CountOccurrences( wchar_t flag, const UnicodeString &_hay )
 {
-	int length = wcslen( _hay.m_unicodestring ) - 1;
+	int length = static_cast<int>(wcslen( _hay.m_unicodestring )) - 1;
 	int occurrences = 0;
 
 	for ( int i = 0; i < length; i++ )
@@ -284,7 +284,7 @@ void UnicodeString::ReplaceStringFlag( wchar_t flag, const UnicodeString &_strin
 
 	delete[] m_unicodestring;
 	m_unicodestring = final;
-	m_linelength = wcslen( m_unicodestring ) + 1;
+	m_linelength = static_cast<int>(wcslen( m_unicodestring )) + 1;
 
 	CopyUnicodeToCharArray();
 }
@@ -437,7 +437,7 @@ int UnicodeString::Length() const
 
 int UnicodeString::WcsLen() const
 {
-	return wcslen( m_unicodestring );
+	return static_cast<int>(wcslen( m_unicodestring ));
 }
 
 

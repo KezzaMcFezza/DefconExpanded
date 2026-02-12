@@ -1335,7 +1335,7 @@ int World::AddWorldObject( WorldObject *obj )
     {
         team->m_unitsInPlay[ obj->m_type ]++;
     }
-    m_objects.PutData( obj);
+    (void)m_objects.PutData( obj);
     obj->m_objectId = GenerateUniqueId();
     return obj->m_objectId;
 }
