@@ -257,19 +257,16 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     FillDcgrHeaderFromDirectory( matchHeader, m_parsedHeader );
 
     //
-    // Initialize security checksum for this recording
+    // Initialize security checksum for this parse.
 
     bool enableChecksumValidation = g_preferences->GetInt( PREFS_RECORDING_ENABLE_CHECKSUM, 1 ) != 0;
     static SecChecksum secChecksum;
     static bool warnedAboutChecksum = false;
     static bool warnedAboutMissingChecksum = false;
-    
-    if( enableChecksumValidation )
-    {
-        secChecksum = SecChecksum();
-        warnedAboutChecksum = false;
-        warnedAboutMissingChecksum = false;
-    }
+
+    secChecksum = SecChecksum();
+    warnedAboutChecksum = false;
+    warnedAboutMissingChecksum = false;
 
     //
     // Initialize base recording variables
