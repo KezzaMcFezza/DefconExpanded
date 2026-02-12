@@ -8,10 +8,13 @@
 #include "network/Server.h"
 #include "network/ClientToServer.h"
 #include "interface/connecting_window.h"
+#include "interface/interface.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/eclipse/components/message_dialog.h"
 #include "lib/language_table.h"
 #include "lib/netlib/net_lib.h"
+#include "world/world.h"
+#include "world/team.h"
 
 RecordingServer::RecordingServer()
 {
@@ -114,6 +117,51 @@ bool RecordingServer::StartPlayback(const std::string& filename, bool startFromL
     }
 
     EclRegisterWindow(connectingWindow);
+
+    return true;
+}
+
+bool RecordingServer::CreateFakeDisconnect(Team *team)
+{
+    if (!team || !g_app->GetWorld())
+    {
+        return false;
+    }
+
+    //
+    // Only convert human teams
+
+    if (team->m_type != Team::TypeLocalPlayer && team->m_type != Team::TypeRemotePlayer)
+    {
+        return false;
+    }
+
+    //
+    // Store team names
+
+    char teamName[256];
+    strncpy(teamName, team->m_name, sizeof(teamName) - 1);
+    teamName[sizeof(teamName) - 1] = '\0';
+
+    team->m_clientId = -1;
+    team->SetTeamType(Team::TypeAI);
+
+    //
+    // Show world message
+
+    char worldMsg[256];
+    strcpy(worldMsg, LANGUAGEPHRASE("dialog_world_disconnected"));
+    LPREPLACESTRINGFLAG('T', teamName, worldMsg);
+    strupr(worldMsg);
+    g_app->GetInterface()->ShowMessage(0, 0, -1, worldMsg, true);
+
+    //
+    // Add chat message
+
+    char chatMsg[256];
+    strcpy(chatMsg, LANGUAGEPHRASE("dialog_world_team_left_game"));
+    LPREPLACESTRINGFLAG('T', teamName, chatMsg);
+    g_app->GetWorld()->AddChatMessage(-1, 100, chatMsg, -1, false);
 
     return true;
 }

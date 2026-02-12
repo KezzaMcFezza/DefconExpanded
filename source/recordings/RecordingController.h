@@ -27,9 +27,11 @@ public:
     bool IsActive            () const;
     bool IsPaused            () const;
     bool IsRecordingFinished () const;
+    bool IsInCPUTakeover     () const;
     bool IsInFastForward     () const;
     bool IsSeeking           () const;
     bool MarkFinished        ();                             // Call when history runs out
+    bool EnableCPUTakeover   ();                             // Convert human teams to AI and enable CPU takeover
 
     int   GetCurrentSeqId() const;
     int   GetStartSeqId  () const;
@@ -59,6 +61,7 @@ private:
 
     bool m_paused;
     bool m_finished;                                         // True when playback reached end of history
+    bool m_cpuTakeoverMode;                                 // True when CPU takeover is active (reading from live history)
     float m_speed;                                           // Current playback speed
     double m_lastAdvanceTime;                                // Last time we advanced for timing
 

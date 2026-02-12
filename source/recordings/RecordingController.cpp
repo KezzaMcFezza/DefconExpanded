@@ -3,12 +3,19 @@
 #include "RecordingController.h"
 #include "RecordingWriter.h"
 #include "RecordingParser.h"
+#include "RecordingServer.h"
 
 #include "network/Server.h"
+#include "network/network_defines.h"
 #include "app/app.h"
 #include "app/globals.h"
 #include "interface/connecting_window.h"
+#include "interface/interface.h"
 #include "lib/hi_res_time.h"
+#include "world/world.h"
+#include "world/team.h"
+#include "lib/math/random_number.h"
+#include "lib/language_table.h"
 
 #include <fstream>
 
@@ -20,6 +27,7 @@ RecordingController::RecordingController(Server *server)
     m_endSeqId(0),
     m_paused(false),
     m_finished(false),
+    m_cpuTakeoverMode(false),
     m_speed(1.0f),
     m_lastAdvanceTime(0.0),
     m_fastForwardMode(false),
@@ -120,6 +128,7 @@ void RecordingController::Reset()
     
     m_active = false;
     m_finished = false;
+    m_cpuTakeoverMode = false;
     m_filename.clear();
     m_currentSeqId = 0;
     m_startSeqId = 0;
@@ -256,6 +265,40 @@ float RecordingController::GetAdvanceSpeedMultiplier() const
 
 ServerToClientLetter* RecordingController::GetNextRecordedLetter()
 {
+    //
+    // If in CPU takeover mode and recording history is finished
+    // read from Servers live history
+
+
+    if (m_active && m_cpuTakeoverMode && m_currentSeqId >= m_history.Size())
+    {
+        if (!m_server)
+        {
+            return NULL;
+        }
+    
+        int desiredSeqId = m_endSeqId + 1 + (m_currentSeqId - m_history.Size());
+        if (desiredSeqId < m_server->GetRecordingHistorySize())
+        {
+            ServerToClientLetter *liveLetter = m_server->GetRecordingHistoryLetter(desiredSeqId);
+            
+            //
+            // Verify the sequence ID matches
+
+            if (liveLetter && liveLetter->m_data)
+            {
+                int letterSeqId = liveLetter->m_data->GetDataInt(NET_DEFCON_SEQID);
+                if (letterSeqId == desiredSeqId)
+                {
+                    m_currentSeqId++;
+                    return liveLetter;
+                }
+            }
+        }
+        
+        return NULL;
+    }
+
     if (!m_active || m_currentSeqId >= m_history.Size())
     {
         return NULL;
@@ -320,13 +363,62 @@ bool RecordingController::MarkFinished()
     {
         return false;
     }
+
     m_finished = true;
     m_active = false;
+    m_cpuTakeoverMode = false;
+
     if (m_server)
     {
         m_server->m_unlimitedSend = false;
     }
+    
     return true;
+}
+
+bool RecordingController::IsInCPUTakeover() const
+{
+    return m_cpuTakeoverMode;
+}
+
+bool RecordingController::EnableCPUTakeover()
+{
+    if (m_cpuTakeoverMode || m_finished)
+    {
+        return false;
+    }
+
+    if (!g_app || !g_app->GetWorld())
+    {
+        return false;
+    }
+
+    //
+    // Identify human teams and convert them to AI
+    // Human teams are those with TypeLocalPlayer or TypeRemotePlayer
+
+    int teamsConverted = 0;
+    for (int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i)
+    {
+        Team *team = g_app->GetWorld()->m_teams[i];
+        if (team && 
+            (team->m_type == Team::TypeLocalPlayer || team->m_type == Team::TypeRemotePlayer))
+        {
+            if (RecordingServer::CreateFakeDisconnect(team))
+            {
+                teamsConverted++;
+            }
+        }
+    }
+
+    if (teamsConverted > 0)
+    {
+        m_cpuTakeoverMode = true;
+        m_currentSeqId = m_history.Size() + 1;
+        return true;
+    }
+
+    return false;
 }
 
 bool RecordingController::IsInFastForward() const

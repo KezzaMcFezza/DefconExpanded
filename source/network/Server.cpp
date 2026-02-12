@@ -339,7 +339,7 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
 
 void Server::ForceSpectatorMode( int _clientId )
 {
-    if( m_playbackController->IsActive() )
+    if( m_playbackController->IsActive() || m_playbackController->IsInCPUTakeover() )
     {
         RegisterSpectator( _clientId );
     }
@@ -1703,7 +1703,7 @@ void Server::Advance()
 
             SendClientId( clientId );
             
-            if( m_playbackController->IsActive() && clientId != -1 )
+            if( (m_playbackController->IsActive() || m_playbackController->IsInCPUTakeover()) && clientId != -1 )
             {
 #ifndef SYNC_PRACTICE
                 ForceSpectatorMode( clientId );
@@ -1735,7 +1735,7 @@ void Server::Advance()
         {
             if( clientId != -1 && !g_app->m_gameRunning )
             {
-                if( m_playbackController->IsActive() )
+                if( m_playbackController->IsActive() || m_playbackController->IsInCPUTakeover() )
                 {
 #ifndef SYNC_PRACTICE
                     ForceSpectatorMode( clientId );
@@ -1843,7 +1843,17 @@ void Server::Advance()
             int endBehaviour = g_preferences->GetInt( PREFS_RECORDING_END_BEHAVIOUR, 0 );
             if( endBehaviour == 0 ) 
             {
+                //
+                // Stop mode
+
                 m_playbackController->MarkFinished();
+            }
+            else if( endBehaviour == 1 && !m_playbackController->IsInCPUTakeover() )
+            {
+                //
+                // CPU takeover mode
+
+                m_playbackController->EnableCPUTakeover();
             }
         }
         if( recordedLetter && recordedLetter->m_data )
@@ -2602,6 +2612,11 @@ bool Server::IsRecordingPaused() const
 bool Server::IsRecordingFinished() const
 {
     return m_playbackController->IsRecordingFinished();
+}
+
+bool Server::IsRecordingCPUTakeover() const
+{
+    return m_playbackController->IsInCPUTakeover();
 }
 
 bool Server::IsRecordingFastForwardMode() const
