@@ -471,7 +471,9 @@ void WorldStatusWindow::Update()
         int total = server->m_playbackController->GetEndSeqId();
         if( total > 0 )
         {
-            seekBar->m_value = (float)server->m_playbackController->GetCurrentSeqId() / (float)total;
+            int current = server->m_playbackController->GetCurrentSeqId();
+            float progress = (float)current / (float)total;
+            seekBar->m_value = max(0.0f, min(1.0f, progress));
         }
     }
     if( seekBar->m_seeking && !server->IsRecordingSeeking() )
@@ -594,6 +596,7 @@ void WorldStatusWindow::Render( bool hasFocus )
         if( m_totalSeqIds > 0 )
         {
             float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
+            progress = max(0.0f, min(1.0f, progress));
             float fillW = progressW * progress;
             g_renderer2d->RectFill( progressX, progressY, fillW, progressH, Colour(100, 200, 100, 200) );
 
