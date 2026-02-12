@@ -310,7 +310,8 @@ public:
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
         int defcon = g_app->GetWorld()->GetDefcon();
-        if( m_defcon != defcon )
+        bool isCurrentDefcon = g_app->m_gameRunning && ( m_defcon == defcon );
+        if( !isCurrentDefcon )
         {
             g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,100) );
             g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(200,200,200,100) );
@@ -491,24 +492,31 @@ void WorldStatusWindow::Render( bool hasFocus )
     // Render defcon
 
     g_renderer->SetFont( "kremlin" );
-    g_renderer2d->TextSimple( m_x + 5, m_y + 4,  White, 15, LANGUAGEPHRASE("dialog_worldstatus_defcon") );
+    g_renderer2d->TextSimple( m_x + 4.5f, m_y + 2.5f,  White, 18, LANGUAGEPHRASE("dialog_worldstatus_defcon") );
     g_renderer->SetFont();
     int defCon = g_app->GetWorld()->GetDefcon();
 
     if( defCon != m_lastKnownDefcon )
     {
-        char msg[128];
-        strcpy( msg, LANGUAGEPHRASE("dialog_worldstatus_defcon_x") );
-		LPREPLACEINTEGERFLAG( 'D', defCon, msg );
-        g_app->GetInterface()->ShowMessage( 0, 0, -1, msg, true );
-        m_lastKnownDefcon = defCon;
+        //
+        // In the lobby, just sync m_lastKnownDefcon so we dont flash DEFCON 5.
 
-        if( defCon < 5 )
+        if( g_app->m_gameRunning )
         {
+            char msg[128];
+            strcpy( msg, LANGUAGEPHRASE("dialog_worldstatus_defcon_x") );
+            LPREPLACEINTEGERFLAG( 'D', defCon, msg );
+            g_app->GetInterface()->ShowMessage( 0, 0, -1, msg, true );
+
+            if( defCon < 5 )
+            {
 #ifdef TOGGLE_SOUND
-            g_soundSystem->TriggerEvent( "Interface", "DefconChange" );
+                g_soundSystem->TriggerEvent( "Interface", "DefconChange" );
 #endif
+            }
         }
+
+        m_lastKnownDefcon = defCon;
     }
 
 

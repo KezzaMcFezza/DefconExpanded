@@ -30,6 +30,12 @@ COMPLETED:
 - 3D nukes in directx11 rendering as wireframes                - DONE
 - optimise resource::getimage()                                - DONE
 - optimise world::getgamescale()                               - DONE
+- implement native file dialogs to systemiv                    - DONE
+- refactor recording functionality completely, add dcrec       - DONE
+  generation to clients
+- radiation not rendering in globe mode                        - DONE
+- radiation rendering no longer a menu option, now a 
+  toolbar button                                               - DONE  
 
 IN PROGRESS:
 
@@ -46,11 +52,8 @@ IN PROGRESS:
 - crash when selecting fleets after team switching to a new 
   team with fleet placement window
 - megavbo triangles uses alot of frame time for no apparent reason
-- refactor recording functionality completely, add dcrec 
-  generation to clients
 - remove sprintf usage where possible and use std::to_chars instead
 - remove vsprintf per draw call for text rendering
-- implement native file dialogs to systemiv
 - add setters and getters for buffer sizes
 - add a lazy texture cache, string renders once and then stored for later use.
   prevents blitchar() churn

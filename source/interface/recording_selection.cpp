@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/filesys/native_dialog.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/render/renderer.h"
@@ -8,6 +9,7 @@
 
 #include "recordings/RecordingServer.h"
 #include "interface/recording_selection.h"
+#include "interface/worldstatus_window.h"
 #include "lib/eclipse/components/message_dialog.h"
 #include "lib/eclipse/eclipse.h"
 
@@ -94,6 +96,8 @@ void PlayFromLobbyButton::MouseUp()
 
     RecordingServer recordingServer;
     recordingServer.StartPlayback( recordingFilename, true );
+
+    EclRegisterWindow( new WorldStatusWindow( "WorldStatus" ) );
 }
 
 void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bool clicked )
