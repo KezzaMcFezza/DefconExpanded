@@ -626,7 +626,8 @@ Directory *ClientToServer::GetNextLetter()
             // Only the first letter of a run expands. Continuation letters must not 
             // append again.
 
-            if( seqId >= 0 )
+            bool buildingHistory = !( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() );
+            if( seqId >= 0 && buildingHistory )
             {
                 if( letter->m_subDirectories.Size() == 0 &&
                     letter->HasData( NET_DEFCON_NUMEMPTYUPDATES, DIRECTORY_TYPE_INT ) )
@@ -1562,7 +1563,10 @@ void ClientToServer::CastVote( unsigned char teamId, unsigned char voteId, unsig
 
 void ClientToServer::SendSyncronisation( int _lastProcessedId, unsigned char _sync )
 {
-    m_recordingSyncBytes.PutData( _sync, _lastProcessedId );
+    if( !( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() ) )
+    {
+        m_recordingSyncBytes.PutData( _sync, _lastProcessedId );
+    }
 
     Directory *letter = new Directory();
 
