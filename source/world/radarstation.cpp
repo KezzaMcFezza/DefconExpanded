@@ -1,9 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/resource/resource.h"
-#include "lib/language_table.h"
 
-#include "app/app.h"
-#include "app/globals.h"
+#include "lib/language_table.h"
 
 #include "world/radarstation.h"
 

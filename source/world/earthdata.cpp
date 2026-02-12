@@ -1,9 +1,9 @@
 #include "lib/universal_include.h"
+
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/math/vector3.h"
 #include "lib/hi_res_time.h"
-#include "lib/preferences.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -14,7 +14,6 @@
 #include "earthdata.h"
 
 #include "app/modsystem.h"
-#include "renderer/map_renderer.h"
 
 #include <memory>
 

@@ -1,12 +1,11 @@
 #include "lib/universal_include.h"
+
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
-#include "lib/preferences.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/math/random_number.h"
-#include "lib/sound/soundsystem.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -17,9 +16,6 @@
 
 #include "world/world.h"
 #include "world/carrier.h"
-#include "world/bomber.h"
-#include "world/fighter.h"
-#include "world/city.h"
 #include "world/nuke.h"
 #include "world/depthcharge.h"
 #include "world/fleet.h"

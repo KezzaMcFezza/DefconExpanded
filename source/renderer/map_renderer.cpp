@@ -26,7 +26,6 @@
 #include "app/app.h"
 #include "app/globals.h"
 #include "lib/multiline_text.h"
-#include "app/tutorial.h"
 #include "app/game.h"
 #ifdef TARGET_OS_MACOSX
 #include "app/macutil.h"
@@ -34,9 +33,7 @@
 
 #include "network/ClientToServer.h"
 
-#include "lib/eclipse/components/core.h"
 #include "interface/interface.h"
-#include "interface/worldobject_window.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"

@@ -6,7 +6,6 @@
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/hi_res_time.h"
-#include "lib/metaserver/authentication.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"

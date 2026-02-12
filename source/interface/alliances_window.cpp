@@ -1,8 +1,8 @@
 #include "lib/universal_include.h"
+
 #include "lib/language_table.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
-#include "lib/hi_res_time.h"
 
 #include "alliances_window.h"
 

@@ -62,7 +62,6 @@
 #endif
 
 #include "lib/eclipse/components/message_dialog.h"
-#include "interface/demo_window.h"
 
 #ifdef SYNC_PRACTICE
 #include "interface/lobby_window.h"
@@ -109,7 +108,6 @@ int mkdir(const char *pathname, mode_t mode) {
 #endif
 
 #include "lib/resource/image.h"
-#include "lib/netlib/net_mutex.h"
 
 #ifdef TARGET_OS_MACOSX
 #include <sys/stat.h>

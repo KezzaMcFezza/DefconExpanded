@@ -1,14 +1,13 @@
 #include "lib/universal_include.h"
+
 #include "lib/language_table.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/resource/resource.h"
 
 #include "radar_perspective_window.h"
 #include "lib/eclipse/components/core.h"
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "app/game.h"
 
 #include "world/world.h"
 #include "world/team.h"

@@ -1,4 +1,5 @@
-#include "systemiv.h"
+#include "lib/universal_include.h"
+
 #include "lib/render/styletable.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
@@ -6,7 +7,6 @@
 #include "lib/preferences.h"
 #include "lib/language_table.h"
 
-#include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/inputfield.h"
 #include "lib/eclipse/components/checkbox.h"
 #include "lib/eclipse/components/filedialog.h"
@@ -14,8 +14,6 @@
 #include "lib/eclipse/components/message_dialog.h"
 
 #include "renderer/world_renderer.h"
-#include "renderer/map_renderer.h"
-
 #include "styleeditor_window.h"
 
 #include <string.h>

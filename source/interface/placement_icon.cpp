@@ -1,7 +1,7 @@
 #include "lib/universal_include.h"
+
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
-#include "lib/preferences.h"
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
 
@@ -18,13 +18,6 @@
 
 #include "interface/interface.h"
 #include "interface/placement_icon.h"
-
-#include "world/silo.h"
-#include "world/sub.h"
-#include "world/radarstation.h"
-#include "world/battleship.h"
-#include "world/airbase.h"
-#include "world/carrier.h"
 
 
 PlacementIconWindow::PlacementIconWindow( const char *name, int unitType )

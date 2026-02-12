@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\json.hpp">
+      <Filter>TinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h">
+      <Filter>TinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h">
+      <Filter>TinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h">
+      <Filter>TinyGLTF</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="TinyGLTF">
+      <UniqueIdentifier>{2859bd40-8ff1-48c0-b7e0-e236f06263b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc">
+      <Filter>TinyGLTF</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

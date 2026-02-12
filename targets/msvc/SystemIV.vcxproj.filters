@@ -5,30 +5,6 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
       <Filter>contrib\glad</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\aligned_allocator.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\nanobenchmark.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\per_target.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\print.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\targets.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc">
-      <Filter>contrib\tinygltf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp">
       <Filter>lib</Filter>
     </ClCompile>
@@ -383,18 +359,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\json.hpp">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h">
       <Filter>lib</Filter>
     </ClInclude>
@@ -783,12 +747,6 @@
     </Filter>
     <Filter Include="contrib\glad">
       <UniqueIdentifier>{3e1e193c-e518-44ab-b8ee-5c8ac1b83208}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\highway">
-      <UniqueIdentifier>{0487f91a-108b-48a2-bb07-04b97f4fdf30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\tinygltf">
-      <UniqueIdentifier>{74be8ae1-170d-4378-9111-3b0032f01395}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{3ba88bfe-20db-44a5-822f-d6b16dc28555}</UniqueIdentifier>

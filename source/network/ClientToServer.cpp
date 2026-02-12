@@ -4,8 +4,6 @@
 #include "lib/netlib/net_udp_packet.h"
 #include "lib/netlib/net_socket_listener.h"
 #include "lib/netlib/net_mutex.h"
-#include "lib/netlib/net_thread.h"
-#include "lib/netlib/net_socket.h"
 #include "lib/metaserver/matchmaker.h"
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/metaserver/authentication.h"

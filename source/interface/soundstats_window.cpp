@@ -1,7 +1,5 @@
-#include "systemiv.h"
-#include "lib/debug/debug_utils.h"
-#include "lib/preferences.h"
-#include "lib/debug/profiler.h"
+#include "lib/universal_include.h"
+
 #include "lib/gucci/window_manager.h"
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/soundsystem.h"

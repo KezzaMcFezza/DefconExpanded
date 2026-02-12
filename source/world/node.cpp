@@ -1,17 +1,6 @@
 #include "lib/universal_include.h"
 
-#include <string.h>
-
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
-
-#include "app/app.h"
-#include "app/globals.h"
-
 #include "world/node.h"
-#include "world/world.h"
-
-#include "interface/interface.h"
 
 #include "renderer/map_renderer.h"
 

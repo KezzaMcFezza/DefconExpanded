@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/metaserver/metaserver.h"
@@ -9,7 +10,6 @@
 #include "lib/tosser/directory.h"
 #include "lib/language_table.h"
 #include "lib/resource/resource.h"
-#include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/string_utils.h"
@@ -26,7 +26,6 @@
 #include "interface/lobby_window.h"
 #include "interface/chat_window.h"
 #include "interface/connecting_window.h"
-#include "interface/demo_window.h"
 #include "interface/badkey_window.h"
 
 #include "network/ClientToServer.h"

@@ -1,5 +1,5 @@
-#include "systemiv.h"
-#include "lib/sound/sound_library_3d.h"
+#include "lib/universal_include.h"
+
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/resampler_polyphase.h"
@@ -7,7 +7,6 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
-#include "lib/debug/profiler.h"
 
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/inputfield.h"

@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/hi_res_time.h"
 #include "lib/tosser/directory.h"
 #include "lib/metaserver/metaserver.h"
@@ -9,20 +10,12 @@
 
 #include "interface/serverbrowser_window.h"
 #include "lib/eclipse/components/message_dialog.h"
-#include "interface/connecting_window.h"
-#include "interface/badkey_window.h"
-
-#include "network/ClientToServer.h"
-#include "network/Server.h"
 
 #include "app/app.h"
 #include "app/globals.h"
 #include "app/game.h"
-#include "app/game_history.h"
-#include "app/modsystem.h"
 
 #include "world/world.h"
-
 #include "serverdetails_window.h"
 
 class ConnectToDetailsButton : public InterfaceButton

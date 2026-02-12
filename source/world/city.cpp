@@ -2,8 +2,6 @@
 
 #include <string.h>
 
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"
 
@@ -13,7 +11,6 @@
 #include "world/city.h"
 #include "world/world.h"
 #include "world/team.h"
-#include "world/nuke.h"
 
 #include "interface/interface.h"
 

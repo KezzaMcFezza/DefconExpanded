@@ -1,3 +1,5 @@
+#include "systemiv.h"
+
 #include "native_dialog.h"
 
 #include <stdlib.h>
@@ -16,8 +18,13 @@ struct DialogUserdata
 
 static void invoke_cb_and_free( void *ud, const char *const *filelist, int filter, int passFilter )
 {
+	if ( !ud )
+	{
+		return;
+	}
+
 	DialogUserdata *pack = (DialogUserdata *)ud;
-	if ( pack->callback )
+	if ( pack && pack->callback )
 	{
 		pack->callback( pack->userdata, filelist, passFilter );
 	}

@@ -1,9 +1,9 @@
 #include "lib/universal_include.h"
+
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
 #include "lib/language_table.h"
-#include "lib/preferences.h"
 
 #include "interface/toolbar.h"
 #include "interface/alliances_window.h"
@@ -404,7 +404,7 @@ class RadarButton : public ToggleBoolButton
         {
             m_toggle = EclGetWindow( "Radar Perspective" );
             ToolbarButton::Render( realX, realY, highlighted, clicked );
-            
+
             return;
         }
 

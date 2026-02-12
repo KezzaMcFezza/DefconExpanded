@@ -1,11 +1,10 @@
 #include "lib/universal_include.h"
+
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"
 #include "renderer/globe_renderer.h"
-#include "lib/math/random_number.h"
-#include "lib/gucci/input.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -21,7 +20,6 @@
 
 #include "world/world.h"
 #include "world/silo.h"
-#include "world/city.h"
 #include "world/nuke.h"
 
 

@@ -1,10 +1,8 @@
 #include "lib/universal_include.h"
+
 #include "lib/debug/debug_utils.h"
-#include "lib/hi_res_time.h"
 #include "lib/language_table.h"
 #include "lib/eclipse/eclipse.h"
-#include "lib/filesys/text_stream_readers.h"
-#include "lib/filesys/file_system.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"

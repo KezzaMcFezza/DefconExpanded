@@ -7,7 +7,6 @@
 
 #include "app/globals.h"
 #include "app/app.h"
-#include "app/game.h"
 
 #include "network/ClientToServer.h"
 

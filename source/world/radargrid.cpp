@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/debug/debug_utils.h"
 #include "lib/resource/bitmap.h"
 #include "lib/resource/image.h"

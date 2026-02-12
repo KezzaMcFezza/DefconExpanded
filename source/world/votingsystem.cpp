@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
+
 #include "lib/hi_res_time.h"
-#include "lib/resource/resource.h"
 
 #include "world/votingsystem.h"
 #include "world/world.h"

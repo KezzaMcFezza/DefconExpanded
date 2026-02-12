@@ -1,15 +1,11 @@
 #include "lib/universal_include.h"
+
 #include "lib/language_table.h"
-#include "lib/preferences.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/math/math_utils.h"
 
 #include <math.h>
 
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
-#include "lib/render/renderer.h"
-#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/debug/profiler.h"

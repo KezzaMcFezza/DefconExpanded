@@ -12,13 +12,10 @@
 #include "lib/netlib/net_udp_packet.h"
 #include "lib/netlib/net_socket_listener.h"
 #include "lib/netlib/net_mutex.h"
-#include "lib/netlib/net_thread.h"
-#include "lib/netlib/net_socket.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug/profiler.h"
 #include "lib/preferences.h"
 #include "lib/math/math_utils.h"
-#include "lib/math/random_number.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -39,10 +36,7 @@
 #include "recordings/RecordingWriter.h"
 #include "recordings/RecordingController.h"
 
-#include "interface/connecting_window.h"
-
 #include <fstream>
-#include <memory>
 
 
 // ****************************************************************************

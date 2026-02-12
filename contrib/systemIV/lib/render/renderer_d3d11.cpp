@@ -1,6 +1,6 @@
-#ifdef RENDERER_DIRECTX11
-
 #include "systemiv.h"
+
+#ifdef RENDERER_DIRECTX11
 
 #include <string.h>
 #include <time.h>

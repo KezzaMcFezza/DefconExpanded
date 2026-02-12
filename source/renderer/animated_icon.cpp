@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
@@ -10,7 +11,6 @@
 #include "app/globals.h"
 
 #include "lib/resource/resource.h"
-#include "lib/gucci/input.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"

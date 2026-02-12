@@ -5,7 +5,6 @@
 #include "SecChecksum.h"
 
 #include "lib/tosser/directory.h"
-#include "lib/hi_res_time.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/eclipse/components/message_dialog.h"
 #include "lib/preferences.h"

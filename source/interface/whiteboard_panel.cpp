@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
+
 #include "lib/gucci/window_manager.h"
-#include "lib/language_table.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -9,7 +9,6 @@
 #include "interface/whiteboard_panel.h"
 
 #include "renderer/world_renderer.h"
-#include "renderer/map_renderer.h"
 
 #include "world/world.h"
 #include "world/whiteboard.h"

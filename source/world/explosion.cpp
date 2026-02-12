@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/render3d/renderer_3d.h"
@@ -9,7 +10,6 @@
 #include "renderer/globe_renderer.h"
 
 #include "world/world.h"
-#include "world/team.h"
 #include "world/explosion.h"
 
 

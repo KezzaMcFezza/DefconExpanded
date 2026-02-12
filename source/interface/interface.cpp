@@ -15,8 +15,6 @@
 #include "lib/preferences.h"
 #include "lib/debug/profiler.h"
 #include "lib/string_utils.h"
-#include "lib/metaserver/matchmaker.h"
-#include "lib/metaserver/metaserver.h"
 #include "lib/render/styletable.h"
 #include "lib/imgui/imgui.h"
 
@@ -27,7 +25,6 @@
 #include "app/globals.h"
 #include "app/game.h"
 #include "lib/multiline_text.h"
-#include "app/tutorial.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
@@ -36,16 +33,12 @@
 #include "world/world.h"
 
 #include "lib/eclipse/components/core.h"
-#include "lib/eclipse/components/message_dialog.h"
 #include "interface/interface.h"
-#include "interface/network_window.h"
-#include "interface/profile_window.h"
 #include "interface/worldstatus_window.h"
 #include "interface/lobby_window.h"
 #include "interface/mainmenu.h"
 #include "interface/side_panel.h"
 #include "interface/chat_window.h"
-#include "interface/soundeditor_window.h"
 #include "interface/toolbar.h"
 #include "interface/tutorial_window.h"
 #include "interface/info_window.h"

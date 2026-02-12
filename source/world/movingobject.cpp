@@ -8,7 +8,6 @@
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/preferences.h"
-#include "lib/gucci/input.h"
 #include "lib/render3d/renderer_3d.h"
 
 #include "app/globals.h"
@@ -19,13 +18,11 @@
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
-#include "network/ClientToServer.h"
 
 #include "interface/interface.h"
 
 #include "world/world.h"
 #include "world/movingobject.h"
-#include "world/blip.h"
 #include "world/fleet.h"
 
 

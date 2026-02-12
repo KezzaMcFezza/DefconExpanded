@@ -16,16 +16,11 @@
 #include "lib/language_table.h"
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
-#include "lib/filesys/file_system.h"
-#include "lib/filesys/text_stream_readers.h"
 #include "lib/preferences.h"
-#include "lib/string_utils.h"
-
 #include "app/app.h"
 #include "app/globals.h"
 #include "app/game.h"
 #include "app/statusicon.h"
-#include "app/tutorial.h"
 
 #include "network/Server.h"
 #include "network/network_defines.h"

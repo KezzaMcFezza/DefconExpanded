@@ -16,7 +16,6 @@
 #include <float.h>
 #include <time.h>
 
-#include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug/debug_utils.h"
@@ -33,7 +32,6 @@
 
 #include "app/globals.h"
 #include "app/app.h"
-#include "app/game.h"
 #include "app/modsystem.h"
 #include "recordings/SyncTestRecordings.h"
 #include "app/version_manager.h"

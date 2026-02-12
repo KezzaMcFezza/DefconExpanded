@@ -22,7 +22,6 @@
 #include "world/depthcharge.h"
 #include "world/gunfire.h"
 #include "world/team.h"
-#include "world/city.h"
 
 
 DepthCharge::DepthCharge( Fixed range )

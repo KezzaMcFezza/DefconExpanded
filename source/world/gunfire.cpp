@@ -2,7 +2,6 @@
 
 #include <math.h>
 
-#include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
@@ -20,7 +19,6 @@
 #include "world/world.h"
 #include "world/gunfire.h"
 #include "world/team.h"
-#include "world/city.h"
 
 
 GunFire::GunFire( Fixed range )

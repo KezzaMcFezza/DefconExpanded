@@ -8,14 +8,10 @@
 #include "lib/netlib/net_lib.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/tosser/directory.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/authentication.h"
-#include "lib/metaserver/metaserver_defines.h"
-#include "lib/metaserver/matchmaker.h"
 #include "lib/language_table.h"
 #include "lib/gucci/input.h"
-#include "lib/gucci/window_manager.h"
 #include "lib/math/math_utils.h"
 #include "lib/preferences.h"
 #include "lib/string_utils.h"
@@ -34,14 +30,12 @@
 
 #include "network/Server.h"
 #include "network/ServerToClient.h"
-#include "network/network_defines.h"
 
 #include "world/world.h"
 
 #include "lib/eclipse/components/inputfield.h"
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/message_dialog.h"
-#include "interface/demo_window.h"
 #include "interface/badkey_window.h"
 
 #include "chat_window.h"

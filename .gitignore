@@ -7,6 +7,8 @@
 /targets/msvc/Win32
 /targets/msvc/x64
 /targets/msvc/Defcon Result
+/targets/msvc/Highway Result
+/targets/msvc/TinyGLTF Result
 /targets/msvc/ImGui Result
 /targets/msvc/SystemIV Result
 /targets/msvc/Unrar Result

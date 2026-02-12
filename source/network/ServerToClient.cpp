@@ -2,18 +2,9 @@
 
 #include <string.h>
 
-#include "lib/debug/debug_utils.h"
-#include "lib/netlib/net_socket.h"
-#include "lib/metaserver/authentication.h"
-#include "lib/metaserver/metaserver_defines.h"
-
-#include "app/app.h"
-#include "app/globals.h"
-
 #include "network/ServerToClient.h"
 #include "network/ClientToServer.h"
 #include "network/Server.h"
-#include "network/network_defines.h"
 
 
 

@@ -1,3 +1,5 @@
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
 #include "renderer_2d_d3d11.h"

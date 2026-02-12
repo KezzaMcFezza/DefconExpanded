@@ -10,12 +10,9 @@
 #include "app/app.h"
 #include "app/globals.h"
 #include "interface/connecting_window.h"
-#include "interface/interface.h"
 #include "lib/hi_res_time.h"
 #include "world/world.h"
 #include "world/team.h"
-#include "lib/math/random_number.h"
-#include "lib/language_table.h"
 
 #include <fstream>
 

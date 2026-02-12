@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/language_table.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
@@ -7,8 +8,6 @@
 #include "app/globals.h"
 #include "app/app.h"
 #include "app/game.h"
-
-#include "network/ClientToServer.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"

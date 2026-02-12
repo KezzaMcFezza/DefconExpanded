@@ -1,10 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
-#include "lib/render/renderer.h"
-#include "lib/render2d/renderer_2d.h"
+
 #include "lib/math/vector3.h"
-#include "lib/math/random_number.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -13,12 +9,8 @@
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
-#include "interface/interface.h"
-
 #include "world/world.h"
 #include "world/fighter.h"
-#include "world/team.h"
-#include "world/city.h"
 
 
 Fighter::Fighter()

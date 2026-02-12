@@ -11,7 +11,6 @@
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "app/game.h"
 
 #include "world/world.h"
 #include "world/worldobject.h"
@@ -35,7 +34,6 @@
 #include "world/city.h"
 #include "world/nuke.h"
 #include "world/tornado.h"
-#include "world/saucer.h"
 #include "world/fleet.h"
 
 

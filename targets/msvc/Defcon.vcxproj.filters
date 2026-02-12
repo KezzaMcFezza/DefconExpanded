@@ -268,9 +268,6 @@
       <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
-    <ClCompile Include="..\..\source\lib\universal_include.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\renderer\world_renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
@@ -294,6 +291,10 @@
     </ClCompile>
     <ClCompile Include="..\..\source\recordings\RecordingServer.cpp">
       <Filter>recordings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\radar_perspective_window.cpp" />
+    <ClCompile Include="..\..\source\lib\universal_include.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -561,6 +562,7 @@
     <ClInclude Include="..\..\source\recordings\RecordingServer.h">
       <Filter>recordings</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\interface\radar_perspective_window.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\docs\ai specifications.txt">

@@ -1,9 +1,9 @@
 #include "lib/universal_include.h"
+
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/filesys/file_system.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/language_table.h"
-#include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/metaserver/authentication.h"
 
@@ -21,7 +21,6 @@
 #include "renderer/world_renderer.h"
 
 #include "world/world.h"
-#include "world/fleet.h"
 
 
 Game::Game()

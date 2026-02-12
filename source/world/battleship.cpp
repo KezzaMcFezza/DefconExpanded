@@ -1,20 +1,14 @@
 #include "lib/universal_include.h"
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
+
 #include "lib/language_table.h"
-#include "lib/math/random_number.h"
-#include "lib/hi_res_time.h"
 
 #include "app/app.h"
 #include "app/globals.h"
 
 #include "renderer/map_renderer.h"
 
-#include "interface/interface.h"
-
 #include "world/world.h"
 #include "world/battleship.h"
-#include "world/gunfire.h"
 #include "world/fleet.h"
 
 

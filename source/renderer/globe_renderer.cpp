@@ -25,7 +25,6 @@
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "app/game.h"
 #ifdef TARGET_OS_MACOSX
 #include "app/macutil.h"
 #endif

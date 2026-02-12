@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+
 #include "lib/resource/resource.h"
 #include "lib/math/random_number.h"
 #include "lib/language_table.h"
@@ -17,9 +18,6 @@
 
 #include "world/world.h"
 #include "world/airbase.h"
-#include "world/bomber.h"
-#include "world/fighter.h"
-#include "world/city.h"
 #include "world/nuke.h"
 
 

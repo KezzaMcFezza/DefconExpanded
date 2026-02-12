@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
+
 #include "lib/gucci/input.h"
-#include "lib/gucci/window_manager.h"
 #include "lib/render/colour.h"
 #include "lib/resource/resource.h"
 #include "lib/language_table.h"
@@ -21,12 +21,6 @@
 #include "interface/fleet_placement_icon.h"
 #include "interface/side_panel.h"
 
-#include "world/silo.h"
-#include "world/sub.h"
-#include "world/radarstation.h"
-#include "world/battleship.h"
-#include "world/airbase.h"
-#include "world/carrier.h"
 #include "world/fleet.h"
 
 

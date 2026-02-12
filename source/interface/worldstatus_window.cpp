@@ -4,7 +4,6 @@
 
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
-#include "lib/resource/resource.h"
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
 
@@ -19,11 +18,8 @@
 
 #include "world/world.h"
 
-#include "renderer/map_renderer.h"
-
 #include "interface/interface.h"
 #include "interface/worldstatus_window.h"
-#include "interface/alliances_window.h"
 #include "interface/connecting_window.h"
 #include "lib/gucci/input.h"
 

@@ -134,9 +134,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>lib/universal_include.h</PrecompiledHeaderFile>
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -150,10 +149,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;SystemIV.lib;Unrar.lib;ImGui.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;SystemIV.lib;Unrar.lib;ImGui.lib;Highway.lib;TinyGLTF.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Debug;$(ProjectDir)Unrar Result/Debug;$(ProjectDir)ImGui Result/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Debug;$(ProjectDir)Unrar Result/Debug;$(ProjectDir)ImGui Result/Debug;$(ProjectDir)Highway Result/Debug;$(ProjectDir)TinyGLTF Result/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
@@ -197,9 +196,8 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>lib/universal_include.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -215,11 +213,11 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV.lib;Unrar.lib;ImGui.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV.lib;Unrar.lib;ImGui.lib;Highway.lib;TinyGLTF.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;$(ProjectDir)Highway Result/Release;$(ProjectDir)TinyGLTF Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -268,9 +266,8 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>lib/universal_include.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -286,11 +283,11 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;Highway Result/Release/Highway.lib;TinyGLTF Result/Release/TinyGLTF.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;$(ProjectDir)Highway Result/Release;$(ProjectDir)TinyGLTF Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -339,9 +336,8 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>lib/universal_include.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -357,10 +353,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;Highway Result/Release/Highway.lib;TinyGLTF Result/Release/TinyGLTF.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;$(ProjectDir)Highway Result/Release;$(ProjectDir)TinyGLTF Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -409,9 +405,8 @@
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>lib/universal_include.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -427,11 +422,11 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;Highway Result/Release/Highway.lib;TinyGLTF Result/Release/TinyGLTF.lib;../../contrib/systemIV/contrib/SDL3-3.4.0/windows/lib/SDL3-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;$(ProjectDir)Highway Result/Release;$(ProjectDir)TinyGLTF Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -501,11 +496,7 @@
     <ClCompile Include="..\..\source\interface\worldobject_window.cpp" />
     <ClCompile Include="..\..\source\interface\worldstatus_window.cpp" />
     <ClCompile Include="..\..\source\lib\universal_include.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64' Or '$(Configuration)|$(Platform)'=='Release|x64' Or '$(Configuration)|$(Platform)'=='Release Endgame|x64' Or '$(Configuration)|$(Platform)'=='Release Replay Viewer|x64' Or '$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp" />
     <ClCompile Include="..\..\source\network\Server.cpp" />
@@ -688,6 +679,12 @@
     </ProjectReference>
     <ProjectReference Include="ImGui.vcxproj">
       <Project>{a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Highway.vcxproj">
+      <Project>{b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="TinyGLTF.vcxproj">
+      <Project>{c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

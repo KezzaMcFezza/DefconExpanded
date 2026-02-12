@@ -4,14 +4,15 @@
 
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/window_manager.h"
 
 #include "app/app.h"
 #include "app/globals.h"
 #include "lib/multiline_text.h"
 
-#include "world/world.h"
-
+#include "network/ClientToServer.h"
 #include "connecting_window.h"
 #include "resynchronise_window.h"
 

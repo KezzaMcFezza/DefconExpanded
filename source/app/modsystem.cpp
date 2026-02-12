@@ -1,13 +1,12 @@
 #include "lib/universal_include.h"
+
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
-#include "lib/resource/sprite_atlas.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/render/styletable.h"
-#include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
@@ -23,7 +22,6 @@
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
-#include "interface/interface.h"
 #include "lib/eclipse/components/message_dialog.h"
 
 #include "globals.h"
