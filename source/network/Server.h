@@ -127,6 +127,7 @@ public:
     float GetRecordingAdvanceSpeedMultiplier() const;
     bool  IsRecordingPlaybackMode           () const;
     bool  IsRecordingPaused                 () const;
+    bool  IsRecordingFinished               () const;
     bool  IsRecordingFastForwardMode        () const;
     bool  IsRecordingSeeking                () const;
     bool  ShouldAllowTeamCreation           () const;

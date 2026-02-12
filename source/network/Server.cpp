@@ -1838,6 +1838,14 @@ void Server::Advance()
     if( m_playbackController->IsActive() )
     {
         ServerToClientLetter *recordedLetter = m_playbackController->GetNextRecordedLetter();
+        if( !recordedLetter && m_playbackController->GetCurrentSeqId() >= m_playbackController->GetHistorySize() )
+        {
+            int endBehaviour = g_preferences->GetInt( PREFS_RECORDING_END_BEHAVIOUR, 0 );
+            if( endBehaviour == 0 ) 
+            {
+                m_playbackController->MarkFinished();
+            }
+        }
         if( recordedLetter && recordedLetter->m_data )
         {
             //
@@ -2583,12 +2591,17 @@ float Server::GetRecordingAdvanceSpeedMultiplier() const
 
 bool Server::IsRecordingPlaybackMode() const
 {
-    return m_playbackController->IsActive();
+    return m_playbackController->IsActive() || m_playbackController->IsRecordingFinished();
 }
 
 bool Server::IsRecordingPaused() const
 {
     return m_playbackController->IsPaused();
+}
+
+bool Server::IsRecordingFinished() const
+{
+    return m_playbackController->IsRecordingFinished();
 }
 
 bool Server::IsRecordingFastForwardMode() const
@@ -2603,7 +2616,7 @@ bool Server::IsRecordingSeeking() const
 
 bool Server::ShouldAllowTeamCreation() const
 {
-    return !m_playbackController->IsActive();
+    return !m_playbackController->IsActive() && !m_playbackController->IsRecordingFinished();
 }
 
 bool Server::ShouldAllowServerControls() const

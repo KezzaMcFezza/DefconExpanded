@@ -825,7 +825,7 @@ void EmscriptenMainLoop()
             {
                 bool shouldAdvance = true;
                 if( g_app->GetServer()->IsRecordingPlaybackMode() && 
-                    g_app->GetServer()->IsRecordingPaused() )
+                    ( g_app->GetServer()->IsRecordingPaused() || g_app->GetServer()->IsRecordingFinished() ) )
                 {
                     shouldAdvance = false;
                     g_nextServerAdvanceTime = timeNow + 0.1f;
@@ -1164,11 +1164,11 @@ void DefconMain()
             else if( timeNow > nextServerAdvanceTime )
             {
                 //
-                // check if recording playback is paused, is so skip advances
+                // check if recording playback is paused or finished, if so skip advances
 
                 bool shouldAdvance = true;
                 if( g_app->GetServer()->IsRecordingPlaybackMode() && 
-                    g_app->GetServer()->IsRecordingPaused() )
+                    ( g_app->GetServer()->IsRecordingPaused() || g_app->GetServer()->IsRecordingFinished() ) )
                 {
                     shouldAdvance = false;
                     nextServerAdvanceTime = timeNow + 0.1f;

@@ -24,10 +24,12 @@ public:
     void EnableSeeking (int targetSeqId);
     void DisableSeeking();
 
-    bool IsActive        () const;
-    bool IsPaused        () const;
-    bool IsInFastForward () const;
-    bool IsSeeking       () const;
+    bool IsActive            () const;
+    bool IsPaused            () const;
+    bool IsRecordingFinished () const;
+    bool IsInFastForward     () const;
+    bool IsSeeking           () const;
+    bool MarkFinished        ();                             // Call when history runs out
 
     int   GetCurrentSeqId() const;
     int   GetStartSeqId  () const;
@@ -56,6 +58,7 @@ private:
     int m_endSeqId;                                          // Final sequence ID in recording
 
     bool m_paused;
+    bool m_finished;                                         // True when playback reached end of history
     float m_speed;                                           // Current playback speed
     double m_lastAdvanceTime;                                // Last time we advanced for timing
 

@@ -719,13 +719,15 @@ void Interface::Render()
         {
             bool gamePaused = ( g_app->GetWorld()->GetTimeScaleFactor() == 0 && g_app->GetGame()->m_winner == -1 );
             bool recordingPaused = ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && g_app->GetServer()->IsRecordingPaused() );
-            if( gamePaused || recordingPaused )
+            bool recordingFinished = ( g_app->GetServer() && g_app->GetServer()->IsRecordingFinished() );
+            if( gamePaused || recordingPaused || recordingFinished )
             {
                 float xPos = g_windowManager->WindowW()/2.0f;
                 float yPos = g_windowManager->WindowH()*0.5f;
                 float size = ( g_windowManager->WindowW() / 20.0f );
 
-                const char *msg = recordingPaused ? LANGUAGEPHRASE("dialog_recording_paused") : LANGUAGEPHRASE("dialog_paused");
+                const char *msg = recordingFinished ? LANGUAGEPHRASE("dialog_recording_finished") :
+                                  recordingPaused ? LANGUAGEPHRASE("dialog_recording_paused") : LANGUAGEPHRASE("dialog_paused");
                 g_renderer2d->TextCentreSimple( xPos, yPos, White, size, msg );
             }
         }

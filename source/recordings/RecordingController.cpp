@@ -19,6 +19,7 @@ RecordingController::RecordingController(Server *server)
     m_startSeqId(0),
     m_endSeqId(0),
     m_paused(false),
+    m_finished(false),
     m_speed(1.0f),
     m_lastAdvanceTime(0.0),
     m_fastForwardMode(false),
@@ -118,6 +119,7 @@ void RecordingController::Reset()
     ClearHistory();
     
     m_active = false;
+    m_finished = false;
     m_filename.clear();
     m_currentSeqId = 0;
     m_startSeqId = 0;
@@ -305,6 +307,26 @@ bool RecordingController::IsActive() const
 bool RecordingController::IsPaused() const
 {
     return m_paused;
+}
+
+bool RecordingController::IsRecordingFinished() const
+{
+    return m_finished;
+}
+
+bool RecordingController::MarkFinished()
+{
+    if (m_finished)
+    {
+        return false;
+    }
+    m_finished = true;
+    m_active = false;
+    if (m_server)
+    {
+        m_server->m_unlimitedSend = false;
+    }
+    return true;
 }
 
 bool RecordingController::IsInFastForward() const
