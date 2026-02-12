@@ -52,6 +52,9 @@ dialog_game_starting                Game Starting...
 dialog_tutorial_starting            Tutorial Starting...
 dialog_exit_defcon                  Exit Defcon?
 dialog_leave_this_game              Leave this game?
+dialog_save_recording_title         Save Recording
+dialog_save_recording_line1         Save this game as
+dialog_save_recording_line2         a recording?
 dialog_chapter                      Chapter *C
 # C = Chapter
 dialog_tutorial                     Tutorial *T
@@ -248,11 +251,31 @@ dialog_networkfailedgamerunning     You cannot alter your network settings\nwhil
 dialog_networksuccess               Success
 dialog_networksuccessfull           Your network settings\nhave been updated.
 dialog_networkporttooltip           Port number to use for communication. Valid port numbers are greater than 1024 and less than 65535.\nSpecify port 0 to let your system pick a free port for you.
+dialog_recordingoptions             Recordings
+dialog_recording_savelocation       Save Location
+dialog_recording_savelocation_tooltip Directory where recordings will be saved.
+dialog_browse                       Browse
+dialog_recording_checksum           Recording Checksum
+dialog_recording_checksum_tooltip   Flags corrupted or tampered with recordings. Turn off at your own risk!
+dialog_recording_enablecompression  Write Compressed
+dialog_recording_enablecompression_tooltip Enable compression for recording files, makes the file size smaller.
+dialog_recording_namingformat       Naming Format
+dialog_recording_namingformat_tooltip Choose how recording files are named.
+dialog_recording_naming_date        Date Only
+dialog_recording_naming_servername_date Server Name + Date
+dialog_recording_autosavebehaviour  Auto-Save Behaviour
+dialog_recording_autosavebehaviour_tooltip Choose when to prompt to save or save recordings automatically when leaving.
+dialog_recording_autosave_alwaysask Always Ask
+dialog_recording_autosave_onlylocal Local Only
+dialog_recording_autosave_multiplayerandlocal Local And Multiplayer
+dialog_recording_endbehaviour       Recording End Behaviour
+dialog_recording_endbehaviour_tooltip Choose what happens when a recording playback ends.
+dialog_recording_end_stop           Stop
+dialog_recording_end_cputakeover    CPU's take over
 dialog_troubleshooting              Having problems? Troubleshooting help
 dialog_troubleshooting_tooltip      Click here to visit our troubleshooting website to help diagnose any network related problems.
 dialog_no_change_while_in_game_1    You cannot alter your network settings
 dialog_no_change_while_in_game_2    while a game is running
-
 dialog_authoptions                  Authentication
 dialog_paste                        Paste
 dialog_paste_tooltip                Paste the key from the clipboard

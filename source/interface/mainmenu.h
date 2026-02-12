@@ -78,6 +78,26 @@ public:
 
 // ============================================================================
 
+class RecordingOptionsWindow : public InterfaceWindow
+{
+public:
+    char    m_saveLocation[512];
+    int     m_enableChecksum;
+    int     m_enableCompression;
+    int     m_namingFormat;
+    int     m_autoSaveBehaviour;
+    int     m_endBehaviour;
+
+public:
+    RecordingOptionsWindow();
+
+    void Create();
+    void Render( bool _hasFocus );
+};
+
+
+// ============================================================================
+
 class GlobeOptionsWindow : public InterfaceWindow
 {
 public:

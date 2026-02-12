@@ -1,11 +1,13 @@
 #include "lib/universal_include.h"
 
 #include "RecordingWriter.h"
+#include "RecordingParser.h"
 #include "SecChecksum.h"
 
 #include "lib/tosser/directory.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/debug/debug_utils.h"
+#include "lib/preferences.h"
 #include "network/Server.h"
 #include "network/ServerToClient.h"
 #include "network/ClientToServer.h"
@@ -13,6 +15,7 @@
 #include "app/globals.h"
 #include "app/app.h"
 #include "app/game.h"
+#include "world/world.h"
 
 #include <fstream>
 #include <sstream>
@@ -20,10 +23,10 @@
 #include <ctime>
 #include <cstdio>
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(TARGET_MSVC)
 #include <direct.h>
 #endif
-#if !defined(WIN32) && !defined(_WIN32)
+#if !defined(TARGET_MSVC)
 #include <unistd.h>
 #endif
 
@@ -186,6 +189,83 @@ struct RecordingSourceTraits<ClientToServer>
         return c->GetGameStartSeqId();
     }
 };
+
+//
+// High level save on leave function that decides what to do
+// when its time to save a recording.
+
+SaveRecordingResult RecordingWriter::SaveRecording()
+{
+    //
+    // Restrictions:
+    // - Servers can always save
+    // - Spectators can save mid game
+    // - Players can only save after the game has ended
+
+    bool shouldAskToSave = false;
+    bool isRecordingPlayback = ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() );
+
+    if( isRecordingPlayback )
+    {
+        shouldAskToSave = false;
+    }
+    else if( g_app->GetServer() )
+    {
+        shouldAskToSave = true;
+    }
+    else if( g_app->GetClientToServer() && g_app->GetClientToServer()->IsConnected() )
+    {
+        if( g_app->GetWorld() && g_app->GetGame() )
+        {
+            bool isSpectator = g_app->GetWorld()->AmISpectating();
+            bool gameFinished = g_app->GetGame()->m_winner != -1;
+
+            //
+            // Only ask to save if spectator or game finished to
+            // prevent cheating!!!
+
+            shouldAskToSave = isSpectator || gameFinished;
+        }
+    }
+
+    int autoSaveBehaviour = g_preferences->GetInt( PREFS_RECORDING_AUTO_SAVE_BEHAVIOUR, 0 );
+
+    if( autoSaveBehaviour == 1 )
+    {
+        if( g_app->GetServer() && !isRecordingPlayback )
+        {
+            RecordingWriter writer;
+            writer.SaveToRecordingsFolder( g_app->GetServer() );
+        }
+        return SaveRecordingResult_Leave;
+    }
+
+    if( shouldAskToSave && autoSaveBehaviour == 2 )
+    {
+        RecordingWriter writer;
+        Server *server = g_app->GetServer();
+        if( server )
+        {
+            writer.SaveToRecordingsFolder( server );
+        }
+        else
+        {
+            ClientToServer *client = g_app->GetClientToServer();
+            if( client )
+            {
+                writer.SaveToRecordingsFolder( client );
+            }
+        }
+        return SaveRecordingResult_Leave;
+    }
+
+    if( shouldAskToSave )
+    {
+        return SaveRecordingResult_ShowSaveDialog;
+    }
+
+    return SaveRecordingResult_Leave;
+}
 
 //
 // Return number of game update packets in history for the 
@@ -455,23 +535,54 @@ bool RecordingWriter::SaveToRecordingsFolder( SourceType *source )
 
     dateTime[sizeof(dateTime)-1] = '\0';
 
-    char baseDir[512];
-    baseDir[0] = '\0';
+    //
+    // Get save location from preferences (default is set at app startup)
 
-#if defined(WIN32) || defined(_WIN32)
-    if( !_getcwd( baseDir, (int)sizeof(baseDir) ) )
-#else
-    if( !getcwd( baseDir, (int)sizeof(baseDir) ) )
-#endif
+    std::string recordingsDir;
+    const char *saveLocation = g_preferences->GetString( PREFS_RECORDING_SAVE_LOCATION, "" );
+    if( saveLocation && saveLocation[0] != '\0' )
     {
-        return false;
+        recordingsDir = saveLocation;
+    }
+    else
+    {
+        recordingsDir = App::GetRecordingsDirectory();
     }
 
-    std::string recordingsDir = std::string( baseDir ) + "/recordings";
-    CreateDirectoryRecursively( recordingsDir.c_str() );
+    std::string normalizedDir = recordingsDir;
+#if defined(TARGET_MSVC)
+    for( size_t i = 0; i < normalizedDir.length(); ++i )
+    {
+        if( normalizedDir[i] == '\\' )
+        {
+            normalizedDir[i] = '/';
+        }
+    }
+#endif
 
+    CreateDirectoryRecursively( normalizedDir.c_str() );
+
+    //
+    // Build filename based on naming format preference
+
+    int namingFormat = g_preferences->GetInt( PREFS_RECORDING_NAMING_FORMAT, 1 );
     char path[1024];
-    snprintf( path, sizeof(path), "%s/%s_%s.dcrec", recordingsDir.c_str(), serverName, dateTime );
+    
+#if defined(TARGET_MSVC)
+    const char *pathSep = "\\";
+#else
+    const char *pathSep = "/";
+#endif
+    
+    if( namingFormat == 0 )
+    {
+        snprintf( path, sizeof(path), "%s%s%s.dcrec", recordingsDir.c_str(), pathSep, dateTime );
+    }
+    else
+    {
+        snprintf( path, sizeof(path), "%s%s%s_%s.dcrec", recordingsDir.c_str(), pathSep, serverName, dateTime );
+    }
+
     path[sizeof(path)-1] = '\0';
 
     if( !WriteToFile( source, path ) )

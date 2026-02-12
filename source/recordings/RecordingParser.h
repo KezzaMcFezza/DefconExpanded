@@ -5,6 +5,9 @@
 
 #include "SecChecksum.h"
 
+#define PREFS_RECORDING_ENABLE_CHECKSUM    "RecordingEnableChecksum"
+#define PREFS_RECORDING_END_BEHAVIOUR      "RecordingEndBehaviour"
+
 class Directory;
 class Server;
 struct DcgrHeader;

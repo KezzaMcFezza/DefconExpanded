@@ -67,6 +67,13 @@ NetworkClientPort = 5011
 NetworkUsePortForwarding = 0
 NetworkTrackSynchronisation = 0
 
+RecordingSaveLocation = 
+RecordingEnableChecksum = 1
+RecordingEnableCompression = 0
+RecordingNamingFormat = 1
+RecordingAutoSaveBehaviour = 0
+RecordingEndBehaviour = 0
+
 InterfaceTooltips = 1
 InterfacePopupScale = 7.0
 InterfaceSideScrolling = 1

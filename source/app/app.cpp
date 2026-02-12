@@ -50,6 +50,7 @@
 #include "app/tutorial.h"
 #include "app/modsystem.h"
 #include "app/macutil.h"
+#include "recordings/RecordingWriter.h"
 #include "recordings/SyncTestRecordings.h"
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
@@ -443,6 +444,15 @@ void App::MinimalInit()
 #elif defined(SYNC_PRACTICE)
     g_preferences->SetString( "PlayerName", "SyncPracticeClient" );
 #endif
+
+    //
+    // Ensure default recording save path is in preferences if not set yet
+
+    const char *saveLocation = g_preferences->GetString( PREFS_RECORDING_SAVE_LOCATION, "" );
+    if( !saveLocation || saveLocation[0] == '\0' )
+    {
+        g_preferences->SetString( PREFS_RECORDING_SAVE_LOCATION, GetRecordingsDirectory() );
+    }
 
     m_netLib = new NetLib();
     m_netLib->Initialise();
@@ -2242,7 +2252,11 @@ const char *App::GetRecordingsDirectory()
                 baseDir = ".";
             }
         }
+#if defined(TARGET_MSVC)
+        result = baseDir + "\\recordings\\";
+#else
         result = baseDir + "/recordings/";
+#endif
     }
 
     return result.c_str();

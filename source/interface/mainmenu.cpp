@@ -20,6 +20,7 @@
 
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/message_dialog.h"
+#include "lib/eclipse/eclipse.h"
 #include "interface/serverbrowser_window.h"
 #include "interface/lobby_window.h"
 #include "interface/soundoptions_window.h"
@@ -33,6 +34,7 @@
 #include "interface/network_window.h"
 #include "interface/demo_window.h"
 #include "interface/mod_window.h"
+#include "lib/filesys/native_dialog.h"
 
 #include "app/globals.h"
 #include "app/app.h"
@@ -44,6 +46,8 @@
 
 #include "network/network_defines.h"
 #include "network/Server.h"
+#include "recordings/RecordingWriter.h"
+#include "recordings/RecordingParser.h"
 
 #include "world/earthdata.h"
 
@@ -297,37 +301,121 @@ class MainMenuExitButton : public InterfaceButton
     }
 };
 
+static void LeaveGameAndOpenSetup()
+{
+    g_app->ShutdownCurrentGame();
+    EclRemoveAllWindows();
+
+#ifdef SYNC_PRACTICE
+    
+    //
+    // Start a new game and open lobby window
+    // instead of returning to main menu
+
+    LobbyWindow *lobby = new LobbyWindow();
+    bool success = lobby->StartNewServer();
+
+    if( success )
+    {
+        ChatWindow *chat = new ChatWindow();
+        chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2,
+                           g_windowManager->WindowH() - chat->m_h - 30 );
+        EclRegisterWindow( chat );
+
+        float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
+        float lobbyY = chat->m_y - lobby->m_h - 30;
+        lobbyY = max( lobbyY, 0.0f );
+        lobby->SetPosition(lobbyX, lobbyY);
+        EclRegisterWindow( lobby );
+    }
+#else
+    g_app->GetInterface()->OpenSetupWindows();
+#endif
+}
+
+
+class SaveRecordingOnLeaveNoButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        EclRemoveWindow( m_parent->m_name );
+        LeaveGameAndOpenSetup();
+    }
+};
+
+
+class SaveRecordingOnLeaveYesButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        RecordingWriter writer;
+        
+        Server *server = g_app->GetServer();
+        if( server )
+        {
+            writer.SaveToRecordingsFolder( server );
+        }
+        else
+        {
+            ClientToServer *client = g_app->GetClientToServer();
+            if( client )
+            {
+                writer.SaveToRecordingsFolder( client );
+            }
+        }
+
+        EclRemoveWindow( m_parent->m_name );
+        LeaveGameAndOpenSetup();
+    }
+};
+
+
+class SaveRecordingOnLeaveWindow : public InterfaceWindow
+{
+public:
+    SaveRecordingOnLeaveWindow()
+    :   InterfaceWindow( "Save Recording", "dialog_save_recording_title", true )
+    {
+        SetSize( 200, 100 );
+    }
+
+    void Create()
+    {
+        SaveRecordingOnLeaveYesButton *yes = new SaveRecordingOnLeaveYesButton();
+        yes->SetProperties( "SaveRecordingYes", 10, m_h-30, 70, 20, "dialog_yes", " ", true, false );
+        RegisterButton( yes );
+
+        SaveRecordingOnLeaveNoButton *no = new SaveRecordingOnLeaveNoButton();
+        no->SetProperties( "SaveRecordingNo", m_w-80, m_h-30, 70, 20, "dialog_no", " ", true, false );
+        RegisterButton( no );
+    }
+
+    void Render( bool hasFocus )
+    {
+        InterfaceWindow::Render( hasFocus );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+25, White, 15.0f, LANGUAGEPHRASE("dialog_save_recording_line1") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+45, White, 15.0f, LANGUAGEPHRASE("dialog_save_recording_line2") );
+    }
+};
+
+
 class ConfirmLeaveGameButton : public InterfaceButton
 {
     void MouseUp()
     {
-        g_app->ShutdownCurrentGame();
-        EclRemoveAllWindows();
-        
-#ifdef SYNC_PRACTICE
-        //
-        // start a new game and open lobby window
-        // instead of returning to main menu
-        
-        LobbyWindow *lobby = new LobbyWindow();
-        bool success = lobby->StartNewServer();
+        EclRemoveWindow( m_parent->m_name );
 
-        if( success )
+        SaveRecordingResult result = RecordingWriter::SaveRecording();
+
+        if( result == SaveRecordingResult_ShowSaveDialog )
         {
-            ChatWindow *chat = new ChatWindow();
-            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
-                               g_windowManager->WindowH() - chat->m_h - 30 );
-            EclRegisterWindow( chat );
-
-            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
-            float lobbyY = chat->m_y - lobby->m_h - 30;
-            lobbyY = max( lobbyY, 0.0f );
-            lobby->SetPosition(lobbyX, lobbyY);
-            EclRegisterWindow( lobby );
+            SaveRecordingOnLeaveWindow *saveWindow = new SaveRecordingOnLeaveWindow();
+            EclRegisterWindow( saveWindow );
+            saveWindow->Centralise();
+            return;
         }
-#else
-        g_app->GetInterface()->OpenSetupWindows();
-#endif
+
+        LeaveGameAndOpenSetup();
     }
 };
 
@@ -1022,6 +1110,15 @@ class NetworkOptionsButton : public InterfaceButton
     }
 };
 
+
+class RecordingOptionsButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        EclRegisterWindow( new RecordingOptionsWindow(), m_parent );
+    }
+};
+
 /*
 class OtherOptionsButton : public InterfaceButton
 {
@@ -1060,7 +1157,7 @@ class ControlOptionsButton : public InterfaceButton
 OptionsMenuWindow::OptionsMenuWindow()
 :   InterfaceWindow( "OptionsMenu", "dialog_options", true )
 {
-    SetSize( 190, 265 );
+    SetSize( 190, 290 );
     Centralise();
 }
 
@@ -1097,6 +1194,10 @@ void OptionsMenuWindow::Create()
     NetworkOptionsButton *network = new NetworkOptionsButton();
     network->SetProperties( "Network", 10, y+=h+g, m_w-20, h, "dialog_networkoptions", " ", true, false );
     RegisterButton( network );
+
+    RecordingOptionsButton *recordings = new RecordingOptionsButton();
+    recordings->SetProperties( "Recordings", 10, y+=h+g, m_w-20, h, "dialog_recordingoptions", " ", true, false );
+    RegisterButton( recordings );
 #endif
 
 #if !defined(RETAIL_DEMO)
@@ -1848,4 +1949,190 @@ void NetworkOptionsWindow::Render( bool _hasFocus )
         g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-60, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_1") );
         g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-45, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_2") );
     }
+}
+
+
+// ***************************************************************************
+// Class RecordingOptionsWindow
+// ***************************************************************************
+
+class BrowseRecordingLocationButton : public InterfaceButton
+{
+public:
+    static void FolderDialogCallback(void *userdata, const char *const *paths, int filterIndex)
+    {
+        (void)filterIndex;
+
+        if (!userdata || !paths || !*paths)
+        {
+            return;
+        }
+        
+        RecordingOptionsWindow *window = (RecordingOptionsWindow *)userdata;
+        const char *selectedPath = paths[0];
+        
+        if (!window || !selectedPath)
+        {
+            return;
+        }
+        
+        strncpy(window->m_saveLocation, selectedPath, sizeof(window->m_saveLocation) - 1);
+        window->m_saveLocation[sizeof(window->m_saveLocation) - 1] = '\0';
+    }
+    
+    void MouseUp()
+    {
+        RecordingOptionsWindow *parent = (RecordingOptionsWindow *)m_parent;
+        
+        void *window = g_windowManager ? g_windowManager->GetSDLWindow() : NULL;
+        const char *defaultPath = NULL;
+        
+        if( parent->m_saveLocation[0] != '\0' )
+        {
+            defaultPath = parent->m_saveLocation;
+        }
+        else
+        {
+            //
+            // Use the default recordings directory if no location is set
+
+            defaultPath = App::GetRecordingsDirectory();
+        }
+        
+        NativeShowOpenFolderDialog(
+            window,
+            defaultPath,
+            0,
+            FolderDialogCallback,
+            parent
+        );
+
+        AppDebugOut( defaultPath );
+    }
+};
+
+class ApplyRecordingButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        RecordingOptionsWindow *parent = (RecordingOptionsWindow *) m_parent;
+        
+        g_preferences->SetString( PREFS_RECORDING_SAVE_LOCATION, parent->m_saveLocation );
+        g_preferences->SetInt( PREFS_RECORDING_ENABLE_CHECKSUM, parent->m_enableChecksum );
+        g_preferences->SetInt( PREFS_RECORDING_ENABLE_COMPRESSION, parent->m_enableCompression );
+        g_preferences->SetInt( PREFS_RECORDING_NAMING_FORMAT, parent->m_namingFormat );
+        g_preferences->SetInt( PREFS_RECORDING_AUTO_SAVE_BEHAVIOUR, parent->m_autoSaveBehaviour );
+        g_preferences->SetInt( PREFS_RECORDING_END_BEHAVIOUR, parent->m_endBehaviour );
+        
+        g_preferences->Save();
+    }
+};
+
+RecordingOptionsWindow::RecordingOptionsWindow()
+:   InterfaceWindow( "Recordings", "dialog_recordingoptions", true )
+{
+    SetSize( 450, 320 );
+    Centralise();
+
+    const char *saveLocation = g_preferences->GetString( PREFS_RECORDING_SAVE_LOCATION, "" );
+    if( saveLocation && saveLocation[0] != '\0' )
+    {
+        strncpy( m_saveLocation, saveLocation, sizeof(m_saveLocation) - 1 );
+        m_saveLocation[sizeof(m_saveLocation) - 1] = '\0';
+    }
+    else
+    {
+        const char *defaultLocation = App::GetRecordingsDirectory();
+        strncpy( m_saveLocation, defaultLocation, sizeof(m_saveLocation) - 1 );
+        m_saveLocation[sizeof(m_saveLocation) - 1] = '\0';
+    }
+
+    m_enableChecksum = g_preferences->GetInt( PREFS_RECORDING_ENABLE_CHECKSUM, 1 );
+    m_enableCompression = g_preferences->GetInt( PREFS_RECORDING_ENABLE_COMPRESSION, 0 );
+    m_namingFormat = g_preferences->GetInt( PREFS_RECORDING_NAMING_FORMAT, 1 );
+    m_autoSaveBehaviour = g_preferences->GetInt( PREFS_RECORDING_AUTO_SAVE_BEHAVIOUR, 0 );
+    m_endBehaviour = g_preferences->GetInt( PREFS_RECORDING_END_BEHAVIOUR, 0 );
+}
+
+
+void RecordingOptionsWindow::Create()
+{
+    InterfaceWindow::Create();
+
+    int x = 220;
+    int w = m_w - x - 20;
+    int y = 30;
+    int h = 30;
+
+    InvertedBox *box = new InvertedBox();
+    box->SetProperties( "invert", 10, 50, m_w - 20, m_h - 110, " ", " ", false, false );        
+    RegisterButton( box );
+
+    CreateValueControl( "Save Location", x, y+=h, w-80, 20, InputField::TypeString, &m_saveLocation, 1, 0, 500, NULL, "dialog_recording_savelocation_tooltip", true );
+    
+    BrowseRecordingLocationButton *browse = new BrowseRecordingLocationButton();
+    browse->SetProperties( "Browse", x+w-75, y, 70, 20, "dialog_browse", " ", true, false );
+    RegisterButton( browse );
+
+    DropDownMenu *dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Recording Checksum", x, y+=h, w, 20, "dialog_recording_checksum", "dialog_recording_checksum_tooltip", true, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->RegisterInt( &m_enableChecksum );
+    RegisterButton( dropDown );
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Enable Compression", x, y+=h, w, 20, "dialog_recording_enablecompression", "dialog_recording_enablecompression_tooltip", true, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->RegisterInt( &m_enableCompression );
+    RegisterButton( dropDown );
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Recording Naming Format", x, y+=h, w, 20, "dialog_recording_namingformat", "dialog_recording_namingformat_tooltip", true, true );
+    dropDown->AddOption( "dialog_recording_naming_date", 0, true );
+    dropDown->AddOption( "dialog_recording_naming_servername_date", 1, true );
+    dropDown->RegisterInt( &m_namingFormat );
+    RegisterButton( dropDown );
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Auto-Save Behaviour", x, y+=h, w, 20, "dialog_recording_autosavebehaviour", "dialog_recording_autosavebehaviour_tooltip", true, true );
+    dropDown->AddOption( "dialog_recording_autosave_alwaysask", 0, true );
+    dropDown->AddOption( "dialog_recording_autosave_onlylocal", 1, true );
+    dropDown->AddOption( "dialog_recording_autosave_multiplayerandlocal", 2, true );
+    dropDown->RegisterInt( &m_autoSaveBehaviour );
+    RegisterButton( dropDown );
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Recording End Behaviour", x, y+=h, w, 20, "dialog_recording_endbehaviour", "dialog_recording_endbehaviour_tooltip", true, true );
+    dropDown->AddOption( "dialog_recording_end_stop", 0, true );
+    dropDown->AddOption( "dialog_recording_end_cputakeover", 1, true );
+    dropDown->RegisterInt( &m_endBehaviour );
+    RegisterButton( dropDown );
+
+    CloseButton *cancel = new CloseButton();
+    cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
+    RegisterButton( cancel );
+
+    ApplyRecordingButton *apply = new ApplyRecordingButton();
+    apply->SetProperties( "Apply", cancel->m_x+cancel->m_w+10, m_h - 30, m_w / 2 - 15, 20, "dialog_apply", " ", true, false );
+    RegisterButton( apply );     
+}
+
+
+void RecordingOptionsWindow::Render( bool _hasFocus )
+{
+    InterfaceWindow::Render( _hasFocus );
+
+    int x = m_x+20;
+    int y = m_y+35;
+    int h = 30;
+    int size = 13;
+
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_savelocation") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_checksum") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_enablecompression") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_namingformat") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_autosavebehaviour") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_recording_endbehaviour") );
 }

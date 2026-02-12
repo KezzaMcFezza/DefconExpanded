@@ -8,6 +8,7 @@
 #include "lib/hi_res_time.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/eclipse/components/message_dialog.h"
+#include "lib/preferences.h"
 #include "network/network_defines.h"
 #include "network/Server.h"
 #include "app/app.h"
@@ -271,12 +272,17 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
     //
     // Initialize security checksum for this recording
 
+    bool enableChecksumValidation = g_preferences->GetInt( PREFS_RECORDING_ENABLE_CHECKSUM, 1 ) != 0;
     static SecChecksum secChecksum;
     static bool warnedAboutChecksum = false;
     static bool warnedAboutMissingChecksum = false;
-    secChecksum = SecChecksum();
-    warnedAboutChecksum = false;
-    warnedAboutMissingChecksum = false;
+    
+    if( enableChecksumValidation )
+    {
+        secChecksum = SecChecksum();
+        warnedAboutChecksum = false;
+        warnedAboutMissingChecksum = false;
+    }
 
     //
     // Initialize base recording variables
@@ -316,7 +322,7 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
         //
         // Add raw bytes to checksum for non sq
 
-        if( !isSqPacket && rawPacketBytes.size() > 0 )
+        if( enableChecksumValidation && !isSqPacket && rawPacketBytes.size() > 0 )
         {
             secChecksum.Add( reinterpret_cast<const unsigned char *>( rawPacketBytes.data() ), (unsigned int)rawPacketBytes.size() );
         }
@@ -342,7 +348,7 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
             // Dedcon compatibility:
             // Comments must be added to checksum BEFORE validating vs
 
-            if( dir.HasData( "c" ) )
+            if( enableChecksumValidation && dir.HasData( "c" ) )
             {
                 std::string comment = dir.GetDataString( "c" );
                 secChecksum.Add( comment );
@@ -351,51 +357,54 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
             //
             // Validate security checksum if present
 
-            if( dir.HasData( "vs" ) )
+            if( enableChecksumValidation )
             {
-                int expectedChecksum = dir.GetDataInt( "vs" );
-                if( (int)secChecksum.Get() != expectedChecksum )
+                if( dir.HasData( "vs" ) )
                 {
-                    if( !warnedAboutChecksum )
+                    int expectedChecksum = dir.GetDataInt( "vs" );
+                    if( (int)secChecksum.Get() != expectedChecksum )
                     {
-                        #ifdef _DEBUG
-                        AppDebugOut( "ERROR: Invalid security checksum at sequence %d. The recording has been modified or corrupted.\n", nextSeqId );
-                        #else
-                        AppDebugOut( "ERROR: Invalid security checksum. The recording has been modified or corrupted.\n");
-                        #endif
-                        warnedAboutChecksum = true;
+                        if( !warnedAboutChecksum )
+                        {
+                            #ifdef _DEBUG
+                            AppDebugOut( "ERROR: Invalid security checksum at sequence %d. The recording has been modified or corrupted.\n", nextSeqId );
+                            #else
+                            AppDebugOut( "ERROR: Invalid security checksum. The recording has been modified or corrupted.\n");
+                            #endif
+                            warnedAboutChecksum = true;
 
-                        //
-                        // Show error dialog and refuse to load
+                            //
+                            // Show error dialog and refuse to load
 
-                        MessageDialog *msg = new MessageDialog( "CHECKSUM VALIDATION FAILED",
-                                                                "This recording has an invalid security checksum.\n\n"
-                                                                "The file may have been corrupted during transfer\n"
-                                                                "or modified manually.\n\n"
-                                                                "Recording playback has been blocked for safety.",
-                                                                false,
-                                                                "dialog_checksum_failed", true );
-                        EclRegisterWindow( msg );
+                            MessageDialog *msg = new MessageDialog( "CHECKSUM VALIDATION FAILED",
+                                                                    "This recording has an invalid security checksum.\n\n"
+                                                                    "The file may have been corrupted during transfer\n"
+                                                                    "or modified manually.\n\n"
+                                                                    "Recording playback has been blocked for safety.",
+                                                                    false,
+                                                                    "dialog_checksum_failed", true );
+                            EclRegisterWindow( msg );
+                        }
+                        return false;
                     }
+                }
+                else if( !warnedAboutMissingChecksum )
+                {
+                    AppDebugOut( "ERROR: No security checksum found in recording.\n" );
+                    warnedAboutMissingChecksum = true;
+
+                    //
+                    // Show error dialog and refuse to load
+
+                    MessageDialog *msg = new MessageDialog( "MISSING SECURITY CHECKSUM",
+                                                            "This recording does not contain security checksums.\n\n"
+                                                            "It may be an old recording from Dedcon 0.7 or earlier,\n"
+                                                            "Recording playback has been blocked for safety.\n\n",
+                                                            false,
+                                                            "dialog_checksum_missing", true );
+                    EclRegisterWindow( msg );
                     return false;
                 }
-            }
-            else if( !warnedAboutMissingChecksum )
-            {
-                AppDebugOut( "ERROR: No security checksum found in recording.\n" );
-                warnedAboutMissingChecksum = true;
-
-                //
-                // Show error dialog and refuse to load
-
-                MessageDialog *msg = new MessageDialog( "MISSING SECURITY CHECKSUM",
-                                                        "This recording does not contain security checksums.\n\n"
-                                                        "It may be an old recording from Dedcon 0.7 or earlier,\n"
-                                                        "Recording playback has been blocked for safety.\n\n",
-                                                        false,
-                                                        "dialog_checksum_missing", true );
-                EclRegisterWindow( msg );
-                return false;
             }
 
             for( int i = 0; i < nextSeqId - lastRecordedSeqId - 1; ++i )
