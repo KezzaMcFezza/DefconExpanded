@@ -452,6 +452,10 @@ dialog_alliance_radar               Radar
 dialog_alliance_sending             Sending
 dialog_alliance_cease               Cease
 dialog_alliance_fire                Fire
+dialog_replay_viewing_as            VIEWING AS: *s
+dialog_radar_perspective            RADAR PERSPECTIVE
+dialog_radar_overlay_on             RADAR: ON
+dialog_radar_overlay_off            RADAR: OFF
 
 dialog_placeunit                    Place Unit
 dialog_createfleet                  Create Fleet

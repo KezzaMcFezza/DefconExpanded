@@ -466,6 +466,7 @@
     <ClCompile Include="..\..\source\curves.cpp" />
     <ClCompile Include="..\..\source\defcon.cpp" />
     <ClCompile Include="..\..\source\interface\alliances_window.cpp" />
+    <ClCompile Include="..\..\source\interface\radar_perspective_window.cpp" />
     <ClCompile Include="..\..\source\interface\authkey_window.cpp" />
     <ClCompile Include="..\..\source\interface\badkey_window.cpp" />
     <ClCompile Include="..\..\source\interface\casualties_window.cpp" />
@@ -562,6 +563,7 @@
     <ClInclude Include="..\..\source\app\version_manager.h" />
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\interface\alliances_window.h" />
+    <ClInclude Include="..\..\source\interface\radar_perspective_window.h" />
     <ClInclude Include="..\..\source\interface\authkey_window.h" />
     <ClInclude Include="..\..\source\interface\badkey_window.h" />
     <ClInclude Include="..\..\source\interface\casualties_window.h" />

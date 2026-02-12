@@ -7,6 +7,7 @@
 
 #include "interface/toolbar.h"
 #include "interface/alliances_window.h"
+#include "interface/radar_perspective_window.h"
 #include "interface/chat_window.h"
 #include "interface/side_panel.h"
 #include "interface/worldstatus_window.h"
@@ -398,8 +399,35 @@ class RadarButton : public ToggleBoolButton
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
-        m_disabled = g_app->m_globeMode;
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        if( isReplayMode )
+        {
+            m_toggle = EclGetWindow( "Radar Perspective" );
+            ToolbarButton::Render( realX, realY, highlighted, clicked );
+            
+            return;
+        }
+
         ToggleBoolButton::Render( realX, realY, highlighted, clicked );
+    }
+
+    void MouseUp()
+    {
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        if( isReplayMode )
+        {
+            if( EclGetWindow( "Radar Perspective" ) )
+            {
+                EclRemoveWindow( "Radar Perspective" );
+            }
+            else
+            {
+                EclRegisterWindow( new RadarPerspectiveWindow() );
+            }
+            return;
+        }
+
+        ToggleBoolButton::MouseUp();
     }
 };
 
