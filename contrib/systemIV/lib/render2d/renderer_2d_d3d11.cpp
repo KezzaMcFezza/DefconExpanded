@@ -481,6 +481,7 @@ void Renderer2DD3D11::SetLineShaderUniforms( float lineWidth )
 				m_currentlyBoundGS = geometryShader;
 			}
 
+			m_deviceContext->GSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
 			m_deviceContext->GSSetConstantBuffers( 1, 1, &m_lineWidthConstantBuffer );
 		}
 

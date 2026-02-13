@@ -36,6 +36,8 @@ COMPLETED:
 - radiation not rendering in globe mode                        - DONE
 - radiation rendering no longer a menu option, now a 
   toolbar button                                               - DONE  
+- Fix DirectX11 geometry shader corrupting rendering with 
+  custom line widths                                           - DONE
 
 IN PROGRESS:
 
@@ -62,7 +64,6 @@ IN PROGRESS:
 - figure out why sprites are so cpu intensive
 - mouse icon on eclipse popup occluded by alpha fading 
   inside a fading window
-- Fix DirectX11 geometry shader corrupting rendering with custom line widths
 - Find memory leak when leaving and rejoing games over and over
 
 
