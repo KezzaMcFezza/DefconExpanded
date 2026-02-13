@@ -304,11 +304,33 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
         bool isSqPacket = ( strcmp( dir.m_name.c_str(), "sq" ) == 0 );
         
         //
-        // Add raw bytes to checksum for non sq
+        // Add to checksum for non sq. NUMEMPTYUPDATES were written as one "d" but the 
+        // writer added N individual empty Directory serializations to the checksum.
 
         if( enableChecksumValidation && !isSqPacket && rawPacketBytes.size() > 0 )
         {
-            secChecksum.Add( reinterpret_cast<const unsigned char *>( rawPacketBytes.data() ), (unsigned int)rawPacketBytes.size() );
+            bool collapsedEmptyRun = ( strcmp( dir.m_name.c_str(), NET_DEFCON_MESSAGE ) == 0
+                && dir.HasData( NET_DEFCON_NUMEMPTYUPDATES )
+                && dir.HasData( NET_DEFCON_COMMAND )
+                && strcmp( dir.GetDataString( NET_DEFCON_COMMAND ), NET_DEFCON_UPDATE ) == 0 );
+
+            if( collapsedEmptyRun )
+            {
+                int n = dir.GetDataInt( NET_DEFCON_NUMEMPTYUPDATES );
+                int seqId = dir.GetDataInt( NET_DEFCON_SEQID );
+                for( int k = 0; k < n; ++k )
+                {
+                    Directory empty;
+                    empty.SetName( NET_DEFCON_MESSAGE );
+                    empty.CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+                    empty.CreateData( NET_DEFCON_SEQID, seqId + k );
+                    secChecksum.Add( empty );
+                }
+            }
+            else
+            {
+                secChecksum.Add( reinterpret_cast<const unsigned char *>( rawPacketBytes.data() ), (unsigned int)rawPacketBytes.size() );
+            }
         }
 
         if( debugPrint )
@@ -432,29 +454,49 @@ bool RecordingParser::ParseRecording( bool sendDirectly, bool debugPrint, bool t
                     }
                     else
                     {
-                        // Server message
-                        if( dir.HasData( NET_DEFCON_CLIENTID ) )
+                        if( dir.HasData( NET_DEFCON_NUMEMPTYUPDATES ) && strcmp( cmd, NET_DEFCON_UPDATE ) == 0 )
                         {
-                            maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
+                            int n = dir.GetDataInt( NET_DEFCON_NUMEMPTYUPDATES );
+                            int seqId = dir.GetDataInt( NET_DEFCON_SEQID );
+                            for( int k = 0; k < n; ++k )
+                            {
+                                Directory *empty = new Directory();
+                                empty->SetName( NET_DEFCON_MESSAGE );
+                                empty->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+                                empty->CreateData( NET_DEFCON_SEQID, seqId + k );
+                                if( sendDirectly )
+                                    Send( empty );
+                                else
+                                    AddToHistory( empty );
+                            }
+                            lastRecordedSeqId = seqId + n - 1;
                         }
-
-                        if( trackSyncBytes && strcmp( cmd, NET_DEFCON_NETSYNCERROR ) == 0 )
-                        {
-                            // The recording has a sync error. Record this so that we don't
-                            // compare any sync values after this point.
-                            AppDebugOut( "WARNING: Recording has a sync error at sequence id %d\n", lastRecordedSeqId );
-                            syncErrorInRecording = true;
-                        }
-
-                        // Due to a bug in DEDCON, sometimes a server message can
-                        // interrupt a sequence of updates.
-                        if( gameUpdates.get() ) suppressUpdate = true;
-
-                        // Management/Server command: send it separately.
-                        if( sendDirectly )
-                            Send( new Directory( dir ) );
                         else
-                            AddToHistory( new Directory( dir ) );
+                        {
+                            // Server message
+                            if( dir.HasData( NET_DEFCON_CLIENTID ) )
+                            {
+                                maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
+                            }
+
+                            if( trackSyncBytes && strcmp( cmd, NET_DEFCON_NETSYNCERROR ) == 0 )
+                            {
+                                // The recording has a sync error. Record this so that we don't
+                                // compare any sync values after this point.
+                                AppDebugOut( "WARNING: Recording has a sync error at sequence id %d\n", lastRecordedSeqId );
+                                syncErrorInRecording = true;
+                            }
+
+                            // Due to a bug in DEDCON, sometimes a server message can
+                            // interrupt a sequence of updates.
+                            if( gameUpdates.get() ) suppressUpdate = true;
+
+                            // Management/Server command: send it separately.
+                            if( sendDirectly )
+                                Send( new Directory( dir ) );
+                            else
+                                AddToHistory( new Directory( dir ) );
+                        }
                     }
                 }
             }

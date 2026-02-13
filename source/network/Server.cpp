@@ -1546,6 +1546,15 @@ void Server::HandleSyncMessage( Directory *incoming )
 
     if( allResponses && provisionalResult == true )
     {
+        //
+        // All clients agree for this sequence. Store resolved sync byte for recording so we 
+        // only write sync bytes when we had consensus.
+
+        if( !m_replayingRecording )
+        {
+            m_recordingSyncBytes.PutData( sync, sequenceId );
+        }
+ 
         for( int i = 0; i < m_clients.Size(); ++i )
         {
             if( m_clients.ValidIndex(i) )

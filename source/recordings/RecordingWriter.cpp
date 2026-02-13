@@ -22,6 +22,7 @@
 #include <cstring>
 #include <ctime>
 #include <cstdio>
+#include <vector>
 
 #if defined(TARGET_MSVC)
 #include <direct.h>
@@ -94,6 +95,10 @@ struct RecordingSourceTraits<Server>
         h.pack           = false;
     }
     
+    //
+    // Only write sync when we have a resolved value. The server stores
+    // this in m_recordingSyncBytes only when all clients agreed.
+
     static bool GetSyncByte( Server *s, int seqId, unsigned char &out )
     {
         if( s->m_recordingSyncBytes.ValidIndex( seqId ) )
@@ -102,22 +107,12 @@ struct RecordingSourceTraits<Server>
             return true;
         }
 
-        //
-        // Fallback: try to get from connected clients
-
-        for( int j = 0; j < s->m_clients.Size(); ++j )
-        {
-            if( s->m_clients.ValidIndex( j ) )
-            {
-                ServerToClient *s2c = s->m_clients[j];
-                if( s2c->m_sync.ValidIndex( seqId ) )
-                {
-                    out = s2c->m_sync[seqId];
-                    return true;
-                }
-            }
-        }
         return false;
+    }
+
+    static bool WriteSyncValueThisSequence( Server *, int ) 
+    { 
+        return true; 
     }
 
     static bool IsReplaying( Server *s )
@@ -178,7 +173,18 @@ struct RecordingSourceTraits<ClientToServer>
         }
         return false;
     }
-    
+
+    //
+    // Client has sync for every sequence it processed. To prevent massive file sizes, 
+    // only write every 2 sequences. This somewhat matches Dedcon. Could be decreased
+    // to 1in the future if we want more sync bytes at the expense of file size.
+
+    static bool WriteSyncValueThisSequence( ClientToServer *, int seqId )
+    {
+        const int CLIENT_SYNC_CHECKPOINT_INTERVAL = 2;
+        return ( seqId % CLIENT_SYNC_CHECKPOINT_INTERVAL ) == 0;
+    }
+
     static bool IsReplaying( ClientToServer *c )
     {
         return false;
@@ -268,38 +274,49 @@ SaveRecordingResult RecordingWriter::SaveRecording()
 }
 
 //
-// Return number of game update packets in history for the 
-// given sequence id. Used to fill "ct" in "sq" packets
+// True if this history entry is an empty update. Client expands server 
+// NUMEMPTYUPDATES into one such entry per empty, collapse them back when writing.
+
+static bool isEmptyUpdate( const Directory &dir )
+{
+    if( dir.m_name != NET_DEFCON_MESSAGE || dir.m_subDirectories.Size() != 0 )
+    {   
+        return false;
+    }   
+    if( !dir.HasData( NET_DEFCON_COMMAND ) || !dir.HasData( NET_DEFCON_SEQID ) )    
+    {
+        return false;
+    }
+    const char *cmd = dir.GetDataString( NET_DEFCON_COMMAND );
+    return ( cmd && strcmp( cmd, NET_DEFCON_UPDATE ) == 0 );
+}
+
+//
+// Precompute game update count per sequence in a single pass.
 
 template<typename SourceType>
-int countGameUpdatesInSequence( SourceType *source, int seqId )
+void precomputeGameUpdateCounts( SourceType *source, int maxSeqId, std::vector<int> &outCounts )
 {
-    int count = 0;
+    outCounts.assign( maxSeqId + 1, 0 );
     int size = source->GetRecordingHistorySize();
 
     for( int i = 0; i < size; ++i )
     {
         Directory *data = RecordingSourceTraits<SourceType>::GetLetterData( source, i );
-        if( !data )
+        if( !data || !data->HasData( NET_DEFCON_COMMAND ) )
         {
             continue;
         }
-        if( data->GetDataInt( NET_DEFCON_SEQID ) != seqId )
+        if( data->GetDataString( NET_DEFCON_COMMAND ) && *data->GetDataString( NET_DEFCON_COMMAND ) != 'c' )
         {
             continue;
         }
-        if( !data->HasData( NET_DEFCON_COMMAND ) )
+        int seqId = data->GetDataInt( NET_DEFCON_SEQID );
+        if( seqId >= 0 && seqId <= maxSeqId )
         {
-            continue;
-        }
-
-        const char *cmd = data->GetDataString( NET_DEFCON_COMMAND );
-        if( cmd && *cmd == 'c' )
-        {
-            ++count;
+            ++outCounts[seqId];
         }
     }
-    return count;
 }
 
 //
@@ -374,14 +391,18 @@ bool RecordingWriter::WriteToFile( SourceType *source, const std::string &filena
     // for each sequence, one "sq" then the "d" packets in order.
     // Precompute game update count per seq for "ct".
 
+    std::vector<int> gameUpdateCountBySeq;
+    precomputeGameUpdateCounts( source, header.endSeqId, gameUpdateCountBySeq );
+
     int lastSeqId = -1;
     int historySize = source->GetRecordingHistorySize();
 
-    for( int i = 0; i < historySize; ++i )
+    for( int i = 0; i < historySize; )
     {
         Directory *data = RecordingSourceTraits<SourceType>::GetLetterData( source, i );
         if( !data )
         {
+            ++i;
             continue;
         }
 
@@ -390,7 +411,10 @@ bool RecordingWriter::WriteToFile( SourceType *source, const std::string &filena
         if( seqId != lastSeqId )
         {
             lastSeqId = seqId;
-            int ct = countGameUpdatesInSequence( source, seqId );
+            int ct = ( seqId >= 0 && seqId
+                             <= header.endSeqId
+                             && (int)gameUpdateCountBySeq.size() > seqId )
+                             ? gameUpdateCountBySeq[seqId] : 0;
             Directory sq;
             sq.SetName( "sq" );
             sq.CreateData( "z", seqId );
@@ -398,16 +422,17 @@ bool RecordingWriter::WriteToFile( SourceType *source, const std::string &filena
             sq.CreateData( "vs", (int)secChecksum.Get() );
 
             //
-            // Sync value: 
-            // Use the servers stored bytes if present, otherwise use a connected clients
-            // m_sync for this sequence.
+            // Sync value:
+            // Server: only for sequences where all clients.
+            // Client: use the checkpoint interval, we dont need a sync byte every seqid
 
             unsigned char syncByte = 0;
-            if( RecordingSourceTraits<SourceType>::GetSyncByte( source, seqId, syncByte ) )
+            if( RecordingSourceTraits<SourceType>::GetSyncByte( source, seqId, syncByte ) &&
+                RecordingSourceTraits<SourceType>::WriteSyncValueThisSequence( source, seqId ) )
             {
                 sq.CreateData( NET_DEFCON_SYNCVALUE, syncByte );
             }
-            
+
             if( !writePacket( out, sq ) )
             {
 #ifdef _DEBUG
@@ -417,21 +442,56 @@ bool RecordingWriter::WriteToFile( SourceType *source, const std::string &filena
             }
         }
 
-        //
-        // Write the data packet and add it to the cumulative checksum
-
-        if( !writePacket( out, *data ) )
+        if( isEmptyUpdate( *data ) )
         {
+            int runLength = 1;
+            while( i + runLength < historySize )
+            {
+                Directory *next = RecordingSourceTraits<SourceType>::GetLetterData( source, i + runLength );
+                if( !next || !isEmptyUpdate( *next ) )
+                    break;
+                if( next->GetDataInt( NET_DEFCON_SEQID ) != seqId + runLength )
+                    break;
+                ++runLength;
+            }
+
+            Directory collapsed;
+            collapsed.SetName( NET_DEFCON_MESSAGE );
+            collapsed.CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+            collapsed.CreateData( NET_DEFCON_SEQID, seqId );
+            collapsed.CreateData( NET_DEFCON_NUMEMPTYUPDATES, runLength );
+
+            if( !writePacket( out, collapsed ) )
+            {
 #ifdef _DEBUG
-            AppDebugOut( "RecordingWriter: Failed to write packet at history index %d\n", i );
+                AppDebugOut( "RecordingWriter: Failed to write collapsed empty run at index %d\n", i );
 #endif
-            return false;
+                return false;
+            }
+
+            for( int k = 0; k < runLength; ++k )
+            {
+                Directory empty;
+                empty.SetName( NET_DEFCON_MESSAGE );
+                empty.CreateData( NET_DEFCON_COMMAND, NET_DEFCON_UPDATE );
+                empty.CreateData( NET_DEFCON_SEQID, seqId + k );
+                secChecksum.Add( empty );
+            }
+
+            i += runLength;
         }
-
-        //
-        // Add this packet to the security checksum for next sequence
-
-        secChecksum.Add( *data );
+        else
+        {
+            if( !writePacket( out, *data ) )
+            {
+#ifdef _DEBUG
+                AppDebugOut( "RecordingWriter: Failed to write packet at history index %d\n", i );
+#endif
+                return false;
+            }
+            secChecksum.Add( *data );
+            ++i;
+        }
     }
 
 #ifdef _DEBUG
