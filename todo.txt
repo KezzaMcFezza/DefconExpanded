@@ -62,6 +62,8 @@ IN PROGRESS:
 - figure out why sprites are so cpu intensive
 - mouse icon on eclipse popup occluded by alpha fading 
   inside a fading window
+- Fix DirectX11 geometry shader corrupting rendering with custom line widths
+- Find memory leak when leaving and rejoing games over and over
 
 
 
