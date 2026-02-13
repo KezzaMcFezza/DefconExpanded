@@ -4,12 +4,16 @@
 
 #ifdef WIN32
 static double s_tickInterval = 1.0;
+static LONGLONG s_startCount = 0;
 
 void InitialiseHighResTime()
 {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency( &freq );
 	s_tickInterval = 1.0 / (double)freq.QuadPart;
+	LARGE_INTEGER count;
+	QueryPerformanceCounter( &count );
+	s_startCount = count.QuadPart;
 }
 
 
@@ -17,7 +21,7 @@ double GetHighResTime()
 {
 	LARGE_INTEGER count;
 	QueryPerformanceCounter( &count );
-	return (double)count.QuadPart * s_tickInterval;
+	return (double)( count.QuadPart - s_startCount ) * s_tickInterval;
 }
 #endif
 
