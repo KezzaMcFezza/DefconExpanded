@@ -292,9 +292,11 @@
     <ClCompile Include="..\..\source\recordings\RecordingServer.cpp">
       <Filter>recordings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\interface\radar_perspective_window.cpp" />
     <ClCompile Include="..\..\source\lib\universal_include.cpp">
       <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\radar_perspective_window.cpp">
+      <Filter>interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -562,7 +564,9 @@
     <ClInclude Include="..\..\source\recordings\RecordingServer.h">
       <Filter>recordings</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\interface\radar_perspective_window.h" />
+    <ClInclude Include="..\..\source\interface\radar_perspective_window.h">
+      <Filter>interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\docs\ai specifications.txt">
