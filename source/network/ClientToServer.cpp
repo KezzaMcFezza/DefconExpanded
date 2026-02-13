@@ -262,6 +262,10 @@ void ClientToServer::AdvanceSender()
             delete letter;
             delete[] byteStream;
         }
+        else
+        {
+            delete letter;
+        }
         g_app->GetClientToServer()->m_outbox.RemoveData(0);
     }
 
@@ -1083,6 +1087,13 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
         return false;
     }
 
+    //
+    // Clear inbox so no stale letters from a previous session are processed
+
+    m_inboxMutex->Lock();
+    m_inbox.EmptyAndDelete();
+    m_inboxMutex->Unlock();
+
 #ifdef TARGET_EMSCRIPTEN
 
     //
@@ -1171,6 +1182,11 @@ void ClientToServer::ClientLeave( bool _notifyServer )
     
     NetSleep(100);
 
+    //
+    // Mark disconnected immediately so ReceiveLetter() drops any further packets
+
+    m_connectionState = StateDisconnected;
+
     delete m_sendSocket;
     m_sendSocket = NULL;
 
@@ -1185,7 +1201,6 @@ void ClientToServer::ClientLeave( bool _notifyServer )
     m_clientId = -1;
     m_lastValidSequenceIdFromServer = -1;
     m_serverSequenceId = -1;
-    m_connectionState = StateDisconnected;
     
     m_outOfSyncClients.Empty();
     m_demoClients.Empty();
@@ -1193,6 +1208,10 @@ void ClientToServer::ClientLeave( bool _notifyServer )
     m_inboxMutex->Lock();
     m_inbox.EmptyAndDelete();
     m_inboxMutex->Unlock();
+
+    m_outboxMutex->Lock();
+    m_outbox.EmptyAndDelete();
+    m_outboxMutex->Unlock();
 
     m_history.EmptyAndDelete();
     m_recordingSyncBytes.Empty();
