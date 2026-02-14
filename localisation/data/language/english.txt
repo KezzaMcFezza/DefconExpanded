@@ -41,7 +41,7 @@ website_mods_retail_multi_language  http://www.everybody-dies.com/mods/
 
 dialog_mainmenu                     Main Menu
 dialog_newgame                      New Game
-dialog_playbackrecording            Playback Recording
+dialog_playbackrecording            Play Recording
 dialog_joingame                     Join Game
 dialog_leavegame                    Leave Game
 dialog_manual                       User Manual
