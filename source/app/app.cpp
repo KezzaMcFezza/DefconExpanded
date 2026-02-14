@@ -1974,8 +1974,8 @@ void App::ShutdownCurrentGame()
     {
         MetaServer_StopRegisteringOverWAN();
     }
-    
-	if( m_gameRunning )
+
+	if( m_gameRunning || m_world )
     {
         EclRemoveAllWindows();
     }
