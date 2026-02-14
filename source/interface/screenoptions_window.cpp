@@ -340,14 +340,60 @@ class SetScreenButton : public InterfaceButton
         }
 
         //
-        // In windowed mode, if user selects native/desktop resolution we use usable bounds
-        // and start maximized so the window fits correctly.
-        // If they pick any other resolution (not native, not usable bounds), exit maximized.
+        // When switching to borderless or exclusive fullscreen from windowed:
+        // Use native resolution so the game fills the screen. Once in that mode, user can
+        // pick any resolution. 
+        // Windowed: if user selects native/desktop resolution we use
+        // usable bounds and start maximized, otherwise handle maximized flag.
 
         int desktopW = 0, desktopH = 0, usableW = 0, usableH = 0;
-        if ( windowed )
+        g_windowManager->GetDisplayDesktopSize( displayIndex, &desktopW, &desktopH );
+
+        bool currentlyWindowed = g_windowManager->Windowed();
+        bool currentlyBorderless = g_windowManager->Borderless();
+        int currentDisplayIndex = g_windowManager->GetCurrentDisplayIndex();
+        bool displayChanged = ( displayIndex != currentDisplayIndex );
+        bool switchingToExclusiveFullscreen = ( !windowed && !borderless && ( currentlyWindowed || currentlyBorderless ) );
+
+        if ( borderless && !currentlyBorderless )
         {
-            g_windowManager->GetDisplayDesktopSize( displayIndex, &desktopW, &desktopH );
+            applyW = desktopW;
+            applyH = desktopH;
+            if ( g_windowManager->GetResolutionId( applyW, applyH ) == -1 )
+            {
+                WindowResolution *res = new WindowResolution( applyW, applyH );
+                g_windowManager->m_resolutions.PutData( res );
+            }
+            parent->m_resId = g_windowManager->GetResolutionId( applyW, applyH );
+        }
+        else if ( switchingToExclusiveFullscreen )
+        {
+            applyW = desktopW;
+            applyH = desktopH;
+            if ( g_windowManager->GetResolutionId( applyW, applyH ) == -1 )
+            {
+                WindowResolution *res = new WindowResolution( applyW, applyH );
+                g_windowManager->m_resolutions.PutData( res );
+            }
+            parent->m_resId = g_windowManager->GetResolutionId( applyW, applyH );
+        }
+        else if ( !windowed && displayChanged )
+        {
+            //
+            // Fullscreen or borderless: switching to another display. Use that displays
+            // native resolution so the game fills the screen and UI/prefs stay in sync.
+
+            applyW = desktopW;
+            applyH = desktopH;
+            if ( g_windowManager->GetResolutionId( applyW, applyH ) == -1 )
+            {
+                WindowResolution *res = new WindowResolution( applyW, applyH );
+                g_windowManager->m_resolutions.PutData( res );
+            }
+            parent->m_resId = g_windowManager->GetResolutionId( applyW, applyH );
+        }
+        else if ( windowed )
+        {
             g_windowManager->GetDisplayUsableSize( displayIndex, &usableW, &usableH );
             if ( resolution && resolution->m_width == desktopW && resolution->m_height == desktopH )
             {
