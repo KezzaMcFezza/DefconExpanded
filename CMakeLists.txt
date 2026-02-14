@@ -81,6 +81,8 @@ if(NOT REPLAY_VIEWER_BUILD AND NOT SYNC_PRACTICE_BUILD)
     message(STATUS "Standard build mode")
 endif()
 
+set(DEFCON_PLATFORM_FILES)
+
 include_directories(
     ${ROOT_PATH}/source
     ${ROOT_PATH}/source/app
@@ -304,6 +306,7 @@ elseif(MSVC)
     )
     
     set(EXE_TYPE WIN32)
+    set(DEFCON_PLATFORM_FILES ${ROOT_PATH}/source/app/trayicon.cpp)
     
     set(FILES_TO_EXCLUDE
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
@@ -386,6 +389,7 @@ elseif(APPLE)
     set_source_files_properties(${MACOS_SPECIFIC_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
     
     set(EXE_TYPE MACOSX_BUNDLE)
+    set(DEFCON_PLATFORM_FILES ${ROOT_PATH}/source/app/macutil.cpp ${ROOT_PATH}/source/app/dockicon.mm)
     
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/app/trayicon.cpp
@@ -603,202 +607,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/recording_selection.cpp
 )
 
-set(SYSTEMIV_SOURCE
-    ${SYSTEMIV_PATH}/lib/eclipse/components/checkbox.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/core.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/drop_down_menu.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/filedialog.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/inputfield.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/message_dialog.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/components/scrollbar.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/eclbutton.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/eclwindow.cpp
-    ${SYSTEMIV_PATH}/lib/eclipse/eclipse.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/binary_stream_readers.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/file_system.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/filesys_utils.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/text_file_writer.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/text_stream_readers.cpp
-    ${SYSTEMIV_PATH}/lib/filesys/native_dialog.cpp
-    ${SYSTEMIV_PATH}/lib/math/fixed_float.cpp
-    ${SYSTEMIV_PATH}/lib/math/fixed_64.cpp
-    ${SYSTEMIV_PATH}/lib/math/matrix33.cpp
-    ${SYSTEMIV_PATH}/lib/math/matrix34.cpp
-    ${SYSTEMIV_PATH}/lib/math/invert_matrix.cpp
-    ${SYSTEMIV_PATH}/lib/math/hash_data.cpp
-    ${SYSTEMIV_PATH}/lib/math/matrix4f.cpp
-    ${SYSTEMIV_PATH}/lib/math/math_utils.cpp
-    ${SYSTEMIV_PATH}/lib/math/random_number.cpp
-    ${SYSTEMIV_PATH}/lib/math/vector2.cpp
-    ${SYSTEMIV_PATH}/lib/math/vector3.cpp
-    ${SYSTEMIV_PATH}/lib/metaserver/authentication.cpp
-    ${SYSTEMIV_PATH}/lib/metaserver/matchmaker.cpp
-    ${SYSTEMIV_PATH}/lib/metaserver/metaserver.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/input.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/window_manager.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/window_manager_opengl.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/net_socket_session.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
-    ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
-    ${SYSTEMIV_PATH}/lib/render/colour.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_opengl.cpp
-    ${SYSTEMIV_PATH}/lib/render/antialiasing/anti_aliasing.cpp
-    ${SYSTEMIV_PATH}/lib/render/antialiasing/msaa_opengl.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/renderer_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/renderer_2d_opengl.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/megavbo_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/linestrips_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/quads_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/triangles_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/operations_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/primitives_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/sprites_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/text_2d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_opengl.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/operations_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/primitives_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/sprites_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/text_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/megavbo/megavbo_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/megavbo/triangles_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/megavbo/instancing_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render/styletable.cpp
-    ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
-    ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
-    ${SYSTEMIV_PATH}/lib/resource/image.cpp
-    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model.cpp
-    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_builder.cpp
-    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_loader.cpp
-    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_material.cpp
-    ${SYSTEMIV_PATH}/lib/resource/resource.cpp
-    ${SYSTEMIV_PATH}/lib/resource/sprite_atlas.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_blueprint_manager.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_filter.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_instance.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_library_2d.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_library_3d.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_software.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_debug_overlay.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_parameter.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_sample_bank.cpp
-    ${SYSTEMIV_PATH}/lib/sound/resampler_polyphase.cpp
-    ${SYSTEMIV_PATH}/lib/sound/sound_sample_decoder.cpp
-    ${SYSTEMIV_PATH}/lib/sound/soundsystem.cpp
-    ${SYSTEMIV_PATH}/lib/sound/soundsystem_interface.cpp
-    ${SYSTEMIV_PATH}/lib/tosser/directory.cpp
-    ${SYSTEMIV_PATH}/lib/unicode/unicode_string.cpp
-    ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
-    ${SYSTEMIV_PATH}/lib/debug/profiler.cpp
-    ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/imgui.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/frame_debugger.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/debug_console.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/preferences_editor.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/components/menu_bar.cpp
-    ${SYSTEMIV_PATH}/lib/imgui/components/text_editor.cpp
-    ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
-    ${SYSTEMIV_PATH}/lib/multiline_text.cpp
-    ${SYSTEMIV_PATH}/lib/language_table.cpp
-    ${SYSTEMIV_PATH}/lib/preferences.cpp
-    ${SYSTEMIV_PATH}/lib/string_utils.cpp
-    ${SYSTEMIV_PATH}/systemiv.cpp
-)
-
-set(UNRAR_SOURCE 
-    ${SYSTEMIV_PATH}/contrib/unrar/unrar.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/archive.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/arcread.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/blake2s.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/cmddata.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/consio.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/crc.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/crypt.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/encname.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/errhnd.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/extinfo.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/extract.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/filcreat.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/file.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/filefn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/filestr.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/find.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/getbits.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/global.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/hash.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/headers.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/largepage.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/list.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/match.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/options.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/pathfn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/qopen.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rar.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rarpch.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rarvm.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rawread.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rdwrfn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/recvol.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/resourcerar.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rijndael.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rs.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rs16.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/scantree.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/secpassword.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/sha1.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/sha256.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/smallfn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/strfn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/strlist.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/system.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/threadpool.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/timefn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/ui.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/unicode.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/unpack.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/volume.cpp
-)
-
-set(HIGHWAY_SOURCE
-    ${HIGHWAY_PATH}/hwy/abort.cc
-    ${HIGHWAY_PATH}/hwy/nanobenchmark.cc
-    ${HIGHWAY_PATH}/hwy/per_target.cc
-    ${HIGHWAY_PATH}/hwy/print.cc
-    ${HIGHWAY_PATH}/hwy/targets.cc
-    ${HIGHWAY_PATH}/hwy/timer.cc
-)
-
-set(TINYGLTF_SOURCE
-    ${TINYGLTF_PATH}/tiny_gltf.cc
-)
-
-set(IMGUI_SOURCE
-    ${IMGUI_PATH}/imgui.cpp
-    ${IMGUI_PATH}/imgui_draw.cpp
-    ${IMGUI_PATH}/imgui_tables.cpp
-    ${IMGUI_PATH}/imgui_widgets.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
-)
-
-foreach(FILE ${FILES_TO_EXCLUDE})
-    list(REMOVE_ITEM DEFCON_SOURCE ${FILE})
-    list(REMOVE_ITEM SYSTEMIV_SOURCE ${FILE})
-    list(REMOVE_ITEM UNRAR_SOURCE ${FILE})
-    list(REMOVE_ITEM HIGHWAY_SOURCE ${FILE})
-    list(REMOVE_ITEM TINYGLTF_SOURCE ${FILE})
-    list(REMOVE_ITEM IMGUI_SOURCE ${FILE})
-endforeach()
-
-set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${TINYGLTF_SOURCE} ${IMGUI_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
+add_subdirectory(contrib/systemIV)
 
 if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${DEFCON_VERSION}")
@@ -813,7 +622,22 @@ else()
     set(EXECUTABLE_NAME "defcon")
 endif()
 
-add_executable(${EXECUTABLE_NAME} ${EXE_TYPE} ${ALL_SOURCES})
+add_executable(${EXECUTABLE_NAME} ${EXE_TYPE}
+    ${DEFCON_SOURCE}
+    ${DEFCON_PLATFORM_FILES}
+    ${RESOURCE_FILES}
+)
+
+# Link static libraries 
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE
+    SystemIV
+    Unrar
+    ImGui
+    Highway
+    TinyGLTF
+)
+
+target_precompile_headers(${EXECUTABLE_NAME} PRIVATE ${ROOT_PATH}/source/lib/universal_include.h)
 
 if(EMSCRIPTEN)
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
@@ -1005,12 +829,6 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${IMGUI_PATH}
     ${IMGUI_PATH}/backends
 )
-
-
-add_library(systemIV INTERFACE)
-target_link_libraries(${EXECUTABLE_NAME} PUBLIC systemIV)
-
-
 
 if(MSVC)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
