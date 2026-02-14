@@ -39,7 +39,6 @@ Carrier::Carrier()
     m_maxHistorySize = 10;
     m_range = Fixed::MAX;
     m_life = 3;
-    m_maxLife = 3; // new variable for the health bar system
     
     m_nukeSupply = 6;
 

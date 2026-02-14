@@ -39,7 +39,6 @@ class FrameDebugger;
 
 extern bool g_hideUI;
 extern int  g_desiredPerspectiveTeamId;
-extern bool g_healthBarsEnabled;
 
 class App
 {
