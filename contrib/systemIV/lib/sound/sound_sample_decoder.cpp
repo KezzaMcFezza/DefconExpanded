@@ -1,18 +1,9 @@
 #include "systemiv.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-#include <vorbis/vorbisfile.h>
-#include <vorbis/codec.h>
-
 #include "lib/filesys/binary_stream_readers.h"
-#include "lib/filesys/filesys_utils.h"
 #include "lib/debug/debug_utils.h"
 
-#include "soundsystem.h"
 #include "sound_sample_decoder.h"
-#include <climits>
 #include "resampler_polyphase.h"
 
 

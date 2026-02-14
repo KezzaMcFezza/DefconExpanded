@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <math.h>
-
 #include "matrix33.h"
 
 #include "lib/debug/debug_utils.h"

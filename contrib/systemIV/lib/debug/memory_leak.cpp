@@ -1,9 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream>
 using namespace std;
 
 #include "lib/tosser/btree.h"

@@ -3,7 +3,6 @@
 #include "model.h"
 #include "model_material.h"
 #include "lib/string_utils.h"
-#include <algorithm>
 
 Model::Model()
 	: m_boundsMin( 0, 0, 0 ),

@@ -4,6 +4,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdarg.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+#include <wchar.h>
+#include <wctype.h>
+#include <errno.h>
+#include <float.h>
+#include <limits.h>
+#include <climits>
+
+#include <string>
+#include <string_view>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <mutex>
+#include <atomic>
+#include <cstring>
+#include <cstdio>
+#include <cmath>
+#include <cctype>
+#include <optional>
+#include <unordered_map>
+#include <iostream>
+#include <sstream>
+#include <map>
+#include <deque>
+#include <unordered_set>
+#include <utility>
+#include <fstream>
+#include <limits>
+#include <filesystem>
 
 #define WAN_PLAY_ENABLED
 #define LAN_PLAY_ENABLED
@@ -25,22 +58,64 @@
 #include <ws2tcpip.h>
 #include <wspiapi.h>
 
+#include <windows.h>
+#include <shellapi.h>
+#include <io.h>
+#include <direct.h>
+#include <intrin.h>
+#include <dbghelp.h>
+#pragma comment( lib, "dbghelp.lib" )
+
+#ifdef RENDERER_DIRECTX11
+#include <d3dcompiler.h>
+#pragma comment( lib, "d3dcompiler.lib" )
+#endif
+
 #endif
 
 #if defined ( TARGET_OS_MACOSX ) || defined ( TARGET_OS_LINUX )
-#include <ctype.h>
 #include <unistd.h>
 
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #define Sleep(x) usleep( 1000 * x)
 
+#ifdef TARGET_OS_MACOSX
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreServices/CoreServices.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <CoreGraphics/CoreGraphics.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#include <mach/thread_policy.h>
+#include <mach/thread_act.h>
+#include <sys/stat.h>
+#include <libgen.h>
+#include <fcntl.h>
+#include <dirent.h>
+#endif
+
+#ifdef TARGET_OS_LINUX
+#include <pthread.h>
+#include <sched.h>
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <signal.h>
+#ifndef TARGET_EMSCRIPTEN
+#include <sys/ucontext.h>
+#include <execinfo.h>
+#include <cxxabi.h>
+#endif
+#include <fcntl.h>
+#include <dirent.h>
+#endif
+
 //
 // String function definitions, handle Emscripten specially
 
 #ifdef TARGET_EMSCRIPTEN
-    #include <string.h>
-
     //
     // Note: strlwr and strupr are declared in Emscripten's compat/string.h
     // but we need to avoid redefinition conflicts
@@ -81,6 +156,39 @@
 #include <glad/glad.h>
 #include <hwy/highway.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_dialog.h>
+#include <SDL3/SDL_thread.h>
+
+#ifndef NO_UNRAR
+#include <unrar/unrar.h>
+#include "unrar/rartypes.hpp"
+#include "unrar/sha1.hpp"
+#endif
+
+#include <vorbis/vorbisfile.h>
+#include <vorbis/codec.h>
+
+#include <tiny_gltf.h>
+
+#include "imgui-1.92.5/imgui.h"
+#include "imgui-1.92.5/backends/imgui_impl_sdl3.h"
+
+#ifdef RENDERER_OPENGL
+#include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
+#endif
+
+#ifdef RENDERER_DIRECTX11
+#include "imgui-1.92.5/backends/imgui_impl_dx11.h"
+#include <d3d11.h>
+#endif
+
+#ifdef USE_CRASHREPORTING
+#include "client/crash_report_database.h"
+#include "client/settings.h"
+#include "client/crashpad_client.h"
+#include "base/files/file_path.h"
+#include "util/file/file_io.h"
+#endif
 
 #ifdef OPENMP
     #include <omp.h>
@@ -156,6 +264,7 @@ int         GetResourceDirCount();
     //#define DTOGGLE_SOUND_TESTBED
     //#define DEMSCRIPTEN_PLAYBACK_TESTBED
     #include <emscripten.h>
+    #include <emscripten/console.h>
     #include <pthread.h>
     #include <sys/time.h>
 #endif

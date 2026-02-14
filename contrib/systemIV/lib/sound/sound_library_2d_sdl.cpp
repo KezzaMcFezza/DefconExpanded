@@ -4,37 +4,7 @@
 #include "lib/preferences.h"
 
 #include "lib/sound/sound_library_2d_sdl.h"
-#include "lib/sound/sound_library_2d_mode.h"
 #include "lib/sound/sound_library_3d_software.h"
-
-#include <vector>
-#include <algorithm>
-#include <cstring>
-#include <cstdio> // snprintf when caching device/driver name
-#include <atomic> // For memory fences in lock-free callback access
-
-//
-// Platform-specific headers for thread priority
-
-#ifdef TARGET_OS_LINUX
-#include <pthread.h>
-#include <sched.h>
-#include <sys/resource.h>
-#include <errno.h>
-#include <time.h> // For nanosleep
-#endif
-
-#ifdef TARGET_OS_MACOSX
-#include <pthread.h>
-#include <mach/thread_policy.h>
-#include <mach/thread_act.h>
-#include <time.h> // For nanosleep
-#endif
-
-#ifdef TARGET_MSVC
-#include <windows.h>
-#include <intrin.h>
-#endif
 
 static SDL_AudioSpec s_audioSpec;
 static SDL_AudioStream *s_audioStream = NULL;

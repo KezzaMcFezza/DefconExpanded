@@ -1,11 +1,9 @@
 #include "systemiv.h"
+
 #include "lib/debug/debug_utils.h"
 
 #include "text_file_writer.h"
 #include "filesys_utils.h"
-
-#include <stdarg.h>
-#include <sstream>
 
 static unsigned int s_offsets[] = {
 	31, 7, 9, 1,

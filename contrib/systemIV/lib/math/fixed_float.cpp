@@ -4,15 +4,7 @@
 //
 #ifdef FLOAT_NUMERICS
 
-#include <float.h>
-
-#ifdef TARGET_OS_LINUX
-#include <limits>
-#endif
-
 #include "fixed_float.h"
-#include "lib/debug/debug_utils.h"
-#include "random_number.h"
 
 const Fixed Fixed::MAX = Fixed::FromDouble( DBL_MAX );
 const Fixed Fixed::PI = Fixed::FromDouble( 3.14159 );

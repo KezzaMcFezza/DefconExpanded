@@ -1,26 +1,5 @@
 #include "systemiv.h"
 
-#ifdef WIN32
-#include <io.h>
-#include <direct.h>
-#include <windows.h>
-
-#else
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
-#endif
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h> // needed for errno definition
-#include <ctype.h>
-#include <stdarg.h>
-#include <filesystem>
-#include <algorithm>
-
 #include "lib/string_utils.h"
 #include "filesys_utils.h"
 

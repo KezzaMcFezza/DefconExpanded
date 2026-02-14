@@ -2,12 +2,6 @@
 
 #include "string_utils.h"
 
-#include <string.h>
-#include <ctype.h>
-#include <wchar.h>
-#include <wctype.h>
-#include <algorithm>
-
 #ifdef TARGET_MSVC
 #pragma warning( disable : 4996 )
 #endif

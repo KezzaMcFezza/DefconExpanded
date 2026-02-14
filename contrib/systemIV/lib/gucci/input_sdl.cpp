@@ -1,23 +1,13 @@
 #include "systemiv.h"
 
-#include <ctime>
-#include <cstring>
-
 #ifndef TARGET_MSVC
 #include <iconv.h>
 #endif
 
-#include <string>
-#include <vector>
-
 #include "lib/debug/debug_utils.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/hi_res_time.h"
-#include "lib/math/math_utils.h"
 #include "lib/preferences.h"
-#include "lib/resource/resource.h"
-#include "lib/filesys/text_stream_readers.h"
-#include "lib/language_table.h"
 #include "input_sdl.h"
 #include "window_manager.h"
 

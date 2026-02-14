@@ -1,8 +1,5 @@
 #include "systemiv.h"
 
-#include <math.h>
-
-#include "matrix33.h"
 #include "matrix34.h"
 #include "invert_matrix.h"
 

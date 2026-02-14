@@ -1,11 +1,5 @@
 #include "systemiv.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <ctype.h>
-#include <string.h>
-
 #include "lib/debug/debug_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/text_stream_readers.h"

@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <math.h>
-
 #include "math_utils.h"
 
 

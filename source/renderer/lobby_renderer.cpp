@@ -9,6 +9,7 @@
 #include "lib/debug/profiler.h"
 #include "lib/gucci/input.h"
 #include "lib/language_table.h"
+#include "lib/string_utils.h"
 #include "lib/preferences.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/metaserver/authentication.h"

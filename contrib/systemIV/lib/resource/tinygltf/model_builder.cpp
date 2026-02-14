@@ -7,7 +7,7 @@
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/render/colour.h"
 #include "lib/math/vector3.h"
-#include <stdio.h>
+#include "lib/string_utils.h"
 
 static bool ValidateModelCacheKey( Model *model )
 {

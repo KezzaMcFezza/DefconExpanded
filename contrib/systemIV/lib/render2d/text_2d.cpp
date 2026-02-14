@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"

@@ -3,7 +3,6 @@
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 
-#include "imgui-1.92.5/imgui.h"
 #include "menu_bar.h"
 #include "lib/imgui/debug_console.h"
 #include "lib/imgui/frame_debugger.h"

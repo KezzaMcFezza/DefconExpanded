@@ -3,8 +3,6 @@
 #include "condition.h"
 #include "net_mutex.h"
 
-#include <sys/time.h>
-
 ConditionVariable::ConditionVariable()
 {
 	pthread_cond_init( &m_var, NULL );

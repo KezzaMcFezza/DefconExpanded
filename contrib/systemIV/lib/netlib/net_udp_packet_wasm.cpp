@@ -1,5 +1,4 @@
 #include "systemiv.h"
-#include <cstring>
 
 #ifdef TARGET_EMSCRIPTEN
 

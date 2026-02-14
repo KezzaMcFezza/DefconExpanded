@@ -1,4 +1,5 @@
 #include "systemiv.h"
+
 #include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 #include "lib/filesys/file_system.h"
@@ -6,6 +7,7 @@
 #include "lib/filesys/filesys_utils.h"
 
 #include "styletable.h"
+
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 

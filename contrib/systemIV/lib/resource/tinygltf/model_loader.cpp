@@ -4,11 +4,6 @@
 #include "model.h"
 #include "model_material.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <algorithm>
-#include <tiny_gltf.h>
-
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"

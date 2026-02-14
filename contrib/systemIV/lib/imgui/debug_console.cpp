@@ -1,12 +1,5 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "lib/gucci/window_manager.h"
-
-#include "imgui-1.92.5/imgui.h"
 #include "debug_console.h"
 #include "lib/debug/debug_utils.h"
 #include "imgui.h"

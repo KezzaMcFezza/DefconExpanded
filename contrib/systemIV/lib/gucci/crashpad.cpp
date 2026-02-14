@@ -1,25 +1,9 @@
 #include "systemiv.h"
 
-#include "client/crash_report_database.h"
-#include "client/settings.h"
-#include "client/crashpad_client.h"
-#include "base/files/file_path.h"
-#include "util/file/file_io.h"
-
 #include "crashpad.h"
 
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
-
-#include <map>
-#include <string>
-#include <vector>
-
-#ifdef TARGET_OS_LINUX
-#include <limits.h>
-#include <unistd.h>
-#include <libgen.h>
-#endif
 
 #ifdef USE_CRASHREPORTING
 

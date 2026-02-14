@@ -26,10 +26,6 @@ double GetHighResTime()
 #endif
 
 #if TARGET_OS_MACOSX
-#include <CoreServices/CoreServices.h>
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-
 // Declare these as static outside of the functions
 static uint64_t s_start = 0;
 static mach_timebase_info_data_t s_timebase = { 0, 0 };
@@ -60,10 +56,6 @@ double GetHighResTime()
 #elif TARGET_OS_LINUX
 // Be cool to use the High resolution Posix timers
 // or hrtimers if supported http://lwn.net/Articles/167897/
-
-#include <sys/time.h>
-#include <time.h>
-
 
 static timeval s_start;
 

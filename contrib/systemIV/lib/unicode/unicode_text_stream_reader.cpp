@@ -4,8 +4,6 @@
 
 #include "lib/debug/debug_utils.h"
 #include "lib/filesys/filesys_utils.h"
-#include <cstring>
-
 #define DEFAULT_SEPERATOR_CHARS " \f\t\n\r:,"
 #define DEFAULT_SEPERATOR_WCHARS L" \f\t\n\r:,"
 #define INITIAL_LINE_LEN 128

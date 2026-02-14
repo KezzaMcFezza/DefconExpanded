@@ -6,10 +6,6 @@
 #include "macosxlibrary.h"
 #endif
 
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-#include <algorithm>
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "window_manager_opengl.h"

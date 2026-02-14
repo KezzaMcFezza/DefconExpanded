@@ -1,8 +1,6 @@
 #include "systemiv.h"
 
 #ifdef RENDERER_OPENGL
-#include <string.h>
-#include <time.h>
 
 #include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
@@ -10,10 +8,7 @@
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/bitmap.h"
 #include "lib/resource/bitmapfont.h"
-#include "lib/resource/resource.h"
-#include "lib/language_table.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
 #include "lib/render/antialiasing/anti_aliasing.h"

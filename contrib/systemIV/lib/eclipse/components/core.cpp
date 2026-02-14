@@ -1,9 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <math.h>
-#include <algorithm>
-
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
@@ -12,7 +8,6 @@
 #include "lib/render/styletable.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"
-#include "lib/math/math_utils.h"
 
 #include "core.h"
 #include "inputfield.h"

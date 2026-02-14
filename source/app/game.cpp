@@ -2,6 +2,7 @@
 
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/filesys/file_system.h"
+#include "lib/string_utils.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"

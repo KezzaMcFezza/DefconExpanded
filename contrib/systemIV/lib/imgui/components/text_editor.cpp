@@ -1,10 +1,7 @@
 #include "systemiv.h"
 
 #include "lib/debug/debug_utils.h"
-#include "imgui-1.92.5/imgui.h"
 #include "text_editor.h"
-#include <stdio.h>
-#include <string.h>
 
 TextEditor::TextEditor()
 	: m_isOpen( false ),

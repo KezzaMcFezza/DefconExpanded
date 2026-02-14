@@ -1,20 +1,8 @@
 #include "systemiv.h"
 
-#include <string.h>
-#include "imgui-1.92.5/imgui.h"
-#include "imgui-1.92.5/backends/imgui_impl_sdl3.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/gucci/window_manager_opengl.h"
 #include "lib/gucci/window_manager_d3d11.h"
 #include "lib/debug/debug_utils.h"
-
-#ifdef RENDERER_OPENGL
-#include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
-#endif
-
-#ifdef RENDERER_DIRECTX11
-#include "imgui-1.92.5/backends/imgui_impl_dx11.h"
-#endif
 
 #include "imgui.h"
 

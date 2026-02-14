@@ -1,16 +1,10 @@
 #include "systemiv.h"
 
-#include <time.h>
-
-#include "lib/hi_res_time.h"
-#include "lib/eclipse/eclipse.h"
 #include "lib/debug/debug_utils.h"
 
 #include "input.h"
 #include "window_manager.h"
 #include "input_sdl.h"
-
-#include <memory.h>
 
 InputManager *g_inputManager = NULL;
 signed char g_keyDeltas[KEY_MAX];

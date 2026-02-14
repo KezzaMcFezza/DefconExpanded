@@ -1,12 +1,8 @@
 #include "systemiv.h"
 
-#include <math.h>
-#include <float.h>
-
 #include "vector2.h"
 #include "vector3.h"
 #include "math_utils.h"
-#include "lib/math/fixed.h"
 
 template <>
 bool Vector3<float>::Compare( Vector3<float> const &b ) const

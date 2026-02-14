@@ -1,8 +1,5 @@
 #include "systemiv.h"
 
-#include <math.h>
-#include <float.h>
-
 #include "debug_utils.h"
 #include "profiler.h"
 #include "lib/hi_res_time.h"
@@ -158,8 +155,8 @@ double ProfiledElement::GetCpuPercentage() const
 // ****************************************************************************
 
 #ifdef SINGLE_THREADED_PROFILER
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_thread.h>
 static Uint32 s_profileThread;
 #define MAIN_THREAD_ONLY                         \
 	{                                            \

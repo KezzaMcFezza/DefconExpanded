@@ -1,10 +1,5 @@
 #include "systemiv.h"
 
-#include <algorithm>
-#include <cstring>
-
-#include "imgui-1.92.5/imgui.h"
-
 #include "lib/gucci/window_manager.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

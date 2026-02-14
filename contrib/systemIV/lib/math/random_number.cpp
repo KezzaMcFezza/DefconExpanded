@@ -1,10 +1,8 @@
 #include "systemiv.h"
-#include "lib/string_utils.h"
+
 #include "lib/tosser/llist.h"
-#include "lib/preferences.h"
 
 #include "random_number.h"
-#include <stdarg.h>
 
 static LList<char *> s_syncrandlog;
 

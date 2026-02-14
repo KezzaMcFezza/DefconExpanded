@@ -1,9 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <algorithm>
-
 #include "lib/debug/debug_utils.h"
 #include "colour.h"
 

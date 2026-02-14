@@ -1,11 +1,5 @@
 #include "systemiv.h"
 
-#include <algorithm>
-#include <limits>
-#include <stdio.h>
-#include <unordered_set>
-#include <deque>
-
 #include "lib/sound/sound_debug_overlay.h"
 
 #include "lib/gucci/window_manager.h"

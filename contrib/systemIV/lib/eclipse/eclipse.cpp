@@ -1,10 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <time.h>
-
 #include "lib/tosser/llist.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"

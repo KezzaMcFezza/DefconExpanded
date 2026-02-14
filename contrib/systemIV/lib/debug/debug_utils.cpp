@@ -1,35 +1,11 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-
 #ifdef WIN32
-#include <windows.h>
-#include <dbghelp.h>
 #pragma comment( lib, "dbghelp.lib" )
-#elif TARGET_OS_MACOSX
-#include <CoreFoundation/CoreFoundation.h>
-#include <sys/stat.h>
-#include <execinfo.h>
-#elif TARGET_OS_LINUX
-#ifndef __GNUC__
-#error Compiling on linux without GCC?
 #endif
-#include <execinfo.h>
-#include <cxxabi.h>
-#endif
-
-#include <string>
-#include <vector>
-#include <sstream>
 
 #include "debug_utils.h"
 #include "lib/imgui/debug_console.h"
-#include "lib/string_utils.h"
-#include "lib/filesys/filesys_utils.h"
 
 
 static std::string s_debugOutRedirect;

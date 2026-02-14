@@ -1,8 +1,5 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-#include <math.h>
-
 #include "lib/resource/image.h"
 #include "lib/render/colour.h"
 #include "lib/math/vector2.h"

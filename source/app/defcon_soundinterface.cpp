@@ -1,5 +1,7 @@
 #include "lib/universal_include.h"
 
+#include "lib/string_utils.h"
+
 #include "app/defcon_soundinterface.h"
 #include "app/app.h"
 #include "app/globals.h"

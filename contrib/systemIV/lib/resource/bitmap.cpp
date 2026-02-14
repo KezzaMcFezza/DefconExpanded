@@ -1,10 +1,6 @@
 #include "systemiv.h"
 
-#include <string.h>
-#include <math.h>
-
 #include "lib/filesys/binary_stream_readers.h"
-#include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"

@@ -26,6 +26,7 @@
 #include "lib/imgui/frame_debugger.h"
 #include "lib/debug/profiler.h"
 #include "lib/hi_res_time.h"
+#include "lib/string_utils.h"
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_library_3d.h"

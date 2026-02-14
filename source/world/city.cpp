@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "lib/language_table.h"
+#include "lib/string_utils.h"
 #include "lib/hi_res_time.h"
 
 #include "app/app.h"

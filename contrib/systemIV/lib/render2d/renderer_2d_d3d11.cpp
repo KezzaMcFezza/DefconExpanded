@@ -9,15 +9,10 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_d3d11.h"
 #include "lib/preferences.h"
-#include "lib/debug/debug_utils.h"
 #include "shaders/vertex.hlsl.h"
 #include "shaders/color_fragment.hlsl.h"
 #include "shaders/texture_fragment.hlsl.h"
 #include "shaders/line_geometry.hlsl.h"
-
-#include <d3dcompiler.h>
-
-#pragma comment( lib, "d3dcompiler.lib" )
 
 // ============================================================================
 // CONSTRUCTOR & DESTRUCTOR

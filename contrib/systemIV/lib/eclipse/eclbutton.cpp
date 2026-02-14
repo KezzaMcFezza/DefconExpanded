@@ -1,11 +1,8 @@
 #include "systemiv.h"
 
-#include <string.h>
-
 #include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 
-#include "eclipse.h"
 #include "eclbutton.h"
 
 

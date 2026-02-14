@@ -1,9 +1,8 @@
 #include "systemiv.h"
+
 #include "lib/gucci/window_manager.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
-
-#include <string.h>
 
 #include "drop_down_menu.h"
 

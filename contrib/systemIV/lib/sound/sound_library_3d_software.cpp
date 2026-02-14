@@ -1,9 +1,7 @@
 #include "systemiv.h"
 
 #include "lib/debug/debug_utils.h"
-#include "lib/hi_res_time.h"
 #include "lib/math/math_utils.h"
-#include "lib/debug/profiler.h"
 #include "lib/gucci/input.h"
 
 #include "sound_filter.h"
@@ -11,8 +9,6 @@
 #include "sound_library_2d.h"
 #include "lib/sound/sound_library_2d_sdl.h"
 #include "soundsystem.h"
-
-#include <algorithm>
 
 static inline signed short FloatToPcmClamp( float value )
 {

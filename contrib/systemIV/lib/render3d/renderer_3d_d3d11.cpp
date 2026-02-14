@@ -14,9 +14,6 @@
 #include "shaders/model_vertex.hlsl.h"
 #include "shaders/line_geometry_3d.hlsl.h"
 
-#include <d3dcompiler.h>
-#pragma comment( lib, "d3dcompiler.lib" )
-
 // ============================================================================
 // CONSTRUCTOR & DESTRUCTOR
 // ============================================================================

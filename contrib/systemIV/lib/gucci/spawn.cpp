@@ -1,7 +1,4 @@
-#include "universal_include.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
+#include "systemiv.h"
 
 bool spawn( const char *program, char *const *args )
 {

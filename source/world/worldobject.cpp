@@ -6,6 +6,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
+#include "lib/string_utils.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"
 

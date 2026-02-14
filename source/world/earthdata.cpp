@@ -2,6 +2,7 @@
 
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/text_stream_readers.h"
+#include "lib/string_utils.h"
 #include "lib/math/vector3.h"
 #include "lib/hi_res_time.h"
 #include "lib/render/renderer.h"

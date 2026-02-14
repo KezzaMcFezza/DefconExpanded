@@ -1,8 +1,7 @@
 #include "systemiv.h"
+
 #include "lib/tosser/btree.h"
 #include "lib/debug/profiler.h"
-#include <string.h>
-#include <algorithm>
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/hi_res_time.h"

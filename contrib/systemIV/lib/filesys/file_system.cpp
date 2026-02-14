@@ -1,10 +1,7 @@
 // #define _CRT_SECURE_NO_DEPRECATE
 #include "systemiv.h"
-#include "lib/string_utils.h"
 
-#ifndef NO_UNRAR
-#include "unrar/unrar.h"
-#endif // NO_UNRAR
+#include "lib/string_utils.h"
 
 #include "file_system.h"
 #include "filesys_utils.h"
@@ -12,12 +9,6 @@
 #include "binary_stream_readers.h"
 #include "lib/netlib/net_mutex.h"
 #include "lib/netlib/net_thread.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 FileSystem *g_fileSystem = NULL;
 

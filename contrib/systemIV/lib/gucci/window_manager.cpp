@@ -1,19 +1,15 @@
 #include "systemiv.h"
-#include <SDL3/SDL_main.h>
 
-#include <limits.h>
+#include <SDL3/SDL_main.h>
 
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
-#include "lib/hi_res_time.h"
 
 #include "imgui.h"
 #include "input.h"
-#include "crashpad.h"
 #include "window_manager.h"
 #include "window_manager_d3d11.h"
 #include "window_manager_opengl.h"
-#include "backends/imgui_impl_sdl3.h"
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"
@@ -22,11 +18,6 @@
 
 #ifdef TARGET_OS_MACOSX
 #include "macosxlibrary.h"
-#endif
-
-#ifdef TARGET_MSVC
-#include <shellapi.h>
-#include <windows.h>
 #endif
 
 WindowManager *g_windowManager = NULL;
@@ -881,9 +872,6 @@ WindowManager *WindowManager::Create()
 #if defined( TARGET_OS_LINUX ) || defined( TARGET_OS_MACOSX )
 void SetupMemoryAccessHandlers();
 void SetupPathToProgram( const char *program );
-
-#include <string>
-#include <unistd.h>
 
 char *g_origWorkingDir = NULL;
 

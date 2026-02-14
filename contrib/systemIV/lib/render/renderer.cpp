@@ -1,20 +1,12 @@
 #include "systemiv.h"
 
-#include <string.h>
-#include <time.h>
-
 #include "lib/debug/debug_utils.h"
-#include "lib/hi_res_time.h"
 #include "lib/resource/image.h"
 #include "lib/resource/sprite_atlas.h"
-#include "lib/resource/bitmap.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/resource.h"
 #include "lib/language_table.h"
-#include "lib/gucci/window_manager.h"
 #include "lib/string_utils.h"
-#include "lib/filesys/filesys_utils.h"
-#include "lib/render/colour.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"

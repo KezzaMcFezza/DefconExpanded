@@ -1,11 +1,9 @@
 #include "systemiv.h"
+
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/language_table.h"
-
-#include <algorithm>
-#include <cstring>
 
 #include "message_dialog.h"
 

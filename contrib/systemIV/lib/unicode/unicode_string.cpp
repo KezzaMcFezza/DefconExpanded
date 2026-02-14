@@ -1,14 +1,7 @@
 #include "systemiv.h"
-#include "lib/debug/debug_utils.h"
-#include "unicode_string.h"
-#include <stdarg.h>
-#include "lib/string_utils.h"
-#include "lib/math/math_utils.h"
-#include <string.h>
 
-#ifdef TARGET_OS_MACOSX
-#include <CoreFoundation/CoreFoundation.h>
-#endif
+#include "lib/string_utils.h"
+#include "unicode_string.h"
 
 #define MAX_UNICODE_LINE_LENGTH = 65536
 

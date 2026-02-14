@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <string.h>
-
 #include "lib/tosser/llist.h"
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/filesys/text_file_writer.h"

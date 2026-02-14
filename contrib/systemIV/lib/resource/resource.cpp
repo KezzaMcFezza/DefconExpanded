@@ -1,9 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <fstream>
-#include <unrar/unrar.h>
-
 #include "lib/resource/bitmap.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/bitmapfont.h"

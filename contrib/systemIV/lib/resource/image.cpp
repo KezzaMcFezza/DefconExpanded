@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"
 #include "lib/filesys/file_system.h"

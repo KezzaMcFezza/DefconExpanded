@@ -1,13 +1,7 @@
 #include "systemiv.h"
 
-#include <math.h>
-#include <string.h>
-#include <algorithm>
-#include <mutex>
-
 #include "lib/math/math_utils.h"
 #include "lib/debug/debug_utils.h"
-#include "lib/hi_res_time.h"
 #include "lib/preferences.h"
 
 #include "resampler_polyphase.h"

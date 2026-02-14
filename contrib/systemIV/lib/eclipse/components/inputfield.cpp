@@ -1,12 +1,5 @@
 #include "systemiv.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-#include <algorithm>
-
 #include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/render/renderer.h"

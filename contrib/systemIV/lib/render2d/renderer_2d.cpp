@@ -1,31 +1,14 @@
 #include "systemiv.h"
 
-#include <time.h>
-#include <stdarg.h>
-#include <algorithm>
-
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/bitmapfont.h"
-#include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
-#include "lib/resource/sprite_atlas.h"
-#include "lib/hi_res_time.h"
-#include "lib/debug/debug_utils.h"
-#include "lib/preferences.h"
-#include "lib/string_utils.h"
-#include "lib/filesys/filesys_utils.h"
-#include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
-#include "shaders/vertex.glsl.h"
-#include "shaders/color_fragment.glsl.h"
-#include "shaders/texture_fragment.glsl.h"
-
 #include "lib/render/renderer.h"
 #include "renderer_2d.h"
-#include "megavbo/megavbo_2d.h"
 
 Renderer2D *g_renderer2d = NULL;
 

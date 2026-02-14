@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <math.h>
-
 #include "lib/debug/debug_utils.h"
 
 class Matrix

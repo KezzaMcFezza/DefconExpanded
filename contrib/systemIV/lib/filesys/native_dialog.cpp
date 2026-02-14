@@ -2,9 +2,6 @@
 
 #include "native_dialog.h"
 
-#include <stdlib.h>
-#include <SDL3/SDL_dialog.h>
-
 //
 // This will fail if SDL changes their struct layout
 

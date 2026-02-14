@@ -1,19 +1,11 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <algorithm>
-
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
-#include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 
 #include "bitmap.h"

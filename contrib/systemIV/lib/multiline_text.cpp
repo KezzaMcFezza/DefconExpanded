@@ -1,24 +1,9 @@
 #include "systemiv.h"
 
-#ifdef WIN32
-#include <io.h>
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <dirent.h>
-#endif
-
-#include <stdio.h>
-#include <string.h>
-
 #include "render/renderer.h"
 #include "render2d/renderer_2d.h"
-#include "lib/debug/debug_utils.h"
 
 #include "multiline_text.h"
-#include "string_utils.h"
 
 
 static char *Substring( const char *string, unsigned int length )

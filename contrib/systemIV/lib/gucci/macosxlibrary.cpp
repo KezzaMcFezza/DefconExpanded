@@ -1,6 +1,4 @@
-#include <ApplicationServices/ApplicationServices.h>
-#include <CoreGraphics/CoreGraphics.h>
-
+#include "systemiv.h"
 
 void MacOSXHideWin()
 {

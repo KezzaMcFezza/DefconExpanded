@@ -4,13 +4,6 @@
 // some other way, unless you are sure, for instance, that ReadU8() will never
 // read an actual byte with the value ((unsigned char) -1) == EOF
 
-#ifdef WIN32
-#include <io.h>
-#endif
-
-#include <stdio.h>
-#include <string.h>
-
 #include "binary_stream_readers.h"
 #include "filesys_utils.h"
 

@@ -1,6 +1,6 @@
+#include "systemiv.h"
+
 #include "fixed.h"
-#include <iostream>
-#include <cmath>
 
 namespace fixed64 {
 	Fixed TaylorExpansionSinFirstQuarter( const Fixed &x );

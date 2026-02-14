@@ -5,11 +5,6 @@
 #include "window_manager_d3d11.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
-#include "lib/debug/profiler.h"
-#include "input.h"
-
-#include <stdio.h>
-#include <shellapi.h>
 
 // *** Constructor
 WindowManagerD3D11::WindowManagerD3D11()

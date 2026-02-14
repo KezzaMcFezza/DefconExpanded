@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <algorithm>
-
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"

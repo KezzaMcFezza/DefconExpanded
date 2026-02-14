@@ -12,10 +12,6 @@
 #include "authentication.h"
 #include "metaserver_defines.h"
 
-#include <algorithm>
-#include <memory>
-using namespace std;
-
 
 // ============================================================================
 // Static data for MetaServer lib

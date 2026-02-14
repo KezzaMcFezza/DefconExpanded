@@ -2,16 +2,6 @@
 
 #ifdef TARGET_EMSCRIPTEN
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <emscripten/console.h>
-#include <emscripten.h>
 #include "lib/debug/debug_utils.h"
 #include "lib/imgui/debug_console.h"
 

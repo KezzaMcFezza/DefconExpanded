@@ -1,7 +1,5 @@
 #include "systemiv.h"
 
-#include <string.h> // For memcpy
-
 #include "net_udp_packet.h"
 
 NetUdpPacket::NetUdpPacket()

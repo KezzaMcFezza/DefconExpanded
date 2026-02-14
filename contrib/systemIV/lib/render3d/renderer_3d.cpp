@@ -1,21 +1,9 @@
-#include "lib/resource/image.h"
 #include "systemiv.h"
 
-#include <math.h>
-#include <string.h>
-
-#include "lib/debug/debug_utils.h"
-#include "lib/hi_res_time.h"
+#include "lib/resource/image.h"
 #include "lib/render/renderer.h"
-#include "lib/render2d/renderer_2d.h"
-#include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"
 #include "lib/math/matrix4f.h"
-#include "shaders/vertex.glsl.h"
-#include "shaders/fragment.glsl.h"
-#include "shaders/textured_vertex.glsl.h"
-#include "shaders/textured_fragment.glsl.h"
-#include "shaders/model_vertex.glsl.h"
 
 #include "renderer_3d.h"
 

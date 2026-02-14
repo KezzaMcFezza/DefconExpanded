@@ -1,10 +1,8 @@
 #include "systemiv.h"
+
 #include "lib/debug/debug_utils.h"
 
 #include "sound_library_3d.h"
-
-#include <memory.h>
-
 
 //*****************************************************************************
 // Class SoundLibrary3d

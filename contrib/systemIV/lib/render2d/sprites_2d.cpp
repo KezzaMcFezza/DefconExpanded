@@ -1,12 +1,9 @@
 #include "systemiv.h"
 
-#include <stdarg.h>
-
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
-#include "lib/resource/sprite_atlas.h"
 #include "lib/math/vector3.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"

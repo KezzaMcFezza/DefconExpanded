@@ -1,12 +1,5 @@
 #include "systemiv.h"
 
-#ifdef WIN32
-#include <io.h>
-#endif
-
-#include <stdio.h>
-#include <string.h>
-
 #include "lib/debug/debug_utils.h"
 
 #include "text_stream_readers.h"

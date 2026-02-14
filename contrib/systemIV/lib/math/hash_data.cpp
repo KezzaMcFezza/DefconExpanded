@@ -1,9 +1,4 @@
 #include "systemiv.h"
-#include <cstring>
-
-#include "unrar/rartypes.hpp"
-#include "unrar/sha1.hpp"
-
 
 void HashData( char *_data, int _hashToken, char *_result )
 {

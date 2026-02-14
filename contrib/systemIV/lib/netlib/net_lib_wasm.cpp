@@ -3,8 +3,6 @@
 #ifdef TARGET_EMSCRIPTEN
 
 #include "net_lib.h"
-#include <stdio.h>
-#include <string.h>
 
 //
 // WASM is single threaded, so conditions are no ops
