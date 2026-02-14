@@ -1912,15 +1912,6 @@ void World::Update()
         }
     }
 
-#ifdef ENDGAME
-    START_PROFILE( "Radar Coverage" );
-    if ( g_app->GetServer() && !g_app->GetServer()->IsRecordingPlaybackMode() )
-    {
-        UpdateRadar();
-    }
-    END_PROFILE( "Radar Coverage" );
-#endif
-
     //
     // Update everyones ceasefire status
 
@@ -2108,14 +2099,7 @@ void World::Update()
     }
 
     START_PROFILE( "Radar Coverage" );
-#ifdef ENDGAME
-    if ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-    {
-        UpdateRadar();
-    }
-#else
     UpdateRadar();
-#endif
     END_PROFILE( "Radar Coverage" );
     m_votingSystem.Update();
 

@@ -173,18 +173,8 @@ bool Sub::Update()
             m_targetObjectId = -1;
             if( g_app->GetWorld()->GetDefcon() < 4 )
             {
-#ifdef ENDGAME
-                if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-                {
-                    m_retargetTimer = 5 + syncfrand(10);
-                }
-                else
-                {
-                    m_retargetTimer = 4 + syncfrand(11);
-                }
-#else
                 m_retargetTimer = 5 + syncfrand(10);
-#endif
+                
                 WorldObject *obj = FindTarget();
                 if( obj )
                 {
