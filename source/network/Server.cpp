@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <time.h>
-
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/metaserver/matchmaker.h"
 #include "lib/metaserver/authentication.h"
@@ -35,9 +33,6 @@
 #include "recordings/RecordingParser.h"
 #include "recordings/RecordingWriter.h"
 #include "recordings/RecordingController.h"
-
-#include <fstream>
-
 
 // ****************************************************************************
 // Class ServerTeam

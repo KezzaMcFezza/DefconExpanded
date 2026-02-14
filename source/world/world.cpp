@@ -1,9 +1,4 @@
 #include "lib/universal_include.h"
-   
-#include <fstream>
-#include <math.h>
-#include <time.h>
-#include <float.h>
 
 #include "lib/hi_res_time.h"
 #include "lib/gucci/input.h"

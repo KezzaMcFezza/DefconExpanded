@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <stdio.h>
-
 #include "world/date.h"
 
 

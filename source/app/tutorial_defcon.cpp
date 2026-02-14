@@ -31,9 +31,6 @@
 #include "world/nuke.h"
 #include "world/city.h"
 
-#include <math.h> // for round()
-
-
 class ClickNextPopup : public TutorialPopup
 {
     // Click next to continue

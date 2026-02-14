@@ -15,10 +15,6 @@
 #include "network/ClientToServer.h"
 #include "network/Server.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <memory>
-
 void DumpSyncLogs( const char *syncId, bool force );
 
 SyncTestRecordings::SyncTestRecordings()

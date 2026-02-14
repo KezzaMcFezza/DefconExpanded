@@ -1,6 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"

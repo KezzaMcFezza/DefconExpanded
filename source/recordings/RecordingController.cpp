@@ -14,8 +14,6 @@
 #include "world/world.h"
 #include "world/team.h"
 
-#include <fstream>
-
 RecordingController::RecordingController(Server *server)
 :   m_server(server),
     m_active(false),

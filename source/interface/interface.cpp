@@ -1,9 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
-#include <algorithm>
-#include <time.h>
-
 #include "lib/eclipse/eclipse.h"
 #include "lib/hi_res_time.h"
 #include "lib/gucci/input.h"

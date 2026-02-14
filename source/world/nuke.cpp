@@ -4,8 +4,6 @@
 #include "lib/sound/soundsystem.h"
 #include "lib/math/math_utils.h"
 
-#include <math.h>
-
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/debug/profiler.h"

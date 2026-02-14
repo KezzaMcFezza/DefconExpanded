@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <float.h>
-
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/render/renderer.h"

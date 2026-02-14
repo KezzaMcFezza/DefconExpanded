@@ -17,10 +17,6 @@
 #include "world/city.h"
 #include "world/fleet.h"
 
-#include <ctype.h> // for isspace()
-
-
-
 Team::Team()
 :   m_teamId(-1),
     m_clientId(-1),

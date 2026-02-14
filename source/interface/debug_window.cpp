@@ -1,6 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <float.h>
 
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

@@ -29,8 +29,6 @@
 #include "world/team.h"
 #include "world/fleet.h"
 
-#include <memory>
-
 // ***ListenCallback
 static void ClientListenCallback(const NetUdpPacket &udpData)
 {

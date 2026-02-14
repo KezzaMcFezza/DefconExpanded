@@ -16,8 +16,6 @@
 #include "renderer/world_renderer.h"
 #include "styleeditor_window.h"
 
-#include <string.h>
-
 class ApplyStyleButton : public InterfaceButton
 {
     void MouseUp();

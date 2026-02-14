@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
-
 #include "lib/debug/debug_utils.h"
 #include "lib/math/math_utils.h"
 

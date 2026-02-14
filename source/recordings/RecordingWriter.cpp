@@ -17,20 +17,6 @@
 #include "app/game.h"
 #include "world/world.h"
 
-#include <fstream>
-#include <sstream>
-#include <cstring>
-#include <ctime>
-#include <cstdio>
-#include <vector>
-
-#if defined(TARGET_MSVC)
-#include <direct.h>
-#endif
-#if !defined(TARGET_MSVC)
-#include <unistd.h>
-#endif
-
 #if _MSC_VER == 1500
 typedef int int32_t;
 #endif

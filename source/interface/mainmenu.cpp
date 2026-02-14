@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <time.h>
-
 #include "lib/gucci/window_manager.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"

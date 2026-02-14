@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
-
 #include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"

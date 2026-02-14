@@ -9,8 +9,6 @@
 
 #include "SecChecksum.h"
 #include "lib/tosser/directory.h"
-#include <sstream>
-
 //
 // Security checksum to check integrity of recording file.
 // Same implementation as Dedcon for compatibility and because

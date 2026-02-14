@@ -1,7 +1,4 @@
 #include "lib/universal_include.h"
- 
-#include <stdio.h>
-#include <algorithm>
 
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

@@ -1,6 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <stdio.h>
 
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"

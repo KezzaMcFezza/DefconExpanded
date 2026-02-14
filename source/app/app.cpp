@@ -1,17 +1,8 @@
 #include "lib/universal_include.h"
 
-#include <stdio.h>
-#include <float.h>
-#include <time.h>
-
 #include "lib/eclipse/eclipse.h"
 #include "systemiv.h"
 #include "lib/gucci/window_manager.h"
-#ifdef TARGET_MSVC
-#include <windows.h>
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-#endif
 #include "lib/gucci/input.h"
 #include "lib/gucci/crashpad.h"
 #include "lib/resource/resource.h"
@@ -81,25 +72,11 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 
-#if defined(TARGET_MSVC)
-#include <direct.h>
-#elif !defined(WIN32) && !defined(_WIN32)
-#include <unistd.h>
-#endif
-
 #ifdef TRACK_MEMORY_LEAKS
 #include "lib/memory_leak.h"
 #endif
 
-#if defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)
-#include <fpu_control.h>
-#include <sys/stat.h>
-#endif
-
 #ifdef TARGET_EMSCRIPTEN
-#include <sys/stat.h>
-#include <errno.h>
-
 //
 // For WASM, provide a stub mkdir implementation
 
@@ -109,11 +86,6 @@ int mkdir(const char *pathname, mode_t mode) {
 #endif
 
 #include "lib/resource/image.h"
-
-#ifdef TARGET_OS_MACOSX
-#include <sys/stat.h>
-//#include "macosspecific/RetinaDisplaySupportHelper.h"
-#endif
 
 //
 // if you enable this you will not be dissapointed :)

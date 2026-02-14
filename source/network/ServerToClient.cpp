@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <string.h>
-
 #include "network/ServerToClient.h"
 #include "network/ClientToServer.h"
 #include "network/Server.h"

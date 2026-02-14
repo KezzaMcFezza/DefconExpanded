@@ -7,8 +7,6 @@
 
 #include "app.h"
 
-#include <cstring>
-
 GameHistory g_gameHistory;
 
 

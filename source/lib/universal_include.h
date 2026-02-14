@@ -212,6 +212,8 @@
 #define NOMINMAX
 
 #include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 //Fall back for getaddrinfo on older platform, see end of
 // http://msdn.microsoft.com/en-us/library/ms738520.aspx
@@ -227,6 +229,14 @@
 #if defined ( TARGET_OS_MACOSX ) || defined ( TARGET_OS_LINUX )
 #include <ctype.h>
 #include <unistd.h>
+
+#ifdef TARGET_OS_MACOSX
+#include <Carbon/Carbon.h>
+#endif
+
+#if defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)
+#include <fpu_control.h>
+#endif
 
 #define stricmp strcasecmp
 #define strnicmp strncasecmp

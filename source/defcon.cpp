@@ -13,9 +13,6 @@
 
 #include "unrar/rartypes.hpp"
 #include "unrar/sha1.hpp"
-#include <float.h>
-#include <time.h>
-
 #include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug/debug_utils.h"

@@ -1,6 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <string.h>
 
 #include "lib/language_table.h"
 #include "lib/string_utils.h"

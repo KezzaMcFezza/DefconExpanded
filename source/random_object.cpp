@@ -1,13 +1,7 @@
 #include "lib/universal_include.h"
 
-#include <stdarg.h>
-
 #include "lib/math/math_utils.h"
 #include "random_object.h"
-
-#ifndef TARGET_MSVC
-    #include <time.h>
-#endif
 
 Random::Random()
 :   m_randMax(0)

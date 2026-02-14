@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <time.h>
-
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

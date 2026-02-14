@@ -26,8 +26,6 @@ TrayIcon::~TrayIcon()
 
 #if 0
 #define NOMINMAX
-#include <windows.h>
-
 #include "lib/gucci/window_manager_win32.h"
 
 void TrayIcon::SetSubIcon ( const char *_iconId )

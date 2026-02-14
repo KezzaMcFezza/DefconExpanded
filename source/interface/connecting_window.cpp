@@ -21,8 +21,6 @@
 
 #include "connecting_window.h"
 
-#include <algorithm>
-
 class AbortButton : public InterfaceButton
 {
     void MouseUp()

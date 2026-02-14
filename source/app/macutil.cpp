@@ -1,5 +1,4 @@
-#include <CoreFoundation/CoreFoundation.h>
-#include <Carbon/Carbon.h>
+#include "lib/universal_include.h"
 
 #include "macutil.h"
 

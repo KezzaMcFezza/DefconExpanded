@@ -1,6 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
 
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"

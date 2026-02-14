@@ -13,13 +13,6 @@
 #include "app/app.h"
 #include "app/globals.h"
 
-#include <algorithm>
-#include <cstring>
-#include <memory>
-#include <fstream>
-#include <vector>
-#include <sstream>
-
 inline void reverseCopy( char *_dest, const char *_src, size_t count )
 {
 	_src += count;

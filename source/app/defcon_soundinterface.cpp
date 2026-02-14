@@ -12,10 +12,6 @@
 
 #include "renderer/map_renderer.h"
 
-#include <cstring>
-
-
-
 bool DefconSoundInterface::ListObjectTypes( LList<char *> *_list )
 {
     for( int i = 1; i < WorldObject::NumObjectTypes; ++i )

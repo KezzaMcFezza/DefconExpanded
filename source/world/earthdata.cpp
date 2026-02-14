@@ -16,8 +16,6 @@
 
 #include "app/modsystem.h"
 
-#include <memory>
-
 
 EarthData::EarthData()
 {

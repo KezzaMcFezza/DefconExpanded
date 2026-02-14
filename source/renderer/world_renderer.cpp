@@ -1,7 +1,5 @@
 #include "lib/universal_include.h"
 
-#include <math.h>
-
 #include "app/app.h"
 #include "app/globals.h"
 
