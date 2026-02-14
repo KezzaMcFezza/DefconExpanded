@@ -81,10 +81,16 @@
 #define Sleep(x) usleep( 1000 * x)
 
 #ifdef TARGET_OS_MACOSX
+#define Style Style_Unused
+#define StyleTable StyleTable_Unused
+#define Fixed Fixed_Unused
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
+#undef Style
+#undef StyleTable
+#undef Fixed
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <mach/thread_policy.h>
