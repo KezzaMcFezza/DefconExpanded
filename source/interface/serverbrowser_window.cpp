@@ -1002,7 +1002,14 @@ bool ServerBrowserWindow::ConnectToServer( Directory *_server, const char *_serv
         g_app->GetClientToServer()->ClientJoin( serverIp, serverPort );
         g_app->InitWorld();
 
-        g_gameHistory.JoinedGame( serverIp, serverPort, serverName );
+        //
+        // Do not add our own recording playback server to game history
+
+        if ( !( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() 
+                                   && IsOurServer( serverIp, serverPort ) ) )
+        {
+            g_gameHistory.JoinedGame( serverIp, serverPort, serverName );
+        }
 
         ConnectingWindow *connectWindow = new ConnectingWindow();
         connectWindow->m_popupLobbyAtEnd = true;
