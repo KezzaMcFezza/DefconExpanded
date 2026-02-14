@@ -422,6 +422,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	AppReleaseAssert( displayMode != nullptr, "Failed to get current display mode.\n" );
 
 	m_windowed = _windowed;
+	m_borderless = _borderless;
 
 	SDL_Rect displayBounds;
 	SDL_GetDisplayBounds( displayID, &displayBounds );

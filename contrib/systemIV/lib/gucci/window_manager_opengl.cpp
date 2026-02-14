@@ -48,6 +48,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	AppReleaseAssert( displayMode != nullptr, "Failed to get current display mode.\n" );
 
 	m_windowed = _windowed;
+	m_borderless = _borderless;
 
 	//
 	// Use the user's color depth preference (same as DirectX11) for the GL pixel format,

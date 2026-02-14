@@ -1003,13 +1003,12 @@ void App::UpdateRenderSettings()
     //
     // We need to track what was last applied to detect changes
 
-    static int lastAppliedWindowed = g_preferences->GetInt(PREFS_SCREEN_WINDOWED, 0);
-    static int lastAppliedBorderless = g_preferences->GetInt(PREFS_SCREEN_BORDERLESS, 0);
     static int lastAppliedDisplayIndex = g_preferences->GetInt(PREFS_SCREEN_DISPLAY_INDEX, -1);
     static int lastAppliedZDepth = g_preferences->GetInt(PREFS_SCREEN_Z_DEPTH, 24);
     static int lastAppliedColourDepth = g_preferences->GetInt(PREFS_SCREEN_COLOUR_DEPTH, 32);
     
     int currentWindowed = g_windowManager->Windowed() ? 1 : 0;
+    int currentBorderless = g_windowManager->Borderless() ? 1 : 0;
     int newWindowed = g_preferences->GetInt(PREFS_SCREEN_WINDOWED, 0);
     int newBorderless = g_preferences->GetInt(PREFS_SCREEN_BORDERLESS, 0);
     
@@ -1029,8 +1028,8 @@ void App::UpdateRenderSettings()
     int newColourDepth = g_preferences->GetInt(PREFS_SCREEN_COLOUR_DEPTH, 32);
     
     bool rendererTypeChanged = (currentRendererType != newRendererType);
-    bool screenModeChanged = (newWindowed != lastAppliedWindowed) ||
-                            (newBorderless != lastAppliedBorderless);
+    bool screenModeChanged = (newWindowed != currentWindowed) ||
+                            (newBorderless != currentBorderless);
 
     bool displayChanged = (newDisplayIndex != lastAppliedDisplayIndex);
     bool zDepthChanged = (newZDepth != lastAppliedZDepth);
@@ -1045,8 +1044,6 @@ void App::UpdateRenderSettings()
 
     if ( screenModeChanged )
     {
-        lastAppliedWindowed = newWindowed;
-        lastAppliedBorderless = newBorderless;
         needsWindowReinit = true;
     }
 
@@ -1130,8 +1127,6 @@ void App::UpdateRenderSettings()
         lastMipmapLevel = newMipmapLevel;
     }
 
-    lastAppliedWindowed = newWindowed;
-    lastAppliedBorderless = newBorderless;
     lastAppliedDisplayIndex = newDisplayIndex;
     lastAppliedZDepth = newZDepth;
     lastAppliedColourDepth = newColourDepth;

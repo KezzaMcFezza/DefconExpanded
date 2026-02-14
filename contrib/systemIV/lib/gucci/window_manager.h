@@ -53,6 +53,7 @@ public:
     const int         	GetLogicalHeight	();	// ^^^^^^^^^^^^^^
 
     bool        		Windowed            ();
+	bool        		Borderless          ();
 	bool        		Captured            ();
 	bool        		MouseVisible        ();
 
@@ -95,7 +96,8 @@ protected:
 
 	int			m_screenW;	
 	int			m_screenH;	
-	bool        m_windowed; 
+	bool        m_windowed;
+	bool        m_borderless;
 	bool        m_mouseCaptured;
 	bool		m_mousePointerVisible;
 

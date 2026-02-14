@@ -76,6 +76,7 @@ int WindowManager::GetDisplayIndexFromID( SDL_DisplayID id )
 WindowManager::WindowManager()
 	: m_mouseCaptured( false ),
 	  m_mousePointerVisible( true ),
+	  m_borderless( false ),
 	  m_mouseOffsetX( INT_MAX ),
 	  m_secondaryMessageHandler( NULL ),
 	  m_windowResizeHandler( NULL ),
@@ -184,6 +185,12 @@ WindowResolution *WindowManager::GetResolution( int _id )
 bool WindowManager::Windowed()
 {
 	return m_windowed;
+}
+
+
+bool WindowManager::Borderless()
+{
+	return m_borderless;
 }
 
 
