@@ -124,6 +124,8 @@ public:
     void    AddToSelection( int id );
     void    RemoveFromSelection( int id );
     bool    IsSelected( int id ) const;
+    int     GetSelectionCount() const;
+    int     GetSelectedId( int index ) const;
     int     GetCurrentHighlightId();
     void    SetCurrentHighlightId( int id );
 };

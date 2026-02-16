@@ -414,6 +414,16 @@ bool WorldRenderer::IsSelected( int id ) const
     return false;
 }
 
+int WorldRenderer::GetSelectionCount() const
+{
+    return m_selectedIds.Size();
+}
+
+int WorldRenderer::GetSelectedId( int index ) const
+{
+    return m_selectedIds.ValidIndex( index ) ? m_selectedIds[index] : -1;
+}
+
 void WorldRenderer::SetCurrentSelectionId( int id )
 {
     if( m_currentSelectionId != -1 && id == -1 )
@@ -434,6 +444,12 @@ void WorldRenderer::SetCurrentSelectionId( int id )
         m_previousSelectionId = m_currentSelectionId;
     }
     m_currentSelectionId = id;
+
+    m_selectedIds.Empty();
+    if( id != -1 )
+    {
+        m_selectedIds.PutData( id );
+    }
 }
 
 int WorldRenderer::GetCurrentHighlightId()
