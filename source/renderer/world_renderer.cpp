@@ -77,6 +77,7 @@ void WorldRenderer::Init()
 void WorldRenderer::Reset()
 {
     m_animations.EmptyAndDelete();
+    m_selectedIds.Empty();
 }
 
 void WorldRenderer::SetRenderEverything( bool _renderEverything )
@@ -375,6 +376,42 @@ Image *WorldRenderer::GetTerritoryImage( int territoryId )
 int WorldRenderer::GetCurrentSelectionId()
 {
     return m_currentSelectionId; 
+}
+
+void WorldRenderer::ClearSelection()
+{
+    m_selectedIds.Empty();
+}
+
+void WorldRenderer::AddToSelection( int id )
+{
+    if( id == -1 ) return;
+    for( int i = 0; i < m_selectedIds.Size(); ++i )
+    {
+        if( m_selectedIds[i] == id ) return;
+    }
+    m_selectedIds.PutData( id );
+}
+
+void WorldRenderer::RemoveFromSelection( int id )
+{
+    for( int i = 0; i < m_selectedIds.Size(); ++i )
+    {
+        if( m_selectedIds[i] == id )
+        {
+            m_selectedIds.RemoveData( i );
+            return;
+        }
+    }
+}
+
+bool WorldRenderer::IsSelected( int id ) const
+{
+    for( int i = 0; i < m_selectedIds.Size(); ++i )
+    {
+        if( m_selectedIds[i] == id ) return true;
+    }
+    return false;
 }
 
 void WorldRenderer::SetCurrentSelectionId( int id )

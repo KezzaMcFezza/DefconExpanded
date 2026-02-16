@@ -3,6 +3,7 @@
 
 #include "lib/math/fixed.h"
 #include "lib/tosser/fast_darray.h"
+#include "lib/tosser/llist.h"
 #include "world/world.h"
 #include "world/worldobject.h"
 
@@ -50,6 +51,8 @@ protected:
     int     m_currentSelectionId;
     int     m_currentHighlightId;
     int     m_previousSelectionId;
+
+    LList<int> m_selectedIds;
 
 public:
     WorldRenderer();
@@ -117,6 +120,10 @@ public:
 
     int     GetCurrentSelectionId();
     void    SetCurrentSelectionId( int id );
+    void    ClearSelection();
+    void    AddToSelection( int id );
+    void    RemoveFromSelection( int id );
+    bool    IsSelected( int id ) const;
     int     GetCurrentHighlightId();
     void    SetCurrentHighlightId( int id );
 };
