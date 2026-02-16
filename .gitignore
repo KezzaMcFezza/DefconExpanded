@@ -19,6 +19,9 @@
 # Clang metadata
 /.vscode/.cache/
 
+# Website not needed for thundymod
+
+/website
 # macOS metadata
 .DS_Store
 
