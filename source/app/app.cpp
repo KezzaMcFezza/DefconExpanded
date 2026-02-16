@@ -1364,6 +1364,13 @@ void App::Update()
     m_interface->Update();
     END_PROFILE("Interface");
 
+    // Game speed and team switching keys: process every render frame so key presses aren't lost
+    // (World::Update only runs on game ticks, which can be infrequent at low speeds)
+    if( m_gameRunning && GetWorld() && GetGame() && GetClientToServer() )
+    {
+        GetWorld()->ProcessSpeedAndTeamKeys();
+    }
+
     //
     // Toggle UI visibility with H key
     
@@ -1870,11 +1877,12 @@ void App::StartGame()
     // Set game speeds
 
     int minSpeedSetting = g_app->GetGame()->GetOptionValue("SlowestSpeed");
-    int minSpeed = ( minSpeedSetting == 0 ? 0 :
-                     minSpeedSetting == 1 ? 1 :
-                     minSpeedSetting == 2 ? 5 :
-                     minSpeedSetting == 3 ? 10 :
-                     minSpeedSetting == 4 ? 20 : 20 );
+    int minSpeed = ( minSpeedSetting == 0 ? GAMESPEED_PAUSED :
+                     minSpeedSetting == 1 ? GAMESPEED_REALTIME :
+                     minSpeedSetting == 2 ? GAMESPEED_SLOW :
+                     minSpeedSetting == 3 ? GAMESPEED_MEDIUM :
+                     minSpeedSetting == 4 ? GAMESPEED_FAST :
+                     minSpeedSetting == 5 ? GAMESPEED_VERYFAST : GAMESPEED_VERYFAST );
 
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
     {

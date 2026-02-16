@@ -46,7 +46,7 @@
 
 World::World()
 :   m_myTeamId(-1),
-    m_timeScaleFactor(20.0f),
+    m_timeScaleFactor(GAMESPEED_MEDIUM),
     m_nextUniqueId(0),
     m_numNukesGivenToEachTeam(0)
 {    
@@ -269,11 +269,11 @@ void World::AssignCities()
         }
         team->m_aiAssaultTimer = Fixed::FromDouble( 2400.0f ) + syncsfrand(900);
         SyncRandLog( "Team %d assault timer set to %2.4f", i, team->m_aiAssaultTimer.DoubleValue() );
-        team->m_desiredGameSpeed = 20;
+        team->m_desiredGameSpeed = GAMESPEED_VERYFAST;
 #endif
 
 #ifdef TESTBED
-        team->m_desiredGameSpeed = 20;
+        team->m_desiredGameSpeed = GAMESPEED_VERYFAST;
 #endif
 
         team->m_unitCredits = 53 * g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
@@ -738,11 +738,11 @@ void World::InitialiseTeam ( int teamId, int teamType, int clientId )
 
     if( teamType == Team::TypeAI )
     {
-        team->m_desiredGameSpeed = 20;
+        team->m_desiredGameSpeed = GAMESPEED_VERYFAST;
     }
     else
     {
-        team->m_desiredGameSpeed = 5;
+        team->m_desiredGameSpeed = GAMESPEED_SLOW;
     }
 
     team->m_aiActionTimer = syncfrand( team->m_aiActionSpeed );
@@ -1827,35 +1827,36 @@ void World::Update()
             }
             break;
     
-        case 1:     speedDesired = 1;           break;
-        case 2:     speedDesired = 5;           break;
-        case 3:     speedDesired = 10;          break;
-        case 4:     speedDesired = 20;          break;
+        case 1:     speedDesired = GAMESPEED_REALTIME;   break;
+        case 2:     speedDesired = GAMESPEED_SLOW;   break;
+        case 3:     speedDesired = GAMESPEED_MEDIUM;  break;
+        case 4:     speedDesired = GAMESPEED_FAST;  break;
+        case 5:     speedDesired = GAMESPEED_VERYFAST; break;
     }
         
     if( speedDesired == 999 )
     {
-        speedDesired = 20;
+        speedDesired = GAMESPEED_MEDIUM;
     }
 
 
     //
-    // Its defcon 4 or 5, and the server has requested 20x speed
+    // Its defcon 4 or 5, and the server has requested max speed
     // but thats too fast to place stuff
 
-    if( speedOption == 4 && GetDefcon() > 3 )
+    if( speedOption == 5 && GetDefcon() > 3 )
     {            
-        speedDesired = 10;
+        speedDesired = GAMESPEED_SLOW;
     }
 
     
 
 #ifdef NON_PLAYABLE
-    speedDesired = 20;
+    speedDesired = GAMESPEED_MEDIUM;
 #endif
 
 #ifdef TESTBED
-    speedDesired = 20;
+    speedDesired = GAMESPEED_MEDIUM;
 #endif
 
     SetTimeScaleFactor( speedDesired );
@@ -2170,51 +2171,6 @@ void World::Update()
             }
         }
     }
-        
-    if( !g_app->GetInterface()->UsingChatWindow() )
-    {
-        //
-        // If team switching is enabled, num keys select team ID
-        // Otherwise it sets game speed
-
-        if( g_app->GetGame()->GetOptionValue("TeamSwitching") == 1)
-        {
-            if( g_keys[KEY_1] )    m_myTeamId = 0;
-            if( g_keys[KEY_2] )    m_myTeamId = 1;
-            if( g_keys[KEY_3] )    m_myTeamId = 2; 
-            if( g_keys[KEY_4] )    m_myTeamId = 3;
-            if( g_keys[KEY_5] )    m_myTeamId = 4;
-            if( g_keys[KEY_6] )    m_myTeamId = 5;
-            if( g_keys[KEY_7] )    m_myTeamId = 6;
-            if( g_keys[KEY_8] )    g_app->GetWorldRenderer()->SetRenderEverything( !g_app->GetWorldRenderer()->CanRenderEverything() );
-
-            if( m_myTeamId >= m_teams.Size() )
-            {
-                m_myTeamId = -1;
-            }
-        }
-        else
-        {
-            if( m_myTeamId != -1 )
-            {
-                int requestedSpeed = -1;
-                if( g_keys[KEY_0] )     requestedSpeed = GAMESPEED_PAUSED;    
-                if( g_keys[KEY_1] )     requestedSpeed = GAMESPEED_REALTIME;    
-                if( g_keys[KEY_2] )     requestedSpeed = GAMESPEED_SLOW;    
-                if( g_keys[KEY_3] )     requestedSpeed = GAMESPEED_MEDIUM;    
-                if( g_keys[KEY_4] )     requestedSpeed = GAMESPEED_FAST;    
-
-                if( requestedSpeed != -1 )
-                {
-                    if( CanSetTimeFactor( requestedSpeed ) )
-                    {
-                        g_app->GetClientToServer()->RequestGameSpeed( m_myTeamId, requestedSpeed );            
-                    }
-                }
-            }
-        }
-    }
-
 
     //
     // Update the Game scores / victory conditions etc
@@ -2229,6 +2185,65 @@ void World::Update()
 }
 
 
+void World::ProcessSpeedAndTeamKeys()
+{
+    // Run every render frame (from App::Update) so g_keyDeltas is caught before the next Advance clears it.
+    // World::Update only runs on game ticks; without this, key presses are often missed.
+    if( !g_app->GetInterface()->UsingChatWindow() )
+    {
+        int teamsSize = m_teams.Size();
+        bool teamSwitchingOn = ( g_app->GetGame()->GetOptionValue("TeamSwitching") == 1 );
+
+        if( teamSwitchingOn && teamsSize > 0 )
+        {
+            if( m_myTeamId != -1 && ( m_myTeamId < 0 || m_myTeamId >= teamsSize ) )
+                m_myTeamId = 0;
+
+            static bool s_prevSlashDown = false;
+            static bool s_prevAsteriskDown = false;
+            bool slashDown = ( g_keys[KEY_SLASH] != 0 );
+            bool asteriskDown = ( g_keys[KEY_ASTERISK] != 0 );
+            if( asteriskDown && !s_prevAsteriskDown )
+            {
+                int next = ( m_myTeamId < 0 ? 0 : m_myTeamId + 1 );
+                m_myTeamId = ( next >= teamsSize ? 0 : next );
+            }
+            if( slashDown && !s_prevSlashDown )
+            {
+                int prev = ( m_myTeamId <= 0 ? teamsSize - 1 : m_myTeamId - 1 );
+                m_myTeamId = prev;
+            }
+            s_prevSlashDown = slashDown;
+            s_prevAsteriskDown = asteriskDown;
+
+            if( g_keyDeltas[KEY_8] )
+                g_app->GetWorldRenderer()->SetRenderEverything( !g_app->GetWorldRenderer()->CanRenderEverything() );
+
+            if( m_myTeamId != -1 && ( m_myTeamId < 0 || m_myTeamId >= teamsSize ) )
+                m_myTeamId = 0;
+        }
+        else if( teamSwitchingOn && teamsSize == 0 )
+        {
+            m_myTeamId = -1;
+        }
+
+        if( m_myTeamId != -1 )
+        {
+            int requestedSpeed = -1;
+            if( g_keyDeltas[KEY_TILDE] ) requestedSpeed = GAMESPEED_PAUSED;
+            if( g_keyDeltas[KEY_1] )     requestedSpeed = GAMESPEED_REALTIME;
+            if( g_keyDeltas[KEY_2] )     requestedSpeed = GAMESPEED_SLOW;
+            if( g_keyDeltas[KEY_3] )     requestedSpeed = GAMESPEED_MEDIUM;
+            if( g_keyDeltas[KEY_4] )     requestedSpeed = GAMESPEED_FAST;
+            if( g_keyDeltas[KEY_5] )     requestedSpeed = GAMESPEED_VERYFAST;
+
+            if( requestedSpeed != -1 && CanSetTimeFactor( requestedSpeed ) )
+                g_app->GetClientToServer()->RequestGameSpeed( m_myTeamId, requestedSpeed );
+        }
+    }
+}
+
+
 bool World::CanSetTimeFactor( Fixed factor )
 {
     if( m_myTeamId == -1 ||
@@ -2239,11 +2254,12 @@ bool World::CanSetTimeFactor( Fixed factor )
 
     int gameSpeedOption = g_app->GetGame()->GetOptionValue("GameSpeed");
     int minSpeedSetting = g_app->GetGame()->GetOptionValue("SlowestSpeed");
-    int minSpeed = (    minSpeedSetting == 0 ? 0 :
-                        minSpeedSetting == 1 ? 1 :
-                        minSpeedSetting == 2 ? 5 :
-                        minSpeedSetting == 3 ? 10 :
-                        minSpeedSetting == 4 ? 20 : 20 );
+    int minSpeed = (    minSpeedSetting == 0 ? GAMESPEED_PAUSED :
+                        minSpeedSetting == 1 ? GAMESPEED_REALTIME :
+                        minSpeedSetting == 2 ? GAMESPEED_SLOW :
+                        minSpeedSetting == 3 ? GAMESPEED_MEDIUM :
+                        minSpeedSetting == 4 ? GAMESPEED_FAST :
+                        minSpeedSetting == 5 ? GAMESPEED_VERYFAST : GAMESPEED_VERYFAST );
 
     if( factor < minSpeed ) 
     {
@@ -2601,9 +2617,9 @@ bool World::IsSailable( Fixed const &fromLongitude, Fixed const &fromLatitude, F
     Fixed velMag = vel.Mag();
     int nbIterations = 0;
 
-    if( timeScaleFactor == 20 )
+    if( timeScaleFactor >= GAMESPEED_MEDIUM )
     {
-        // Stepsize = 1
+        // Stepsize = 1 (medium and fast)
         nbIterations = velMag.IntValue();
         vel /= velMag;
     }

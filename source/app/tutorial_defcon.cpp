@@ -272,7 +272,7 @@ class AccelTimePopup : public TutorialPopup
     {
         if(g_app->GetWorld()->GetTeam(1)->m_unitsAvailable[WorldObject::TypeRadarStation] == 0 &&
             g_app->GetWorld()->GetTeam(1)->m_unitsAvailable[WorldObject::TypeSilo] == 0 &&
-            g_app->GetWorld()->GetTimeScaleFactor() < GAMESPEED_FAST &&
+            g_app->GetWorld()->GetTimeScaleFactor() < GAMESPEED_VERYFAST &&
             g_app->GetWorld()->GetDefcon() > 1 )
         {
             TutorialPopup::Render( _hasFocus );
@@ -1323,8 +1323,8 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetWorld()->AssignCities();
         g_app->GetWorld()->GetTeam(1)->m_unitsAvailable.SetAll(0);
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
-        g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_VERYFAST );
 
         m_objectIds[0] = ObjectPlacement( 1, WorldObject::TypeSilo, 18.0f, 52.0f, 255 );
         m_objectIds[1] = ObjectPlacement( 0, WorldObject::TypeRadarStation, 42.0f, 54.0f, 255 );
@@ -1393,7 +1393,7 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetWorld()->GetTeam(1)->m_unitsAvailable.SetAll(0);
         g_app->GetWorld()->GetTeam(1)->m_unitsAvailable[WorldObject::TypeSilo] = 4;
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_SLOW );
 
         int id = ObjectPlacement( 1, WorldObject::TypeRadarStation, 10.0f, 50.0f, 255 );
@@ -1426,7 +1426,7 @@ void Tutorial::SetupCurrentChapter()
     if( InChapter("M2DestroyNukes" ) )
     {
         g_app->GetWorld()->m_theDate.AdvanceTime(2500);
-        g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_VERYFAST );
         
         int launchId = ObjectPlacement( 0, WorldObject::TypeSub, -37.0f, 44.5f, 255 );
 
@@ -1475,7 +1475,7 @@ void Tutorial::SetupCurrentChapter()
         m_objectIds[2] = ObjectPlacement(0, WorldObject::TypeAirBase, 40.0f, 61.0f, 255 );
         g_app->GetMapRenderer()->CenterViewport( m_objectIds[2], 10 );
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_REALTIME );
         
         g_app->GetWorld()->GetTeam(0)->m_type = Team::TypeLocalPlayer;
@@ -1560,7 +1560,7 @@ void Tutorial::SetupCurrentChapter()
 
     if( InChapter("M3GameSpeed" ) )
     {
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
     }
 
     if( InChapter("M3Defcon1") )
@@ -1591,7 +1591,7 @@ void Tutorial::SetupCurrentChapter()
         m_objectIds[2] = ObjectPlacement(0, WorldObject::TypeAirBase, 54.0f, 54.0f, 255 );
         g_app->GetMapRenderer()->CenterViewport( m_objectIds[2], 10 );
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_SLOW );
 
         g_app->GetWorld()->GetTeam(0)->m_type = Team::TypeLocalPlayer;
@@ -1702,7 +1702,7 @@ void Tutorial::SetupCurrentChapter()
         ObjectPlacement(0, WorldObject::TypeBattleShip, -66.0f, 33.0f, 1 );
         ObjectPlacement(0, WorldObject::TypeCarrier, -64.0f, 36.0f, 1 );
                 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_SLOW );
 
         g_app->GetWorld()->GetTeam(0)->m_type = Team::TypeLocalPlayer;
@@ -1812,7 +1812,7 @@ void Tutorial::SetupCurrentChapter()
 
         g_app->GetWorld()->GetTeam(0)->m_type = Team::TypeLocalPlayer;
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_SLOW );
 
         ShowTerritoryPopup *showTerritories = new ShowTerritoryPopup();
@@ -1986,7 +1986,7 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetWorld()->GetTeam(0)->m_unitsAvailable[WorldObject::TypeRadarStation] = 4;
         g_app->GetWorld()->GetTeam(0)->m_unitsAvailable[WorldObject::TypeAirBase] = 2;
 
-        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_FAST );
+        g_app->GetClientToServer()->RequestGameSpeed( 0, GAMESPEED_VERYFAST );
         g_app->GetClientToServer()->RequestGameSpeed( 1, GAMESPEED_SLOW );
 
         Team *ai = g_app->GetWorld()->GetTeam(0);

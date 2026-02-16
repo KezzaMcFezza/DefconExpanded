@@ -42,14 +42,16 @@ struct CityLocation;
 
 #define GAMESPEED_PAUSED        0
 #define GAMESPEED_REALTIME      1
-#define GAMESPEED_SLOW          5
-#define GAMESPEED_MEDIUM        10
-#define GAMESPEED_FAST          20
+#define GAMESPEED_SLOW          4
+#define GAMESPEED_MEDIUM        16
+#define GAMESPEED_FAST          50
+#define GAMESPEED_VERYFAST      200
 
 #define RECORDINGSPEED_REALTIME  1
 #define RECORDINGSPEED_SLOW      10
-#define RECORDINGSPEED_MEDIUM    100
-#define RECORDINGSPEED_FAST      2500
+#define RECORDINGSPEED_MEDIUM   100
+#define RECORDINGSPEED_FAST    1000
+#define RECORDINGSPEED_VERYFAST 5000
 
 class World
 {
@@ -219,6 +221,7 @@ public:
 
     void Update         ();
     void UpdateRadar    ();
+    void ProcessSpeedAndTeamKeys();  // Run every render frame for responsive input
 
 	void GenerateWorldEvent ();
     

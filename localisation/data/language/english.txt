@@ -926,18 +926,20 @@ dialog_style_col_font               Font
 # =============================================================================
 
 tooltip_timeaccel0                  Pause Game
-tooltip_timeaccel1                  Run in Real Time
-tooltip_timeaccel2                  Accelerate Time\n(5x Real Time)
-tooltip_timeaccel3                  Accelerate Time\n(10x Real Time)
-tooltip_timeaccel4                  Accelerate Time\n(20x Real Time)
+tooltip_timeaccel1                  Run in Real Time (1x)
+tooltip_timeaccel2                  Accelerate Time\n(4x Real Time)
+tooltip_timeaccel3                  Accelerate Time\n(16x Real Time)
+tooltip_timeaccel4                  Accelerate Time\n(50x Real Time)
+tooltip_timeaccel5                  Accelerate Time\n(200x Real Time)
 
 tooltip_worldstatus_x_faster_realtime       *Sx Realtime
 # S = Number of time the game speed is faster than Realtime
-tooltip_worldstatus_key_shortcut_0          \nKey shortcut: 0\n
+tooltip_worldstatus_key_shortcut_tilde      \nKey shortcut: ~\n
 tooltip_worldstatus_key_shortcut_1          \nKey shortcut: 1\n
 tooltip_worldstatus_key_shortcut_2          \nKey shortcut: 2\n
 tooltip_worldstatus_key_shortcut_3          \nKey shortcut: 3\n
 tooltip_worldstatus_key_shortcut_4          \nKey shortcut: 4\n
+tooltip_worldstatus_key_shortcut_5          \nKey shortcut: 5\n
 tooltip_worldstatus_players_request_speed   Players requesting speed:
 tooltip_worldstatus_no_team_request_speed   \nNone
 tooltip_worldstatus_cannot_request_speed    You cannot request this game speed

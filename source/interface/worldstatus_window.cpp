@@ -31,6 +31,7 @@ static float GetRecordingSpeedForButton( int gameSpeed )
         case GAMESPEED_SLOW:     return (float)RECORDINGSPEED_SLOW;
         case GAMESPEED_MEDIUM:   return (float)RECORDINGSPEED_MEDIUM;
         case GAMESPEED_FAST:     return (float)RECORDINGSPEED_FAST;
+        case GAMESPEED_VERYFAST: return (float)RECORDINGSPEED_VERYFAST;
         default:                 return (float)RECORDINGSPEED_REALTIME;
     }
 }
@@ -61,10 +62,10 @@ public:
                 float currentSpeed = server->m_playbackController->GetAdvanceSpeedMultiplier();
                 float mySpeed = GetRecordingSpeedForButton( m_timeScale.IntValue() );
 
-                if( mySpeed >= (float)RECORDINGSPEED_FAST )
+                if( mySpeed >= (float)RECORDINGSPEED_VERYFAST )
                 {
                     isCurrent = !server->IsRecordingPaused() 
-                                && currentSpeed >= (float)RECORDINGSPEED_FAST * 0.5f;
+                                && currentSpeed >= (float)RECORDINGSPEED_VERYFAST * 0.5f;
                 }
                 else
                 {
@@ -118,11 +119,12 @@ public:
             {
                 switch( m_timeScale.IntValue() )
                 {
-                    case GAMESPEED_PAUSED:      strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_0") );           break;
-                    case GAMESPEED_REALTIME:    strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_1") );           break;
-                    case GAMESPEED_SLOW:        strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_2") );           break;
-                    case GAMESPEED_MEDIUM:      strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_3") );           break;
-                    case GAMESPEED_FAST:        strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_4") );           break;
+                    case GAMESPEED_PAUSED:      strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_tilde") ); break;
+                    case GAMESPEED_REALTIME:    strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_1") ); break;
+                    case GAMESPEED_SLOW:        strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_2") ); break;
+                    case GAMESPEED_MEDIUM:      strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_3") ); break;
+                    case GAMESPEED_FAST:        strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_4") ); break;
+                    case GAMESPEED_VERYFAST:    strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_key_shortcut_5") ); break;
                 }
                 strcat( newTooltip, LANGUAGEPHRASE("tooltip_worldstatus_players_request_speed") );
             }
@@ -145,9 +147,10 @@ public:
         else
         {
             if( m_timeScale == GAMESPEED_REALTIME ) numArrows = 1;
-            if( m_timeScale == GAMESPEED_SLOW ) numArrows = 2;
-            if( m_timeScale == GAMESPEED_MEDIUM ) numArrows = 3;
-            if( m_timeScale == GAMESPEED_FAST ) numArrows = 4;
+            if( m_timeScale == GAMESPEED_SLOW )     numArrows = 2;
+            if( m_timeScale == GAMESPEED_MEDIUM )   numArrows = 3;
+            if( m_timeScale == GAMESPEED_FAST )     numArrows = 4;
+            if( m_timeScale == GAMESPEED_VERYFAST ) numArrows = 5;
 
             float arrowX = realX + m_w/2.0f - numArrows*2.5f;
             float arrowY = realY + m_h/2.0f;
@@ -344,7 +347,7 @@ WorldStatusWindow::WorldStatusWindow( const char *name )
 {
     bool isPlaybackMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
     bool hasPauseButton = g_app->GetGame()->GetOptionValue("SlowestSpeed") == 0 || isPlaybackMode;
-    int windowWidth = hasPauseButton ? 420 : 393;
+    int windowWidth = hasPauseButton ? 450 : 420;
 
     if( isPlaybackMode )
         SetSize( windowWidth, 40 );
@@ -356,7 +359,7 @@ WorldStatusWindow::WorldStatusWindow( const char *name )
     LoadProperties( "WindowWorldStatus" );
 
     hasPauseButton = g_app->GetGame()->GetOptionValue("SlowestSpeed") == 0 || ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() );
-    windowWidth = hasPauseButton ? 420 : 393;
+    windowWidth = hasPauseButton ? 450 : 420;
 
     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
         SetSize( windowWidth, 40 );
@@ -414,25 +417,30 @@ void WorldStatusWindow::Create()
         RegisterButton( pause );
     }
     
-    TimeScaleButton *realtime = new TimeScaleButton();
-    realtime->SetProperties( "RealTime", x+=g, 2, w, h, " ", "tooltip_timeaccel1", false, true );
-    realtime->m_timeScale = GAMESPEED_REALTIME;
-    RegisterButton( realtime );
+    TimeScaleButton *onex = new TimeScaleButton();
+    onex->SetProperties( "1x", x+=g, 2, w, h, " ", "tooltip_timeaccel1", false, true );
+    onex->m_timeScale = GAMESPEED_REALTIME;
+    RegisterButton( onex );
 
-    TimeScaleButton *five = new TimeScaleButton();
-    five->SetProperties( "Slow", x+=g, 2, w, h, " ", "tooltip_timeaccel2", false, true );
-    five->m_timeScale = GAMESPEED_SLOW;
-    RegisterButton( five );
+    TimeScaleButton *fourx = new TimeScaleButton();
+    fourx->SetProperties( "4x", x+=g, 2, w, h, " ", "tooltip_timeaccel2", false, true );
+    fourx->m_timeScale = GAMESPEED_SLOW;
+    RegisterButton( fourx );
 
-    TimeScaleButton *ten = new TimeScaleButton();
-    ten->SetProperties( "Medium", x+=g, 2, w, h, " ", "tooltip_timeaccel3", false, true );
-    ten->m_timeScale = GAMESPEED_MEDIUM;
-    RegisterButton( ten );
+    TimeScaleButton *sixteenx = new TimeScaleButton();
+    sixteenx->SetProperties( "16x", x+=g, 2, w, h, " ", "tooltip_timeaccel3", false, true );
+    sixteenx->m_timeScale = GAMESPEED_MEDIUM;
+    RegisterButton( sixteenx );
 
-    TimeScaleButton *twenty = new TimeScaleButton();
-    twenty->SetProperties( "Fast", x+=g, 2, w, h, " ", "tooltip_timeaccel4", false, true );
-    twenty->m_timeScale = GAMESPEED_FAST;
-    RegisterButton( twenty );
+    TimeScaleButton *fiftyx = new TimeScaleButton();
+    fiftyx->SetProperties( "50x", x+=g, 2, w, h, " ", "tooltip_timeaccel4", false, true );
+    fiftyx->m_timeScale = GAMESPEED_FAST;
+    RegisterButton( fiftyx );
+
+    TimeScaleButton *twohundredx = new TimeScaleButton();
+    twohundredx->SetProperties( "200x", x+=g, 2, w, h, " ", "tooltip_timeaccel5", false, true );
+    twohundredx->m_timeScale = GAMESPEED_VERYFAST;
+    RegisterButton( twohundredx );
 
     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
     {
