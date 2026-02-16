@@ -603,51 +603,84 @@ void World::AssignCities()
 
 Colour World::GetAllianceColour( int _allianceId )
 {
-    Colour s_alliances[] = { 
-                                Colour(200, 50, 50  ),
-                                Colour(50,  200,50  ),
-                                Colour(50,  50, 255 ),
-                                Colour(200, 200,50  ),
-                                Colour(255, 150,0   ),
-                                Colour(0,   200,200 )
-                            };
-        
-    AppDebugAssert( _allianceId >= 0 && _allianceId < 6 );
+    Colour s_alliances[] = {
+        Colour(  0, 255,   0), // Green
+        Colour(255,   0,   0), // Red
+        Colour(  0,   0, 255), // Blue
+        Colour(255, 255,   0), // Yellow
+        Colour(255,   0, 255), // Pink
+        Colour(  0, 255, 255), // Cyan
+        Colour(255, 127,   0), // Orange
+        Colour(127,   0, 255), // Purple
+        Colour(140, 255, 102), // Lime
+        Colour(255, 102, 140), // Salmon
+        Colour(127, 161, 255), // Sapphire
+        Colour(255, 211, 102), // Lemon
+        Colour(255, 153, 255), // Rose
+        Colour(153, 204, 255), // Ice
+        Colour(255, 135, 102), // Tangerine
+        Colour(187, 127, 255), // Lavender
+        Colour(  0, 102,   0), // Olive
+        Colour(102,   0,   0), // Burgundy
+        Colour(  0,  76, 153), // Cobalt
+        Colour(102, 102,   0), // Gold
+        Colour( 76,   0,  76), // Violet
+        Colour(  0, 102, 102), // Teal
+        Colour(102,  51,   0), // Brown
+        Colour( 51,   0, 102), // Indigo
+        Colour(204, 204, 204), // 80% grey
+        Colour(153, 153, 153), // 60% grey
+        Colour(102, 102, 102), // 40% grey
+        Colour( 51,  51,  51), // 20% grey
+        Colour(170, 170, 170)  // Silver (spare slot)
+    };
+    AppDebugAssert( _allianceId >= 0 && _allianceId < MAX_TEAMS );
 #ifdef TARGET_OS_MACOSX
-    if (!( _allianceId >= 0 && _allianceId < 6 ))
+    if( _allianceId < 0 || _allianceId >= MAX_TEAMS )
         return s_alliances[0];
-    else
 #endif
-        return s_alliances[_allianceId];
+    return s_alliances[_allianceId];
 }
 
 
 const char *World::GetAllianceName( int _allianceId )
 {
-    AppDebugAssert( _allianceId >= 0 && _allianceId < 6 );
+    AppDebugAssert( _allianceId >= 0 && _allianceId < MAX_TEAMS );
+    if( _allianceId < 0 || _allianceId >= MAX_TEAMS )
+        return LANGUAGEPHRASE("unknown");
 
-	switch( _allianceId )
-	{
-		case 0:
-			return LANGUAGEPHRASE("dialog_alliance_0");
-			break;
-		case 1:
-			return LANGUAGEPHRASE("dialog_alliance_1");
-			break;
-		case 2:
-			return LANGUAGEPHRASE("dialog_alliance_2");
-			break;
-		case 3:
-			return LANGUAGEPHRASE("dialog_alliance_3");
-			break;
-		case 4:
-			return LANGUAGEPHRASE("dialog_alliance_4");
-			break;
-		case 5:
-			return LANGUAGEPHRASE("dialog_alliance_5");
-			break;
-	}
-
+    switch( _allianceId )
+    {
+        case 0:  return LANGUAGEPHRASE("dialog_alliance_0");
+        case 1:  return LANGUAGEPHRASE("dialog_alliance_1");
+        case 2:  return LANGUAGEPHRASE("dialog_alliance_2");
+        case 3:  return LANGUAGEPHRASE("dialog_alliance_3");
+        case 4:  return LANGUAGEPHRASE("dialog_alliance_4");
+        case 5:  return LANGUAGEPHRASE("dialog_alliance_5");
+        case 6:  return LANGUAGEPHRASE("dialog_alliance_6");
+        case 7:  return LANGUAGEPHRASE("dialog_alliance_7");
+        case 8:  return LANGUAGEPHRASE("dialog_alliance_8");
+        case 9:  return LANGUAGEPHRASE("dialog_alliance_9");
+        case 10: return LANGUAGEPHRASE("dialog_alliance_10");
+        case 11: return LANGUAGEPHRASE("dialog_alliance_11");
+        case 12: return LANGUAGEPHRASE("dialog_alliance_12");
+        case 13: return LANGUAGEPHRASE("dialog_alliance_13");
+        case 14: return LANGUAGEPHRASE("dialog_alliance_14");
+        case 15: return LANGUAGEPHRASE("dialog_alliance_15");
+        case 16: return LANGUAGEPHRASE("dialog_alliance_16");
+        case 17: return LANGUAGEPHRASE("dialog_alliance_17");
+        case 18: return LANGUAGEPHRASE("dialog_alliance_18");
+        case 19: return LANGUAGEPHRASE("dialog_alliance_19");
+        case 20: return LANGUAGEPHRASE("dialog_alliance_20");
+        case 21: return LANGUAGEPHRASE("dialog_alliance_21");
+        case 22: return LANGUAGEPHRASE("dialog_alliance_22");
+        case 23: return LANGUAGEPHRASE("dialog_alliance_23");
+        case 24: return LANGUAGEPHRASE("dialog_alliance_24");
+        case 25: return LANGUAGEPHRASE("dialog_alliance_25");
+        case 26: return LANGUAGEPHRASE("dialog_alliance_26");
+        case 27: return LANGUAGEPHRASE("dialog_alliance_27");
+        case 28: return LANGUAGEPHRASE("dialog_alliance_28");
+    }
     return LANGUAGEPHRASE("unknown");
 }
 
@@ -671,7 +704,7 @@ int World::CountAllianceMembers ( int _allianceId )
 
 int World::FindFreeAllianceId()
 {
-    for( int a = 0; a < 6; ++a )
+    for( int a = 0; a < MAX_TEAMS; ++a )
     {
         if( CountAllianceMembers(a) == 0 )
         {
