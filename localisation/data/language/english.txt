@@ -72,6 +72,9 @@ dialog_medium                       Medium
 dialog_low                          Low
 dialog_enabled                      Enabled
 dialog_disabled                     Disabled
+dialog_citynumbermillion            ROUND TO MILLIONS
+dialog_citynumberthousand           ROUND TO THOUSANDS
+dialog_citynumbertrue               SHOW TRUE NUMBER
 
 dialog_apply                        Apply
 dialog_close                        Close
@@ -82,6 +85,7 @@ dialog_no                           No
 dialog_no_l                         no
 dialog_none                         None
 dialog_ok                           Ok
+dialog_back		            Back
 dialog_cancel                       Cancel
 dialog_cancel_seeking               Cancel seeking and return to normal playback
 dialog_save                         Save
@@ -101,6 +105,7 @@ dialog_setplayername                Set Player Name
 dialog_setteamname                  Set Team Name
 
 dialog_graphicsoptions              Graphics
+dialog_smoothlines                  Smooth Lines
 dialog_coastlinethickness           Coastline Thickness
 dialog_borderthickness              Border Thickness
 dialog_unittrailthickness           Unit Trail Thickness
@@ -111,12 +116,18 @@ dialog_citynames                    Show City Names
 dialog_countrynames                 Show Country Names
 dialog_messages                     Show Messages
 dialog_water                        Show Water
+dialog_explosiontype				Explosion Sprite
 dialog_radiation                    Show Radiation
 dialog_lowdetailworld               Low-detail World
 dialog_objecttrails                 Show Object Trails
+dialog_citynumberpop                City Population Rounding
+dialog_objectoutlines               Show Unit Outlines
 dialog_lobbyeffects                 Lobby Effects
 
+dialog_unitghosts                   Unit Ghosts
+dialog_travelnodes                  Show Travel Nodes
 dialog_globeoptions                 Globe Options
+dialog_globesize                    Globe Size
 dialog_globecoastthickness          Coastline Thickness
 dialog_globeborderthickness         Border Thickness
 dialog_globecoastcolor              Coastline Color
@@ -143,6 +154,9 @@ dialog_globeunittrailthickness      Unit Trail Thickness
 
 dialog_waternormal					Normal
 dialog_watershaded					Shaded
+
+dialog_defaultexplosion				Default 
+dialog_ringexplosion				Ring
 
 dialog_soundoptions                 Sound
 dialog_unavailable                  unavailable
@@ -317,6 +331,8 @@ dialog_zoomspeed                    Zoom Speed
 dialog_camdragging                  Camera Dragging
 dialog_tooltips                     Show Tooltips
 dialog_popupscale                   Popup Scale
+dialog_panickey                     Panic Key
+dialog_advancedcontrols             Advanced Unit Controls
 dialog_language                     Language
 dialog_restart_required_language    Please restart Defcon for the language\nsettings to take affect.
 dialog_keyboardlayout               Keyboard Layout
@@ -327,6 +343,8 @@ dialog_zoomslow                     Slow
 dialog_lobby                        LOBBY
 dialog_lobby_team_options           Team Options
 dialog_lobby_advanced_options       Advanced Options
+dialog_lobby_expand_map             Expand Map
+dialog_lobby_collapse_map           Collapse Map
 dialog_rename                       Rename
 dialog_territories                  Territories
 dialog_alliance                     Alliance
@@ -373,6 +391,7 @@ dialog_internet_identity_details    *I : *P
 dialog_lan_identity                 LAN Identity
 dialog_server_identity              Server Identity
 dialog_lobby_defcon                 DEFCOn
+dialog_lobby_expanded				EXPANDED EDITION
 dialog_created_by_introversion      CREATED  BY  INTROVERSION  SOFTWARE
 dialog_lobby_version                VERSION:
 dialog_lobby_have_latest_version    You have the latest version.
@@ -409,10 +428,33 @@ dialog_alliance_0                   Red
 dialog_alliance_1                   Green
 dialog_alliance_2                   Blue
 dialog_alliance_3                   Yellow
-dialog_alliance_4                   Orange
-dialog_alliance_5                   Turq
+dialog_alliance_4                   Pink
+dialog_alliance_5                   Cyan
+dialog_alliance_6                   Orange
+dialog_alliance_7                   Purple
+dialog_alliance_8                   Lime
+dialog_alliance_9                   Salmon
+dialog_alliance_10                  Sapphire
+dialog_alliance_11                  Lemon
+dialog_alliance_12                  Rose
+dialog_alliance_13                  Ice
+dialog_alliance_14                  Tangerine
+dialog_alliance_15                  Lavender
+dialog_alliance_16                  Olive
+dialog_alliance_17                  Burgundy
+dialog_alliance_18                  Cobalt
+dialog_alliance_19                  Gold
+dialog_alliance_20                  Violet
+dialog_alliance_21                  Teal
+dialog_alliance_22                  Brown
+dialog_alliance_23                  Indigo
+dialog_alliance_24                  White
+dialog_alliance_25                  Gray
+dialog_alliance_26                  Gray
+dialog_alliance_27                  Black
 
-dialog_alliances                    Alliances
+dialog_alliances                    ALLIANCES
+dialog_pick_color                   COLOR PICKER
 dialog_declarewar                   End Cease Fire with *T?
 dialog_ceasefire                    Cease Fire against *T?
 dialog_ceasefire_title              Cease Fire
@@ -437,9 +479,21 @@ dialog_requested_kick_1             *T has requested
 # T = Team Name
 dialog_requested_kick_2             to Kick *T
 # T = Team Name
+dialog_you_requested_leave_1     You have requested to
+dialog_you_requested_leave_2     leave your Alliance
+dialog_requested_leave_1         *T has requested to
+dialog_requested_leave_2         leave the Alliance
+# T = Team Name
+dialog_you_req_migrate_alliance_1     You requested to
+dialog_you_req_migrate_alliance_2     change your Alliance color to *A
+dialog_requested_migrate_alliance_1         *T requested to
+dialog_requested_migrate_alliance_2         change Alliance color to *A
+# T = Team Name, A = Alliance Name
 dialog_vote_yes                     YES
 dialog_vote_no                      NO
 dialog_vote_abstain                 ABSTAIN
+dialog_pick_color                   Pick Alliance Color
+dialog_change_alliance_color        Change Alliance Color
 dialog_vote_seconds_to_vote         *S seconds to vote
 # S = Seconds to vote
 dialog_vote_number_votes_required   *V votes required
@@ -471,6 +525,7 @@ dialog_recording_paused             RECORDING PAUSED
 dialog_recording_finished           RECORDING FINISHED
 dialog_gameover                     GAME OVER
 dialog_saved_screenshot             /me saved a screenshot
+dialog_saved_screenshot_failed      /me failed to save a screenshot
 # /me will be replaced by the Team Name
 dialog_synchronisation_error        SYNCHRONISATION ERROR
 dialog_connection_problem_seconds   CONNECTION PROBLEM (*S SECS)
@@ -551,6 +606,11 @@ dialog_toolbar_nukes                nukes
 dialog_toolbar_radiation            radiation
 dialog_toolbar_white_board          white board
 dialog_toolbar_info                 info
+dialog_toolbar_cpu                  CPU Toggle
+dialog_toolbar_cpu_toggle           Toggle CPU
+dialog_cpu_on                       AI: On
+dialog_cpu_off                      AI: Off
+dialog_cpu_no_game                  (No game)
 
 dialog_mod                          Mods
 dialog_mod_commit_title             LOADING MODS...
@@ -704,6 +764,7 @@ dialog_worldstatus_time_remain_ms   Time Remaining : *Mm *Ss
 # M = Minutes, S = Seconds
 dialog_worldstatus_show_stats       Show Stats
 dialog_worldstatus_scoremode        ScoreMode
+dialog_worldstatus_victorymode      VictoryMode
 dialog_worldstatus_cpu_team_name    [CPU]*T
 # T = Team Name
 dialog_worldstatus_left_team_name   [LEFT]*T
@@ -719,10 +780,13 @@ dialog_worldstatus_deaths           Deaths
 dialog_worldstatus_survivors        Survivors
 dialog_worldstatus_collateral       Collateral
 dialog_worldstatus_nukes            Nukes
+dialog_worldstatus_bonus			Bonus
 dialog_worldstatus_score            SCORE
 dialog_worldstatus_points_value     Points Value:
 dialog_worldstatus_pop_in_millions  *P m
 # P = Population in millions
+dialog_worldstatus_pop_in_billions  *P b
+# P = Population in billions
 dialog_worldstatus_classified       [classified]
 dialog_worldstatus_seek_recording   Click or drag to seek in recording
 dialog_stats                        Stats
@@ -801,14 +865,23 @@ dialog_world_kicked                 *T KICKED
 dialog_mapr_fps                     *F Fps
 # F = Frame per seconds (fps)
 dialog_mapr_city_population         POPULATION : *P MILLION
+dialog_mapr_city_populationmillion  POPULATION : *P MILLION
+dialog_mapr_city_populationthousand POPULATION : *P THOUSAND
+dialog_mapr_city_populationtrue     POPULATION : *P
 # P = City Population
 dialog_mapr_city_dead               DEAD       : *D MILLION
+dialog_mapr_city_deadmillion        DEAD       : *D MILLION
+dialog_mapr_city_deadthousand       DEAD       : *D THOUSAND
+dialog_mapr_city_deadtrue           DEAD       : *D
 # D = City Dead Population
 dialog_mapr_mode                    *M MODE
 # M = Current State
 dialog_mapr_secs                    *S SECS
 # S = Seconds
 dialog_mapr_empty                   EMPTY
+dialog_mapr_disabledempty           MODE DISABLED
+dialog_mapr_full                    NUKE STORES FULL
+dialog_mapr_bingo                   BINGO FUEL
 dialog_mapr_cancel_all_orders       CANCEL ALL ORDERS
 dialog_mapr_not_before_defcon_x     NOT BEFORE DEFCON *D
 # D = Defcon level
@@ -821,6 +894,10 @@ dialog_mapr_nukes_in_queue          *N IN QUEUE
 # N = Number of Nukes
 dialog_mapr_nukes_in_flight         *N IN FLIGHT
 # N = Number of Nukes
+dialog_mapr_lacm_in_queue           *N IN QUEUE
+# N = Number of LACM/LASM queued at target
+dialog_mapr_lacm_in_flight          *N IN FLIGHT
+# N = Number of LACM/LASM in flight at target
 
 dialog_style                        Style
 dialog_style_editor                 Style Editor
@@ -882,6 +959,7 @@ tooltip_toolbar_score               Show Scores window
 tooltip_toolbar_comms               Show Comms window
 tooltip_toolbar_orders              Toggle Orders
 tooltip_toolbar_info                Show Unit Info window
+tooltip_toolbar_cpu                 Show CPU Toggle window
 tooltip_toolbar_territory           Toggle Territories
 tooltip_toolbar_nukes               Show Units with Nukes
 tooltip_toolbar_radiation           Toggle Radiation Display
@@ -909,11 +987,18 @@ tooltip_gameoption_slowestspeed             The slowest speed this game may run 
 tooltip_gameoption_enableworldevents        If enabled random events will occur during the game
 tooltip_gameoption_gamemode                 Controls the rules that govern the game
 tooltip_gameoption_scoremode                Controls the point-weighting for kills/deaths/remaining nukes
+tooltip_gameoption_victorymode              Players win points as individuals or share points as a Team
 tooltip_gameoption_victorytrigger           Determines when the Victory Timer starts.  The value represents the percentage that the total number of Nukes in the world must drop below for the Victory Timer to start.\n\nEg: If set to 20 (default) the total number of nukes must fall below 20% of the initial count for the Victory timer to start.
 tooltip_gameoption_victorytimer             Once the Victory Timer has started there will be this many game minutes before the game ends completely.
 tooltip_gameoption_maxgamerealtime          The maximum real-world time for the game in minutes.\n\n0 = unlimited real-world time available - the game will not end until the Victory Timer completes.
 tooltip_gameoption_variableunitcounts       Enables Credit mode\nEach player gets a number of credits to spend on their units, and may customise their forces as they like
-tooltip_gameoption_worldscale               NOTE: Experimental.\n\nThis variable effectively makes the world larger, and hence the game last longer.\n\nAt 100 the world scale is normal.\n\nAt the highest value (200) each team has twice as many units, but each units has half the radar range and half the combat range.\n\nHighly experimental.\nRequires a powerful CPU.\nWe recommend you disable Rendering Object Trails for a clearer view.
+tooltip_gameoption_worldscale               NOTE: Experimental.\n\nThis variable effectively makes the world larger, and hence the game will last longer.\n\nAt 100 the world scale is normal.\n\nAt the highest value (200), each team has twice as many units, but each units has half the radar range and half the combat range.\n\nHighly experimental.\nRequires a powerful CPU.\nWe recommend you disable Rendering Object Trails for a clearer view.
+tooltip_gameoption_scaleunitstats           When Enabled, unit ranges, speeds and placement distances are scaled by World Scale (bigger world = shorter ranges). When Disabled, unit stats remain fixed regardless of World Scale.
+tooltip_gameoption_worldunitscale           NOTE: Experimental.\n\nThis variable control unit numbers.\n\nAt 100 the world scale is normal.\n\nAt the value (50) each team has half as many units.\n\nCombined with World Scale 200 the globe will be twice as big but you will have the normal amount of units, since 50% will cancel out the doubling of units from BigWorld.
+tooltip_gameoption_emptybomberlaunch        Allows Bombers to be launched without carrying an available nuke on board. The unused nuke is returned to its base's stockpile.
+tooltip_gameoption_firststrikebonus			The player who lands the first direct hit on an enemy city will gain bonus points equal to the number set. Good for incentivizing aggressive play and speeding up Diplomacy games.
+tooltip_gameoption_citybuffer				Distance at which cities can generate away from each other. Above 3, small territories may lose cities or have them placed inside the buffer.
+tooltip_gameoption_unitbuffer				Distance at which land units can be placed away from each other.
 tooltip_gameoption_permitpausing            If enabled, a player may pause the game during play
 tooltip_gameoption_serverpassword           Set this to restrict access to only those people who know the password.\n\nFor no password set it to be Empty.
 
@@ -929,6 +1014,9 @@ tooltip_scoremode_default                   Score 2 points for every enemy kill.
 tooltip_scoremode_survivor                  Score 1 point for every survivor in your Territory.  All teams start with 100 points and can only go down.
 tooltip_scoremode_genocide                  Score 1 point for every enemy kill. Simple, yet horrible.
 
+tooltip_victorymode_individual              The Winner will be the individual player with the highest score.
+tooltip_victorymode_team                    The Winners will be the players on the team with the highest combined score.
+
 tooltip_defection_no                        Defection is not permitted. The Alliances will remain fixed for the entire game.\n\nYou are automatically in a state of Cease Fire with your allies.
 tooltip_defection_yes                       Defection is permitted. You or any other player can chose to changes Alliance at any time.\n\nYou can enable or disable your Cease Fire status with your allies at any time.
 
@@ -942,12 +1030,35 @@ tooltip_ceasefire_disable                   Your military units will regard this
 tooltip_radarshare_enable                   Your Radar Coverage will be sent to this team, and they will see everything you see.\nNote: Your subs will remain hidden so long as they are submerged.
 tooltip_radarshare_disable                  You will stop sending Radar Coverage to this team.  They will no longer be able to see what you can see.
 
-tooltip_place_silo                          Place Silo
+tooltip_place_silo                          Place ICBM Silo
+tooltip_place_silomed                          Place MRBM Silo
+tooltip_place_silo_mob                          Place TEL
+tooltip_place_sam                           Place SAM
+tooltip_place_abm                           Place ABM
 tooltip_place_radar                         Place Radar Station
+tooltip_place_radar_ew                      Place Early Warning Radar
 tooltip_place_airbase                       Place Airbase
-tooltip_place_battleship                    Add Battleship to Fleet
-tooltip_place_sub                           Add Sub to Fleet
-tooltip_place_carrier                       Add Carrier to Fleet
+tooltip_place_airbase2                      Place Airbase
+tooltip_place_airbase3                      Place Airbase
+tooltip_place_battleship                    Add Guided Missile Cruiser to Fleet
+tooltip_place_battleship2                   Add Guided Missile Destroyer to Fleet
+tooltip_place_battleship3                   Add Guided Missile Frigate to Fleet
+tooltip_place_ddg_arleigh                   Add Guided Missile Destroyer to Fleet
+tooltip_place_ddg_horizon                   Add Guided Missile Destroyer to Fleet
+tooltip_place_ddg_sov                       Add Guided Missile Destroyer to Fleet
+tooltip_place_ddg_chi                       Add Guided Missile Destroyer to Fleet
+tooltip_place_ddg_frigate                   Add Frigate to Fleet
+tooltip_place_sub                           Add Attack Ballistic Missile Sub to Fleet
+tooltip_place_subg                          Add Guided Missile Sub to Fleet
+tooltip_place_subc                          Add Nuclear Fast Attack Sub to Fleet
+tooltip_place_subk                          Add Diesel Fast Attack Sub to Fleet
+tooltip_place_carrier                       Add Super Carrier to Fleet
+tooltip_place_carrier2                      Add Light Carrier to Fleet
+tooltip_place_carrier_nimitz                Add  Nimitz-class to Fleet
+tooltip_place_carrier_wasp                  Add  Wasp-class to Fleet
+tooltip_place_carrier_gaulle                Add  DeGaulle-class to Fleet
+tooltip_place_carrier_queen                 Add  Queen Elizabeth II-class to Fleet
+tooltip_place_carrier_rus                   Add  Kuznetsov-class to Fleet
 tooltip_place_unit                          Place Unit Here
 tooltip_place_fleet                         Place Fleet Here
 tooltip_fleet_button                        Build a Fleet
@@ -960,6 +1071,16 @@ tooltip_territory_europe                    Europe
 tooltip_territory_russia                    Russia
 tooltip_territory_southasia                 South Asia
 tooltip_territory_africa                    Africa
+tooltip_territory_mideast                    Middle East
+tooltip_territory_eastasia                    East Asia
+tooltip_territory_northafrica                    NorthA frica
+tooltip_territory_antarctic                    Antarctic
+tooltip_territory_canbrit                    Canada-Britain
+tooltip_territory_centralamerica                    Central America
+tooltip_territory_australia                    Australia
+tooltip_territory_brazil                    Brazil
+tooltip_territory_southafrica                    South Africa
+tooltip_territory_southeastasia                    South East Asia
 
 tooltip_lobby_teamname                      Enter a name for your Team
 tooltip_lobby_territories                   Select your teams Territory
@@ -1005,8 +1126,14 @@ tooltip_moveobject                  [RMB] MOVE UNIT HERE
 tooltip_movefleet                   [RMB] MOVE FLEET HERE
 tooltip_cantmovehere                CANT MOVE HERE
 tooltip_spawnfighter                [LMB] LAUNCH FIGHTER HERE
+tooltip_spawnfighterlight           [LMB] LAUNCH LIGHT FIGHTER HERE
+tooltip_spawnstealthfighter         [LMB] LAUNCH STEALTH FIGHTER HERE
 tooltip_spawnbomber                 [LMB] LAUNCH BOMBER HERE
-tooltip_spawnnuke                   [LMB] LAUNCH NUKE HERE
+tooltip_spawnbomberfast             [LMB] LAUNCH FAST BOMBER HERE
+tooltip_spawnstealthbomber          [LMB] LAUNCH STEALTH BOMBER HERE
+tooltip_spawnaew                    [LMB] LAUNCH AWACS HERE
+tooltip_spawnnuke                   [LMB] LAUNCH NUCLEAR WARHEAD HERE
+tooltip_spawnlacm                   [LMB] LAUNCH CRUISE MISSILE HERE
 tooltip_spacetodeselect             SPACE TO DESELECT UNIT
 tooltip_landobject                  [LMB] LAND AIRCRAFT HERE
 
@@ -1027,6 +1154,7 @@ tooltip_server_browser_teams                \nTeams :
 tooltip_server_browser_spectator            \nSpectators :
 tooltip_server_browser_game_mode            \nGameMode :
 tooltip_server_browser_score_mode           \nScoreMode :
+tooltip_server_browser_victory_mode         \nVictoryMode :
 tooltip_server_browser_mod                  \nMOD:
 tooltip_server_browser_right_click_details  \n(Right Click for Details)
 
@@ -1076,7 +1204,8 @@ gameoption_5x_Real_Time             5x Real Time
 gameoption_10x_Real_Time            10x Real Time
 gameoption_20x_Real_Time            20x Real Time
 gameoption_SlowestSpeed             Slowest Speed
-gameoption_ScoreMode                Score Mode
+gameoption_ScoreMode                SCORE MODE
+gameoption_VictoryMode              VICTORY MODE
 gameoption_Survivor                 Survivor
 gameoption_Genocide                 Genocide
 gameoption_VictoryTrigger           Victory Trigger
@@ -1084,6 +1213,12 @@ gameoption_VictoryTimer             Victory Timer
 gameoption_MaxGameRealTime          Max Game Real Time
 gameoption_VariableUnitCounts       Variable Unit Counts
 gameoption_WorldScale               World Scale
+gameoption_ScaleUnitStats           Scale Unit Stats
+gameoption_WorldUnitScale           Unit Number Scale
+gameoption_EmptyBomberLaunch        Nukeless Bomber Launch
+gameoption_FirstStrikeBonus			First Strike Bonus
+gameoption_CityBuffer				City Buffer
+gameoption_UnitBuffer				Unit Buffer
 gameoption_MaxSpectators            Max Spectators
 gameoption_SpectatorChatChannel     Spectator Chat Channel
 gameoption_Private                  Private
@@ -1133,17 +1268,86 @@ style_FontPopup                     Font Popup
 # Unit names
 # =============================================================================
 
-unit_silo                           silo
-unit_nuke                           nuke
+unit_silo                           ICBM SILO
+unit_silomed                        MRBM SILO
+unit_silomob                        TEL
+unit_sam                            SAM
+unit_abm                            ABM
+unit_nuke                           WARHEAD
+unit_lacm                           LACM
+unit_lasm                           ASCM
+unit_lanm                           NUCLEAR-TIPPED LACM
 unit_city                           city
-unit_sub                            sub
-unit_radar                          radar
-unit_battleship                     battleship
-unit_airbase                        airbase
-unit_fighter                        fighter
-unit_bomber                         bomber
-unit_carrier                        carrier
-unit_tornado                        tornado
+unit_sub                            Submarine
+unit_subn                           SSBN
+unit_subc                           SSN
+unit_subk                           SSK
+unit_subg                           SSGN
+unit_radar                          RADAR STATION
+unit_radar_ew                       EARLY WARNING RADAR
+unit_battleship                     CG
+unit_battleship2                    DDG
+unit_battleship3                    FFG
+unit_ddg_arleigh                    DDG ARLEIGH BURKE
+unit_ddg_horizon                    DDG HORIZON
+unit_ddg_sov                        DDG SOVREMENNY
+unit_ddg_chi                        DDG TYPE-55
+unit_ddg_frigate                    Frigate
+unit_airbase                        AIRBASE
+unit_airbase2                       AIRBASE
+unit_airbase3                       AIRBASE
+unit_airbase_usa1                   ACC AFB
+unit_airbase_usa2                   AFGSC AFB
+unit_airbase_nato                   NATO AB
+unit_airbase_otan                   OTAN AB
+unit_airbase_ukr                     AIRBASE
+unit_airbase_sato                        AIRBASE
+unit_airbase_twn                        AIRBASE
+unit_airbase_anz                        AIRBASE
+unit_airbase_ru                     DBA AB
+unit_airbase_rusu                   VVS  AB
+unit_airbase_chi                        AIRBASE
+unit_airbase_nk                     EASTERN AIRBASE
+unit_airbase_ind                        AIRBASE
+unit_airbase_ines                        AIRBASE
+unit_airbase_phi                    WESTERN AIRBASE
+unit_airbase_pak                        AIRBASE
+unit_airbase_iran                        AIRBASE
+unit_airbase_egy                        AIRBASE
+unit_airbase_isr                        AIRBASE
+unit_airbase_ksa                        AIRBASE
+unit_fighter                        FIGHTER
+unit_fighter_f18                        F-18 HORNET
+unit_fighter_rafale                        RAFALE M
+unit_fighter_flanker                        FLANKER
+unit_fighter_f16                        F-16 VIPER
+unit_fighter_f14                        F-14 TOMCAT
+unit_fighter_f35                        F-35 JSF
+unit_fighter_su57                        SU-57 FELON
+unit_fighter_j20                        J-20 FAGIN
+unit_fighter_stealth                 STEALTH FIGHTER
+unit_fighter_light                   LIGHT FIGHTER
+unit_awacs                          AEW
+unit_bomber                         BOMBER
+unit_bomber_stealth                 STEALTH BOMBER
+unit_bomber_fast                    FAST BOMBER
+unit_bobomber                         BOMBER
+unit_bomber_b2                         B-2A SPIRIT
+unit_bomber_b52                         B-52H STRATOFORTRESS
+unit_bomber_tu95                         TU-95 BEAR
+unit_bomber_tu22                         TU-22M BACKFIRE
+unit_bomber_h6                         H-6
+unit_carrier                        CVN
+unit_carrier2                       CV
+unit_carrier_nimitz                 CVN NIMITZ
+unit_carrier_wasp                   LHD WASP
+unit_carrier_izumo                  DDH IZUMO
+unit_carrier_gaulle                 CVN DEGAULLE
+unit_carrier_queen                  CV QEII
+unit_carrier_rus                    CV KUZNETSOV
+unit_carrier_ind                    CV VIKRANT
+unit_carrier_chi                    CV LIAONING
+unit_tornado                        TORNADO
 unit_saucer                         alien ship
 unit_explosion                      explosion
 
@@ -1155,21 +1359,53 @@ unit_explosion                      explosion
 state_preparing                     PREPARING FOR
 state_prepare                       PREPARE FOR
 state_ready                         READY FOR
-state_fighterlaunch                 FIGHTER LAUNCH
-state_bomberlaunch                  BOMBER LAUNCH
-state_attack                        ATTACK
+state_fighterlaunch                 CAP LAUNCH
+state_fighterlightlaunch            LIGHT CAP LAUNCH
+state_strikefighterlightlaunch      LIGHT STRIKE LAUNCH
+state_stealthfighterlaunch          STEALTH FIGHTER LAUNCH
+state_strikefighterlaunch           STRIKE LAUNCH
+state_heavyfighterlaunch            HEAVY CAP LAUNCH
+state_heavystrikefighterlaunch      HEAVY STRIKE LAUNCH
+state_navyfighterlaunch             NAVAL CAP LAUNCH
+state_navystrikefighterlaunch       NAVAL STRIKE LAUNCH
+state_stealthfighterlaunch          STEALTH CAP LAUNCH
+state_stealthstrikefighterlaunch    STEALTH STRIKE LAUNCH
+state_aewlaunch                     AWACS LAUNCH
+state_bomberlaunch                  BOMBER LAUNCH (NUKE)
+state_cruisebomberlaunch            BOMBER LAUNCH (ALCM)
+state_bomberfastlaunch              FAST BOMBER LAUNCH (NUKE)
+state_cruisebomberfastlaunch        FAST BOMBER LAUNCH (ALCM)
+state_stealthbomberlaunch           STEALTH BOMBER LAUNCH
+state_emptylaunch                   BOMBER LAUNCH (EMPTY)
+state_fastbomberlaunch              FAST BOMBER LAUNCH (NUKE)
+state_fastcruisebomberlaunch        FAST BOMBER LAUNCH (ALCM)
+state_fastemptylaunch               FAST BOMBER LAUNCH (EMPTY)
+state_stealthbomberlaunch           STEALTH BOMBER LAUNCH (NUKE)
+state_stealthcruisebomberlaunch     STEALTH BOMBER LAUNCH (ALCM)
+state_stealthemptylaunch            STEALTH BOMBER LAUNCH (EMPTY)
+state_attack                        COMBAT AIR PATROL
+state_strike                        STRIKE (ALCM)
 state_flight                        FLIGHT
-state_bombernuke                    SRBM LAUNCH
+state_bombernuke                    ALBM LAUNCH
+state_bomberlacm                    ALCM LAUNCH
+state_fighterlacm                   ALCM LAUNCH
+state_battleshiplacm                SLCM LAUNCH
+state_defense                       NAVAL GUNFIRE
 state_airtoseamissile               NAVAL COMBAT
-state_antisub                       ANTI SUBMARINE
+state_antisub                       ANTI-SUBMARINE WARFARE
 state_ontarget                      ON TARGET
 state_disarm                        DISARM
 state_radar                         SCANNING
 state_silonuke                      ICBM LAUNCH
-state_airdefense                    AIR DEFENSE
+state_silomednuke                      MRBM LAUNCH
+state_standby                       STANDBY
+state_airdefense                    AIR DEFENSE INTERCEPT
 state_passivesonar                  PASSIVE SONAR
 state_activesonar                   ACTIVE SONAR
 state_subnuke                       MRBM LAUNCH
+state_sublacm                       SLCM LAUNCH
+state_subrecharge                   FUEL RECHARGE
+state_navaldefense                  NAVAL GUN
 
 
 # =============================================================================
@@ -1181,6 +1417,7 @@ message_tornadodeath                Tornado Dissipated
 message_nukelaunch                  Launch Detected
 message_multilaunch                 Launches Detected
 message_firstlaunch                 *T Launch Detected
+message_firststrike					*T Gets First Strike
 message_incursion                   Incursions into Enemy territory not allowed
 message_destroyed                   *U destroyed
 # V = victim team, U = destroyed unit, T = attacking team, A = attacking unit
@@ -1192,6 +1429,7 @@ message_fallout                     fallout on *C, *Dm dead
 details_fuel                        FUEL
 
 message_victory                     VICTORY TO *T
+message_team_victory                VICTORY TO *T Alliance
 message_stalemate                   NO CLEAR VICTOR
 message_spectators_chat_players     Spectators may now chat to Players
 message_placeunits                  YOU MUST PLACE ALL UNITS BEFORE DEFCON 3
@@ -1203,6 +1441,8 @@ message_alliance_join               *P joins the *N alliance
 message_alliance_kicked             *P kicked from the *N alliance
 message_alliance_leave              *P leaves the *N alliance
 # P = player name, N = alliance name
+message_alliance_migrate            *O Alliance changed color to *N
+# O = old Alliance color, N = new Alliance color
 
 message_invalid_action              NOT BEFORE DEFCON *D
 # D = Defcon level
@@ -1428,15 +1668,77 @@ tutorial_m7enemysubs_popup          Enemy Subs are launching nukes at your citie
 unitinfo_title                      UNIT INFO
 unitinfo_title2                     (no unit selected)
 
-unitinfo_fighter                    Fast, short range combat aircraft.\n+  Effective against Bombers\n+  Good at scouting\n-  Easily destroyed by battleships or Silos
-unitinfo_silo                       Functions as Nuke launcher and Anti-Aircraft Platform.\n+  Large supply of Long Range Nukes\n+  Strong Anti-Aircraft guns\n+  Reinforced against Nuke hits\n-  Nuke Launch reveals location to all\n-  Slow switching times
-unitinfo_radar                      Provides radar coverage to your territory.\n+  Longest radar range available\n-  Easily destroyed by Nuke hit
+unitinfo_fighter                    Fast, short range combat aircraft.\n+  Effective against Bombers\n+  Good at scouting\n-  Easily destroyed by battleships or SAMs
+unitinfo_fighter_stealth                Fifth-generation stealth fighter, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
+unitinfo_fighter_f18                    The F/A-18E/F is a carrier-capable multirole fighter used for fleet air defense and strike escort missions.\n+  Excellent carrier-based flexibility\n+  Reliable in interception and patrol roles\n-  Outclassed by modern stealth fighters\n-  Limited range without tanker support
+unitinfo_fighter_f35                    The F-35B/C is a fifth-generation stealth fighter with advanced sensors, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Stealthy and networked for scouting\n+  Can perform Strike missions with cruise missiles against land or naval targets\n-  High maintenance requirements\n-  Outranged by heavier fighters
+unitinfo_fighter_rafale                 The Rafale is a French multirole fighter designed for Combat Air Patrol (CAP) and precision Strike using stand-off weapons.\n+  Agile in dogfights and effective in CAP missions\n+  Can conduct Strike missions against land or sea targets\n-  Lacks stealth compared to 5th-gen aircraft\n-  Moderate range
+unitinfo_fighter_flanker                The Su-30/35 Flanker series are Russian long-range fighters optimized for Combat Air Patrol (CAP) and equipped for limited Strike operations.\nNATO CALLSIGN: "Flanker"\n+  Excellent missile load for CAP missions\n+  Can launch cruise missiles against ships or ground targets\n-  Large radar signature\n-  Less effective in stealth-contested environments
+unitinfo_fighter_su57                   The Su-57 is a fifth-generation Russian stealth fighter intended for high-end Combat Air Patrol (CAP) and precision Strike.\nNATO CALLSIGN: "Felon"\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
+unitinfo_fighter_j20                    The J-20 is a Chinese stealth interceptor built for long-range Combat Air Patrol (CAP) and limited Strike capability.\nNATO CALLSIGN: "Fagin"\n+  Long-range CAP and stealthy engagements\n+  Can target ships or land assets with cruise missiles\n-  Limited maneuverability in close combat\n-  Relies on external targeting support
+unitinfo_fighter_f16                    The F-16 is a widely-used multirole fighter capable of Combat Air Patrol (CAP) and precision Strike with guided munitions.\n+  Inexpensive and reliable CAP platform\n+  Can carry cruise missiles for land or naval Strike\n-  Outranged by heavier fighters\n-  No stealth or carrier capability
+unitinfo_fighter_f14                    The F-14AM is an older U.S.-designed interceptor operated by Iran, used primarily for long-range Combat Air Patrol (CAP) and limited Strike.\nNATO CALLSIGN: "Tomcat"\n+  Long-range missile engagements for CAP\n+  Can carry air-to-ground weapons for limited Strike\n-  Outdated systems and limited upgrades\n-  Vulnerable to modern fighters and SAMs
+unitinfo_aew                          The AWACS is an airborne early warning aircraft providing radar coverage, target tracking, and battle management to allied forces.\n+  Extends radar and command range\n+  Critical for coordinating air assets\n-  Unarmed and slow\n-  Vulnerable without fighter escort
+unitinfo_silo                  A fixed field of hardened ICBM silos, each loaded with a single long-range nuclear warhead.\n+  Large supply of Long Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
+unitinfo_silomed                    A cluster of fixed MRBM silos used for regional nuclear strike capability.\n+  Moderate supply of Medium Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
+unitinfo_silo_mob                  A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_sam                        A fixed air defense site for intercepting aircraft and cruise missiles\n+  Strong Anti-Aircraft and Anti-Missile coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
+unitinfo_abm                        A fixed air defense site for intercepting ballistic missiles.\n+  Strong Anti-Ballistic coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
+unitinfo_radar                      A ground-based radar station providing long-range surveillance coverage.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
+unitinfo_radar_ew                    An early warning radar for detecting high-altitude ballistic missile threats.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
 unitinfo_bomber                     Versatile, long range aircraft.\n+  Carries a single Short Range nuke\n+  Nuke launch does not show up on enemy radar\n+  Effective against Ships\n-  Easily shot down by Fighters\n-  Slow moving
-unitinfo_battleship                 High-powered Gun-Boat with strong, fast firing weapons.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_sub                        Powerful, Nuke carrying stealth unit.\n+  Invisible to conventional radar\n+  Large supply of Medium Range nukes\n-  Extremely vulnerable when surfaced\n-  Nuke Launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_carrier                    Mobile Aircraft carrying unit.\n+  Can launch Fighters and Bombers\n+  Can drop Depth Charges against Subs\n-  Cannot directly defend itself
-unitinfo_nuke                       High-yield Nuclear Warhead.\n+  Incredible destructive power\n-  Vulnerable to anti-aircraft fire
-unitinfo_airbase                    Launch point for Fighters and Bombers.\n+  Large number of Bombers\n+  Regenerates fighters over time\n-  Easily destroyed by Nuke hit
+unitinfo_bomber_b2                     The B-2A is a U.S. stealth strategic bomber designed for penetrating dense air defenses and delivering precision-guided nuclear or conventional munitions.\n+  Carries a single short-range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down if detected\n-  Limited payload per sortie
+unitinfo_bomber_b52                    The B-52H is a U.S. long-range, subsonic strategic bomber capable of launching cruise missiles and nuclear ordnance against both naval and land targets.\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow moving
+unitinfo_bomber_tu95                  The Tu-95 is a Russian turboprop-powered strategic bomber used to deliver cruise missiles and nuclear weapons against ground and naval targets.\nNATO CALLSIGN: "Bear"\n+  Carries a single Short Range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow and noisy
+unitinfo_bomber_tu22                   The Tu-22M is a Russian supersonic bomber designed for maritime strike and strategic attack, equipped to carry both nuclear and conventional cruise missiles.\nNATO CALLSIGN: "Backfire"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Shorter range than other strategic bombers\n-  Vulnerable to advanced SAM systems
+unitinfo_bomber_h6                     The H-6 is a Chinese strategic bomber based on the Soviet Tu-16, capable of launching both nuclear and conventional cruise missiles against sea or land targets.\nNATO CALLSIGN: "Badger"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters or air defenses\n-  Slow moving
+unitinfo_battleship                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship2                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship3                 Versatile anti-ship, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_ddg_arleigh                The Arleigh Burke-class is a U.S. guided missile destroyer designed for multi-domain warfare, including air defense, anti-submarine, and ballistic missile defense.\n+  Strong air and missile defense\n+  Capable of anti-sub and anti-ship warfare\n-  Can be overwhelmed by saturation attacks\n-  Vulnerable to stealthy subs if unsupported
+unitinfo_ddg_horizon                The Horizon-class is a European air-defense destroyer primarily built for fleet protection with secondary anti-ship and ASW capabilities.\n+  Strong air defense with Aster missiles\n+  Moderate anti-sub capability\n-  Limited offensive missile load\n-  Vulnerable to submarine ambush
+unitinfo_ddg_sov                    The Sovremenny-class is a Russian destroyer optimized for surface strike missions using powerful anti-ship missiles and point defense systems.\n+  Powerful anti-ship missile battery\n+  Good close-range anti-air\n+  Can drop Depth Charges against Subs\n-  Weak missile defense vs modern threats\n-  Limited sub detection
+unitinfo_ddg_chi                    The Type 055 is a Chinese guided missile destroyer with advanced radar systems and a balanced loadout for air, surface, and subsurface warfare.\n+  Capable air and missile defense\n+  Versatile loadout for all threat types\n-  C4ISR still maturing\n-  Vulnerable when isolated
+unitinfo_ddg_frigate                Frigates are light escort ships used for patrol, convoy defense, and support roles with modest combat capability across all domains.\n+  Cost-effective and flexible\n+  Useful in groups or convoy escort\n-  Poor survivability in high-threat environments\n-  Limited missile range and tracking
+unitinfo_sub                        Strategic nuclear-powered ballistic missile submarine (SSBN).\n+  Invisible to conventional radar\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subn                        Strategic nuclear-powered ballistic missile submarine (SSBN).\n+  Invisible to conventional radar\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subg                        Strategic nuclear-powered guided missile submarine (SSG).\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subc                       Nuclear-powered attack submarine (SSN) designed for stealth and strike missions.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subk                       Diesel-electric attack submarine (SSK) optimized for coastal defense and stealthy cruise missile strikes.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_carrier                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier2                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier_nimitz             The Nimitz-class is a U.S. nuclear-powered aircraft carrier capable of launching and recovering fighters and airborne early warning (AEW) aircraft.\n+  Supports Fighters and AEW aircraft\n-  Cannot launch Bombers\n-  Cannot directly defend itself
+unitinfo_carrier_wasp               The Wasp-class is a U.S. amphibious assault ship that can operate STOVL aircraft and helicopters for expeditionary support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_gaulle             Charles de Gaulle a French nuclear-powered aircraft carrier capable of launching and recovering fighters and AEW aircraft.\n+  Supports Fighters and AEW aircraft\n+  Can drop Depth Charges against Subs\n-  Cannot launch Bombers\n-  Cannot directly defend itself
+unitinfo_carrier_queen              The Queen Elizabeth-class is a British carrier designed for STOVL operations with a full complement of F-35Bs and helicopters.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_rus                Admiral Kuznetsov is the only Russian aircraft carrier, capable of launching fighters and lacks fixed-wing AEW.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_nuke                       High-yield Nuclear Warhead.\n+  Incredible destructive power\n-  Vulnerable to anti-ballistic missiles
+unitinfo_lacm                       Medium-yield Conventional Warhead.\n+  Moderate destructive power\n-  Vulnerable to anti-aircraft fire
+unitinfo_gacam                       Medium-yield Conventional Warhead.\n+  Moderate destructive power\n-  Vulnerable to anti-aircraft fire
+unitinfo_airbase                    Launch point for Fighters, Bombers, and AEW aircraft.\n+  Large number of Bombers\n+  Regenerates fighters over time\n-  Easily destroyed by Nuke hit
+unitinfo_airbase_usa1                    A hardened military airbase used to launch Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_usa2                    A hardened military airbase used to launch Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_nato                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_otan                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_sato                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_twn                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_anz                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_ru                     A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_rusu                   A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_chi                    A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_nk                     An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_ind                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_ines                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_phi                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_pak                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_iran                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_egy                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_isr                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_ksa                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_west                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_east                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+
+
 
 
 # =============================================================================
@@ -1559,18 +1861,18 @@ overlay_4_7                         AIR FORCE COMMUNICATIONS COMMAND            
 overlay_4_8                         AIR FORCE INTELLIGENCE COMMAND              58
 overlay_4_9                         AIR FORCE LOGISTICS COMMAND                 78
 overlay_4_10                        AIR FORCE RESERVE COMMAND                   14
-overlay_4_11                        AIR FORCE SPACE COMMAND                     12
+overlay_4_11                        SPACE OPERATIONS COMMAND                    12
 overlay_4_12                        AIR FORCE SPECIAL OPERATIONS COMMAND        56
 overlay_4_13                        AIR FORCE SYSTEMS COMMAND                   86
 overlay_4_14                        AIR MOBILITY COMMAND                        87
 overlay_4_15                        ALASKAN AIR COMMAND                         92
 overlay_4_16                        HEADQUARTERS COMMAND, USAF                  85
-overlay_4_17                        NORTHEAST AIR COMMAND                       75
+overlay_4_17                        NORTHEAST AIR DEFENSE SECTOR                75
 overlay_4_18                        PACIFIC AIR COMMAND                         91
 overlay_4_19                        PACIFIC AIR FORCES                          85
 overlay_4_20                        SPECIAL WEAPONS COMMAND                     67
-overlay_4_21                        STRATEGIC AIR COMMAND                       85
-overlay_4_22                        TACTICAL AIR COMMAND                        91
+overlay_4_21                        AIR FORCE GLOBAL STRIKE COMMAND             85
+overlay_4_22                        AIR COMBAT COMMAND                          91
 overlay_4_23                        3D AIR DIVISION                             75
 overlay_4_24                        UNITED STATES AIR FORCES IN EUROPE          79
 overlay_4_25                        UNITED STATES AIR FORCES SOUTHERN COMMAND   65
@@ -1803,3 +2105,34 @@ overlay_15_15                       JOHN KNOTTENBELT
 overlay_15_16                       JOSHUA 'MIAH' CLAYTON\n\n
 overlay_15_17                       ----------------------------------------\n
 overlay_15_18                       Translation Services provided by Game Localization Network Ltd.
+
+overlay_16_1                        ----------------------------------------
+overlay_16_2                        -        DEFCON EXPANDED EDITION
+overlay_16_3                        ----------------------------------------\n
+overlay_16_4                        BRIAN 'SIEVERT' GOSNELL      DEVELOPMENT
+overlay_16_5                        FASTERTHANRAITO              DEVELOPMENT
+overlay_16_6                        WAN MAY                      DEVELOPMENT
+overlay_16_7                        KEIRON 'KEZZAMCFEZZA' MCPHEE     PORTING
+overlay_16_8                        RAD			             PORTING
+overlay_16_9                        ----------------------------------------
+overlay_16_10                        -          PRERELEASE TESTERS
+overlay_16_11                       ----------------------------------------\n
+overlay_16_12                       ANNATAR
+overlay_16_13                       BEN 'CORPORATION' HERR
+overlay_16_14                       COLIMIN
+overlay_16_15                       ERRONEOUS
+overlay_16_16                       GOODNIGHT
+overlay_16_17                       GYARADOS
+overlay_16_18                       JACKOLITE
+overlay_16_19                       ITSEK
+overlay_16_20                       LAIKA/SPACE DOG
+overlay_16_21                       SAIF 'LAEVATEINN'
+overlay_16_22                       LORD HAW HAW
+overlay_16_23                       MEMEWARRIOR
+overlay_16_24                       CALLUM 'NEXUSTINI'
+overlay_16_25                       NICOLE 'PHOTOPHOBIC'
+overlay_16_26                       RED DUCK/DEMO0096
+overlay_16_27                       SIERRA 'QUEEN'
+overlay_16_28                       VAULT TEC/IDEALIST0
+overlay_16_29                       VERY FINE ART
+overlay_16_30                       ZAK
