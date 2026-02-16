@@ -81,6 +81,11 @@ MapRenderer::MapRenderer()
     m_lockCamControl(false),
     m_lockCommands(false),
     m_draggingCamera(false),
+    m_isDraggingSelect(false),
+    m_dragStartLong(0),
+    m_dragStartLat(0),
+    m_dragEndLong(0),
+    m_dragEndLat(0),
     m_tooltip(NULL),
     m_tooltipTimer(0.0f),
 	m_longitudePlanningOld(0.0f),
@@ -124,6 +129,8 @@ void MapRenderer::Init()
 void MapRenderer::Reset()
 {
     g_app->GetWorldRenderer()->Reset();
+
+    m_isDraggingSelect = false;
 
     delete m_tooltip;
     m_tooltip = NULL;
@@ -335,6 +342,7 @@ void MapRenderer::Render()
         
         if( IsMouseInMapRenderer() )
         {
+            RenderDragSelectionMarquee();
             RenderMouse();
         }
         else
@@ -2684,6 +2692,26 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 #endif
 }
 
+void MapRenderer::RenderDragSelectionMarquee()
+{
+    if( m_isDraggingSelect )
+    {
+        Colour boxCol = Colour( 100, 200, 255, 180 );
+        Colour fillCol = Colour( 80, 160, 220, 40 );
+
+        float x1 = m_dragStartLong.DoubleValue();
+        float y1 = m_dragStartLat.DoubleValue();
+        float x2 = m_dragEndLong.DoubleValue();
+        float y2 = m_dragEndLat.DoubleValue();
+
+        if( x2 < x1 ) { float t=x1; x1=x2; x2=t; }
+        if( y2 < y1 ) { float t=y1; y1=y2; y2=t; }
+
+        g_renderer2d->RectFill( x1, y1, (x2-x1), (y2-y1), fillCol );
+        g_renderer2d->Rect( x1, y1, (x2-x1), (y2-y1), boxCol );
+    }
+}
+
 void MapRenderer::RenderUnitHighlight( int _objectId )
 {
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
@@ -3652,58 +3680,72 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
     bool landed = false;
     bool selected = false;
 
-    if( _underMouseId != g_app->GetWorldRenderer()->GetCurrentSelectionId() )
+    WorldObject *undermouse = g_app->GetWorld()->GetWorldObject(_underMouseId);
+    if( !undermouse || undermouse->m_teamId != g_app->GetWorld()->m_myTeamId )
     {
-        WorldObject *selection = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
-        WorldObject *undermouse = g_app->GetWorld()->GetWorldObject(_underMouseId);
+        return;
+    }
 
-        if( undermouse->m_teamId != g_app->GetWorld()->m_myTeamId )
+    WorldObject *selection = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
+
+    //
+    // If clicking on airbase/carrier with aircraft selected, request landing
+
+    if( selection && 
+        selection->m_teamId == g_app->GetWorld()->m_myTeamId )
+    {
+        bool selectionLandable = ( selection->m_type == WorldObject::TypeFighter ||
+                                   selection->m_type == WorldObject::TypeBomber );
+
+        bool underMouseLandable = ( undermouse->m_type == WorldObject::TypeAirBase ||
+                                    undermouse->m_type == WorldObject::TypeCarrier );
+
+        if( selectionLandable && underMouseLandable )
         {
-            return;
-        }
-
-        //
-        // If clicking on airbase/carrier with aircraft selected, request landing
-
-        if( selection && 
-            undermouse &&
-            selection->m_teamId == g_app->GetWorld()->m_myTeamId &&
-            undermouse->m_teamId == g_app->GetWorld()->m_myTeamId )
-        {
-            bool selectionLandable = ( selection->m_type == WorldObject::TypeFighter ||
-                                       selection->m_type == WorldObject::TypeBomber );
-
-            bool underMouseLandable = ( undermouse->m_type == WorldObject::TypeAirBase ||
-                                        undermouse->m_type == WorldObject::TypeCarrier );
-
-            if( selectionLandable && underMouseLandable )
-            {
-                g_app->GetClientToServer()->RequestSpecialAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), _underMouseId, World::SpecialActionLandingAircraft );
-                g_app->GetWorldRenderer()->CreateAnimation(  WorldRenderer::AnimationTypeActionMarker, selection->m_objectId,
-								 undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
-                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-                UpdateSelectionAnimation(-1);
-                landed = true;
-            }
-        }
-
-
-        //
-        // If not then try to select the object
-
-        bool selectable = undermouse->IsActionable() ||
-                          undermouse->IsMovingObject();
-
-        if( !landed &&
-            selectable &&
-            undermouse->m_type != WorldObject::TypeNuke )
-        {
-            g_app->GetWorldRenderer()->SetCurrentSelectionId(_underMouseId);
-            UpdateSelectionAnimation(_underMouseId);
-            selected = true;
+            g_app->GetClientToServer()->RequestSpecialAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), _underMouseId, World::SpecialActionLandingAircraft );
+            g_app->GetWorldRenderer()->CreateAnimation(  WorldRenderer::AnimationTypeActionMarker, selection->m_objectId,
+                             undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
+            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+            UpdateSelectionAnimation(-1);
+            landed = true;
         }
     }
 
+    if( !landed )
+    {
+        bool selectable = undermouse->IsActionable() ||
+                          undermouse->IsMovingObject();
+
+        if( selectable && undermouse->m_type != WorldObject::TypeNuke )
+        {
+            if( g_keys[KEY_SHIFT] )
+            {
+                g_app->GetWorldRenderer()->AddToSelection(_underMouseId);
+                UpdateSelectionAnimation(_underMouseId);
+                selected = true;
+            }
+            else if( g_keys[KEY_CONTROL] )
+            {
+                if( g_app->GetWorldRenderer()->IsSelected(_underMouseId) )
+                {
+                    g_app->GetWorldRenderer()->RemoveFromSelection(_underMouseId);
+                    UpdateSelectionAnimation(g_app->GetWorldRenderer()->GetCurrentSelectionId());
+                }
+                else
+                {
+                    g_app->GetWorldRenderer()->AddToSelection(_underMouseId);
+                    UpdateSelectionAnimation(_underMouseId);
+                    selected = true;
+                }
+            }
+            else
+            {
+                g_app->GetWorldRenderer()->SetCurrentSelectionId(_underMouseId);
+                UpdateSelectionAnimation(_underMouseId);
+                selected = true;
+            }
+        }
+    }
 
     if( !landed && !selected )
     {
@@ -4100,6 +4142,28 @@ void MapRenderer::Update()
 #ifndef NON_PLAYABLE
     if( g_app->GetWorld()->GetTimeScaleFactor() > 0 && !m_lockCommands)
     {
+        if( g_inputManager->m_lmbClicked )
+        {
+            if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 &&
+                g_app->GetWorldRenderer()->GetSelectionCount() == 0 )
+            {
+                m_isDraggingSelect = true;
+                m_dragStartLong = Fixed::FromDouble( longitude );
+                m_dragStartLat = Fixed::FromDouble( latitude );
+                m_dragEndLong = m_dragStartLong;
+                m_dragEndLat = m_dragStartLat;
+            }
+        }
+
+        if( g_inputManager->m_lmb )
+        {
+            if( m_isDraggingSelect )
+            {
+                m_dragEndLong = Fixed::FromDouble( longitude );
+                m_dragEndLat = Fixed::FromDouble( latitude );
+            }
+        }
+
 #ifdef SYNC_PRACTICE
         //
         // double click detection for the silo targetting system
@@ -4208,7 +4272,153 @@ void MapRenderer::Update()
                 m_lastClickTime = currentTime;
                 m_lastClickX = longitude;
                 m_lastClickY = latitude;
-            
+
+                bool consumedByMarquee = false;
+                if( m_isDraggingSelect )
+                {
+                    float dx = (m_dragEndLong - m_dragStartLong).DoubleValue();
+                    float dy = (m_dragEndLat - m_dragStartLat).DoubleValue();
+                    if( fabsf(dx) > 0.5f || fabsf(dy) > 0.5f )
+                    {
+                        Fixed aLon = m_dragStartLong;
+                        Fixed bLon = m_dragEndLong;
+                        Fixed aLat = m_dragStartLat;
+                        Fixed bLat = m_dragEndLat;
+                        if( aLon > bLon ) { Fixed t=aLon; aLon=bLon; bLon=t; }
+                        if( aLat > bLat ) { Fixed t=aLat; aLat=bLat; bLat=t; }
+
+                        bool removeMode = ( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] );
+                        bool addMode = ( !removeMode && g_keys[KEY_SHIFT] );
+
+                        if( !addMode && !removeMode )
+                        {
+                            g_app->GetWorldRenderer()->ClearSelection();
+                        }
+
+                        int myTeam = g_app->GetWorld()->m_myTeamId;
+                        for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+                        {
+                            if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
+                            WorldObject *obj = g_app->GetWorld()->m_objects[i];
+                            if( !obj || obj->m_teamId != myTeam ) continue;
+                            if( obj->m_type == WorldObject::TypeNuke ) continue;
+                            if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
+
+                            Fixed lon = obj->m_longitude;
+                            Fixed lat = obj->m_latitude;
+
+                            bool inLat = ( lat >= aLat && lat <= bLat );
+                            bool inLon = ( lon >= aLon && lon <= bLon );
+                            if( !inLon )
+                            {
+                                Fixed lonPlus = lon + Fixed(360);
+                                Fixed lonMinus = lon - Fixed(360);
+                                inLon = ( lonPlus >= aLon && lonPlus <= bLon ) || ( lonMinus >= aLon && lonMinus <= bLon );
+                            }
+
+                            if( inLat && inLon )
+                            {
+                                if( removeMode )
+                                    g_app->GetWorldRenderer()->RemoveFromSelection( obj->m_objectId );
+                                else
+                                    g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
+                            }
+                        }
+                        consumedByMarquee = true;
+                    }
+                    m_isDraggingSelect = false;
+                }
+
+                if( !consumedByMarquee )
+                {
+                    if( m_currentStateId != -1 )                            
+                    {             
+                        HandleClickStateMenu();
+                    }
+                    else if( underMouse &&
+                             underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )                             
+                    {                
+                        HandleSelectObject(underMouseId);
+                    }
+                    else if( !underMouse )
+                    {
+                        if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
+                        {
+                            HandleObjectAction(longitude, latitude, -1);
+                        }
+                        else
+                        {
+                            g_app->GetWorldRenderer()->ClearSelection();
+                        }
+                    }
+                    else 
+                    {
+                        HandleObjectAction(longitude, latitude, underMouseId);
+                    }
+                }
+            }
+        }
+#else
+        if( g_inputManager->m_lmbUnClicked )                                        // LEFT BUTTON UNCLICKED
+        {
+            bool consumedByMarquee = false;
+            if( m_isDraggingSelect )
+            {
+                float dx = (m_dragEndLong - m_dragStartLong).DoubleValue();
+                float dy = (m_dragEndLat - m_dragStartLat).DoubleValue();
+                if( fabsf(dx) > 0.5f || fabsf(dy) > 0.5f )
+                {
+                    Fixed aLon = m_dragStartLong;
+                    Fixed bLon = m_dragEndLong;
+                    Fixed aLat = m_dragStartLat;
+                    Fixed bLat = m_dragEndLat;
+                    if( aLon > bLon ) { Fixed t=aLon; aLon=bLon; bLon=t; }
+                    if( aLat > bLat ) { Fixed t=aLat; aLat=bLat; bLat=t; }
+
+                    bool removeMode = ( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] );
+                    bool addMode = ( !removeMode && g_keys[KEY_SHIFT] );
+
+                    if( !addMode && !removeMode )
+                    {
+                        g_app->GetWorldRenderer()->ClearSelection();
+                    }
+
+                    int myTeam = g_app->GetWorld()->m_myTeamId;
+                    for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+                    {
+                        if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
+                        WorldObject *obj = g_app->GetWorld()->m_objects[i];
+                        if( !obj || obj->m_teamId != myTeam ) continue;
+                        if( obj->m_type == WorldObject::TypeNuke ) continue;
+                        if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
+
+                        Fixed lon = obj->m_longitude;
+                        Fixed lat = obj->m_latitude;
+
+                        bool inLat = ( lat >= aLat && lat <= bLat );
+                        bool inLon = ( lon >= aLon && lon <= bLon );
+                        if( !inLon )
+                        {
+                            Fixed lonPlus = lon + Fixed(360);
+                            Fixed lonMinus = lon - Fixed(360);
+                            inLon = ( lonPlus >= aLon && lonPlus <= bLon ) || ( lonMinus >= aLon && lonMinus <= bLon );
+                        }
+
+                        if( inLat && inLon )
+                        {
+                            if( removeMode )
+                                g_app->GetWorldRenderer()->RemoveFromSelection( obj->m_objectId );
+                            else
+                                g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
+                        }
+                    }
+                    consumedByMarquee = true;
+                }
+                m_isDraggingSelect = false;
+            }
+
+            if( !consumedByMarquee )
+            {
                 if( m_currentStateId != -1 )                            
                 {             
                     HandleClickStateMenu();
@@ -4218,27 +4428,21 @@ void MapRenderer::Update()
                 {                
                     HandleSelectObject(underMouseId);
                 }
+                else if( !underMouse )
+                {
+                    if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
+                    {
+                        HandleObjectAction(longitude, latitude, -1);
+                    }
+                    else
+                    {
+                        g_app->GetWorldRenderer()->ClearSelection();
+                    }
+                }
                 else 
                 {
                     HandleObjectAction(longitude, latitude, underMouseId);
                 }
-            }
-        }
-#else
-        if( g_inputManager->m_lmbUnClicked )                                        // LEFT BUTTON UNCLICKED
-        {
-            if( m_currentStateId != -1 )                            
-            {             
-                HandleClickStateMenu();
-            }
-            else if( underMouse &&
-                     underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )                             
-            {                
-                HandleSelectObject(underMouseId);
-            }
-            else 
-            {
-                HandleObjectAction(longitude, latitude, underMouseId);
             }
         }
 #endif

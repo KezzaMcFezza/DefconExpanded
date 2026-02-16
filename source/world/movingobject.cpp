@@ -548,17 +548,15 @@ void MovingObject::Render2D()
                           angle );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
+        int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
         for( int i = 0; i < 2; ++i )
         {
-            if( i == 1 )
-            {
-                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
-                if( highlightId == selectionId ) break;
-                selectionId = highlightId;
-            }
+            if( i == 1 && highlightId != -1 && g_app->GetWorldRenderer()->IsSelected( highlightId ) )
+                break;
+            bool drawHighlight = ( i == 0 && g_app->GetWorldRenderer()->IsSelected( m_objectId ) ) ||
+                                ( i == 1 && highlightId == m_objectId );
 
-            if( selectionId == m_objectId )
+            if( drawHighlight )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
                 g_renderer2d->RotatingSprite( bmpImage,
@@ -624,17 +622,15 @@ void MovingObject::Render3D()
                                         size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
+        int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
         for( int i = 0; i < 2; ++i )
         {
-            if( i == 1 )
-            {
-                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
-                if( highlightId == selectionId ) break;
-                selectionId = highlightId;
-            }
+            if( i == 1 && highlightId != -1 && g_app->GetWorldRenderer()->IsSelected( highlightId ) )
+                break;
+            bool drawHighlight = ( i == 0 && g_app->GetWorldRenderer()->IsSelected( m_objectId ) ) ||
+                                ( i == 1 && highlightId == m_objectId );
 
-            if( selectionId == m_objectId )
+            if( drawHighlight )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
                 g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,

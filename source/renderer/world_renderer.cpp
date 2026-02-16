@@ -381,6 +381,7 @@ int WorldRenderer::GetCurrentSelectionId()
 void WorldRenderer::ClearSelection()
 {
     m_selectedIds.Empty();
+    m_currentSelectionId = -1;
 }
 
 void WorldRenderer::AddToSelection( int id )
@@ -391,6 +392,7 @@ void WorldRenderer::AddToSelection( int id )
         if( m_selectedIds[i] == id ) return;
     }
     m_selectedIds.PutData( id );
+    m_currentSelectionId = id;
 }
 
 void WorldRenderer::RemoveFromSelection( int id )
@@ -400,6 +402,10 @@ void WorldRenderer::RemoveFromSelection( int id )
         if( m_selectedIds[i] == id )
         {
             m_selectedIds.RemoveData( i );
+            if( m_currentSelectionId == id )
+            {
+                m_currentSelectionId = ( m_selectedIds.Size() > 0 ? m_selectedIds[m_selectedIds.Size()-1] : -1 );
+            }
             return;
         }
     }

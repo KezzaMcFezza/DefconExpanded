@@ -77,6 +77,12 @@ protected:
     bool    m_lockCommands;
     bool    m_draggingCamera;
 
+    bool    m_isDraggingSelect;
+    Fixed   m_dragStartLong;
+    Fixed   m_dragStartLat;
+    Fixed   m_dragEndLong;
+    Fixed   m_dragEndLat;
+
     float   m_tooltipTimer;
 
 	float   m_longitudePlanningOld;
@@ -156,6 +162,7 @@ public:
     void    RenderRadiation();
     void    RenderBlips();
     void    RenderUnitHighlight( int _objectId );
+    void    RenderDragSelectionMarquee();
     void    RenderNukeUnits();
 	
 	void	RenderSanta();

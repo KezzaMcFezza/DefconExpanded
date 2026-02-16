@@ -387,31 +387,46 @@ void WorldObject::Render2D()
         g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
     }
 
-    colour.Set(255,255,255,255);
-    int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
-    for( int i = 0; i < 2; ++i )
-    {
-        if( i == 1 )
+        colour.Set(255,255,255,255);
+        int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
+        for( int i = 0; i < 2; ++i )
         {
-            int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
-            if( highlightId == selectionId ) break;
-            selectionId = highlightId;
-        }
-        WorldObject *selection = g_app->GetWorld()->GetWorldObject(selectionId);
-
-        if( selection )
-        {
-            bool selected = selection == this;
-            bool sameFleet = i == 0 &&
-                             selection->m_teamId == m_teamId &&
-                             selection->m_fleetId != -1 &&
-                             selection->m_fleetId == m_fleetId;
-
-            if( selected || sameFleet )
+            if( i == 1 && highlightId != -1 && g_app->GetWorldRenderer()->IsSelected( highlightId ) )
+                break;
+            bool selected = false;
+            bool sameFleet = false;
+            if( i == 0 )
             {
-                bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
+                selected = g_app->GetWorldRenderer()->IsSelected( m_objectId );
+            if( !selected && m_fleetId != -1 )
+            {
+                for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
+                {
+                    WorldObject *sel = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
+                    if( sel && sel->m_teamId == m_teamId && sel->m_fleetId == m_fleetId )
+                    {
+                        sameFleet = true;
+                        break;
+                    }
+                }
             }
+        }
+        else
+        {
+            WorldObject *highlight = g_app->GetWorld()->GetWorldObject( highlightId );
+            if( highlight )
+            {
+                selected = ( highlight == this );
+                sameFleet = highlight->m_teamId == m_teamId &&
+                            highlight->m_fleetId != -1 &&
+                            highlight->m_fleetId == m_fleetId;
+            }
+        }
+
+        if( selected || sameFleet )
+        {
+            bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
+            g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );
         }
         colour.m_a /= 2;
     }
@@ -447,31 +462,46 @@ void WorldObject::Render3D()
                                       flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
+        int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
         for( int i = 0; i < 2; ++i )
         {
-            if( i == 1 )
+            if( i == 1 && highlightId != -1 && g_app->GetWorldRenderer()->IsSelected( highlightId ) )
+                break;
+            bool selected = false;
+            bool sameFleet = false;
+            if( i == 0 )
             {
-                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
-                if( highlightId == selectionId ) break;
-                selectionId = highlightId;
-            }
-            WorldObject *selection = g_app->GetWorld()->GetWorldObject(selectionId);
-
-            if( selection )
-            {
-                bool selected = selection == this;
-                bool sameFleet = i == 0 &&
-                                 selection->m_teamId == m_teamId &&
-                                 selection->m_fleetId != -1 &&
-                                 selection->m_fleetId == m_fleetId;
-
-                if( selected || sameFleet )
+                selected = g_app->GetWorldRenderer()->IsSelected( m_objectId );
+                if( !selected && m_fleetId != -1 )
                 {
-                    bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                    g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
-                                                  flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                    for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
+                    {
+                        WorldObject *sel = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
+                        if( sel && sel->m_teamId == m_teamId && sel->m_fleetId == m_fleetId )
+                        {
+                            sameFleet = true;
+                            break;
+                        }
+                    }
                 }
+            }
+            else
+            {
+                WorldObject *highlight = g_app->GetWorld()->GetWorldObject( highlightId );
+                if( highlight )
+                {
+                    selected = ( highlight == this );
+                    sameFleet = highlight->m_teamId == m_teamId &&
+                                highlight->m_fleetId != -1 &&
+                                highlight->m_fleetId == m_fleetId;
+                }
+            }
+
+            if( selected || sameFleet )
+            {
+                bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
+                g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z,
+                                              flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
             }
             colour.m_a /= 2;
         }

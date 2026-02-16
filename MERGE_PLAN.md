@@ -5,6 +5,25 @@
 
 ---
 
+## Progress
+
+### Phase 1: Universal Mechanics
+| Step | Status | Description |
+|------|--------|-------------|
+| 1.1a | Done | Add `m_selectedIds`, `ClearSelection()`, `AddToSelection()`, `RemoveFromSelection()`, `IsSelected()` to WorldRenderer |
+| 1.1b | Done | Sync `m_selectedIds` with `SetCurrentSelectionId()` |
+| 1.1c | Done | Add `GetSelectionCount()`, `GetSelectedId()` accessors |
+| 1.1d | Done | Render selection circles for all selected units via highlight batching |
+| 1.1e | Done | Add drag-marquee state and `RenderDragSelectionMarquee()` in map renderer |
+| 1.1f | Done | Update `HandleSelectObject()` for shift-click add, ctrl-click toggle, drag-select |
+| 1.2 | Pending | Apply state to selection (same type) |
+| 1.3 | Pending | Double-click waypoints |
+
+### Phase 2–4
+- Not started
+
+---
+
 ## Design Decisions (Confirmed)
 
 | Topic | Decision |
