@@ -17,7 +17,7 @@
 | 1.1e | Done | Add drag-marquee state and `RenderDragSelectionMarquee()` in map renderer |
 | 1.1f | Done | Update `HandleSelectObject()` for shift-click add, ctrl-click toggle, drag-select |
 | 1.2 | Done | Apply state to selection (same type) |
-| 1.3 | Pending | Double-click waypoints |
+| 1.3 | Done | Double-click waypoints |
 
 ### Phase 2–4
 - Not started

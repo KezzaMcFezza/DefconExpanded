@@ -89,6 +89,9 @@ MapRenderer::MapRenderer()
     m_dragStartLat(0),
     m_dragEndLong(0),
     m_dragEndLat(0),
+    m_lastRightClickTime(0.0f),
+    m_lastRightClickX(0.0f),
+    m_lastRightClickY(0.0f),
     m_tooltip(NULL),
     m_tooltipTimer(0.0f),
 	m_longitudePlanningOld(0.0f),
@@ -2172,9 +2175,9 @@ void MapRenderer::RenderMouse()
     
     
     //
-    // Render our current highlight
+    // Render our current highlight (or state menu when open, even with selection)
 
-    if( highlight && !selection )
+    if( highlight && ( !selection || m_stateRenderTime > 0.0f ) )
     {
         float predictedLongitude = highlight->m_longitude.DoubleValue() + highlight->m_vel.x.DoubleValue() * g_predictionTime * timeScale;
         float predictedLatitude = highlight->m_latitude.DoubleValue() + highlight->m_vel.y.DoubleValue() * g_predictionTime  * timeScale;
@@ -3743,7 +3746,8 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
                     if( !IsOnScreen( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue() ) ) continue;
                     g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
                 }
-                UpdateSelectionAnimation(g_app->GetWorldRenderer()->GetCurrentSelectionId());
+                g_app->GetWorldRenderer()->SetPrimarySelectionId( _underMouseId );
+                UpdateSelectionAnimation( _underMouseId );
                 selected = true;
             }
             else if( g_keys[KEY_SHIFT] )
@@ -3774,8 +3778,9 @@ void MapRenderer::HandleClickStateMenu()
     WorldObject *highlight = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentHighlightId());
     if( highlight )
     {
-        if( m_stateApplyToSelectionSameType && g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
+        if( g_keys[KEY_SHIFT] && m_stateApplyToSelectionSameType && g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
         {
+            // Shift+click: apply to all selected units of same type
             int targetType = highlight->m_type;
             bool anySuccess = false;
             bool anyFailure = false;
@@ -3896,210 +3901,237 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 {
     WorldObject *underMouse = g_app->GetWorld()->GetWorldObject(underMouseId);
 
-    if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    if( selCount == 0 )
+        return;
+
+    Fixed targetLong;
+    Fixed targetLat;
+    if( underMouse )
     {
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
-        if( obj )
+        targetLong = underMouse->m_longitude;
+        targetLat = underMouse->m_latitude;
+    }
+    else
+    {
+        targetLong = Fixed::FromDouble( _mouseX );
+        targetLat = Fixed::FromDouble( _mouseY );
+    }
+
+    bool anyOrderGiven = false;
+    int lastQueuedId = -1;
+
+    for( int si = 0; si < selCount; ++si )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( !obj ) continue;
+
+        int numTimesRemaining = obj->m_states[obj->m_currentState]->m_numTimesPermitted;
+        if( numTimesRemaining > -1 ) numTimesRemaining -= obj->m_actionQueue.Size();
+        if( numTimesRemaining == 0 ) continue;
+
+        bool canAction = true;
+        if( !underMouse )
         {
-            int numTimesRemaining = obj->m_states[obj->m_currentState]->m_numTimesPermitted;
-            if( numTimesRemaining > -1 ) numTimesRemaining -= obj->m_actionQueue.Size();
-
-            if( numTimesRemaining == 0 )
+            if( obj->m_type == WorldObject::TypeBattleShip )
+                canAction = false;
+            if( obj->m_type == WorldObject::TypeSub )
+                canAction = false;
+            if( obj->m_type == WorldObject::TypeCarrier ||
+                obj->m_type == WorldObject::TypeAirBase )
             {
-                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-                UpdateSelectionAnimation(-1);
+                if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
+                    canAction = false;
             }
-            else if( numTimesRemaining == -1 || numTimesRemaining > 0 )
-            {
-                Fixed targetLong;
-                Fixed targetLat;
-
-                if( underMouse )
-                {
-                    targetLong = underMouse->m_longitude;
-                    targetLat = underMouse->m_latitude;
-                }
-                else
-                {
-                    targetLong = Fixed::FromDouble( _mouseX );
-                    targetLat = Fixed::FromDouble( _mouseY );
-                }
-
-                //
-                // This section is a hack
-                // designed to give good "negative" feedback when a user tries to do something they can't
-
-                bool canAction = true;
-                if( !underMouse )
-                {
-                    if( obj->m_type == WorldObject::TypeBattleShip )
-                    {
-                        // With battleships and subs, Left clicking in open space does nothing
-                        canAction = false;
-                    }
-
-                    if( obj->m_type == WorldObject::TypeSub )
-                    {
-                        canAction = false;
-                    }
-
-                    if( obj->m_type == WorldObject::TypeCarrier ||
-                        obj->m_type == WorldObject::TypeAirBase )
-                    {
-                        if( obj->IsValidMovementTarget( targetLong, targetLat )
-                            < WorldObject::TargetTypeValid )
-                        {
-                            // Carrier/Airbase, but cant launch anything for whatever reason
-                            canAction = false;
-                        }
-                    }
-                }
-                else
-                {
-                    if( obj->m_type == WorldObject::TypeCarrier ||
-                        obj->m_type == WorldObject::TypeAirBase )
-                    {
-                        if( obj->IsValidMovementTarget( targetLong, targetLat )
-                            < WorldObject::TargetTypeValid )
-                        {
-                            // Carrier/Airbase, but cant launch anything for whatever reason
-                            canAction = false;
-                        }
-                    }
-                }
-
-                if( !canAction )
-                {
-                    g_soundSystem->TriggerEvent( "Interface", "Error" );
-                    m_tooltipTimer = 0.0f;
-                }
-                else
-                {
-                    if( obj->SetWaypointOnAction() )
-                    {
-                        g_app->GetClientToServer()->RequestSetWaypoint( g_app->GetWorldRenderer()->GetCurrentSelectionId(), targetLong,
-                                                                        targetLat );
-                    }
-                    g_app->GetClientToServer()->RequestAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), underMouseId,
-                                                               targetLong, targetLat ); 
-
-                    int animid = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, g_app->GetWorldRenderer()->GetCurrentSelectionId(), targetLong.DoubleValue(), targetLat.DoubleValue() );
-                    ActionMarker *action = (ActionMarker *) g_app->GetWorldRenderer()->GetAnimations()[animid];
-
-                    if( !underMouse )
-                    {
-                        action->m_targetType = obj->IsValidMovementTarget( targetLong, targetLat );
-                        action->m_combatTarget = false;
-                    }
-                    else
-                    {
-                        action->m_targetType = obj->IsValidCombatTarget( underMouseId );
-                        action->m_combatTarget = ( action->m_targetType > WorldObject::TargetTypeInvalid );
-
-                        if( action->m_targetType == WorldObject::TargetTypeInvalid )
-                        {
-                            if( obj->m_type == WorldObject::TypeCarrier || obj->m_type == WorldObject::TypeAirBase )
-                            {
-                                if( obj->m_currentState == 0 )
-                                {
-                                    // HACK: Airbase or Carrier, trying to launch a fighter, clicked on a city within range
-                                    // Show valid movement target to launch fighter
-                                    action->m_targetType = WorldObject::TargetTypeLaunchFighter;
-                                    action->m_combatTarget = false;
-                                }
-                            }
-                        }
-                    }
-
-                    if( action->m_targetType >= WorldObject::TargetTypeValid )
-                    {
-                        g_soundSystem->TriggerEvent( "Interface", "SetCombatTarget" );
-                    }
-
-                    if( !obj->IsActionQueueable() ||
-                        numTimesRemaining - 1 <= 0 )
-                    {
-                        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-                        UpdateSelectionAnimation(-1);
-                    }
-
-                    if( underMouse ) underMouse->m_nukeCountTimer = GetHighResTime() + 0.1f;
-                }
-            }            
         }
         else
         {
-            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-            UpdateSelectionAnimation(-1);
+            if( obj->m_type == WorldObject::TypeCarrier ||
+                obj->m_type == WorldObject::TypeAirBase )
+            {
+                if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
+                    canAction = false;
+            }
         }
+
+        if( !canAction ) continue;
+
+        if( obj->SetWaypointOnAction() )
+            g_app->GetClientToServer()->RequestSetWaypoint( recId, targetLong, targetLat );
+        g_app->GetClientToServer()->RequestAction( recId, underMouseId, targetLong, targetLat );
+
+        int animid = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, targetLong.DoubleValue(), targetLat.DoubleValue() );
+        ActionMarker *action = (ActionMarker *) g_app->GetWorldRenderer()->GetAnimations()[animid];
+
+        if( !underMouse )
+        {
+            action->m_targetType = obj->IsValidMovementTarget( targetLong, targetLat );
+            action->m_combatTarget = false;
+        }
+        else
+        {
+            action->m_targetType = obj->IsValidCombatTarget( underMouseId );
+            action->m_combatTarget = ( action->m_targetType > WorldObject::TargetTypeInvalid );
+            if( action->m_targetType == WorldObject::TargetTypeInvalid &&
+                ( obj->m_type == WorldObject::TypeCarrier || obj->m_type == WorldObject::TypeAirBase ) &&
+                obj->m_currentState == 0 )
+            {
+                action->m_targetType = WorldObject::TargetTypeLaunchFighter;
+                action->m_combatTarget = false;
+            }
+        }
+
+        if( action->m_targetType >= WorldObject::TargetTypeValid )
+            g_soundSystem->TriggerEvent( "Interface", "SetCombatTarget" );
+
+        anyOrderGiven = true;
+        if( obj->IsActionQueueable() && ( numTimesRemaining == -1 || numTimesRemaining > 1 ) )
+            lastQueuedId = recId;
+    }
+
+    if( underMouse )
+        underMouse->m_nukeCountTimer = GetHighResTime() + 0.1f;
+
+    if( !anyOrderGiven )
+    {
+        g_soundSystem->TriggerEvent( "Interface", "Error" );
+        m_tooltipTimer = 0.0f;
+    }
+
+    if( lastQueuedId != -1 )
+    {
+        // Keep full selection so user can keep queueing for the group
+        g_app->GetWorldRenderer()->SetPrimarySelectionId( lastQueuedId );
+        UpdateSelectionAnimation( lastQueuedId );
+    }
+    else
+    {
+        g_app->GetWorldRenderer()->ClearSelection();
+        UpdateSelectionAnimation(-1);
     }
 }
 
 
-void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
+void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubleClick )
 {
-    MovingObject *obj = (MovingObject*)g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+    Fixed mouseX = Fixed::FromDouble(_mouseX);
+    Fixed mouseY = Fixed::FromDouble(_mouseY);
+    bool anySuccess = false;
+    LList<int> fleetsMoved;
 
-    if( obj && obj->IsMovingObject() )
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
     {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *wobj = g_app->GetWorld()->GetWorldObject( recId );
+        if( !wobj || !wobj->IsMovingObject() )
+            continue;
+
+        MovingObject *obj = (MovingObject *) wobj;
+
         if( obj->m_fleetId != -1 )
         {
             //
-            // Moving a fleet
-
-            Fixed mouseX = Fixed::FromDouble(_mouseX);
-            Fixed mouseY = Fixed::FromDouble(_mouseY);
+            // Moving a fleet - only request once per fleet
+            bool alreadyMoved = false;
+            for( int f = 0; f < fleetsMoved.Size(); ++f )
+            {
+                if( fleetsMoved.GetData(f) == obj->m_fleetId ) { alreadyMoved = true; break; }
+            }
+            if( alreadyMoved ) continue;
 
             Fleet *fleet = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
-
             if( fleet &&
                 fleet->IsValidFleetPosition( mouseX, mouseY ) &&
                 g_app->GetWorld()->GetClosestNode( mouseX, mouseY ) != -1 )
             {
-                g_app->GetClientToServer()->RequestFleetMovement( obj->m_teamId, obj->m_fleetId,
-																  Fixed::FromDouble(_mouseX),
-																  Fixed::FromDouble(_mouseY) );
+                g_app->GetClientToServer()->RequestFleetMovement( obj->m_teamId, obj->m_fleetId, mouseX, mouseY, _isDoubleClick );
+                fleetsMoved.PutData( obj->m_fleetId );
+                anySuccess = true;
 
                 for( int i = 0; i < fleet->m_fleetMembers.Size(); ++i )
                 {
                     WorldObject *thisShip = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
                     if( thisShip )
                     {
-                        Fixed offsetX = 0;
-                        Fixed offsetY = 0;
+                        Fixed offsetX = 0, offsetY = 0;
                         fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &offsetX, &offsetY );
                         int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, thisShip->m_objectId,
-													 _mouseX+offsetX.DoubleValue(),
-													 _mouseY+offsetY.DoubleValue() );  
+                                 _mouseX+offsetX.DoubleValue(), _mouseY+offsetY.DoubleValue() );
                         ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
                         marker->m_targetType = WorldObject::TargetTypeValid;
-                        g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
                     }
                 }
-                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-                UpdateSelectionAnimation(-1);
-            }
-            else
-            {
-                g_soundSystem->TriggerEvent( "Interface", "Error" );
+                g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
             }
         }
         else
         {
-            //
-            // Moving a single object
-
-            g_app->GetClientToServer()->RequestSetWaypoint( g_app->GetWorldRenderer()->GetCurrentSelectionId(),
-															Fixed::FromDouble(_mouseX), Fixed::FromDouble(_mouseY) );
-            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, g_app->GetWorldRenderer()->GetCurrentSelectionId(), _mouseX, _mouseY );  
+            g_app->GetClientToServer()->RequestSetWaypoint( recId, mouseX, mouseY, _isDoubleClick );
+            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, _mouseX, _mouseY );
             ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
             marker->m_targetType = WorldObject::TargetTypeValid;
             g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
-            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-            UpdateSelectionAnimation(-1);
+            anySuccess = true;
         }
     }
 
+    if( anySuccess )
+    {
+        g_app->GetWorldRenderer()->ClearSelection();
+        UpdateSelectionAnimation(-1);
+    }
+    else if( selCount == 0 )
+    {
+        // Fallback for single selection via GetCurrentSelectionId (legacy)
+        int recId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
+        WorldObject *wobj = g_app->GetWorld()->GetWorldObject( recId );
+        if( wobj && wobj->IsMovingObject() )
+        {
+            MovingObject *obj = (MovingObject *) wobj;
+            if( obj->m_fleetId != -1 )
+            {
+                Fleet *fleet = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
+                if( fleet && fleet->IsValidFleetPosition( mouseX, mouseY ) && g_app->GetWorld()->GetClosestNode( mouseX, mouseY ) != -1 )
+                {
+                    g_app->GetClientToServer()->RequestFleetMovement( obj->m_teamId, obj->m_fleetId, mouseX, mouseY, _isDoubleClick );
+                    for( int i = 0; i < fleet->m_fleetMembers.Size(); ++i )
+                    {
+                        WorldObject *thisShip = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
+                        if( thisShip )
+                        {
+                            Fixed offsetX = 0, offsetY = 0;
+                            fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &offsetX, &offsetY );
+                            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, thisShip->m_objectId,
+                                     _mouseX+offsetX.DoubleValue(), _mouseY+offsetY.DoubleValue() );
+                            ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
+                            marker->m_targetType = WorldObject::TargetTypeValid;
+                        }
+                    }
+                    g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
+                    g_app->GetWorldRenderer()->ClearSelection();
+                    UpdateSelectionAnimation(-1);
+                }
+                else
+                    g_soundSystem->TriggerEvent( "Interface", "Error" );
+            }
+            else
+            {
+                g_app->GetClientToServer()->RequestSetWaypoint( recId, mouseX, mouseY, _isDoubleClick );
+                int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, _mouseX, _mouseY );
+                ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
+                marker->m_targetType = WorldObject::TargetTypeValid;
+                g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
+                g_app->GetWorldRenderer()->ClearSelection();
+                UpdateSelectionAnimation(-1);
+            }
+        }
+    }
+    else
+    {
+        g_soundSystem->TriggerEvent( "Interface", "Error" );
+    }
 }
 
 
@@ -4522,28 +4554,31 @@ void MapRenderer::Update()
         {
             bool openedStateMenu = false;
 
+            // Check for double-right-click (0.35s, 5.0 deg thresholds)
+            bool isDoubleClick = false;
+            float now = GetHighResTime();
+            float timeSinceLastClick = now - m_lastRightClickTime;
+            float distFromLastClick = sqrtf( (longitude - m_lastRightClickX) * (longitude - m_lastRightClickX) +
+                                            (latitude - m_lastRightClickY) * (latitude - m_lastRightClickY) );
+            if( timeSinceLastClick < 0.35f && distFromLastClick < 5.0f )
+            {
+                isDoubleClick = true;
+            }
+            m_lastRightClickTime = now;
+            m_lastRightClickX = longitude;
+            m_lastRightClickY = latitude;
+
             if( underMouseId != -1 )
             {
                 WorldObject *obj = g_app->GetWorld()->GetWorldObject(underMouseId);
                 if( obj && obj->m_teamId == g_app->GetWorld()->m_myTeamId )
                 {
-                    bool clickedSelectedUnit = g_app->GetWorldRenderer()->IsSelected( underMouseId );
-                    if( clickedSelectedUnit )
-                    {
-                        m_stateRenderTime = 10.0f;
-                        m_stateObjectId = underMouseId;
-                        m_stateApplyToSelectionSameType = true;
-                        g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
-                        openedStateMenu = true;
-                    }
-                    else if( g_app->GetWorldRenderer()->GetSelectionCount() == 0 )
-                    {
-                        m_stateRenderTime = 10.0f;
-                        m_stateObjectId = underMouseId;
-                        m_stateApplyToSelectionSameType = false;
-                        g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
-                        openedStateMenu = true;
-                    }
+                    // Right-click on any friendly unit always opens the state menu
+                    m_stateRenderTime = 10.0f;
+                    m_stateObjectId = underMouseId;
+                    m_stateApplyToSelectionSameType = g_app->GetWorldRenderer()->IsSelected( underMouseId );
+                    g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
+                    openedStateMenu = true;
                 }
             }
 
@@ -4551,17 +4586,25 @@ void MapRenderer::Update()
             {
                 if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                 {
-                    WorldObject *primaryObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
-                    if( primaryObj &&
-                        primaryObj->m_fleetId != -1 &&
-                        underMouse &&
-                        underMouse->m_fleetId == primaryObj->m_fleetId )
+                    // Double-right-click on empty space: set waypoint with isDoubleClick=true
+                    if( isDoubleClick && underMouseId == -1 )
                     {
-                        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                        HandleSetWaypoint( longitude, latitude, true );
                     }
                     else
                     {
-                        HandleSetWaypoint( longitude, latitude );
+                        WorldObject *primaryObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+                        if( primaryObj &&
+                            primaryObj->m_fleetId != -1 &&
+                            underMouse &&
+                            underMouse->m_fleetId == primaryObj->m_fleetId )
+                        {
+                            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                        }
+                        else
+                        {
+                            HandleSetWaypoint( longitude, latitude, false );
+                        }
                     }
                 }
 
@@ -4592,9 +4635,13 @@ void MapRenderer::Update()
     else if( g_inputManager->m_lmbUnClicked )                                // Mouse up
     {
         g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
-        m_stateRenderTime = 0.0f;
-        m_stateObjectId = -1;
-        m_stateApplyToSelectionSameType = false;
+        // Do NOT clear state menu when right-click also fired this frame - right-click opens the menu
+        if( !g_inputManager->m_rmbUnClicked )
+        {
+            m_stateRenderTime = 0.0f;
+            m_stateObjectId = -1;
+            m_stateApplyToSelectionSameType = false;
+        }
     }
     else if( !g_inputManager->m_lmb )                                 // Mouse highlights something of ours
     {

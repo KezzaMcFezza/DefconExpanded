@@ -71,6 +71,7 @@
 #define     NET_DEFCON_TARGETOBJECTID               "TargetObjId"
 #define     NET_DEFCON_LONGITUDE                    "Longitude"
 #define     NET_DEFCON_LATTITUDE                    "Lattitude"
+#define     NET_DEFCON_ISDOUBLECLICK                "IsDoubleClick"
 #define     NET_DEFCON_UNITTYPE                     "UnitType"
 #define     NET_DEFCON_ACTIONTYPE                   "ActionType"
 #define     NET_DEFCON_OPTIONID                     "OptionID"

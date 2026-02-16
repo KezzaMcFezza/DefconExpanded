@@ -361,10 +361,9 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 		{
 			if ( sdlEvent->button.button == SDL_BUTTON_LEFT )
 			{
-				if ( g_keys[KEY_CONTROL] )
+				m_lmb = true;  // Always register left-click so Ctrl+click for selection works
+				if ( m_shouldEmulateRmb && g_keys[KEY_CONTROL] )
 					m_emulatedRmb = true;
-				else
-					m_lmb = true;
 			}
 			else if ( sdlEvent->button.button == SDL_BUTTON_MIDDLE )
 				m_mmb = true;

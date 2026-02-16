@@ -85,6 +85,10 @@ protected:
     Fixed   m_dragEndLong;
     Fixed   m_dragEndLat;
 
+    float   m_lastRightClickTime;
+    float   m_lastRightClickX;
+    float   m_lastRightClickY;
+
     float   m_tooltipTimer;
 
 	float   m_longitudePlanningOld;
@@ -138,7 +142,7 @@ public:
     bool    UpdatePlanning          ( float _mouseX, float _mouseY );
     int     GetNearestObjectToMouse ( float _mouseX, float _mouseY );
     void    HandleObjectAction      ( float _mouseX, float _mouseY, int _underMouseId );
-    void    HandleSetWaypoint       ( float _mouseX, float _mouseY );
+    void    HandleSetWaypoint       ( float _mouseX, float _mouseY, bool _isDoubleClick = false );
     void    HandleSelectObject      ( int _underMouseId );
     void    HandleClickStateMenu    ();
 

@@ -415,7 +415,7 @@ bool WorldRenderer::IsSelected( int id ) const
 {
     for( int i = 0; i < m_selectedIds.Size(); ++i )
     {
-        if( m_selectedIds[i] == id ) return true;
+        if( m_selectedIds.GetData(i) == id ) return true;
     }
     return false;
 }
@@ -427,7 +427,12 @@ int WorldRenderer::GetSelectionCount() const
 
 int WorldRenderer::GetSelectedId( int index ) const
 {
-    return m_selectedIds.ValidIndex( index ) ? m_selectedIds[index] : -1;
+    return m_selectedIds.ValidIndex( index ) ? m_selectedIds.GetData( index ) : -1;
+}
+
+void WorldRenderer::SetPrimarySelectionId( int id )
+{
+    m_currentSelectionId = id;
 }
 
 void WorldRenderer::SetCurrentSelectionId( int id )

@@ -120,6 +120,7 @@ public:
 
     int     GetCurrentSelectionId();
     void    SetCurrentSelectionId( int id );
+    void    SetPrimarySelectionId( int id );   // Sets m_currentSelectionId without clearing m_selectedIds
     void    ClearSelection();
     void    AddToSelection( int id );
     void    RemoveFromSelection( int id );

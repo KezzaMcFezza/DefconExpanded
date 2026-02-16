@@ -115,11 +115,11 @@ public:
     void RequestStateChange     ( int objId, unsigned char state );
     void RequestAction          ( int objId, int targetObjectId, Fixed longitude, Fixed latitude );
     void RequestSpecialAction   ( int objId, int targetObjectId, unsigned char specialActionType );
-    void RequestSetWaypoint     ( int objId, Fixed longitude, Fixed latitude );
+    void RequestSetWaypoint     ( int objId, Fixed longitude, Fixed latitude, bool isDoubleClick = false );
     void RequestClearActionQueue( int objId );
     void RequestClearLastAction ( int objId );
     void RequestFleet           ( unsigned char teamId );
-    void RequestFleetMovement   ( unsigned char teamId, int fleetId, Fixed longitude, Fixed latitude );
+    void RequestFleetMovement   ( unsigned char teamId, int fleetId, Fixed longitude, Fixed latitude, bool isDoubleClick = false );
     void RequestCeaseFire       ( unsigned char teamId, unsigned char targetTeam );
     void RequestShareRadar      ( unsigned char teamId, unsigned char targetTeam );
 

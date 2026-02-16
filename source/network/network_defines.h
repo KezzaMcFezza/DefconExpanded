@@ -99,6 +99,7 @@
 #define     NET_DEFCON_TARGETOBJECTID               "di"
 #define     NET_DEFCON_LONGITUDE                    "dj"
 #define     NET_DEFCON_LATTITUDE                    "dk"
+#define     NET_DEFCON_ISDOUBLECLICK                "dcl"
 #define     NET_DEFCON_UNITTYPE                     "dl"
 #define     NET_DEFCON_ACTIONTYPE                   "dm"
 #define     NET_DEFCON_OPTIONID                     "dn"

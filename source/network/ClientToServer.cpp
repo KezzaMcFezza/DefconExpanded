@@ -1331,7 +1331,7 @@ void ClientToServer::RequestSpecialAction( int objId, int targetObjectId, unsign
 }
 
 
-void ClientToServer::RequestSetWaypoint( int objId, Fixed longitude, Fixed latitude )
+void ClientToServer::RequestSetWaypoint( int objId, Fixed longitude, Fixed latitude, bool isDoubleClick )
 {
     Directory *letter = new Directory();
 
@@ -1339,6 +1339,7 @@ void ClientToServer::RequestSetWaypoint( int objId, Fixed longitude, Fixed latit
     letter->CreateData( NET_DEFCON_OBJECTID,    objId );
     letter->CreateData( NET_DEFCON_LONGITUDE,   longitude );
     letter->CreateData( NET_DEFCON_LATTITUDE,   latitude );
+    letter->CreateData( NET_DEFCON_ISDOUBLECLICK, (int)isDoubleClick );
 
     SendLetter( letter );
 }
@@ -1434,7 +1435,7 @@ void ClientToServer::RequestFleet( unsigned char teamId )
     SendLetter( letter );
 }
 
-void ClientToServer::RequestFleetMovement( unsigned char teamId, int fleetId, Fixed longitude, Fixed latitude )
+void ClientToServer::RequestFleetMovement( unsigned char teamId, int fleetId, Fixed longitude, Fixed latitude, bool isDoubleClick )
 {    
     Directory *letter = new Directory();
 
@@ -1443,6 +1444,7 @@ void ClientToServer::RequestFleetMovement( unsigned char teamId, int fleetId, Fi
     letter->CreateData( NET_DEFCON_FLEETID,     fleetId );
     letter->CreateData( NET_DEFCON_LONGITUDE,   longitude );
     letter->CreateData( NET_DEFCON_LATTITUDE,   latitude );
+    letter->CreateData( NET_DEFCON_ISDOUBLECLICK, (int)isDoubleClick );
 
     SendLetter( letter );
 }
