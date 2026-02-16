@@ -16,7 +16,7 @@
 | 1.1d | Done | Render selection circles for all selected units via highlight batching |
 | 1.1e | Done | Add drag-marquee state and `RenderDragSelectionMarquee()` in map renderer |
 | 1.1f | Done | Update `HandleSelectObject()` for shift-click add, ctrl-click toggle, drag-select |
-| 1.2 | Pending | Apply state to selection (same type) |
+| 1.2 | Done | Apply state to selection (same type) |
 | 1.3 | Pending | Double-click waypoints |
 
 ### Phase 2–4

@@ -65,6 +65,8 @@ MapRenderer::MapRenderer()
     m_oldMouseY(0.0f),
     m_mouseIdleTime(0.0f),
     m_stateRenderTime(0.0f),
+    m_stateObjectId(-1),
+    m_stateApplyToSelectionSameType(false),
     m_highlightUnit(-1),
     m_showAllTeams(false),
     m_cameraLongitude(0.0f),
@@ -132,6 +134,7 @@ void MapRenderer::Reset()
     g_app->GetWorldRenderer()->Reset();
 
     m_isDraggingSelect = false;
+    m_stateApplyToSelectionSameType = false;
 
     delete m_tooltip;
     m_tooltip = NULL;
@@ -3771,7 +3774,42 @@ void MapRenderer::HandleClickStateMenu()
     WorldObject *highlight = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentHighlightId());
     if( highlight )
     {
-        if( g_keys[KEY_SHIFT] &&
+        if( m_stateApplyToSelectionSameType && g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
+        {
+            int targetType = highlight->m_type;
+            bool anySuccess = false;
+            bool anyFailure = false;
+            for( int i = 0; i < g_app->GetWorldRenderer()->GetSelectionCount(); ++i )
+            {
+                int thisObjId = g_app->GetWorldRenderer()->GetSelectedId( i );
+                WorldObject *thisObj = g_app->GetWorld()->GetWorldObject( thisObjId );
+                if( thisObj && thisObj->m_type == targetType )
+                {
+                    if( m_currentStateId == CLEARQUEUE_STATEID )
+                    {
+                        g_app->GetClientToServer()->RequestClearActionQueue( thisObj->m_objectId );
+                        anySuccess = true;
+                    }
+                    else
+                    {
+                        if( thisObj->CanSetState(m_currentStateId) )
+                        {
+                            g_app->GetClientToServer()->RequestStateChange( thisObj->m_objectId, m_currentStateId );
+                            anySuccess = true;
+                        }
+                        else
+                        {
+                            anyFailure = true;
+                        }
+                    }
+                }
+            }
+            if( anySuccess )
+                g_soundSystem->TriggerEvent( "Interface", "SelectObjectState" );
+            if( anyFailure )
+                g_soundSystem->TriggerEvent( "Interface", "Error" );
+        }
+        else if( g_keys[KEY_SHIFT] &&
             highlight->m_fleetId != -1 )
         {
             //
@@ -3850,6 +3888,7 @@ void MapRenderer::HandleClickStateMenu()
 
     m_stateRenderTime = 0.0f;
     m_stateObjectId = -1;
+    m_stateApplyToSelectionSameType = false;
 }
 
 
@@ -4481,41 +4520,59 @@ void MapRenderer::Update()
 
         if( g_inputManager->m_rmbUnClicked )                                        // RIGHT MOUSE UNCLICKED
         {
-            if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
-            {
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
-                if( obj &&
-                    obj->m_fleetId != -1 &&
-                    underMouse &&
-                    underMouse->m_fleetId == obj->m_fleetId )
-                {
-                    // Dont set waypoint if we just clicked on a ship in the same fleet
-                    g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
-                }
-                else
-                {
-                    HandleSetWaypoint( longitude, latitude );
-                }
-            }
+            bool openedStateMenu = false;
 
             if( underMouseId != -1 )
             {
                 WorldObject *obj = g_app->GetWorld()->GetWorldObject(underMouseId);
-                if( obj &&
-                    obj->m_teamId == g_app->GetWorld()->m_myTeamId &&
-                    g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
+                if( obj && obj->m_teamId == g_app->GetWorld()->m_myTeamId )
                 {
-                    m_stateRenderTime = 10.0f;
-                    m_stateObjectId = underMouseId;
-                    g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
+                    bool clickedSelectedUnit = g_app->GetWorldRenderer()->IsSelected( underMouseId );
+                    if( clickedSelectedUnit )
+                    {
+                        m_stateRenderTime = 10.0f;
+                        m_stateObjectId = underMouseId;
+                        m_stateApplyToSelectionSameType = true;
+                        g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
+                        openedStateMenu = true;
+                    }
+                    else if( g_app->GetWorldRenderer()->GetSelectionCount() == 0 )
+                    {
+                        m_stateRenderTime = 10.0f;
+                        m_stateObjectId = underMouseId;
+                        m_stateApplyToSelectionSameType = false;
+                        g_soundSystem->TriggerEvent( "Interface", "HighlightObject" );
+                        openedStateMenu = true;
+                    }
                 }
             }
-            else
+
+            if( !openedStateMenu )
             {
-                m_stateRenderTime = 0.0f;
-                m_stateObjectId = -1;
-                g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
-            }           
+                if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
+                {
+                    WorldObject *primaryObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+                    if( primaryObj &&
+                        primaryObj->m_fleetId != -1 &&
+                        underMouse &&
+                        underMouse->m_fleetId == primaryObj->m_fleetId )
+                    {
+                        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                    }
+                    else
+                    {
+                        HandleSetWaypoint( longitude, latitude );
+                    }
+                }
+
+                if( underMouseId == -1 )
+                {
+                    m_stateRenderTime = 0.0f;
+                    m_stateObjectId = -1;
+                    m_stateApplyToSelectionSameType = false;
+                    g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
+                }
+            }
         }
     }
 #endif
@@ -4537,6 +4594,7 @@ void MapRenderer::Update()
         g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
         m_stateRenderTime = 0.0f;
         m_stateObjectId = -1;
+        m_stateApplyToSelectionSameType = false;
     }
     else if( !g_inputManager->m_lmb )                                 // Mouse highlights something of ours
     {
@@ -4573,6 +4631,7 @@ void MapRenderer::Update()
     {
         m_stateRenderTime = 0.0f;
         m_stateObjectId = -1;
+        m_stateApplyToSelectionSameType = false;
     }
 
     if( m_stateRenderTime > 0.0f &&                                              // Player is choosing state changes

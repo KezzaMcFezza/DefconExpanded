@@ -44,6 +44,7 @@ protected:
 
     float   m_stateRenderTime;
     int     m_stateObjectId;
+    bool    m_stateApplyToSelectionSameType;
 
 	float	m_drawScale;
     
