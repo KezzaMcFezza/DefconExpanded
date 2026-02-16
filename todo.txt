@@ -41,6 +41,7 @@ COMPLETED:
 
 IN PROGRESS:
 
+Kezza's Goals:
 - fix non modded styles from not having globe styles 
   (this is not a priority at all)
 - map renderer doesnt scale with different aspect ratios
@@ -65,6 +66,9 @@ IN PROGRESS:
 - mouse icon on eclipse popup occluded by alpha fading 
   inside a fading window
 - Find memory leak when leaving and rejoing games over and over
+
+Raitos Goals:
+- Dont make shit code
 
 
 
