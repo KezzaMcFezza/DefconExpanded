@@ -70,6 +70,8 @@ Kezza's Goals:
 Raitos Goals:
 - Dont make shit code
 
+- multi unit selection click-and-drag boxes - DONE
+- QOL fixes for game speed and team switching buttons - DONE
 
 
 

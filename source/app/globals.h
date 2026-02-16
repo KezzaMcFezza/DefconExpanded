@@ -14,7 +14,7 @@
  */
 
 
-#define SERVER_ADVANCE_FREQ     (Fixed(10))                     // Num server ticks per second
+#define SERVER_ADVANCE_FREQ     (Fixed(100))                    // Num server ticks per second
 #define SERVER_ADVANCE_PERIOD   (Fixed(1)/SERVER_ADVANCE_FREQ)  // Server ticks at this rate
 #define IAMALIVE_PERIOD         SERVER_ADVANCE_PERIOD           // Clients must send IAmAlive this often
 

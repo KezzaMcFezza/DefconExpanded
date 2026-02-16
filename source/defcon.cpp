@@ -91,7 +91,7 @@ void UpdateAdvanceTime()
 		g_advanceTime = 0.25f;
 	}
 	g_gameTime = realTime;
-    g_predictionTime = float(realTime - g_lastServerAdvance) - 0.1f;
+    g_predictionTime = float(realTime - g_lastServerAdvance) - SERVER_ADVANCE_PERIOD.DoubleValue();
     g_predictionTime = min( g_predictionTime, 1.0f );
 }
 
