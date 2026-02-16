@@ -78,6 +78,7 @@ protected:
     bool    m_draggingCamera;
 
     bool    m_isDraggingSelect;
+    int     m_dragSelectMode;      // 0=replace, 1=add, 2=remove
     Fixed   m_dragStartLong;
     Fixed   m_dragStartLat;
     Fixed   m_dragEndLong;

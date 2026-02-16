@@ -82,6 +82,7 @@ MapRenderer::MapRenderer()
     m_lockCommands(false),
     m_draggingCamera(false),
     m_isDraggingSelect(false),
+    m_dragSelectMode(0),
     m_dragStartLong(0),
     m_dragStartLat(0),
     m_dragEndLong(0),
@@ -3718,25 +3719,35 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
 
         if( selectable && undermouse->m_type != WorldObject::TypeNuke )
         {
-            if( g_keys[KEY_SHIFT] )
+            if( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] )
             {
-                g_app->GetWorldRenderer()->AddToSelection(_underMouseId);
-                UpdateSelectionAnimation(_underMouseId);
+                g_app->GetWorldRenderer()->RemoveFromSelection(_underMouseId);
+                UpdateSelectionAnimation(g_app->GetWorldRenderer()->GetCurrentSelectionId());
                 selected = true;
             }
             else if( g_keys[KEY_CONTROL] )
             {
-                if( g_app->GetWorldRenderer()->IsSelected(_underMouseId) )
+                int unitType = undermouse->m_type;
+                int myTeam = g_app->GetWorld()->m_myTeamId;
+                g_app->GetWorldRenderer()->ClearSelection();
+                for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
                 {
-                    g_app->GetWorldRenderer()->RemoveFromSelection(_underMouseId);
-                    UpdateSelectionAnimation(g_app->GetWorldRenderer()->GetCurrentSelectionId());
+                    if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
+                    WorldObject *obj = g_app->GetWorld()->m_objects[i];
+                    if( !obj || obj->m_teamId != myTeam || obj->m_type != unitType ) continue;
+                    if( obj->m_type == WorldObject::TypeNuke ) continue;
+                    if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
+                    if( !IsOnScreen( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue() ) ) continue;
+                    g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
                 }
-                else
-                {
-                    g_app->GetWorldRenderer()->AddToSelection(_underMouseId);
-                    UpdateSelectionAnimation(_underMouseId);
-                    selected = true;
-                }
+                UpdateSelectionAnimation(g_app->GetWorldRenderer()->GetCurrentSelectionId());
+                selected = true;
+            }
+            else if( g_keys[KEY_SHIFT] )
+            {
+                g_app->GetWorldRenderer()->AddToSelection(_underMouseId);
+                UpdateSelectionAnimation(_underMouseId);
+                selected = true;
             }
             else
             {
@@ -4144,10 +4155,32 @@ void MapRenderer::Update()
     {
         if( g_inputManager->m_lmbClicked )
         {
-            if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 &&
-                g_app->GetWorldRenderer()->GetSelectionCount() == 0 )
+            bool hasSelection = g_app->GetWorldRenderer()->GetSelectionCount() > 0;
+            bool shiftAdd = hasSelection && g_keys[KEY_SHIFT] && !g_keys[KEY_CONTROL];
+            bool ctrlShiftRemove = hasSelection && g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT];
+
+            if( !hasSelection )
             {
                 m_isDraggingSelect = true;
+                m_dragSelectMode = 0;
+                m_dragStartLong = Fixed::FromDouble( longitude );
+                m_dragStartLat = Fixed::FromDouble( latitude );
+                m_dragEndLong = m_dragStartLong;
+                m_dragEndLat = m_dragStartLat;
+            }
+            else if( shiftAdd )
+            {
+                m_isDraggingSelect = true;
+                m_dragSelectMode = 1;
+                m_dragStartLong = Fixed::FromDouble( longitude );
+                m_dragStartLat = Fixed::FromDouble( latitude );
+                m_dragEndLong = m_dragStartLong;
+                m_dragEndLat = m_dragStartLat;
+            }
+            else if( ctrlShiftRemove )
+            {
+                m_isDraggingSelect = true;
+                m_dragSelectMode = 2;
                 m_dragStartLong = Fixed::FromDouble( longitude );
                 m_dragStartLat = Fixed::FromDouble( latitude );
                 m_dragEndLong = m_dragStartLong;
@@ -4287,10 +4320,10 @@ void MapRenderer::Update()
                         if( aLon > bLon ) { Fixed t=aLon; aLon=bLon; bLon=t; }
                         if( aLat > bLat ) { Fixed t=aLat; aLat=bLat; bLat=t; }
 
-                        bool removeMode = ( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] );
-                        bool addMode = ( !removeMode && g_keys[KEY_SHIFT] );
+                        bool removeMode = ( m_dragSelectMode == 2 );
+                        bool addMode = ( m_dragSelectMode == 1 );
 
-                        if( !addMode && !removeMode )
+                        if( m_dragSelectMode == 0 )
                         {
                             g_app->GetWorldRenderer()->ClearSelection();
                         }
@@ -4375,10 +4408,9 @@ void MapRenderer::Update()
                     if( aLon > bLon ) { Fixed t=aLon; aLon=bLon; bLon=t; }
                     if( aLat > bLat ) { Fixed t=aLat; aLat=bLat; bLat=t; }
 
-                    bool removeMode = ( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] );
-                    bool addMode = ( !removeMode && g_keys[KEY_SHIFT] );
+                    bool removeMode = ( m_dragSelectMode == 2 );
 
-                    if( !addMode && !removeMode )
+                    if( m_dragSelectMode == 0 )
                     {
                         g_app->GetWorldRenderer()->ClearSelection();
                     }
