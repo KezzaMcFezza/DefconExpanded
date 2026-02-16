@@ -1198,6 +1198,7 @@ public:
                 {
                     int territoryId = team->m_territories[i];
                     Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(territoryId);
+                    if( !img ) continue;
                     Colour col = team->GetTeamColour();
                     col.m_a = 200;
                     g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
@@ -1225,6 +1226,7 @@ public:
                 for( int i = 0; i < World::NumTerritories; ++i )
                 {
                     Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(i);
+                    if( !img ) continue;
 
                     int pixelX = img->Width() * fractionX;
                     int pixelY = img->Height() * (1.0f - fractionY);
@@ -1239,7 +1241,8 @@ public:
             if( m_selectionId != -1 )
             {
                 Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(m_selectionId);
-
+                if( img )
+                {
                 Colour col = selectedTeam ? selectedTeam->GetTeamColour() : Colour(255,255,255,255);            
                 col.m_a = 100 + fabs(sinf(GetHighResTime()*10)) * 100;
 
@@ -1267,6 +1270,7 @@ public:
                     {
                         g_app->GetClientToServer()->RequestTerritory( selectedTeamId, m_selectionId );
                     }                
+                }
                 }
             }
         }

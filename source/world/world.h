@@ -34,7 +34,7 @@ struct CityLocation;
 #if SYNC_PRACTICE
 #define MAX_TEAMS				2
 #else
-#define MAX_TEAMS				7
+#define MAX_TEAMS				27
 #endif
 #define TEAMID_SPECIALOBJECTS	255
 #define OBJECTID_CITYS          100000
@@ -62,12 +62,32 @@ protected:
 public:
     enum
     {
-        TerritoryNorthAmerica,
-        TerritorySouthAmerica,
-        TerritoryEurope,
+        TerritoryUSA,
+        TerritoryNATO,
         TerritoryRussia,
-        TerritorySouthAsia,
-        TerritoryAfrica,
+        TerritoryChina,
+        TerritoryIndia,
+        TerritoryPakistan,
+        TerritoryJapan,
+        TerritoryKorea,
+        TerritoryAustralia,
+        TerritoryTaiwan,
+        TerritoryUkraine,
+        TerritoryPhilippines,
+        TerritoryThailand,
+        TerritoryIndonesia,
+        TerritoryNorthKorea,
+        TerritoryIran,
+        TerritoryIsrael,
+        TerritorySaudi,
+        TerritoryEgypt,
+        TerritoryVietnam,
+        TerritoryBrazil,
+        TerritorySouthAfrica,
+        TerritoryNeutralAmerica,
+        TerritoryNeutralAfrica,
+        TerritoryNeutralEurope,
+        TerritoryNeutralAsia,
         NumTerritories
     };
     

@@ -32,8 +32,8 @@ GameMode                0       7       0           0
     Tournament
     Custom
  
-MaxTeams                1       6       6           1
-TerritoriesPerTeam      1       6       1           1
+MaxTeams                1       27      6           1
+TerritoriesPerTeam      1       28      1           1
 CitiesPerTerritory      1       2500    50          1
 PopulationPerTerritory  10      500     100         10
 

@@ -556,6 +556,7 @@ void MapRenderer::RenderCountryControl()
             for( int j = 0; j < team->m_territories.Size(); ++j )
             {
                 Image *img = g_app->GetWorldRenderer()->GetTerritoryImage( team->m_territories[j] );
+                if( !img ) continue;
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                 g_renderer2d->StaticSprite( img, -180, topY, 360, -worldHeight, col );
 

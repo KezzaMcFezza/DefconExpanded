@@ -53,12 +53,32 @@ WorldRenderer::~WorldRenderer()
 
 void WorldRenderer::Init()
 {
-    m_territories[World::TerritoryNorthAmerica] = g_resource->GetImage( "earth/northamerica.bmp" );
-    m_territories[World::TerritorySouthAmerica] = g_resource->GetImage( "earth/southamerica.bmp" );
-    m_territories[World::TerritoryEurope]       = g_resource->GetImage( "earth/europe.bmp" );
+    m_territories[World::TerritoryUSA]          = g_resource->GetImage( "earth/usa.bmp" );
+    m_territories[World::TerritoryNATO]         = g_resource->GetImage( "earth/nato.bmp" );
     m_territories[World::TerritoryRussia]       = g_resource->GetImage( "earth/russia.bmp" );
-    m_territories[World::TerritorySouthAsia]    = g_resource->GetImage( "earth/southasia.bmp" );
-    m_territories[World::TerritoryAfrica]       = g_resource->GetImage( "earth/africa.bmp" );    
+    m_territories[World::TerritoryChina]        = g_resource->GetImage( "earth/china.bmp" );
+    m_territories[World::TerritoryIndia]        = g_resource->GetImage( "earth/india.bmp" );
+    m_territories[World::TerritoryPakistan]     = g_resource->GetImage( "earth/pakistan.bmp" );
+    m_territories[World::TerritoryJapan]        = g_resource->GetImage( "earth/japan.bmp" );
+    m_territories[World::TerritoryKorea]        = g_resource->GetImage( "earth/korea.bmp" );
+    m_territories[World::TerritoryAustralia]    = g_resource->GetImage( "earth/australia.bmp" );
+    m_territories[World::TerritoryTaiwan]       = g_resource->GetImage( "earth/taiwan.bmp" );
+    m_territories[World::TerritoryUkraine]      = g_resource->GetImage( "earth/ukraine.bmp" );
+    m_territories[World::TerritoryPhilippines]  = g_resource->GetImage( "earth/philippines.bmp" );
+    m_territories[World::TerritoryThailand]     = g_resource->GetImage( "earth/thailand.bmp" );
+    m_territories[World::TerritoryIndonesia]    = g_resource->GetImage( "earth/indonesia.bmp" );
+    m_territories[World::TerritoryNorthKorea]   = g_resource->GetImage( "earth/northkorea.bmp" );
+    m_territories[World::TerritoryIran]         = g_resource->GetImage( "earth/iran.bmp" );
+    m_territories[World::TerritoryIsrael]       = g_resource->GetImage( "earth/israel.bmp" );
+    m_territories[World::TerritorySaudi]        = g_resource->GetImage( "earth/saudi.bmp" );
+    m_territories[World::TerritoryEgypt]        = g_resource->GetImage( "earth/egypt.bmp" );
+    m_territories[World::TerritoryVietnam]      = g_resource->GetImage( "earth/vietnam.bmp" );
+    m_territories[World::TerritoryBrazil]       = g_resource->GetImage( "earth/brazil.bmp" );
+    m_territories[World::TerritorySouthAfrica]  = g_resource->GetImage( "earth/southafrica.bmp" );
+    m_territories[World::TerritoryNeutralAmerica] = g_resource->GetImage( "earth/neutralamerica.bmp" );
+    m_territories[World::TerritoryNeutralAfrica]  = g_resource->GetImage( "earth/neutralafrica.bmp" );
+    m_territories[World::TerritoryNeutralEurope]  = g_resource->GetImage( "earth/neutraleurope.bmp" );
+    m_territories[World::TerritoryNeutralAsia]    = g_resource->GetImage( "earth/neutralasia.bmp" );    
 
     m_bmpSailableWater = g_resource->GetImage( "earth/sailable.bmp" );
     m_bmpTravelNodes = g_resource->GetImage( "earth/travel_nodes.bmp" );
@@ -252,8 +272,8 @@ bool WorldRenderer::IsValidTerritory( int teamId, Fixed longitude, Fixed latitud
         Team *team = g_app->GetWorld()->GetTeam(teamId);
         for( int i = 0; i < team->m_territories.Size(); ++i )
         {
-            Image *img = m_territories[team->m_territories[i]];            
-            AppDebugAssert( img );
+            Image *img = m_territories[team->m_territories[i]];
+            if( !img ) continue;
 
             int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
             int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
@@ -324,8 +344,7 @@ int WorldRenderer::GetTerritoryId( Fixed longitude, Fixed latitude )
     for( int i = 0; i < World::NumTerritories; ++i )
     {
         Image *img = m_territories[i];
-        
-        AppDebugAssert( img );
+        if( !img ) continue;
 
         int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
         int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
@@ -347,8 +366,7 @@ int WorldRenderer::GetTerritoryIdUnique( Fixed longitude, Fixed latitude )
     for( int i = 0; i < World::NumTerritories; ++i )
     {
         Image *img = m_territories[i];
-        
-        AppDebugAssert( img );
+        if( !img ) continue;
 
         int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
         int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
@@ -370,6 +388,7 @@ int WorldRenderer::GetTerritoryIdUnique( Fixed longitude, Fixed latitude )
 
 Image *WorldRenderer::GetTerritoryImage( int territoryId )
 {
+    if( territoryId < 0 || territoryId >= World::NumTerritories ) return NULL;
     return m_territories[territoryId];
 }
 
