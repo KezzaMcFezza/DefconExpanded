@@ -34,7 +34,7 @@ struct CityLocation;
 #if SYNC_PRACTICE
 #define MAX_TEAMS				2
 #else
-#define MAX_TEAMS				29
+#define MAX_TEAMS				28
 #endif
 #define TEAMID_SPECIALOBJECTS	255
 #define OBJECTID_CITYS          100000

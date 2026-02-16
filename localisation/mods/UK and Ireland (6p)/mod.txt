@@ -1,5 +1,0 @@
-Name		UK and Ireland (6 Players)
-Version		v1.1
-Author		Sievert
-Comment		"Look at the British Colonial empire-the most magnificent empire that the world ever saw. The old Spanish boast that the sun never set in their dominions, has been more truly realised amongst ourselves." -Sir Henry Ward
-Website		https://www.youtube.com/@megasievert

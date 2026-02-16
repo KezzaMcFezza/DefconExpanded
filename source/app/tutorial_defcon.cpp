@@ -1787,7 +1787,7 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetWorld()->ClearWorld();
         g_app->GetWorldRenderer()->UnlockRadarRenderer();
 
-        g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryIndia );
+        g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryChina );
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryUSA );
         g_app->GetWorld()->AssignCities();
 
@@ -1968,7 +1968,7 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetGame()->GetOption("CitiesPerTerritory")->m_currentValue = 25;
         g_app->GetGame()->GetOption("PopulationPerTerritory")->m_currentValue = 100;
 
-        g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryIndia );
+        g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryChina );
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryUSA );        
         g_app->GetWorld()->AssignCities();
         

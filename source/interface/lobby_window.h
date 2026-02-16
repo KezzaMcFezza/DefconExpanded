@@ -13,6 +13,13 @@ class GameOption;
 
 // ============================================================================
 
+struct TerritoryButtonLayout
+{
+    float m_x;
+    float m_y;
+    float m_w;
+    float m_h;
+};
 
 class LobbyWindow : public InterfaceWindow
 {   
@@ -22,6 +29,9 @@ public:
     int             m_teamOrder[MAX_TEAMS];
     int             m_selectionId;
     int             m_gameMode;
+    bool            m_mapExpanded;
+    int             m_hoverTerritoryId;
+    TerritoryButtonLayout m_territoryButtonLayout[World::NumTerritories + 32];
 
 public:
     LobbyWindow();

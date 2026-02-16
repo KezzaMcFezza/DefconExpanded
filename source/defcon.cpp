@@ -1031,11 +1031,12 @@ void HandleGameStart()
         {
             if( g_app->m_gameStartTimer < 0 )
             {
-                g_app->m_gameStartTimer = 4;                
+                g_app->m_gameStartTimer = 3.0f;
             }
             else if( g_app->m_gameStartTimer > 0 )
             {
-                g_app->m_gameStartTimer -= 0.5f;
+                float lobbyAdvancePeriod = SERVER_ADVANCE_PERIOD.DoubleValue() * 5.0f;
+                g_app->m_gameStartTimer -= lobbyAdvancePeriod;
                 if( g_app->m_gameStartTimer <= 0 )
                 {
                     if( !g_app->GetServer() && g_app->GetClientToServer()->IsConnected() )

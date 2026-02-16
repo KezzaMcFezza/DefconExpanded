@@ -72,7 +72,7 @@ Raitos Goals:
 
 - multi unit selection click-and-drag boxes - DONE
 - QOL fixes for game speed and team switching buttons - DONE
-
+- Tick rate increased to 100/second - DONE
 
 
 

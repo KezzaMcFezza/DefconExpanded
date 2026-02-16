@@ -307,6 +307,7 @@ void TeamOptionsWindow::Create()
     //
     // Alliance colour buttons
 
+    int numcolor = MAX_TEAMS;
     if( g_app->GetGame()->GetOptionValue("GameMode") != GAMEMODE_DIPLOMACY )
     {
         if( m_teamId == g_app->GetWorld()->m_myTeamId ||
@@ -314,7 +315,7 @@ void TeamOptionsWindow::Create()
         {
             yPos += 9;
                             
-            for( int i = 0; i < 6; ++i )
+            for( int i = 0; i < numcolor; ++i )
             {
                 float xPos = 2;
                 float w = m_w - 4;
@@ -1122,6 +1123,365 @@ public:
 };
 
 
+class ExpandMapButton : public InterfaceButton
+{
+public:
+    void MouseUp()
+    {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        lobby->m_mapExpanded = !lobby->m_mapExpanded;
+        lobby->Remove();
+        lobby->Create();
+    }
+};
+
+
+class TerritorySelectButton : public InterfaceButton
+{
+public:
+    int m_territoryId;
+    
+    bool IsVisible()
+    {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        return lobby->m_mapExpanded;
+    }
+    
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        if( !lobby->m_mapExpanded ) return;
+        
+        int selectedTeamId = lobby->m_selectionId;
+        Team *selectedTeam = g_app->GetWorld()->GetTeam(selectedTeamId);
+
+        Colour bgCol(50, 50, 100, 200);
+        Colour borderCol(100, 100, 200, 255);
+        
+        int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_territoryId );
+        Team *ownerTeam = NULL;
+        if( currentOwner != -1 )
+        {
+            ownerTeam = g_app->GetWorld()->GetTeam(currentOwner);
+            if( ownerTeam )
+            {
+                bgCol = ownerTeam->GetTeamColour();
+                bgCol.m_a = 150;
+                borderCol = ownerTeam->GetTeamColour();
+                if( currentOwner == selectedTeamId )
+                {
+                    bgCol.m_a = 200;
+                }
+            }
+        }
+        
+        bool allowSelectionHighlight = false;
+        if( selectedTeam )
+        {
+            int numTerritories = selectedTeam->m_territories.Size();
+            int maxTerritories = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
+            int numTeams = g_app->GetWorld()->m_teams.Size();
+            if( numTeams > 0 )
+            {
+                int territoriesPerTeam = World::NumTerritories / numTeams;
+                if( maxTerritories <= 0 ) maxTerritories = territoriesPerTeam;
+            }
+            int randomTerritories = g_app->GetGame()->GetOptionValue("RandomTerritories");
+
+            if( !randomTerritories &&
+                ( numTerritories < maxTerritories ||
+                  currentOwner == -1 ||
+                  currentOwner == selectedTeamId ) )
+            {
+                allowSelectionHighlight = true;
+            }
+        }
+        
+        bool hover = highlighted || (lobby->m_hoverTerritoryId == m_territoryId);
+        if( hover )
+        {
+            Colour pulseCol;
+            if( allowSelectionHighlight && selectedTeam )
+            {
+                pulseCol = selectedTeam->GetTeamColour();
+            }
+            else if( ownerTeam )
+            {
+                pulseCol = ownerTeam->GetTeamColour();
+            }
+            else
+            {
+                pulseCol.Set(180, 180, 255, 255);
+            }
+            pulseCol.m_a = 120 + (int)(fabsf(sinf(GetHighResTime()*10)) * 80);
+
+            Colour drawCol = bgCol;
+            drawCol.m_r = (drawCol.m_r * (255 - pulseCol.m_a) + pulseCol.m_r * pulseCol.m_a) / 255;
+            drawCol.m_g = (drawCol.m_g * (255 - pulseCol.m_a) + pulseCol.m_g * pulseCol.m_a) / 255;
+            drawCol.m_b = (drawCol.m_b * (255 - pulseCol.m_a) + pulseCol.m_b * pulseCol.m_a) / 255;
+            drawCol.m_a = min(255, bgCol.m_a + pulseCol.m_a / 2);
+
+            bgCol = drawCol;
+            borderCol = pulseCol;
+            borderCol.m_a = 255;
+        }
+        
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, bgCol );
+        g_renderer2d->Rect( realX, realY, m_w, m_h, borderCol );
+        
+        char numText[8];
+        sprintf( numText, "%d", m_territoryId + 1 );
+        g_renderer->SetFont( "kremlin" );
+        g_renderer2d->TextCentreSimple( realX + m_w/2, realY + m_h/2 - 5, White, 10, numText );
+        g_renderer->SetFont();
+    }
+    
+    void MouseUp()
+    {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        int selectedTeamId = lobby->m_selectionId;
+        Team *selectedTeam = g_app->GetWorld()->GetTeam( selectedTeamId );
+        
+        if( selectedTeamId == g_app->GetWorld()->m_myTeamId ||
+            (g_app->HasServerPrivileges() && 
+            selectedTeam &&
+            selectedTeam->m_type == Team::TypeAI) )
+        {
+            int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_territoryId );
+            int territoriesHeld = selectedTeam ? selectedTeam->m_territories.Size() : 0;
+            int maxTerritories = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
+            int numTeams = g_app->GetWorld()->m_teams.Size();
+            if( numTeams > 0 )
+            {
+                int territoriesPerTeam = World::NumTerritories / numTeams;
+                if( maxTerritories <= 0 ) maxTerritories = territoriesPerTeam;
+            }
+            int randomTerritories = g_app->GetGame()->GetOptionValue("RandomTerritories");
+            int effectiveLimit = maxTerritories > 0 ? maxTerritories : World::NumTerritories;
+            
+            g_app->GetClientToServer()->RequestTerritory( selectedTeamId, m_territoryId );
+            
+            bool isSelecting = (currentOwner == -1);
+            bool willFillLastSlot = selectedTeam &&
+                                  !randomTerritories &&
+                                  effectiveLimit > 0 &&
+                                  isSelecting &&
+                                  territoriesHeld < effectiveLimit &&
+                                  territoriesHeld + 1 >= effectiveLimit;
+            
+            if( willFillLastSlot )
+            {
+                lobby->m_mapExpanded = false;
+                lobby->Remove();
+                lobby->Create();
+            }
+        }
+    }
+};
+
+
+class ExpandedWorldMapButton : public EclButton
+{
+public:
+    int m_selectionId;
+    
+    ExpandedWorldMapButton() : m_selectionId(-1) {}
+    
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        
+        if( !lobby->m_mapExpanded ) return;
+        
+        g_renderer2d->EndRectFillBatch();
+        g_renderer2d->BeginRectFillBatch();
+        
+        Image *bmpWorldMap = g_resource->GetImage( "graphics/map.bmp" );
+        AppDebugAssert( bmpWorldMap );
+
+        int worldMapW = m_w;
+        int worldMapH = m_h;
+        int worldMapX = realX;
+        int worldMapY = realY;
+
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+        g_renderer2d->StaticSprite( bmpWorldMap, worldMapX, worldMapY, worldMapW, worldMapH, White );
+        g_renderer2d->Rect( worldMapX, worldMapY, worldMapW, worldMapH, Colour(100,100,200,255) );
+
+        int selectedTeamId = lobby->m_selectionId;         
+        Team *selectedTeam = g_app->GetWorld()->GetTeam(selectedTeamId);
+        
+        int numTerritories = ( selectedTeam ? selectedTeam->m_territories.Size() : 0 );
+        int maxTerritories = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
+        int numTeams = g_app->GetWorld()->m_teams.Size();
+        if( numTeams > 0 )
+        {
+            int territoriesPerTeam = World::NumTerritories / numTeams;
+            if( maxTerritories <= 0 ) maxTerritories = territoriesPerTeam;
+        }
+        int randomTerritories = g_app->GetGame()->GetOptionValue("RandomTerritories");
+
+        if( !randomTerritories &&
+            selectedTeam &&
+            numTerritories < maxTerritories )
+        {
+            Colour col(200,200,255,200);
+            g_renderer->SetFont( "kremlin" );
+
+            char caption[512];
+            strcpy( caption, LANGUAGEPHRASE("dialog_click_select_territory") );
+            LPREPLACEINTEGERFLAG( 'T', numTerritories, caption );
+            LPREPLACEINTEGERFLAG( 'M', maxTerritories, caption );
+
+            g_renderer2d->TextCentreSimple( realX+m_w/2, realY+m_h-15, col, 15, caption );
+            g_renderer->SetFont();
+        }
+
+        if( randomTerritories )
+        {
+            g_renderer->SetFont( "kremlin" );
+            g_renderer2d->TextCentre( realX+m_w/2, realY+m_h-15, Colour(200,200,255,100), 15, LANGUAGEPHRASE("dialog_random_territories") );
+            g_renderer->SetFont();
+        }
+
+        g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
+
+        for( int t = 0; t < MAX_TEAMS; ++t )
+        {
+            Team *team = g_app->GetWorld()->GetTeam(t);
+            if( team )
+            {
+                for( int i = 0; i < team->m_territories.Size(); ++i )
+                {
+                    int territoryId = team->m_territories[i];
+                    Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(territoryId);
+                    if( !img ) continue;
+                    Colour col = team->GetTeamColour();
+                    col.m_a = 200;
+                    g_renderer2d->StaticSprite( img, worldMapX, worldMapY, worldMapW, worldMapH, col, true );
+                    if( team->m_teamId == lobby->m_selectionId )
+                    {
+                        col.Set(255,255,255,70);
+                        g_renderer2d->StaticSprite( img, worldMapX, worldMapY, worldMapW, worldMapH, col, true );
+                    }
+                }
+            }
+        }
+
+        m_selectionId = -1;
+        bool mouseOverTerritoryButton = false;
+
+        if( !randomTerritories )
+        {
+            for( int i = 0; i < World::NumTerritories + 32; ++i )
+            {
+                const TerritoryButtonLayout &layout = lobby->m_territoryButtonLayout[i];
+                if( layout.m_w <= 0.0f || layout.m_h <= 0.0f ) continue;
+
+                float absX = lobby->m_x + layout.m_x;
+                float absY = lobby->m_y + layout.m_y;
+                if( g_inputManager->m_mouseX >= absX &&
+                    g_inputManager->m_mouseX <= absX + layout.m_w &&
+                    g_inputManager->m_mouseY >= absY &&
+                    g_inputManager->m_mouseY <= absY + layout.m_h )
+                {
+                    m_selectionId = i;
+                    mouseOverTerritoryButton = true;
+                    break;
+                }
+            }
+
+            if( m_selectionId == -1 && (highlighted || clicked) )
+            {
+                float fractionX = ( g_inputManager->m_mouseX - realX ) / (float)m_w;
+                float fractionY = ( g_inputManager->m_mouseY - realY ) / (float)m_h;
+
+                for( int i = 0; i < World::NumTerritories; ++i )
+                {
+                    Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(i);
+                    if( !img ) continue;
+
+                    int pixelX = img->Width() * fractionX;
+                    int pixelY = img->Height() * (1.0f - fractionY);
+
+                    Colour thisCol = img->GetColour( pixelX, pixelY );
+
+                    if( thisCol.m_r > 128 ) m_selectionId = i;
+                }
+            }
+
+            lobby->m_hoverTerritoryId = m_selectionId;
+
+            if( m_selectionId != -1 )
+            {
+                Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(m_selectionId);
+                if( img )
+                {
+                    int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_selectionId );
+                    bool canSelect = selectedTeam &&
+                                     ( numTerritories < maxTerritories ||
+                                       currentOwner == -1 ||
+                                       currentOwner == selectedTeamId );
+
+                    Colour highlightCol(255,255,255,255);
+                    if( selectedTeam && ( currentOwner == -1 || currentOwner == selectedTeamId ) )
+                    {
+                        highlightCol = selectedTeam->GetTeamColour();
+                    }
+                    highlightCol.m_a = 100 + (int)(fabsf(sinf(GetHighResTime()*10)) * 100);
+
+                    if( canSelect && selectedTeam )
+                    {
+                        g_renderer2d->StaticSprite( img, worldMapX, worldMapY, worldMapW, worldMapH, highlightCol, true );
+                    }
+                    else if( currentOwner != -1 )
+                    {
+                        Colour whiteHighlight(255,255,255, highlightCol.m_a);
+                        g_renderer2d->StaticSprite( img, worldMapX, worldMapY, worldMapW, worldMapH, whiteHighlight, true );
+                    }
+
+                    if( g_inputManager->m_lmbUnClicked && !mouseOverTerritoryButton )
+                    {                
+                        if( selectedTeamId == g_app->GetWorld()->m_myTeamId ||
+                            (g_app->HasServerPrivileges() && 
+                            selectedTeam &&
+                            selectedTeam->m_type == Team::TypeAI ) ) 
+                        {
+                            int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_selectionId );
+                            int territoriesHeld = numTerritories;
+                            int perTeamLimit = g_app->GetGame()->GetOptionValue( "TerritoriesPerTeam" );
+                            if( numTeams > 0 )
+                            {
+                                int territoriesPerTeam = World::NumTerritories / numTeams;
+                                if( perTeamLimit <= 0 ) perTeamLimit = territoriesPerTeam;
+                            }
+                            int effectiveLimit = perTeamLimit > 0 ? perTeamLimit : maxTerritories;
+                            
+                            bool isSelecting = (currentOwner == -1);
+                            bool willFillLastSlot = selectedTeam &&
+                                                  !randomTerritories &&
+                                                  effectiveLimit > 0 &&
+                                                  isSelecting &&
+                                                  territoriesHeld < effectiveLimit &&
+                                                  territoriesHeld + 1 >= effectiveLimit;
+                            
+                            g_app->GetClientToServer()->RequestTerritory( selectedTeamId, m_selectionId );
+                            
+                            if( willFillLastSlot )
+                            {
+                                lobby->m_mapExpanded = false;
+                                lobby->Remove();
+                                lobby->Create();
+                            }
+                        }                
+                    }
+                }
+            }
+        }
+    }
+};
+
+
 class MiniWorldMapButton : public EclButton
 {
 public:
@@ -1129,6 +1489,9 @@ public:
 
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
+        LobbyWindow *lobby = (LobbyWindow *)m_parent;
+        if( lobby->m_mapExpanded ) return;
+        
         //
         // this ensures the map is rendered ontop of rectfill
             
@@ -1243,34 +1606,34 @@ public:
                 Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(m_selectionId);
                 if( img )
                 {
-                Colour col = selectedTeam ? selectedTeam->GetTeamColour() : Colour(255,255,255,255);            
-                col.m_a = 100 + fabs(sinf(GetHighResTime()*10)) * 100;
+                    Colour col = selectedTeam ? selectedTeam->GetTeamColour() : Colour(255,255,255,255);            
+                    col.m_a = 100 + fabs(sinf(GetHighResTime()*10)) * 100;
 
-                int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_selectionId );
-                if( numTerritories < maxTerritories ||
-                    currentOwner == -1 ||
-                    currentOwner == selectedTeamId )
-                {
-                    if( selectedTeam )
+                    int currentOwner = g_app->GetWorld()->GetTerritoryOwner( m_selectionId );
+                    if( numTerritories < maxTerritories ||
+                        currentOwner == -1 ||
+                        currentOwner == selectedTeamId )
                     {
-                        g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                        if( selectedTeam )
+                        {
+                            g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                        }
+                    }   
+
+
+                    //
+                    // left click - select territory 
+
+                    if( g_inputManager->m_lmbUnClicked )
+                    {                
+                        if( selectedTeamId == g_app->GetWorld()->m_myTeamId ||
+                            (g_app->HasServerPrivileges() && 
+                            selectedTeam &&
+                            selectedTeam->m_type == Team::TypeAI ) ) 
+                        {
+                            g_app->GetClientToServer()->RequestTerritory( selectedTeamId, m_selectionId );
+                        }                
                     }
-                }   
-
-
-                //
-                // left click - select territory 
-
-                if( g_inputManager->m_lmbUnClicked )
-                {                
-                    if( selectedTeamId == g_app->GetWorld()->m_myTeamId ||
-                        (g_app->HasServerPrivileges() && 
-                        selectedTeam &&
-                        selectedTeam->m_type == Team::TypeAI ) ) 
-                    {
-                        g_app->GetClientToServer()->RequestTerritory( selectedTeamId, m_selectionId );
-                    }                
-                }
                 }
             }
         }
@@ -1629,15 +1992,33 @@ LobbyWindow::LobbyWindow()
 :   InterfaceWindow( "LOBBY", "dialog_lobby", true ),
     m_selectionId(-1),
     m_updateTimer(0.0f),
-    m_gameMode(0)
+    m_gameMode(0),
+    m_mapExpanded(false),
+    m_hoverTerritoryId(-1)
 {    
-    SetSize( 530, 470 );
+    SetSize(780, 550);
+    if( World::NumTerritories > 26 )
+    {
+        SetSize(780, 580);
+        if( World::NumTerritories > 32 )
+        {
+            SetSize(780, 620);
+        }
+    }
     Centralise();
 
     for( int i = 0; i < MAX_TEAMS; ++i )
     {
         m_teamOrder[i] = -1;
-    }    
+    }
+
+    for( int i = 0; i < World::NumTerritories + 32; ++i )
+    {
+        m_territoryButtonLayout[i].m_x = 0.0f;
+        m_territoryButtonLayout[i].m_y = 0.0f;
+        m_territoryButtonLayout[i].m_w = 0.0f;
+        m_territoryButtonLayout[i].m_h = 0.0f;
+    }
 }
 
 
@@ -1682,24 +2063,121 @@ bool LobbyWindow::StartNewServer()
 
 void LobbyWindow::Create()
 {
-    //
-    // Team buttons
-
+    m_hoverTerritoryId = -1;
     float boxW  = 200;
     float boxWTeam = boxW + 40;
     int boxX    = 20;
     int boxH    = 25;
     int boxGap  = 5;
     int boxY    = 40;
-#if SYNC_PRACTICE
-    int totalH  = (boxH+boxGap)*(MAX_TEAMS)+15;
-#else
-    int totalH  = (boxH+boxGap)*(MAX_TEAMS-1)+15;
-#endif
-    totalH += 150;
-
     float worldMapW = boxW + 40;
     float worldMapH = worldMapW * 220.0f/360.0f;
+
+    //
+    // Expand Map Button (top right, always visible)
+    
+    ExpandMapButton *expandBtn = new ExpandMapButton();
+    const char *expandCaption = m_mapExpanded ? "dialog_lobby_collapse_map" : "dialog_lobby_expand_map";
+    expandBtn->SetProperties( "ExpandMap", m_w - 150, 5, 140, 20, expandCaption, " ", true, false );
+    RegisterButton( expandBtn );
+    
+    if( m_mapExpanded )
+    {
+        int expandedMapW = m_w - 20;
+        int expandedMapH = (int)(expandedMapW * 220.0f/360.0f);
+        int expandedMapX = 10;
+        int expandedMapY = 35;
+
+        ExpandedWorldMapButton *expandedMap = new ExpandedWorldMapButton();
+        expandedMap->SetProperties( "expandedmap", expandedMapX, expandedMapY, expandedMapW, expandedMapH, " ", " ", false, false );
+        RegisterButton( expandedMap );
+
+        const int territoryCount = World::NumTerritories;
+        const float btnSize = 24.0f;
+        const float rowGap = 6.0f;
+        float currentY = (float)(expandedMapY + expandedMapH + 10);
+        int territoryIndex = 0;
+
+        auto layoutRow = [&](int buttonsThisRow)
+        {
+            float totalButtonWidth = btnSize * buttonsThisRow;
+            float gap = 0.0f;
+            float startX = (float)expandedMapX;
+
+            if( buttonsThisRow > 1 )
+            {
+                gap = (expandedMapW - totalButtonWidth) / (buttonsThisRow - 1);
+                if( gap < 0.0f ) gap = 0.0f;
+            }
+            else
+            {
+                startX += (expandedMapW - btnSize) * 0.5f;
+            }
+
+            for( int j = 0; j < buttonsThisRow; ++j )
+            {
+                if( territoryIndex >= territoryCount || territoryIndex >= World::NumTerritories ) break;
+
+                char btnName[64];
+                sprintf( btnName, "Territory%d", territoryIndex );
+
+                float posX = startX + j * (btnSize + gap);
+                float posY = currentY;
+
+                TerritorySelectButton *terBtn = new TerritorySelectButton();
+                terBtn->m_territoryId = territoryIndex;
+                terBtn->SetProperties( btnName, (int)posX, (int)posY, (int)btnSize, (int)btnSize, " ", " ", false, false );
+                RegisterButton( terBtn );
+
+                int storeIndex = territoryIndex;
+                if( storeIndex >= World::NumTerritories + 32 ) storeIndex = World::NumTerritories + 32 - 1;
+
+                m_territoryButtonLayout[storeIndex].m_x = posX;
+                m_territoryButtonLayout[storeIndex].m_y = posY;
+                m_territoryButtonLayout[storeIndex].m_w = btnSize;
+                m_territoryButtonLayout[storeIndex].m_h = btnSize;
+
+                ++territoryIndex;
+            }
+
+            currentY += btnSize + rowGap;
+        };
+
+        if( territoryCount <= 26 )
+        {
+            layoutRow( min(territoryCount, (int)World::NumTerritories) );
+        }
+        else
+        {
+            layoutRow( 16 );
+            layoutRow( min(16, (int)World::NumTerritories - territoryIndex) );
+            while( territoryIndex < territoryCount && territoryIndex < World::NumTerritories )
+            {
+                layoutRow( min(16, min(territoryCount, (int)World::NumTerritories) - territoryIndex) );
+            }
+        }
+
+        for( ; territoryIndex < World::NumTerritories + 32; ++territoryIndex )
+        {
+            m_territoryButtonLayout[territoryIndex].m_x = 0.0f;
+            m_territoryButtonLayout[territoryIndex].m_y = 0.0f;
+            m_territoryButtonLayout[territoryIndex].m_w = 0.0f;
+            m_territoryButtonLayout[territoryIndex].m_h = 0.0f;
+        }
+
+        return;
+    }
+
+    for( int i = 0; i < World::NumTerritories + 32; ++i )
+    {
+        m_territoryButtonLayout[i].m_x = 0.0f;
+        m_territoryButtonLayout[i].m_y = 0.0f;
+        m_territoryButtonLayout[i].m_w = 0.0f;
+        m_territoryButtonLayout[i].m_h = 0.0f;
+    }
+    
+    //
+    // Normal lobby view: Create team buttons and mini map
 
     InvertedBox *teamsBox = new InvertedBox();
     teamsBox->SetProperties( "TeamsBox", 10, 30, m_w-20, m_h - 70, " ", " ", false, false );
@@ -1707,43 +2185,29 @@ void LobbyWindow::Create()
 #if SYNC_PRACTICE
     for( int i = 0; i < MAX_TEAMS; ++i )
 #else
-    for( int i = 0; i < MAX_TEAMS-1; ++i )
+    // 26 player slots (matches MaxTeams max, 26 territories), two columns of 13
+    for( int i = 0; i < 26; ++i )
 #endif
     {        
         char buttonName[256];
         sprintf( buttonName, "Team%d", i );
 
         TeamButton *tb = new TeamButton();
-        tb->SetProperties( buttonName, boxX, boxY, boxWTeam, boxH, " ", " ", false, false );
+        if( i < 13 )
+            tb->SetProperties( buttonName, boxX, boxY, boxWTeam, boxH, " ", " ", false, false );
+        else
+            tb->SetProperties( buttonName, boxX+boxWTeam+5, boxY-(13*(boxH+boxGap)), boxWTeam, boxH, " ", " ", false, false );
         tb->m_teamIndex = i;
         RegisterButton( tb );
 
         boxY += boxH + boxGap;
     }
 
-
-    if( g_app->GetServer() )
-    {
-        boxY += 3;
-        RequestAIButton *rai = new RequestAIButton();
-        rai->SetProperties( "Request AI", boxX+30, boxY, boxWTeam-60, 18, "dialog_requestai", "tooltip_lobby_requestai", true, true );
-        RegisterButton( rai );
-    }
-
-
-    //
-    // Join button
-
-    RequestJoinGameButton *join = new RequestJoinGameButton();
-    join->SetProperties( "Join Game", boxX+30, m_h - 62, boxWTeam-60, 18, "dialog_joingame", " ", true, false );
-    RegisterButton( join );
-
-
-    boxX += boxW + 50;
+    boxX += boxW + 50 + boxWTeam + 5;
     boxY = 40;
     
     //
-    // World Map
+    // Mini World Map (normal lobby view)
 
     MiniWorldMapButton *worldMap = new MiniWorldMapButton();
     worldMap->SetProperties( "worldmap", boxX, boxY, worldMapW, worldMapH, " ", " ", false, false );
@@ -1784,6 +2248,17 @@ void LobbyWindow::Create()
     exit->SetProperties( "Exit", m_w - 260, m_h - 30, 120, 20, "dialog_leavegame", " ", true, false );
     RegisterButton( exit );
 #endif
+
+    if( g_app->GetServer() )
+    {
+        RequestAIButton *rai = new RequestAIButton();
+        rai->SetProperties( "Request AI", boxX - 355, m_h - 30, 120, 20, "dialog_requestai", "tooltip_lobby_requestai", true, true );
+        RegisterButton( rai );
+    }
+
+    RequestJoinGameButton *join = new RequestJoinGameButton();
+    join->SetProperties( "Join Game", boxX - 125, m_h - 30, 120, 20, "dialog_joingame", " ", true, false );
+    RegisterButton( join );
 
 
     //
@@ -2016,7 +2491,7 @@ void LobbyWindow::Render( bool _hasFocus )
 
 
     //
-    // Players and Spectators
+    // Players and Spectators (below team boxes: 13 rows * 30px = 390, +margin)
 
     EclButton *specBox = GetButton("TeamsBox");
     if( specBox )
@@ -2024,7 +2499,7 @@ void LobbyWindow::Render( bool _hasFocus )
         int maxSpectators = g_app->GetGame()->GetOptionValue("MaxSpectators");
         int numSpectators = g_app->GetWorld()->m_spectators.Size();
 
-        float specY = m_y + specBox->m_y + 230;  
+        float specY = m_y + specBox->m_y + 410;
         float specX = m_x + specBox->m_x + 10;
         float specW = 200;
 
@@ -2050,7 +2525,9 @@ void LobbyWindow::Render( bool _hasFocus )
         }   
         else
         {
-            float specH = (specBox->m_h - 270) / numSpectators;
+            float availableH = specBox->m_h - 380;
+            if( availableH < 20 ) availableH = 20;
+            float specH = availableH / numSpectators;
             specH = min( specH, 20.0f );
             float gap = specH * 0.1f;
 
@@ -2087,8 +2564,17 @@ void LobbyWindow::Render( bool _hasFocus )
     }
 
     //
-    // Server identity
+    // Server identity (hide when map is expanded) - positioned right of team columns
 
+    int text1X = m_x + 521;
+    int text2X = m_x + 686;
+    float captionX = 521;
+    float captionY = m_y + m_h - 70;
+    float captionW = 250;
+    float gap = 11;
+
+    if( !m_mapExpanded )
+    {
     if( g_app->GetServer() )
     {
         char publicIP[256];
@@ -2109,11 +2595,11 @@ void LobbyWindow::Render( bool _hasFocus )
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
 #if SYNC_PRACTICE
-        g_renderer2d->TextSimple( m_x+275, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+232, White, 11, caption );
+        g_renderer2d->TextSimple( text1X, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+232, White, 11, caption );
 #else
-		g_renderer2d->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );
+		g_renderer2d->TextSimple( text1X, m_y+302, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+302, White, 11, caption );
 #endif
 
 
@@ -2125,11 +2611,11 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
 #if SYNC_PRACTICE
-		g_renderer2d->TextSimple( m_x+275, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+252, White, 11, caption );  
+		g_renderer2d->TextSimple( text1X, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+252, White, 11, caption );  
 #else    
-		g_renderer2d->TextSimple( m_x+275, m_y+292, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );   
+		g_renderer2d->TextSimple( text1X, m_y+322, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+322, White, 11, caption );   
 #endif
     }
     else
@@ -2145,8 +2631,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', serverIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', serverPort, caption );
 
-        g_renderer2d->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );       
+        g_renderer2d->TextSimple( text1X, m_y+292, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+292, White, 11, caption );       
 
     }
 
@@ -2176,11 +2662,6 @@ void LobbyWindow::Render( bool _hasFocus )
     sprintf( fullString, "%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId ) );
 #endif
 
-    float captionX = 270;
-    float captionY = m_y + m_h - 70;
-    float captionW = 250;
-    float gap = 11;
-
     MultiLineText wrapped(fullString, captionW, 10 );
 
     for( int i = wrapped.Size()-1; i >= 0; --i )
@@ -2189,6 +2670,7 @@ void LobbyWindow::Render( bool _hasFocus )
         char *thisLine = wrapped[i];
         g_renderer2d->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
 #endif
+    }
     }
 
     //

@@ -32,8 +32,8 @@ GameMode                0       6       0           0
     Tournament
     Custom
     
-MaxTeams                1       28      3           1
-TerritoriesPerTeam      1       28      1           1
+MaxTeams                1       26     26           1
+TerritoriesPerTeam      1       26      1           1
 CitiesPerTerritory      1       50      25          1
 PopulationPerTerritory  10      200     100         10
 
@@ -57,19 +57,21 @@ RadarSharing            0       3       1           0
     Selective
     AlwaysOn
 
-GameSpeed               0       4       0           0
+GameSpeed               0       5       0           0
     Slowest Requested
     Real Time
-    5x Real Time
-    10x Real Time
-    20x Real Time
+    4x Real Time
+    16x Real Time
+    50x Real Time
+    200x Real Time
 
-SlowestSpeed            0       4       1           0
+SlowestSpeed            0       5       0           0
     Pause
     Real Time
-    5x Real Time
-    10x Real Time
-    20x Real Time
+    4x Real Time
+    16x Real Time
+    50x Real Time
+    200x Real Time
     
 ScoreMode               0       2       0           0
     Default

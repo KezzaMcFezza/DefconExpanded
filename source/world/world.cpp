@@ -632,7 +632,6 @@ Colour World::GetAllianceColour( int _allianceId )
         Colour(153, 153, 153), // 60% grey
         Colour(102, 102, 102), // 40% grey
         Colour( 51,  51,  51), // 20% grey
-        Colour(170, 170, 170)  // Silver (spare slot)
     };
     AppDebugAssert( _allianceId >= 0 && _allianceId < MAX_TEAMS );
 #ifdef TARGET_OS_MACOSX
@@ -679,7 +678,6 @@ const char *World::GetAllianceName( int _allianceId )
         case 25: return LANGUAGEPHRASE("dialog_alliance_25");
         case 26: return LANGUAGEPHRASE("dialog_alliance_26");
         case 27: return LANGUAGEPHRASE("dialog_alliance_27");
-        case 28: return LANGUAGEPHRASE("dialog_alliance_28");
     }
     return LANGUAGEPHRASE("unknown");
 }
