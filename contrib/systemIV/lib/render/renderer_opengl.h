@@ -11,9 +11,13 @@
 
 #ifdef RENDERER_OPENGL
 
+#include <set>
+
 class RendererOpenGL : public Renderer
 {
 private:
+    std::set<GLuint> m_allocatedTextureIds;
+
     int m_currentViewportX;
     int m_currentViewportY;
     int m_currentViewportWidth;
@@ -112,7 +116,8 @@ public:
     
     virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, int mipmapLevel) override;
     virtual void DeleteTexture        (unsigned int textureID) override;
-    
+    virtual void ReleaseTextures     () override;
+
     virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }
     virtual int GetCurrentBlendSrcFactor       () const override { return m_currentBlendSrcFactor; }
     virtual int GetCurrentBlendDstFactor       () const override { return m_currentBlendDstFactor; }

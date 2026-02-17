@@ -1120,6 +1120,7 @@ unsigned int RendererOpenGL::CreateTexture( int width, int height, const Colour 
 	GLuint texId;
 
 	glGenTextures( 1, &texId );
+	m_allocatedTextureIds.insert( texId );
 	glBindTexture( GL_TEXTURE_2D, texId );
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConvertTextureAddressMode( TEXTURE_ADDRESS_CLAMP ) );
@@ -1153,11 +1154,30 @@ unsigned int RendererOpenGL::CreateTexture( int width, int height, const Colour 
 
 void RendererOpenGL::DeleteTexture( unsigned int textureID )
 {
-	if ( textureID > 0 )
+	if ( textureID == 0 )
 	{
-		GLuint glTexId = (GLuint)textureID;
+		return;
+	}
+
+	GLuint glTexId = (GLuint)textureID;
+	auto it = m_allocatedTextureIds.find( glTexId );
+	if ( it != m_allocatedTextureIds.end() )
+	{
+		m_allocatedTextureIds.erase( it );
 		glDeleteTextures( 1, &glTexId );
 	}
+}
+
+
+void RendererOpenGL::ReleaseTextures()
+{
+	for ( GLuint glTexId : m_allocatedTextureIds )
+	{
+		glDeleteTextures( 1, &glTexId );
+	}
+	
+	m_allocatedTextureIds.clear();
+	m_currentBoundTexture = 0;
 }
 
 #endif // RENDERER_OPENGL

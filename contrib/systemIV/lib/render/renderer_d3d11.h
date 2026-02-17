@@ -176,6 +176,7 @@
      virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, 
                                         int mipmapLevel) override;
      virtual void DeleteTexture        (unsigned int textureID) override;
+     virtual void ReleaseTextures      () override;
      
      virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }
      virtual int GetCurrentBlendSrcFactor       () const override;
@@ -198,7 +199,6 @@
     void HandleDeviceReset();
     void ReleaseShaderPrograms();
     void ReleaseTimingQueries();
-    void ReleaseTextures();
     void ReleaseDeviceAndContext();
 
 protected:

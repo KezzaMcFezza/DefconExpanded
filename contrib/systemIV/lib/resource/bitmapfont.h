@@ -40,6 +40,7 @@ protected:
 
 public:
     BitmapFont( char *_filename );
+    ~BitmapFont();
 
     void DrawText2DSimple( float _x, float _y, float _size, char const *_text );
     void DrawText2DSimple( float _x, float _y, float _size, char const *_text, class Colour const &_col );

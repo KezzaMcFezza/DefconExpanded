@@ -18,6 +18,21 @@
 
 const float BitmapFont::DEFAULT_SPACING = 0.05f;
 
+BitmapFont::~BitmapFont()
+{
+	if ( m_textureID != 0 && g_renderer )
+	{
+		g_renderer->DeleteTexture( m_textureID );
+		m_textureID = 0;
+	}
+	if ( m_filename )
+	{
+		delete[] m_filename;
+		m_filename = nullptr;
+	}
+}
+
+
 BitmapFont::BitmapFont( char *_filename )
 {
 	m_filename = newStr( _filename );

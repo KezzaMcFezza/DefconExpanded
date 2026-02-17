@@ -153,24 +153,6 @@ RendererD3D11::~RendererD3D11()
 // ============================================================================
 
 
-void RendererD3D11::ReleaseTextures()
-{
-	for ( auto &pair : m_textureMap )
-	{
-		if ( pair.second )
-		{
-			ID3D11Resource *resource = nullptr;
-			pair.second->GetResource( &resource );
-			pair.second->Release();
-			if ( resource )
-				resource->Release();
-		}
-	}
-	m_textureMap.clear();
-	m_nextTextureId = 1;
-}
-
-
 void RendererD3D11::ReleaseTimingQueries()
 {
 	for ( int i = 0; i < m_timingQueryCount; i++ )
@@ -2420,6 +2402,25 @@ void RendererD3D11::DeleteTexture( unsigned int textureID )
 	}
 
 	m_textureMap.erase( it );
+}
+
+
+void RendererD3D11::ReleaseTextures()
+{
+	for ( auto &pair : m_textureMap )
+	{
+		if ( pair.second )
+		{
+			ID3D11Resource *resource = nullptr;
+			pair.second->GetResource( &resource );
+			pair.second->Release();
+			if ( resource )
+				resource->Release();
+		}
+	}
+	m_textureMap.clear();
+	m_nextTextureId = 1;
+	m_currentBoundTexture = 0;
 }
 
 

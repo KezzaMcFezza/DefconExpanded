@@ -120,6 +120,14 @@ void Resource::Shutdown()
 {
 
 	//
+	// Remove textures from VRAM
+	
+	if ( g_renderer )
+	{
+		g_renderer->ReleaseTextures();
+	}
+
+	//
 	// Shutdown atlases first
 
 	if ( g_spriteAtlasManager )
