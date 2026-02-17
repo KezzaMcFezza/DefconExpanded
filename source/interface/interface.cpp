@@ -982,12 +982,7 @@ void Interface::OpenGameWindows()
     }
 
     //
-    // If tooltips are on, open up the Unit Help window
-
-    if( g_preferences->GetInt(PREFS_INTERFACE_TOOLTIPS) == 1)
-    {
-        EclRegisterWindow( new InfoWindow() );
-    }
+    // Unit Info window starts closed by default; user can open via toolbar button
 #endif
 
 
