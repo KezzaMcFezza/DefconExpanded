@@ -1106,10 +1106,6 @@ public:
 
 		g_app->SaveGameName();
         g_app->ShutdownCurrentGame();
-        
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        g_app->GetInterface()->OpenReplayViewerWindow();
-#endif
     }
 };
 
@@ -2173,12 +2169,9 @@ void LobbyWindow::Create()
     InvertedBox *teamsBox = new InvertedBox();
     teamsBox->SetProperties( "TeamsBox", 10, 30, m_w-20, m_h - 70, " ", " ", false, false );
     RegisterButton( teamsBox );
-#if SYNC_PRACTICE
-    for( int i = 0; i < MAX_TEAMS; ++i )
-#else
+
     // 26 player slots (matches MaxTeams max, 26 territories), two columns of 13
     for( int i = 0; i < 26; ++i )
-#endif
     {        
         char buttonName[256];
         sprintf( buttonName, "Team%d", i );
@@ -2237,7 +2230,6 @@ void LobbyWindow::Create()
     ExitButton *exit = new ExitButton();
     exit->SetProperties( "Exit", m_w - 260, m_h - 30, 120, 20, "dialog_leavegame", " ", true, false );
     RegisterButton( exit );
-#endif
 
     if( g_app->GetServer() )
     {
@@ -2584,14 +2576,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		{
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
-#if SYNC_PRACTICE
-        g_renderer2d->TextSimple( text1X, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer2d->TextCentreSimple( text2X, m_y+232, White, 11, caption );
-#else
 		g_renderer2d->TextSimple( text1X, m_y+302, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
         g_renderer2d->TextCentreSimple( text2X, m_y+302, White, 11, caption );
-#endif
-
 
         char localIp[256];
         GetLocalHostIP( localIp, 256 );
@@ -2600,13 +2586,9 @@ void LobbyWindow::Render( bool _hasFocus )
         strcpy( caption, LANGUAGEPHRASE("dialog_internet_identity_details") );
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
-#if SYNC_PRACTICE
-		g_renderer2d->TextSimple( text1X, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer2d->TextCentreSimple( text2X, m_y+252, White, 11, caption );  
-#else    
+  
 		g_renderer2d->TextSimple( text1X, m_y+322, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
         g_renderer2d->TextCentreSimple( text2X, m_y+322, White, 11, caption );   
-#endif
     }
     else
     {
@@ -2646,7 +2628,6 @@ void LobbyWindow::Render( bool _hasFocus )
 
     char fullString[10000];
     sprintf( fullString, "%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId ) );
-#endif
 
     MultiLineText wrapped(fullString, captionW, 10 );
 
@@ -2654,8 +2635,6 @@ void LobbyWindow::Render( bool _hasFocus )
     {
         char *thisLine = wrapped[i];
         g_renderer2d->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
-#endif
-    }
     }
 
     //
