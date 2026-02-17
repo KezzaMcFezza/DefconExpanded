@@ -48,18 +48,9 @@
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
 #include "interface/profile_window.h"
-
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/recording_selection.h"
-#endif
-
 #include "lib/eclipse/components/message_dialog.h"
-
-#ifdef SYNC_PRACTICE
 #include "interface/lobby_window.h"
 #include "interface/chat_window.h"
-#endif
-
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
@@ -77,6 +68,7 @@
 #endif
 
 #ifdef TARGET_EMSCRIPTEN
+
 //
 // For WASM, provide a stub mkdir implementation
 
@@ -189,26 +181,6 @@ void App::InitMetaServer()
     Anthentication_EnforceDemo();
 #endif
 
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // For WebAssembly, fake successful authentication to enable all functionality
-    
-    char authKey[256];
-    strcpy(authKey, "DEMOTE-OYMPOM-XRUHAT-TVSDNH-ZSR");
-    Authentication_SetKey( authKey );
-
-    //
-    // Fake successful authentication result  
-
-    Authentication_SetStatus( authKey, 1, AuthenticationAccepted );
-    
-    //
-    // Skip real metaserver connection - it will fail anyway
-    
-    return;
-#else
-
     char authKey[256];
     Authentication_LoadKey( authKey, App::GetAuthKeyPath() );
     Authentication_SetKey( authKey );
@@ -243,7 +215,6 @@ void App::InitMetaServer()
     MetaServer_Connect( metaServerLocation, PORT_METASERVER_LISTEN, port );
 
     MatchMaker_LocateService( metaServerLocation, PORT_METASERVER_LISTEN );
-#endif
 }
 
 static void InitialiseFloatingPointUnit()
@@ -403,16 +374,6 @@ void App::MinimalInit()
 // Catch every error known to man
 #ifdef USE_CRASHREPORTING
 	InitializeCrashpad();
-#endif
-
-    //
-    // set default playername based on build type
-    // better than multiple unique prefs files
-
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    g_preferences->SetString( "PlayerName", "ReplayClient" );
-#elif defined(SYNC_PRACTICE)
-    g_preferences->SetString( "PlayerName", "SyncPracticeClient" );
 #endif
 
     //
@@ -623,42 +584,14 @@ void App::FinishInit()
         EclRegisterWindow( versionDialog );
     }
 
+    //
     // Need to query the metaserver to know if we should show the Buy Now button
+
     InitMetaServer();
+
     if (EclGetWindows()->Size() == 0)
     {
-#if defined(SYNC_PRACTICE)
-
-        //
-        // Skip main menu and open lobby window directly
-        // Start a local game server automatically for silo practice
-        
-        LobbyWindow *lobby = new LobbyWindow();
-        bool success = lobby->StartNewServer();
-
-        if( success )
-        {
-            ChatWindow *chat = new ChatWindow();
-            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
-                               g_windowManager->WindowH() - chat->m_h - 30 );
-            EclRegisterWindow( chat );
-
-            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
-            float lobbyY = chat->m_y - lobby->m_h - 30;
-            lobbyY = std::max( lobbyY, 0.0f );
-            lobby->SetPosition(lobbyX, lobbyY);
-            EclRegisterWindow( lobby );
-        }
-#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-
-        //
-        // Skip main menu and open recording selection window directly
-
-        RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
-        EclRegisterWindow(recordingWindow);
-#else
         m_interface->OpenSetupWindows();
-#endif
     }
 
     InitStatusIcon();
@@ -671,14 +604,6 @@ void App::FinishInit()
 
 void App::NotifyStartupErrors()
 {
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // In WebAssembly local mode, we're faking successful connections,
-    // so don't show error dialogs about network issues
-    
-    return;
-#else
 
     //
     // Inform the user of any Network difficulties
@@ -729,7 +654,6 @@ void App::NotifyStartupErrors()
                                                 "dialog_client_failedtitle", true );
         EclRegisterWindow( msg );        
     }
-#endif
 }
 
 

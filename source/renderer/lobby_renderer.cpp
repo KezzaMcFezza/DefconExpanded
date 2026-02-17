@@ -148,8 +148,6 @@ void LobbyRenderer::Render()
     g_renderer2d->EndRectFillBatch();
     g_renderer2d->EndRectBatch();
 
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
-
     START_PROFILE( "AuthStatus" );
     RenderAuthStatus();
     END_PROFILE( "AuthStatus" );
@@ -167,8 +165,6 @@ void LobbyRenderer::Render()
     START_PROFILE( "DemoLimits" );
     RenderDemoLimits();
     END_PROFILE( "DemoLimits" );
-
-#endif
 
     //RenderNetworkIdentity();
 
@@ -455,13 +451,7 @@ void LobbyRenderer::RenderBorder()
 
 void LobbyRenderer::RenderVersionInfo()
 {
-#if defined(SYNC_PRACTICE)
-    char currentVersion[256] = "BETA" "  " "1.21";
-#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    char currentVersion[256] = "RELEASE" "  " APP_BUILD_NUMBER;
-#else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
-#endif
     strupr( currentVersion );
 
     float xPos = 50.0f;
@@ -471,21 +461,8 @@ void LobbyRenderer::RenderVersionInfo()
     Colour fontNormal( 0, 255, 0, 155 );
     g_renderer->SetFont( "kremlin" );
 
-#if defined(SYNC_PRACTICE)
-    g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, "SYNC PRACTICE CLIENT:" );
-#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, "REPLAY VIEWER:" );
-#else
     g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
-#endif
-
-#if defined(SYNC_PRACTICE)
-    g_renderer2d->TextSimple( xPos + 220, yPos, fontNormal, 20, currentVersion );
-#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    g_renderer2d->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
-#else
     g_renderer2d->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
-#endif
 
     g_renderer->SetFont();
 

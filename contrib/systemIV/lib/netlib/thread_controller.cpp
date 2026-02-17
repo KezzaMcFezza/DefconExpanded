@@ -76,10 +76,14 @@ void ThreadFunctions::Stop()
 	m_stopRequested = true;
 	m_cond.SignalOne();
 
+#ifdef TARGET_EMSCRIPTEN
+	m_running = false;
+#else
 	while ( m_running )
 	{
 		m_cond.Wait( &m_mutex, -1 /* Forever */ );
 	}
+#endif
 	m_mutex.Unlock();
 }
 

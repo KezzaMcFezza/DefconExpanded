@@ -676,7 +676,6 @@ void Hash( sha1_context &c, const Fixed &f )
        Hash(c, f.DoubleValue() );
 }
 
-#ifndef SYNC_PRACTICE
 unsigned char GenerateSyncValue()
 {
     START_PROFILE( "GenerateSyncValue" );
@@ -717,9 +716,6 @@ unsigned char GenerateSyncValue()
     // This change proves that we are generating  extra sequence ids that never existed in
     // the dcrec. Bert has always told me "hey if it works, don't touch it"
     //
-    // I also suspected that web assembly would have less new sequence ids than desktop since
-    // our fake networking only really creates a fake hello message and doesnt create a spectator
-    //
     // I have tested this with other games with AI players involved and its the same result,
     // the same deterministic result from the real game.
 
@@ -727,12 +723,8 @@ unsigned char GenerateSyncValue()
     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
 
     {
-#ifdef TARGET_EMSCRIPTEN
-        if( g_lastProcessedSequenceId <= 1 ) // web assembly fake networking only creates a hello message
-#else
-        if( g_lastProcessedSequenceId <= 2 ) // desktop creates a spectator handshake which means
-                                             // we need to compensate for this
-#endif
+        if( g_lastProcessedSequenceId <= 2 ) // Spectator handshake which means we need 
+                                             // to compensate for this
         {
             noRNG = true;
         }
@@ -752,8 +744,6 @@ unsigned char GenerateSyncValue()
 
     return result;
 }
-
-#endif
 
 
 // Forward declaration for HandleGameStart
@@ -952,11 +942,8 @@ void EmscriptenMainLoop()
                         g_app->GetClientToServer()->m_resynchronising = -1.0f;
                     }
 
-#ifndef SYNC_PRACTICE
                     unsigned char sync = GenerateSyncValue();
-#else
-                    unsigned char sync = 0;
-#endif
+
                     SyncRandLog( "Sync %d = %d", g_lastProcessedSequenceId, sync );
                     if( g_app->m_debugPrintClientLetters )
                     {
@@ -1067,31 +1054,14 @@ void DefconMain()
     g_serverAdvanceStartTime = -1;
     g_lastRenderTime = GetHighResTime();
     g_serverRunning = false;
-    
-#ifdef SYNC_PRACTICE
 
-    //
-    // target 200 fps for non replay builds
-    // we dont need to go faster to process
-    // more world updates
+    emscripten_set_main_loop(EmscriptenMainLoop, 0, 1); // unlimited fps :)
 
-    emscripten_set_main_loop(EmscriptenMainLoop, 240, 1);
-#else
-
-    //
-    // unlimited fps for replay viewer as we
-    // want to process world updates as fast
-    // as possible
-
-    emscripten_set_main_loop(EmscriptenMainLoop, 0, 1);
-#endif
-    
     return;
-#else
+#endif
     double nextServerAdvanceTime = GetHighResTime();
     double serverAdvanceStartTime = -1;
     double lastRenderTime = GetHighResTime();
-
     bool serverRunning = false;
 
 #ifdef TESTBED
@@ -1293,11 +1263,8 @@ void DefconMain()
                             g_app->GetClientToServer()->m_resynchronising = -1.0f;
                         }
 
-#ifndef SYNC_PRACTICE
                         unsigned char sync = GenerateSyncValue();
-#else
-                        unsigned char sync = 0;
-#endif
+
                         SyncRandLog( "Sync %d = %d", g_lastProcessedSequenceId, sync );
                         if( g_app->m_debugPrintClientLetters )
                         {
@@ -1329,7 +1296,6 @@ void DefconMain()
     }
 	delete g_app;
 	g_app = NULL;
-#endif
 }
 
 

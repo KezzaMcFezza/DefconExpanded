@@ -145,8 +145,6 @@ class MainMenuNewGameButton : public InterfaceButton
 };
 
 
-
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
 class MainMenuPlaybackRecordingButton : public InterfaceButton
 {
 public:
@@ -197,7 +195,6 @@ public:
         InterfaceButton::Render( realX, realY, highlighted, clicked );
     }
 };
-#endif
 
 class MainMenuJoinGameButton : public InterfaceButton
 {
@@ -301,31 +298,7 @@ static void LeaveGameAndOpenSetup()
     g_app->ShutdownCurrentGame();
     EclRemoveAllWindows();
 
-#ifdef SYNC_PRACTICE
-    
-    //
-    // Start a new game and open lobby window
-    // instead of returning to main menu
-
-    LobbyWindow *lobby = new LobbyWindow();
-    bool success = lobby->StartNewServer();
-
-    if( success )
-    {
-        ChatWindow *chat = new ChatWindow();
-        chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2,
-                           g_windowManager->WindowH() - chat->m_h - 30 );
-        EclRegisterWindow( chat );
-
-        float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
-        float lobbyY = chat->m_y - lobby->m_h - 30;
-        lobbyY = max( lobbyY, 0.0f );
-        lobby->SetPosition(lobbyX, lobbyY);
-        EclRegisterWindow( lobby );
-    }
-#else
     g_app->GetInterface()->OpenSetupWindows();
-#endif
 }
 
 
@@ -868,14 +841,6 @@ void AttemptQuitImmediately()
 MainMenu::MainMenu()
 :   InterfaceWindow( "Main Menu", "dialog_mainmenu", true )
 {
-#if defined(TARGET_EMSCRIPTEN) && defined(REPLAY_VIEWER)
-    
-    //
-    // Block main menu creation completely
-
-    SetSize( 0, 0 );
-    SetPosition( -1000, -1000 );
-#else
 #ifdef TARGET_OS_MACOSX
 	// HACK: Make room for User Manual button
 	SetSize( 190, 325 );
@@ -883,15 +848,11 @@ MainMenu::MainMenu()
     SetSize( 190, 300 );
 #endif
     Centralise();
-#endif
 }
 
 
 void MainMenu::Create()
 {
-#if defined(TARGET_EMSCRIPTEN) && defined(REPLAY_VIEWER)
-    return;
-#else
     InterfaceWindow::Create();
     
     int y = 5;
@@ -903,38 +864,31 @@ void MainMenu::Create()
     //
     // New Game
 
-#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuNewGameButton();
         button->SetProperties( "New Game", 10, y+=h+g, m_w-20, h, "dialog_newgame", " ", true, false );
         RegisterButton( button );
     }
-#endif
-
 
     //
     // Play back recording.
 
-#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuPlaybackRecordingButton();
         button->SetProperties( "Playback Recording", 10, y+=h+g, m_w-20, h, "dialog_playbackrecording", " ", true, false );
         RegisterButton( button );
     }
-#endif
 
     //
     // Join Game
 
-#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     button = new MainMenuJoinGameButton();
     button->SetProperties( "Join Game", 10, y+=h+g, m_w-20, h, "dialog_joingame", " ", true, false );
     RegisterButton( button );
 
     y+=h;
-#endif
 
 #ifdef TARGET_OS_MACOSX	
 	button = new UserManualButton();
@@ -946,7 +900,6 @@ void MainMenu::Create()
     // Tutorial
     // Rolling Demo
 
-#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
 #ifndef NON_PLAYABLE
@@ -962,7 +915,7 @@ void MainMenu::Create()
     {
         m_h -= h*3;
     }
-#endif
+
     //
     // Options
 
@@ -997,7 +950,7 @@ void MainMenu::Create()
 
     if( demoUser )
     {
-#if !defined(RETAIL) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(SYNC_PRACTICE)
+#if !defined(RETAIL)
         BuyNowButton *buyNow = new BuyNowButton();
         buyNow->SetProperties( "BUY NOW", 10, y+=h+g, m_w-20, h, "dialog_buy_now_caps", " ", true, false );
         buyNow->m_closeOnClick = false;
@@ -1023,8 +976,6 @@ void MainMenu::Create()
     button = new MainMenuExitButton();
     button->SetProperties( "Exit Defcon", 10, m_h-30, m_w-20, h, "dialog_exit", " ", true, false );
     RegisterButton( button );
-
-#endif // REPLAY_VIEWER
 }
 
 
@@ -1185,7 +1136,6 @@ void OptionsMenuWindow::Create()
     //other->SetProperties( "Other Options", 10, y+=h, m_w-20, h-3, "dialog_otheroptions", " ", true, false );
     //RegisterButton( other );
 
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SYNC_PRACTICE)
     NetworkOptionsButton *network = new NetworkOptionsButton();
     network->SetProperties( "Network", 10, y+=h+g, m_w-20, h, "dialog_networkoptions", " ", true, false );
     RegisterButton( network );
@@ -1193,7 +1143,6 @@ void OptionsMenuWindow::Create()
     RecordingOptionsButton *recordings = new RecordingOptionsButton();
     recordings->SetProperties( "Recordings", 10, y+=h+g, m_w-20, h, "dialog_recordingoptions", " ", true, false );
     RegisterButton( recordings );
-#endif
 
 #if !defined(RETAIL_DEMO)
     AuthOptionsButton *auth = new AuthOptionsButton();

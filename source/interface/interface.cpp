@@ -40,10 +40,6 @@
 #include "interface/info_window.h"
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/recording_selection.h"
-#endif
-
 
 static bool s_toggleFullscreen = false;
 
@@ -390,44 +386,10 @@ void Interface::Update()
     if( !g_app->m_gameRunning &&
         EclGetWindows()->Size() == 0 )
     {
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-
-        //
-        // Open recording selection window instead of main menu
-
-        OpenReplayViewerWindow();
-
-#elif defined(SYNC_PRACTICE)
-
-        //
-        // Skip main menu and open lobby window directly
-        // Start a local game server automatically for silo practice
-        
-        LobbyWindow *lobby = new LobbyWindow();
-        bool success = lobby->StartNewServer();
-
-        if( success )
-        {
-            ChatWindow *chat = new ChatWindow();
-            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
-                               g_windowManager->WindowH() - chat->m_h - 30 );
-            EclRegisterWindow( chat );
-
-            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
-            float lobbyY = chat->m_y - lobby->m_h - 30;
-            lobbyY = std::max( lobbyY, 0.0f );
-            lobby->SetPosition(lobbyX, lobbyY);
-            EclRegisterWindow( lobby );
-        }
-
-#else
-
         //
         // Open main menu
         
         EclRegisterWindow( new MainMenu() );
-#endif
-
     }
 
 }
@@ -918,34 +880,11 @@ void Interface::Shutdown()
 
 void Interface::OpenSetupWindows()
 {
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    OpenReplayViewerWindow();
-#else
     if( !EclGetWindow("Main Menu" ) )
     {
         MainMenu *mainmenu = new MainMenu();
         EclRegisterWindow( mainmenu );
     }
-#endif
-}
-
-void Interface::OpenReplayViewerWindow()
-{
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    // Close any existing windows first
-    if( EclGetWindow("Recording Playback") )
-    {
-        EclRemoveWindow("Recording Playback");
-    }
-    
-    // Open the recording selection window as the "main menu" for replay viewer
-    RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
-    EclRegisterWindow(recordingWindow);
-    
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly Replay Viewer: Opened recording selection window\n");
-#endif
-#endif
 }
 
 void Interface::OpenGameWindows()

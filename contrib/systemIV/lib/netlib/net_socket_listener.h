@@ -40,7 +40,11 @@ public:
 	int			GetPort() const;
 
 	NetIpAddress	GetListenAddress() const;
-	
+
+#ifdef OFFLINE_MODE
+	void static PumpLocalPackets();
+#endif
+
 protected:
 	NetSocketHandle 	m_sockfd;
 	bool				m_binding;
@@ -49,4 +53,9 @@ protected:
     ThreadFunctions    *m_thread;
 };
 
+#ifdef OFFLINE_MODE
+void NetLocal_RegisterListener( unsigned short port, NetCallBack callback );
+void NetLocal_UnregisterListener( unsigned short port );
+void NetLocal_QueuePacket( unsigned short fromPort, const NetIpAddress *toAddr, const void *data, int len );
+#endif
 #endif

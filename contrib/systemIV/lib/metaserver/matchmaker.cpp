@@ -219,31 +219,6 @@ bool MatchMaker_IsRequestingIdentity( NetSocketListener *_listener )
 
 void MatchMaker_StartRequestingIdentity( NetSocketListener *_listener )
 {
-#ifdef TARGET_EMSCRIPTEN
-	// ================================================
-	// WEBASSEMBLY LOCAL MATCHMAKER BYPASS
-	// ================================================
-	// For WebAssembly, we don't need real matchmaker functionality
-	// since we're running in local mode. Set a fake matchmaker IP
-	// to satisfy the assertion and then return immediately.
-
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-	AppDebugOut( "WebAssembly: Bypassing matchmaker (local mode)\\n" );
-#endif
-
-	if ( !s_matchMakerIp )
-	{
-		// Set a fake matchmaker IP to satisfy the assertion
-		s_matchMakerIp = newStr( "127.0.0.1" );
-		s_matchMakerPort = 4000;
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-		AppDebugOut( "WebAssembly: Set fake matchmaker IP: %s:%d\\n", s_matchMakerIp, s_matchMakerPort );
-#endif
-	}
-
-	// Don't actually start requesting identity - return immediately
-	return;
-#else
 	AppAssert( s_matchMakerIp );
 
 	s_listenersMutex.Lock();
@@ -260,7 +235,6 @@ void MatchMaker_StartRequestingIdentity( NetSocketListener *_listener )
 		NetStartThread( RequestIdentityThread, _listener );
 	}
 	s_listenersMutex.Unlock();
-#endif
 }
 
 

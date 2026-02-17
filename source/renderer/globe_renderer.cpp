@@ -414,14 +414,6 @@ Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke,
 bool GlobeRenderer::ShouldUse3DNukeTrajectories()
 {
     if (!g_app->IsGlobeMode()) return false;
-
-//
-// So sync practice clients cannot cheat with 3D trajectories
-// as they do not have networking nor are they sync compatible.
-
-#ifdef SYNC_PRACTICE
-    return true;
-#endif
     
     if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
         return true;

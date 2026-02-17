@@ -54,7 +54,6 @@ public:
     void Shutdown();
 
     void OpenSetupWindows();
-    void OpenReplayViewerWindow();  // NEW: Opens recording selection window for replay viewer mode
     void OpenGameWindows();
 
     bool UsingChatWindow();

@@ -87,8 +87,7 @@ void Authentication_GenerateKey( char *_key, bool _demoKey )
 
 int Authentication_SimpleKeyCheck( char *_key )
 {
-#ifdef TARGET_EMSCRIPTEN
-	// WebAssembly: Always accept any key in local mode
+#ifdef OFFLINE_MODE
 	return AuthenticationAccepted;
 #else
 	if ( Authentication_IsHashKey( _key ) )
@@ -290,8 +289,7 @@ void Authentication_GetKeyHash( char *_key )
 
 bool Authentication_IsDemoKey( char *_key )
 {
-#ifdef TARGET_EMSCRIPTEN
-	// WebAssembly: Always treat keys as full (non-demo) keys in local mode
+#ifdef OFFLINE_MODE
 	return false;
 #else
 	if ( Authentication_IsHashKey( _key ) )

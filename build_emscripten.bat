@@ -1,128 +1,22 @@
 @echo off
 
 :menu
-echo Which build do you want to make?
-echo Type --Release or --Debug after entering your number
+echo Which build type?
 echo.
-echo 1. Replay Viewer
-echo 2. Sync Practice
-echo 3. Vanilla Defcon
+echo 1. Release
+echo 2. Debug
 echo.
-echo Examples: "1 --Release", "2 --Debug", "3", "3 --Release"
-set /p choice="Enter your choice: "
+set /p choice="Enter your choice (1 or 2): "
 
-for /f "tokens=1,2" %%a in ("%choice%") do (
-    set "project_choice=%%a"
-    set "build_type=%%b"
-)
-
-if "%build_type%"=="" set "build_type="
-if "%project_choice%"=="1" goto replay_parse
-if "%project_choice%"=="2" goto sync_parse
-if "%project_choice%"=="3" goto vanilla_parse
-echo Invalid choice. Please enter 1, 2, or 3.
+if "%choice%"=="1" set BUILD_TYPE=release& goto build_start
+if "%choice%"=="2" set BUILD_TYPE=debug& goto build_start
+echo Invalid choice. Please enter 1 or 2.
 echo.
 goto menu
 
-:replay_parse
-echo.
-echo Replay Viewer selected.
-if "%build_type%"=="" goto replay_menu
-if /i "%build_type%"=="--Release" goto replay_release
-if /i "%build_type%"=="--Debug" goto replay_debug
-if "%build_type%"=="1" goto replay_release
-if "%build_type%"=="2" goto replay_debug
-echo Invalid build type. Please enter --Release or --Debug.
-echo.
-goto replay_menu
-
-:replay_menu
-echo Choose build type:
-echo 1. Release
-echo 2. Debug
-echo.
-set /p build_type="Enter build type (1 or 2): "
-if "%build_type%"=="1" goto replay_release
-if "%build_type%"=="2" goto replay_debug
-echo Invalid choice. Please enter 1 or 2.
-echo.
-goto replay_menu
-
-:sync_parse
-echo.
-echo Sync Practice selected.
-if "%build_type%"=="" goto sync_menu
-if /i "%build_type%"=="--Release" goto sync_release
-if /i "%build_type%"=="--Debug" goto sync_debug
-if "%build_type%"=="1" goto sync_release
-if "%build_type%"=="2" goto sync_debug
-echo Invalid build type. Please enter --Release or --Debug.
-echo.
-goto sync_menu
-
-:sync_menu
-echo Choose build type:
-echo 1. Release
-echo 2. Debug
-echo.
-set /p build_type="Enter build type (1 or 2): "
-if "%build_type%"=="1" goto sync_release
-if "%build_type%"=="2" goto sync_debug
-echo Invalid choice. Please enter 1 or 2.
-echo.
-goto sync_menu
-
-:replay_release
-set PROJECT_TYPE=replay
-set BUILD_TYPE=release
-set PROJECT_NAME=Replay Viewer
-goto build_start
-
-:replay_debug
-set PROJECT_TYPE=replay
-set BUILD_TYPE=debug
-set PROJECT_NAME=Replay Viewer
-goto build_start
-
-:sync_release
-set PROJECT_TYPE=sync
-set BUILD_TYPE=release
-set PROJECT_NAME=Sync Practice
-goto build_start
-
-:sync_debug
-set PROJECT_TYPE=sync
-set BUILD_TYPE=debug
-set PROJECT_NAME=Sync Practice
-goto build_start
-
-:vanilla_parse
-echo.
-echo Vanilla Defcon selected.
-if "%build_type%"=="" goto vanilla_menu
-if /i "%build_type%"=="--Release" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
-if /i "%build_type%"=="--Debug" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
-if "%build_type%"=="1" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
-if "%build_type%"=="2" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
-echo Invalid build type. Please enter --Release or --Debug.
-echo.
-goto vanilla_menu
-
-:vanilla_menu
-echo Choose build type:
-echo 1. Release
-echo 2. Debug
-echo.
-set /p build_type="Enter build type (1 or 2): "
-if "%build_type%"=="1" set PROJECT_TYPE=vanilla& set BUILD_TYPE=release& set PROJECT_NAME=Vanilla Defcon& goto build_start
-if "%build_type%"=="2" set PROJECT_TYPE=vanilla& set BUILD_TYPE=debug& set PROJECT_NAME=Vanilla Defcon& goto build_start
-echo Invalid choice. Please enter 1 or 2.
-echo.
-goto vanilla_menu
-
 :build_start
 echo.
-echo Building Defcon WebAssembly %BUILD_TYPE% (%PROJECT_NAME%)...
+echo Building Defcon WebAssembly %BUILD_TYPE%...
 
 set ORIGINAL_DIR=%CD%
 set EMSDK_DIR=%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk
@@ -137,26 +31,9 @@ if not exist "%EMSDK_DIR%\upstream\emscripten" (
 call "%EMSDK_DIR%\emsdk_env.bat" > nul 2>&1
 
 set NINJA_PATH=%ORIGINAL_DIR%\tools\bin\ninja.exe
-
-if "%PROJECT_TYPE%"=="replay" (
-    set BUILD_DIR=wasm-replay-%BUILD_TYPE%
-    set CMAKE_BUILD_FLAG=-DREPLAY_VIEWER_BUILD=ON
-    set CMAKE_DEFINES=-DREPLAY_VIEWER=1
-    set TARGET_DIR=replay_viewer
-    set UPDATE_SCRIPT=update_replay_viewer_version.py
-) else if "%PROJECT_TYPE%"=="sync" (
-    set BUILD_DIR=wasm-sync_practice-%BUILD_TYPE%
-    set CMAKE_BUILD_FLAG=-DSYNC_PRACTICE_BUILD=ON
-    set CMAKE_DEFINES=-DSYNC_PRACTICE=1 -DNOT_REPLAY_VIEWER=1
-    set TARGET_DIR=sync_practice
-    set UPDATE_SCRIPT=update_sync_practice_client.py
-) else (
-    set BUILD_DIR=wasm-vanilla-%BUILD_TYPE%
-    set CMAKE_BUILD_FLAG=-DREPLAY_VIEWER_BUILD=OFF -DSYNC_PRACTICE_BUILD=OFF -DDEFCON_BUILD=ON
-    set CMAKE_DEFINES=
-    set TARGET_DIR=defcon
-    set UPDATE_SCRIPT=update_defcon_version.py
-)
+set BUILD_DIR=wasm-defcon-%BUILD_TYPE%
+set CMAKE_BUILD_FLAG=-DDEFCON_BUILD=ON
+set TARGET_DIR=defcon
 
 if not exist build\%BUILD_DIR% mkdir build\%BUILD_DIR%
 cd /d %ORIGINAL_DIR%\build\%BUILD_DIR%
@@ -179,8 +56,8 @@ if "%BUILD_TYPE%"=="release" (
 echo Configuring...
 python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emcmake.py" cmake ^
     -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ^
-    -DCMAKE_CXX_FLAGS="%CMAKE_FLAGS% %CMAKE_DEFINES%" ^
-    -DCMAKE_C_FLAGS="%CMAKE_FLAGS% %CMAKE_DEFINES%" ^
+    -DCMAKE_CXX_FLAGS="%CMAKE_FLAGS%" ^
+    -DCMAKE_C_FLAGS="%CMAKE_FLAGS%" ^
     %CMAKE_BUILD_FLAG% ^
     -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" ^
     -G "Ninja" ^
@@ -214,7 +91,7 @@ echo Output: %ORIGINAL_DIR%\build\%BUILD_DIR%\result\%BUILD_OUTPUT_DIR%\
 
 echo.
 echo Copying WebAssembly files...
-python "%ORIGINAL_DIR%\targets\emscripten\copy_files.py" %PROJECT_TYPE% %BUILD_TYPE% "%ORIGINAL_DIR%\build\%BUILD_DIR%\result\%BUILD_OUTPUT_DIR%" "%ORIGINAL_DIR%\website\%TARGET_DIR%"
+python "%ORIGINAL_DIR%\targets\emscripten\copy_files.py" %BUILD_TYPE% "%ORIGINAL_DIR%\build\%BUILD_DIR%\result\%BUILD_OUTPUT_DIR%" "%ORIGINAL_DIR%\website\%TARGET_DIR%"
 
 if %ERRORLEVEL% neq 0 (
     echo File copying failed!
@@ -222,20 +99,18 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-if not "%UPDATE_SCRIPT%"=="" (
-    echo.
-    echo Updating HTML file versions automatically...
-    python "%ORIGINAL_DIR%\targets\emscripten\%UPDATE_SCRIPT%"
-    if errorlevel 1 (
-        echo ERROR: HTML version update failed. You may need to update manually.
-        echo Manual steps:
-        echo 1. Rename %TARGET_DIR%_*.html to match the new version
-        echo 2. Update the script tag inside the HTML file
-        pause
-        exit /b 1
-    )
-    echo HTML version update completed successfully!
+echo.
+echo Updating HTML file versions automatically...
+python "%ORIGINAL_DIR%\targets\emscripten\update_defcon_version.py"
+if errorlevel 1 (
+    echo ERROR: HTML version update failed. You may need to update manually.
+    echo Manual steps:
+    echo 1. Rename defcon_*.html to match the new version
+    echo 2. Update the script tag inside the HTML file
+    pause
+    exit /b 1
 )
+echo HTML version update completed successfully!
 
 echo.
 echo Build complete

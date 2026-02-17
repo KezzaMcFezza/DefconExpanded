@@ -421,8 +421,7 @@ void MetaServer_Disconnect()
 
 bool MetaServer_IsConnected()
 {
-#ifdef TARGET_EMSCRIPTEN
-	// WebAssembly: Always return true for local mode
+#ifdef OFFLINE_MODE
 	return true;
 #else
 	return ( s_connectedToWAN );

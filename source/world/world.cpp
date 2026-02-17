@@ -1362,7 +1362,6 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
         }
         break;
     }
-#endif
 
     return false;
 }

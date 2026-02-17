@@ -147,42 +147,6 @@ bool Server::Initialise()
     m_inboxMutex = new NetMutex();
     m_outboxMutex = new NetMutex();
 
-#ifdef TARGET_EMSCRIPTEN
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("SERVER: Starting local server (networking disabled)\n");
-#endif
-    
-    //
-    // create a fake listener that doesn't actually bind to anything
-
-    m_listener = new NetSocketListener(ourPort);
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("SERVER: Local server started on fake port %d\n", ourPort);
-#endif
-    
-    //
-    // pre create a fake client registration
-    // this simulates the client connecting to the server
-
-    ServerToClient *newClient = new ServerToClient("127.0.0.1", 5011, m_listener);
-    newClient->m_clientId = 1;
-    strcpy(newClient->m_version, APP_VERSION);
-    newClient->m_authKeyId = 1;
-    strcpy(newClient->m_authKey, "WEBASSEMBLY-LOCAL-FULL-KEY");
-    newClient->m_basicAuthCheck = 1;
-    newClient->m_spectator = false;
-    
-    m_clients.PutData(newClient, 1);
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("SERVER: Server registered fake client with ID %d\n", newClient->m_clientId);
-#endif
-    
-    return true;
-#else
-
     m_listener = new NetSocketListener(ourPort);
     NetRetCode result = m_listener->Bind();
 
@@ -215,7 +179,6 @@ bool Server::Initialise()
     AppDebugOut( "Server started on port %d\n", GetLocalPort() );
     
     return true;
-#endif
 }
 bool Server::LoadRecording( const std::string &filename, bool debugPrint )
 {
@@ -351,15 +314,7 @@ void Server::DebugDumpHistory()
 
 bool Server::IsRunning()
 {
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // Always return true for local mode since we don't use real threading
-
-    return true;
-#else
     return( m_listenerThread.IsRunning() );
-#endif
 }
 
 
@@ -367,14 +322,7 @@ int Server::GetLocalPort()
 {
     if( !m_listener ) return -1;
 
-#ifdef TARGET_EMSCRIPTEN
-    //
-    // Return fake local port since we don't actually bind
-
-    return g_preferences->GetInt( PREFS_NETWORKSERVERPORT );
-#else
     return m_listener->GetPort();
-#endif
 }
 
 
@@ -446,12 +394,6 @@ void Server::Shutdown()
     m_outboxMutex->Unlock();
     delete m_outboxMutex;
     m_outboxMutex = NULL;
-
-#ifdef TARGET_EMSCRIPTEN
-  
-    extern void ResetWebAssemblyServerState();
-    ResetWebAssemblyServerState();
-#endif
 
     AppDebugOut( "SERVER : Shut down complete\n" );
 }
@@ -747,7 +689,6 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
-#ifndef SYNC_PRACTICE
     if( _teamType != Team::TypeAI &&
         Authentication_IsDemoKey( sToC->m_authKey ) )
     {
@@ -775,7 +716,6 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
             return;
         }
     }
-#endif
 
 
     //
@@ -919,24 +859,6 @@ void Server::SendLetter( ServerToClientLetter *letter )
     {
         letter->m_data->CreateData( NET_DEFCON_SEQID, m_sequenceId);
         m_sequenceId++;
-
-#ifdef TARGET_EMSCRIPTEN
-
-        //
-        // In WebAssembly local mode, route server messages directly to the client's inbox
-        // instead of going through the network outbox/sender system
-        
-        if( g_app->GetClientToServer() && 
-            g_app->GetClientToServer()->IsConnected() )
-        {
-            Directory *clientMessage = new Directory( *letter->m_data );
-            
-            g_app->GetClientToServer()->RouteServerMessageToClient( clientMessage );
-                       
-            m_history.PutDataAtEnd( letter );
-            return;
-        }
-#endif
 
         m_history.PutDataAtEnd( letter );
     }   
@@ -1627,9 +1549,8 @@ void Server::Advance()
 {
     START_PROFILE( "Server Main Loop" );
 
-#ifdef TARGET_EMSCRIPTEN
-    static int s_advanceCount = 0;
-    s_advanceCount++;
+#ifdef OFFLINE_MODE
+    NetSocketListener::PumpLocalPackets();
 #endif
 
     //
@@ -1672,12 +1593,6 @@ void Server::Advance()
         int fromPort    = incoming->GetDataInt(NET_DEFCON_FROMPORT);
         int clientId    = GetClientId( fromIp, fromPort );
         int lastSeqId   = incoming->GetDataInt(NET_DEFCON_LASTSEQID);
-
-#ifdef TARGET_EMSCRIPTEN        
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("SERVER: Message details - cmd:%s, from:%s:%d, clientId:%d\n", cmd, fromIp, fromPort, clientId);
-#endif
-#endif
         
         if( IsDisconnectedClient(fromIp, fromPort) )
         {
@@ -1703,9 +1618,7 @@ void Server::Advance()
             
             if( (m_playbackController->IsActive() || m_playbackController->IsInCPUTakeover()) && clientId != -1 )
             {
-#ifndef SYNC_PRACTICE
                 ForceSpectatorMode( clientId );
-#endif
             }
         }
         else if ( strcmp(cmd, NET_DEFCON_CLIENT_LEAVE) == 0 )
@@ -1735,9 +1648,7 @@ void Server::Advance()
             {
                 if( m_playbackController->IsActive() || m_playbackController->IsInCPUTakeover() )
                 {
-#ifndef SYNC_PRACTICE
                     ForceSpectatorMode( clientId );
-#endif
                 }
                 else
                 {
@@ -1745,12 +1656,6 @@ void Server::Advance()
                     RegisterNewTeam(clientId, teamType );
                 }
             }
-#ifdef TARGET_EMSCRIPTEN
-            else
-            {
-                // Do nothing
-            }
-#endif
         }
         else if( strcmp(cmd, NET_DEFCON_SYNCHRONISE) == 0 )
         {
@@ -1995,15 +1900,6 @@ void Server::Advance()
 
 void Server::Advertise()
 {
-
-#ifdef SYNC_PRACTICE
-
-    //
-    // Dont advertise at all in sync practice mode
-
-    return;
-#endif
-
     //
     // Dont advertise the server to prevent external clients from messing up the RNG state
     // Because these clients will not have the GenerateSyncValue skipping logic.
@@ -2425,7 +2321,6 @@ void Server::AuthenticateClient ( int _clientId )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
-#ifndef SYNC_PRACTICE
     if( Authentication_IsDemoKey( client->m_authKey ) )
     {
         int numDemoTeams = GetNumDemoTeams();
@@ -2462,7 +2357,6 @@ void Server::AuthenticateClient ( int _clientId )
             return;
         }
     }
-#endif
 
 
     //
