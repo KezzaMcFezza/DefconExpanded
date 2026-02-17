@@ -61,11 +61,13 @@
      ID3D11BlendState* m_blendStateSubtractive;
      ID3D11BlendState* m_currentBlendState;
      ID3D11BlendState* m_currentlyBoundBlendState;
-     
+     ID3D11BlendState* m_customBlendState;
+    
      ID3D11DepthStencilState* m_depthStateEnabled;
      ID3D11DepthStencilState* m_depthStateDisabled;
      ID3D11DepthStencilState* m_currentDepthState;
      ID3D11DepthStencilState* m_currentlyBoundDepthState;
+     ID3D11DepthStencilState* m_customDepthState;
      
      ID3D11RasterizerState* m_rasterizerStateNoCull;
      ID3D11RasterizerState* m_rasterizerStateCullBack;
@@ -93,8 +95,11 @@
  
      std::map<unsigned int, ShaderProgram> m_shaderPrograms;
      unsigned int m_nextShaderProgramId;
-     
-     struct TimingQuery 
+    
+     std::map<unsigned int, ID3D11ShaderResourceView*> m_textureMap;
+     unsigned int m_nextTextureId;
+    
+     struct TimingQuery
      {
          ID3D11Query* disjointQuery;
          ID3D11Query* beginQuery;
@@ -171,11 +176,14 @@
      virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, 
                                         int mipmapLevel) override;
      virtual void DeleteTexture        (unsigned int textureID) override;
+     virtual void ReleaseTextures      () override;
      
      virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }
      virtual int GetCurrentBlendSrcFactor       () const override;
      virtual int GetCurrentBlendDstFactor       () const override;
-     
+    
+     ID3D11ShaderResourceView* GetTextureSRV(unsigned int textureID) const;
+    
     static bool CheckHRResult(HRESULT hr, const char* operation);
     static bool CheckHRResult(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
     
@@ -188,6 +196,11 @@
     void Setup3DRenderState();
     void CleanupRenderState();
     
+    void HandleDeviceReset();
+    void ReleaseShaderPrograms();
+    void ReleaseTimingQueries();
+    void ReleaseDeviceAndContext();
+
 protected:
     bool CheckHR(HRESULT hr, const char* operation);
     bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);

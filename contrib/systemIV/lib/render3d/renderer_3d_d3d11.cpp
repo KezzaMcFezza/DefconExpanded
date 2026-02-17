@@ -63,39 +63,198 @@ Renderer3DD3D11::Renderer3DD3D11()
 Renderer3DD3D11::~Renderer3DD3D11()
 {
 	CleanupBuffers3D();
+	ReleaseShaderResources();
+	ReleaseDeviceAndContext();
+}
 
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+
+void Renderer3DD3D11::CleanupBuffers3D()
+{
+	if ( m_lineBuffer3D )
+	{
+		m_lineBuffer3D->Release();
+		m_lineBuffer3D = nullptr;
+	}
+	if ( m_staticSpriteBuffer3D )
+	{
+		m_staticSpriteBuffer3D->Release();
+		m_staticSpriteBuffer3D = nullptr;
+	}
+	if ( m_rotatingSpriteBuffer3D )
+	{
+		m_rotatingSpriteBuffer3D->Release();
+		m_rotatingSpriteBuffer3D = nullptr;
+	}
+	if ( m_textBuffer3D )
+	{
+		m_textBuffer3D->Release();
+		m_textBuffer3D = nullptr;
+	}
+	if ( m_circleBuffer3D )
+	{
+		m_circleBuffer3D->Release();
+		m_circleBuffer3D = nullptr;
+	}
+	if ( m_circleFillBuffer3D )
+	{
+		m_circleFillBuffer3D->Release();
+		m_circleFillBuffer3D = nullptr;
+	}
+	if ( m_rectBuffer3D )
+	{
+		m_rectBuffer3D->Release();
+		m_rectBuffer3D = nullptr;
+	}
+	if ( m_rectFillBuffer3D )
+	{
+		m_rectFillBuffer3D->Release();
+		m_rectFillBuffer3D = nullptr;
+	}
+	if ( m_triangleFillBuffer3D )
+	{
+		m_triangleFillBuffer3D->Release();
+		m_triangleFillBuffer3D = nullptr;
+	}
+
+	for ( auto &pair : m_vboMap )
+	{
+		if ( pair.second )
+		{
+			pair.second->Release();
+		}
+	}
+	m_vboMap.clear();
+
+	for ( auto &pair : m_iboMap )
+	{
+		if ( pair.second )
+		{
+			pair.second->Release();
+		}
+	}
+	m_iboMap.clear();
+
+	m_vaoMap.clear();
+	m_lineStripSegments.clear();
+}
+
+
+void Renderer3DD3D11::ReleaseShaderResources()
+{
 	if ( m_vertexShader3D )
+	{
 		m_vertexShader3D->Release();
+		m_vertexShader3D = nullptr;
+	}
 	if ( m_pixelShader3D )
+	{
 		m_pixelShader3D->Release();
+		m_pixelShader3D = nullptr;
+	}
 	if ( m_texturedVertexShader3D )
+	{
 		m_texturedVertexShader3D->Release();
+		m_texturedVertexShader3D = nullptr;
+	}
 	if ( m_texturedPixelShader3D )
+	{
 		m_texturedPixelShader3D->Release();
+		m_texturedPixelShader3D = nullptr;
+	}
 	if ( m_modelVertexShader3D )
+	{
 		m_modelVertexShader3D->Release();
+		m_modelVertexShader3D = nullptr;
+	}
 	if ( m_modelPixelShader3D )
+	{
 		m_modelPixelShader3D->Release();
+		m_modelPixelShader3D = nullptr;
+	}
 	if ( m_inputLayout3D )
+	{
 		m_inputLayout3D->Release();
+		m_inputLayout3D = nullptr;
+	}
 	if ( m_inputLayoutTextured3D )
+	{
 		m_inputLayoutTextured3D->Release();
+		m_inputLayoutTextured3D = nullptr;
+	}
 	if ( m_lineGeometryShaderThin3D )
+	{
 		m_lineGeometryShaderThin3D->Release();
+		m_lineGeometryShaderThin3D = nullptr;
+	}
 	if ( m_lineGeometryShaderThick3D )
+	{
 		m_lineGeometryShaderThick3D->Release();
+		m_lineGeometryShaderThick3D = nullptr;
+	}
 	if ( m_lineWidthConstantBuffer3D )
+	{
 		m_lineWidthConstantBuffer3D->Release();
+		m_lineWidthConstantBuffer3D = nullptr;
+	}
 	if ( m_transformConstantBuffer )
+	{
 		m_transformConstantBuffer->Release();
+		m_transformConstantBuffer = nullptr;
+	}
 	if ( m_fogConstantBuffer )
+	{
 		m_fogConstantBuffer->Release();
+		m_fogConstantBuffer = nullptr;
+	}
 	if ( m_modelConstantBuffer )
+	{
 		m_modelConstantBuffer->Release();
+		m_modelConstantBuffer = nullptr;
+	}
+}
+
+
+void Renderer3DD3D11::InvalidateStateCache()
+{
+	m_currentVAO = 0;
+}
+
+
+void Renderer3DD3D11::ReleaseDeviceAndContext()
+{
 	if ( m_deviceContext )
+	{
 		m_deviceContext->Release();
+		m_deviceContext = nullptr;
+	}
 	if ( m_device )
+	{
 		m_device->Release();
+		m_device = nullptr;
+	}
+}
+
+
+void Renderer3DD3D11::HandleDeviceReset()
+{
+	CleanupBuffers3D();
+	ReleaseShaderResources();
+	ReleaseDeviceAndContext();
+	GetDeviceAndContext();
+	Initialize3DShaders();
+	Cache3DUniformLocations();
+	Setup3DVertexArrays();
+	Setup3DTexturedVertexArrays();
+	CreateConstantBuffers();
+	InvalidateStateCache();
+
+	m_currentTextureID = 0;
+	m_currentTextureSRV = nullptr;
 }
 
 
@@ -770,8 +929,11 @@ void Renderer3DD3D11::SetTextured3DShaderUniforms()
 			unsigned int boundTexture = rendererD3D11->GetCurrentBoundTexture();
 			if ( boundTexture != 0 )
 			{
-				ID3D11ShaderResourceView *srv = (ID3D11ShaderResourceView *)(uintptr_t)boundTexture;
-				m_deviceContext->PSSetShaderResources( 0, 1, &srv );
+				ID3D11ShaderResourceView *srv = rendererD3D11->GetTextureSRV( boundTexture );
+				if ( srv )
+				{
+					m_deviceContext->PSSetShaderResources( 0, 1, &srv );
+				}
 			}
 			else if ( m_currentTextureSRV != nullptr && m_currentTextureID != 0 )
 			{
@@ -1476,80 +1638,6 @@ void Renderer3DD3D11::FlushTriangleFills3D( bool isImmediate )
 }
 
 
-void Renderer3DD3D11::CleanupBuffers3D()
-{
-	if ( m_lineBuffer3D )
-	{
-		m_lineBuffer3D->Release();
-		m_lineBuffer3D = nullptr;
-	}
-	if ( m_staticSpriteBuffer3D )
-	{
-		m_staticSpriteBuffer3D->Release();
-		m_staticSpriteBuffer3D = nullptr;
-	}
-	if ( m_rotatingSpriteBuffer3D )
-	{
-		m_rotatingSpriteBuffer3D->Release();
-		m_rotatingSpriteBuffer3D = nullptr;
-	}
-	if ( m_textBuffer3D )
-	{
-		m_textBuffer3D->Release();
-		m_textBuffer3D = nullptr;
-	}
-	if ( m_circleBuffer3D )
-	{
-		m_circleBuffer3D->Release();
-		m_circleBuffer3D = nullptr;
-	}
-	if ( m_circleFillBuffer3D )
-	{
-		m_circleFillBuffer3D->Release();
-		m_circleFillBuffer3D = nullptr;
-	}
-	if ( m_rectBuffer3D )
-	{
-		m_rectBuffer3D->Release();
-		m_rectBuffer3D = nullptr;
-	}
-	if ( m_rectFillBuffer3D )
-	{
-		m_rectFillBuffer3D->Release();
-		m_rectFillBuffer3D = nullptr;
-	}
-	if ( m_triangleFillBuffer3D )
-	{
-		m_triangleFillBuffer3D->Release();
-		m_triangleFillBuffer3D = nullptr;
-	}
-
-	//
-	// Cleanup VBO/IBO maps
-
-	for ( auto &pair : m_vboMap )
-	{
-		if ( pair.second )
-		{
-			pair.second->Release();
-		}
-	}
-	m_vboMap.clear();
-
-	for ( auto &pair : m_iboMap )
-	{
-		if ( pair.second )
-		{
-			pair.second->Release();
-		}
-	}
-	m_iboMap.clear();
-
-	m_vaoMap.clear();
-	m_lineStripSegments.clear();
-}
-
-
 // ============================================================================
 // TEXTURE BINDING
 // ============================================================================
@@ -1562,7 +1650,9 @@ void Renderer3DD3D11::BindTexture( unsigned int textureID )
 	}
 
 	m_currentTextureID = textureID;
-	m_currentTextureSRV = (ID3D11ShaderResourceView *)(uintptr_t)textureID;
+	
+	RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
+	m_currentTextureSRV = rendererD3D11 ? rendererD3D11->GetTextureSRV( textureID ) : nullptr;
 
 	if ( m_currentTextureSRV && m_deviceContext )
 	{

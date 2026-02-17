@@ -136,7 +136,11 @@ public:
     virtual ~Renderer3DD3D11();
 
     void UpdateCurrentVAO(unsigned int vao);
-    
+    void InvalidateStateCache();
+    void HandleDeviceReset();
+    void ReleaseShaderResources();
+    void ReleaseDeviceAndContext();
+
 protected:
     virtual void Initialize3DShaders          () override;
     virtual void Cache3DUniformLocations      () override;

@@ -254,6 +254,7 @@ public:
     
     virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, int mipmapLevel) = 0;
     virtual void DeleteTexture        (unsigned int textureID) = 0;
+    virtual void ReleaseTextures      () = 0;
     
     void GetImageUVCoords             (Image* image, float& u1, float& v1, float& u2, float& v2);
     unsigned int GetEffectiveTextureID(Image* image);

@@ -107,7 +107,10 @@ public:
 
     void UpdateCurrentVAO(unsigned int vao);
     void InvalidateStateCache();
-    
+    void HandleDeviceReset();
+    void ReleaseShaderResources();
+    void ReleaseDeviceAndContext();
+
 protected:
     virtual void InitializeShaders       () override;
     virtual void CacheUniformLocations   () override;

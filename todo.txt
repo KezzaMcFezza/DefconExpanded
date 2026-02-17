@@ -38,6 +38,8 @@ COMPLETED:
   toolbar button                                               - DONE  
 - Fix DirectX11 geometry shader corrupting rendering with 
   custom line widths                                           - DONE
+- fix vram memory leak when reinitializing the window DX11     - DONE
+- fix vram memory leak when unloading mods for both renderers  - DONE
 
 IN PROGRESS:
 

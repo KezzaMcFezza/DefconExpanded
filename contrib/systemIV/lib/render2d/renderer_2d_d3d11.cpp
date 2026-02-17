@@ -86,6 +86,183 @@ Renderer2DD3D11::Renderer2DD3D11()
 Renderer2DD3D11::~Renderer2DD3D11()
 {
 	CleanupBuffers();
+	ReleaseShaderResources();
+	ReleaseDeviceAndContext();
+}
+
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+
+void Renderer2DD3D11::CleanupBuffers()
+{
+	if ( m_lineBuffer )
+	{
+		m_lineBuffer->Release();
+		m_lineBuffer = nullptr;
+	}
+	if ( m_staticSpriteBuffer )
+	{
+		m_staticSpriteBuffer->Release();
+		m_staticSpriteBuffer = nullptr;
+	}
+	if ( m_rotatingSpriteBuffer )
+	{
+		m_rotatingSpriteBuffer->Release();
+		m_rotatingSpriteBuffer = nullptr;
+	}
+	if ( m_textBuffer )
+	{
+		m_textBuffer->Release();
+		m_textBuffer = nullptr;
+	}
+	if ( m_circleBuffer )
+	{
+		m_circleBuffer->Release();
+		m_circleBuffer = nullptr;
+	}
+	if ( m_circleFillBuffer )
+	{
+		m_circleFillBuffer->Release();
+		m_circleFillBuffer = nullptr;
+	}
+	if ( m_rectBuffer )
+	{
+		m_rectBuffer->Release();
+		m_rectBuffer = nullptr;
+	}
+	if ( m_rectFillBuffer )
+	{
+		m_rectFillBuffer->Release();
+		m_rectFillBuffer = nullptr;
+	}
+	if ( m_triangleFillBuffer )
+	{
+		m_triangleFillBuffer->Release();
+		m_triangleFillBuffer = nullptr;
+	}
+
+	for ( auto &pair : m_vboMap )
+	{
+		if ( pair.second )
+		{
+			pair.second->Release();
+		}
+	}
+	m_vboMap.clear();
+
+	for ( auto &pair : m_iboMap )
+	{
+		if ( pair.second )
+		{
+			pair.second->Release();
+		}
+	}
+	m_iboMap.clear();
+
+	m_vaoMap.clear();
+	m_lineStripSegments.clear();
+}
+
+
+void Renderer2DD3D11::ReleaseShaderResources()
+{
+	if ( m_colorVertexShader )
+	{
+		m_colorVertexShader->Release();
+		m_colorVertexShader = nullptr;
+	}
+	if ( m_colorPixelShader )
+	{
+		m_colorPixelShader->Release();
+		m_colorPixelShader = nullptr;
+	}
+	if ( m_textureVertexShader && m_textureVertexShader != m_colorVertexShader )
+	{
+		m_textureVertexShader->Release();
+		m_textureVertexShader = nullptr;
+	}
+	if ( m_texturePixelShader )
+	{
+		m_texturePixelShader->Release();
+		m_texturePixelShader = nullptr;
+	}
+	if ( m_inputLayout )
+	{
+		m_inputLayout->Release();
+		m_inputLayout = nullptr;
+	}
+	if ( m_lineGeometryShaderThin )
+	{
+		m_lineGeometryShaderThin->Release();
+		m_lineGeometryShaderThin = nullptr;
+	}
+	if ( m_lineGeometryShaderThick )
+	{
+		m_lineGeometryShaderThick->Release();
+		m_lineGeometryShaderThick = nullptr;
+	}
+	if ( m_lineWidthConstantBuffer )
+	{
+		m_lineWidthConstantBuffer->Release();
+		m_lineWidthConstantBuffer = nullptr;
+	}
+	if ( m_transformConstantBuffer )
+	{
+		m_transformConstantBuffer->Release();
+		m_transformConstantBuffer = nullptr;
+	}
+	if ( m_batchedConstantBuffer )
+	{
+		m_batchedConstantBuffer->Release();
+		m_batchedConstantBuffer = nullptr;
+	}
+}
+
+
+void Renderer2DD3D11::InvalidateStateCache()
+{
+	m_currentlyBoundVS = nullptr;
+	m_currentlyBoundPS = nullptr;
+	m_currentlyBoundGS = nullptr;
+	m_currentlyBoundInputLayout = nullptr;
+	m_currentlyBoundVSConstantBuffer = nullptr;
+
+	m_matricesNeedUpdate = true;
+}
+
+
+void Renderer2DD3D11::ReleaseDeviceAndContext()
+{
+	if ( m_deviceContext )
+	{
+		m_deviceContext->Release();
+		m_deviceContext = nullptr;
+	}
+	if ( m_device )
+	{
+		m_device->Release();
+		m_device = nullptr;
+	}
+}
+
+
+void Renderer2DD3D11::HandleDeviceReset()
+{
+	CleanupBuffers();
+	ReleaseShaderResources();
+	ReleaseDeviceAndContext();
+	GetDeviceAndContext();
+	InitializeShaders();
+	CacheUniformLocations();
+	SetupVertexArrays();
+	CreateConstantBuffer();
+	InvalidateStateCache();
+
+	m_currentTextureID = 0;
+	m_currentTextureSRV = nullptr;
 }
 
 
@@ -496,26 +673,6 @@ void Renderer2DD3D11::SetLineShaderUniforms( float lineWidth )
 
 
 // ============================================================================
-// STATE CACHE INVALIDATION
-// ============================================================================
-
-void Renderer2DD3D11::InvalidateStateCache()
-{
-	m_currentlyBoundVS = nullptr;
-	m_currentlyBoundPS = nullptr;
-	m_currentlyBoundGS = nullptr;
-	m_currentlyBoundInputLayout = nullptr;
-	m_currentlyBoundVSConstantBuffer = nullptr;
-
-	//
-	// 3D renderer uses different matrices
-	// Force matrix update on next 2D rendering
-
-	m_matricesNeedUpdate = true;
-}
-
-
-// ============================================================================
 // CONSTANT BUFFER
 // ============================================================================
 
@@ -769,7 +926,9 @@ void Renderer2DD3D11::BindTexture( unsigned int textureID )
 	}
 
 	m_currentTextureID = textureID;
-	m_currentTextureSRV = (ID3D11ShaderResourceView *)(uintptr_t)textureID;
+	
+	RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
+	m_currentTextureSRV = rendererD3D11 ? rendererD3D11->GetTextureSRV( textureID ) : nullptr;
 }
 
 
@@ -1205,157 +1364,6 @@ void Renderer2DD3D11::FlushTriangleFills( bool isImmediate )
 	else
 	{
 		g_renderer->EndFlushTiming( "Triangle_Fills" );
-	}
-}
-
-
-// ============================================================================
-// CLEANUP
-// ============================================================================
-
-void Renderer2DD3D11::CleanupBuffers()
-{
-	if ( m_colorVertexShader )
-	{
-		m_colorVertexShader->Release();
-		m_colorVertexShader = nullptr;
-	}
-	if ( m_colorPixelShader )
-	{
-		m_colorPixelShader->Release();
-		m_colorPixelShader = nullptr;
-	}
-
-	if ( m_textureVertexShader && m_textureVertexShader != m_colorVertexShader )
-	{
-		m_textureVertexShader->Release();
-		m_textureVertexShader = nullptr;
-	}
-
-	if ( m_texturePixelShader )
-	{
-		m_texturePixelShader->Release();
-		m_texturePixelShader = nullptr;
-	}
-	if ( m_inputLayout )
-	{
-		m_inputLayout->Release();
-		m_inputLayout = nullptr;
-	}
-
-	if ( m_transformConstantBuffer )
-	{
-		m_transformConstantBuffer->Release();
-		m_transformConstantBuffer = nullptr;
-	}
-	if ( m_batchedConstantBuffer )
-	{
-		m_batchedConstantBuffer->Release();
-		m_batchedConstantBuffer = nullptr;
-	}
-
-	//
-	// Release persistent buffers
-
-	if ( m_lineBuffer )
-	{
-		m_lineBuffer->Release();
-		m_lineBuffer = nullptr;
-	}
-	if ( m_staticSpriteBuffer )
-	{
-		m_staticSpriteBuffer->Release();
-		m_staticSpriteBuffer = nullptr;
-	}
-	if ( m_rotatingSpriteBuffer )
-	{
-		m_rotatingSpriteBuffer->Release();
-		m_rotatingSpriteBuffer = nullptr;
-	}
-	if ( m_textBuffer )
-	{
-		m_textBuffer->Release();
-		m_textBuffer = nullptr;
-	}
-	if ( m_circleBuffer )
-	{
-		m_circleBuffer->Release();
-		m_circleBuffer = nullptr;
-	}
-	if ( m_circleFillBuffer )
-	{
-		m_circleFillBuffer->Release();
-		m_circleFillBuffer = nullptr;
-	}
-	if ( m_rectBuffer )
-	{
-		m_rectBuffer->Release();
-		m_rectBuffer = nullptr;
-	}
-	if ( m_rectFillBuffer )
-	{
-		m_rectFillBuffer->Release();
-		m_rectFillBuffer = nullptr;
-	}
-	if ( m_triangleFillBuffer )
-	{
-		m_triangleFillBuffer->Release();
-		m_triangleFillBuffer = nullptr;
-	}
-
-	if ( m_lineGeometryShaderThin )
-	{
-		m_lineGeometryShaderThin->Release();
-		m_lineGeometryShaderThin = nullptr;
-	}
-
-	if ( m_lineGeometryShaderThick )
-	{
-		m_lineGeometryShaderThick->Release();
-		m_lineGeometryShaderThick = nullptr;
-	}
-
-	if ( m_lineWidthConstantBuffer )
-	{
-		m_lineWidthConstantBuffer->Release();
-		m_lineWidthConstantBuffer = nullptr;
-	}
-
-	//
-	// Release all VBOs from map
-
-	for ( auto &pair : m_vboMap )
-	{
-		if ( pair.second )
-		{
-			pair.second->Release();
-		}
-	}
-	m_vboMap.clear();
-
-	//
-	// Release all IBOs from map
-
-	for ( auto &pair : m_iboMap )
-	{
-		if ( pair.second )
-		{
-			pair.second->Release();
-		}
-	}
-	m_iboMap.clear();
-
-	m_vaoMap.clear();
-
-	if ( m_device )
-	{
-		m_device->Release();
-		m_device = nullptr;
-	}
-	if ( m_deviceContext )
-	{
-		m_deviceContext->Release();
-		m_deviceContext = nullptr;
 	}
 }
 
