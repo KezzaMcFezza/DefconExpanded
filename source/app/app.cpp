@@ -1850,7 +1850,8 @@ void App::StartGame()
     }
 
     //
-    // Set radar sharing and ceasefire defaults
+    // Set radar sharing and ceasefire defaults (skip ceasefire when ToggleCPU enabled - players control it manually)
+    int toggleCPU = GetGame()->GetOptionValue("ToggleCPU");
 
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
     {
@@ -1865,7 +1866,8 @@ void App::StartGame()
                 if( g_app->GetWorld()->IsFriend(firstTeam->m_teamId, secondTeam->m_teamId) )
                 {
                     firstTeam->m_sharingRadar[secondTeam->m_teamId] = true;
-                    firstTeam->m_ceaseFire[secondTeam->m_teamId] = true;
+                    if( toggleCPU != 1 )
+                        firstTeam->m_ceaseFire[secondTeam->m_teamId] = true;
                     firstTeam->m_alwaysSolo = false;
                 }
             }            

@@ -107,7 +107,7 @@ void WorldObject::InitialiseTimers()
         m_nukeCountTimer = frand(5.0f);
         m_nukeCountTimer += (double)GetHighResTime();
 
-        m_radarRange /= World::GetGameScale();       
+        m_radarRange /= World::GetUnitScaleFactor();       
     }
 }
 
@@ -145,7 +145,7 @@ void WorldObject::AddState( const char *stateName, Fixed prepareTime, Fixed relo
     state->m_numTimesPermitted = numTimesPermitted;
     state->m_defconPermitted = defconPermitted;
 
-    Fixed gameScale = World::GetGameScale();
+    Fixed gameScale = World::GetUnitScaleFactor();
     state->m_radarRange /= gameScale;
     state->m_actionRange /= gameScale;
 
@@ -561,7 +561,11 @@ Fixed WorldObject::GetSize()
         size *= Fixed::FromDouble(g_app->GetMapRenderer()->GetZoomFactor()) * 4;
     }
 
-    size /= g_app->GetWorld()->GetGameScale();
+    // Scale visual size gently with world scale: e.g. 100→1600 (16x) → look 25% smaller (1/sqrt(16)).
+    // Linear would be 16x smaller; no scaling would be same size; sqrt gives in-between.
+    Fixed gameScale = g_app->GetWorld()->GetGameScale();
+    if( gameScale > Fixed::Hundredths(1) )
+        size /= Fixed::FromDouble(sqrt(gameScale.DoubleValue()));
 
     return size;
 }
@@ -585,7 +589,14 @@ Fixed WorldObject::GetSize3D()
         size *= Fixed::FromDouble(0.06f);
     }
 
-    size /= g_app->GetWorld()->GetGameScale();
+    Fixed gameScale = g_app->GetWorld()->GetUnitScaleFactor();
+    size /= gameScale;
+    // Linear scale compensation from worldscale 400 (4x) upwards: 2x at 800
+    if( gameScale >= Fixed(4) )
+    {
+        float scaleComp = 1.0f + (gameScale.DoubleValue() - 4.0f) * (7.0f / 12.0f);  // 1.0 at 4x, 8.0 at 16x
+        size *= Fixed::FromDouble(scaleComp);
+    }
 
     return size;
 }

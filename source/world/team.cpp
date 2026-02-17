@@ -44,7 +44,8 @@ Team::Team()
     m_unitCredits(53),
     m_randSeed(0),
     m_nameSet(false),
-    m_alwaysSolo(true)
+    m_alwaysSolo(true),
+    m_toggleCPU(false)
 {
     m_unitsAvailable.Initialise( WorldObject::NumObjectTypes );
     m_unitsInPlay.Initialise( WorldObject::NumObjectTypes );
@@ -276,6 +277,11 @@ void Team::CheckPanicState()
 void Team::RunAI()
 {
     START_PROFILE("TeamAI");
+    if( !m_toggleCPU )
+    {
+        END_PROFILE("TeamAI");
+        return;
+    }
     if( g_app->GetWorld()->GetTimeScaleFactor() == 0 )
     {
         END_PROFILE("TeamAI");
@@ -432,7 +438,7 @@ void Team::PlacementAI()
                 break;
         }
 
-        Fixed worldScale = World::GetGameScale();
+        Fixed worldScale = World::GetUnitScaleFactor();
         minDistance /= worldScale;
 
         int x = 0;

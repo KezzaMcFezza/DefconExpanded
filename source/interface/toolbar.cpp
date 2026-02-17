@@ -300,9 +300,11 @@ class InfoWindowButton : public ToolbarButton
         if( EclGetWindow( "Info" ) )
         {
             EclRemoveWindow( "Info" );
+            EclRemoveWindow( "InfoCPUToggle" );
         }
         else
         {
+            EclRegisterWindow( new InfoCPUToggleWindow() );
             EclRegisterWindow( new InfoWindow() );
         }
     }

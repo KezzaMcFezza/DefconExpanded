@@ -398,7 +398,7 @@ void Carrier::LaunchScout()
                 Fixed distance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, 
                                                                 g_app->GetWorld()->m_populationCenter[i].x,
                                                                 g_app->GetWorld()->m_populationCenter[i].y );
-                Fixed maxRange = 45 / g_app->GetWorld()->GetGameScale();
+                Fixed maxRange = 45 / g_app->GetWorld()->GetUnitScaleFactor();
                 if( distance < maxRange )
                 {
                     territoryId = i;

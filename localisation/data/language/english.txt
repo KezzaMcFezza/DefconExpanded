@@ -996,6 +996,7 @@ tooltip_gameoption_maxgamerealtime          The maximum real-world time for the 
 tooltip_gameoption_variableunitcounts       Enables Credit mode\nEach player gets a number of credits to spend on their units, and may customise their forces as they like
 tooltip_gameoption_worldscale               NOTE: Experimental.\n\nThis variable effectively makes the world larger, and hence the game will last longer.\n\nAt 100 the world scale is normal.\n\nAt the highest value (200), each team has twice as many units, but each units has half the radar range and half the combat range.\n\nHighly experimental.\nRequires a powerful CPU.\nWe recommend you disable Rendering Object Trails for a clearer view.
 tooltip_gameoption_scaleunitstats           When Enabled, unit ranges, speeds and placement distances are scaled by World Scale (bigger world = shorter ranges). When Disabled, unit stats remain fixed regardless of World Scale.
+tooltip_gameoption_togglecpu               When Enabled at game start, AI teams begin with CPU active. Use the Info panel CPU Toggle button during play to turn AI on or off.
 tooltip_gameoption_worldunitscale           NOTE: Experimental.\n\nThis variable control unit numbers.\n\nAt 100 the world scale is normal.\n\nAt the value (50) each team has half as many units.\n\nCombined with World Scale 200 the globe will be twice as big but you will have the normal amount of units, since 50% will cancel out the doubling of units from BigWorld.
 tooltip_gameoption_emptybomberlaunch        Allows Bombers to be launched without carrying an available nuke on board. The unused nuke is returned to its base's stockpile.
 tooltip_gameoption_firststrikebonus			The player who lands the first direct hit on an enemy city will gain bonus points equal to the number set. Good for incentivizing aggressive play and speeding up Diplomacy games.
@@ -1216,6 +1217,7 @@ gameoption_MaxGameRealTime          Max Game Real Time
 gameoption_VariableUnitCounts       Variable Unit Counts
 gameoption_WorldScale               World Scale
 gameoption_ScaleUnitStats           Scale Unit Stats
+gameoption_ToggleCPU               Toggle CPU
 gameoption_WorldUnitScale           Unit Number Scale
 gameoption_EmptyBomberLaunch        Nukeless Bomber Launch
 gameoption_FirstStrikeBonus			First Strike Bonus

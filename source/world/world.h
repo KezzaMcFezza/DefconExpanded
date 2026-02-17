@@ -149,6 +149,7 @@ public:
     bool            m_achievementCitiesNuked[NumAchievementCities];
 
     int             m_numNukesGivenToEachTeam;
+    int             m_lastToggleCPU;
 
 #ifdef ENABLE_SANTA_EASTEREGG
     DArray <City *>		m_santaRoute;
@@ -264,6 +265,10 @@ public:
     int  GetUnitValue( int _type );
 
     static Fixed GetGameScale();
+    static Fixed GetUnitScaleFactor();   // GetGameScale() when ScaleUnitStats enabled, else 1
+
+    void SetAIToggleCPU( bool value );
+    bool GetAIToggleCPU();
 
     void ClearWorld();      // used in the tutorial to move between missions
 

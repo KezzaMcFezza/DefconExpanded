@@ -19,6 +19,68 @@
 #include "world/world.h"
 #include "world/worldobject.h"
 
+#include "lib/eclipse/components/core.h"
+
+
+// -----------------------------------------------------------------------------
+// InfoCPUToggleWindow - CPU toggle button (above Info window)
+// -----------------------------------------------------------------------------
+
+class ToggleCPUButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        World *world = g_app->GetWorld();
+        if( world )
+        {
+            world->SetAIToggleCPU( !world->GetAIToggleCPU() );
+        }
+    }
+};
+
+
+InfoCPUToggleWindow::InfoCPUToggleWindow()
+:   FadingWindow( "InfoCPUToggle" )
+{
+    SetSize( 300, 150 );
+    m_minW = 50;
+    m_minH = 50;
+
+    const int infoH = 150;
+    const int gap = 10;
+    int x, y;
+    if( g_windowManager->WindowH() > 480 )
+    {
+        x = g_windowManager->WindowW() - m_w;
+        y = g_windowManager->WindowH() - m_h - 70;
+    }
+    else
+    {
+        x = g_windowManager->WindowW() - m_w - 85;
+        y = g_windowManager->WindowH() - m_h - 70;
+    }
+    SetPosition( x, y - ( infoH + gap ) );
+}
+
+
+void InfoCPUToggleWindow::Create()
+{
+    ToggleCPUButton *toggleBtn = new ToggleCPUButton();
+    toggleBtn->SetProperties( "ToggleCPU", m_w/2 - 50, m_h/2 - 15, 100, 30, "dialog_toolbar_cpu_toggle", " ", true, true );
+    RegisterButton( toggleBtn );
+}
+
+
+void InfoCPUToggleWindow::Render( bool _hasFocus )
+{
+    m_alpha = 1.0f;
+    FadingWindow::Render( _hasFocus );
+}
+
+
+// -----------------------------------------------------------------------------
+// InfoWindow
+// -----------------------------------------------------------------------------
 
 InfoWindow::InfoWindow()
 :   FadingWindow("Info"),

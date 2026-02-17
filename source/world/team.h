@@ -98,6 +98,7 @@ public:
 
     BoundedArray<bool> m_ceaseFire;
     BoundedArray<bool> m_sharingRadar;
+    bool    m_toggleCPU;    // AI active when true; synced from game option ToggleCPU at start, toggled in-game by CPU button
 
     BoundedArray<float> m_leftAllianceTimer;    // achievement tracking only
     bool    m_alwaysSolo;

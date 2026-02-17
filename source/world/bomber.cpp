@@ -134,7 +134,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
 bool Bomber::Update()
 {
-    Fixed gameScale = World::GetGameScale();
+    Fixed gameScale = World::GetUnitScaleFactor();
 
     m_speed = Fixed::Hundredths(5) / gameScale;         
     m_turnRate = Fixed::Hundredths(1) / gameScale;

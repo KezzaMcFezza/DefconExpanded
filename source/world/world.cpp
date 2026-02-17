@@ -48,7 +48,8 @@ World::World()
 :   m_myTeamId(-1),
     m_timeScaleFactor(GAMESPEED_MEDIUM),
     m_nextUniqueId(0),
-    m_numNukesGivenToEachTeam(0)
+    m_numNukesGivenToEachTeam(0),
+    m_lastToggleCPU(-1)
 {    
     m_populationCenter.Initialise(NumTerritories);
     m_firstLaunch.Initialise(MAX_TEAMS);
@@ -244,7 +245,36 @@ Fixed World::GetGameScale()
 	return gameScale;
 }
 
+Fixed World::GetUnitScaleFactor()
+{
+    // When ScaleUnitStats is disabled, unit ranges/speeds are not affected by world scale
+    if( g_app && g_app->GetGame() )
+    {
+        GameOption *scaleOpt = g_app->GetGame()->GetOption( "ScaleUnitStats" );
+        if( scaleOpt && scaleOpt->m_currentValue == 0 )
+            return Fixed::FromDouble(1.0);
+    }
+    return GetGameScale();
+}
 
+void World::SetAIToggleCPU( bool value )
+{
+    for( int i = 0; i < m_teams.Size(); ++i )
+    {
+        if( m_teams[i]->m_type == Team::TypeAI )
+            m_teams[i]->m_toggleCPU = value;
+    }
+}
+
+bool World::GetAIToggleCPU()
+{
+    for( int i = 0; i < m_teams.Size(); ++i )
+    {
+        if( m_teams[i]->m_type == Team::TypeAI )
+            return m_teams[i]->m_toggleCPU;
+    }
+    return false;
+}
 
 void World::AssignCities()
 {
@@ -293,6 +323,10 @@ void World::AssignCities()
         {
             team->m_aggression = 6 + syncrand() % 5;
             SyncRandLog( "Team %d aggression set to %d", i, team->m_aggression );
+        }
+        if( team->m_type == Team::TypeAI )
+        {
+            team->m_toggleCPU = (g_app->GetGame()->GetOptionValue("ToggleCPU") == 1);
         }
     }
 
@@ -1271,7 +1305,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 5 / GetGameScale();
+                    Fixed maxDistance = 5 / GetUnitScaleFactor();
                     return ( distance > maxDistance );                    
                 }
             }
@@ -1296,7 +1330,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 5 / GetGameScale();
+                    Fixed maxDistance = 5 / GetUnitScaleFactor();
                     return ( distance > maxDistance );                    
                 }
             }
@@ -1315,7 +1349,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 1 / GetGameScale();
+                    Fixed maxDistance = 1 / GetUnitScaleFactor();
                     return ( distance > maxDistance );
                 }
             }
@@ -1940,11 +1974,12 @@ void World::Update()
     }
 
     //
-    // Update everyones ceasefire status
+    // Update everyones ceasefire status (skip when CPU toggle enabled - players control ceasefire manually)
 
     int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
+    int toggleCPU = g_app->GetGame()->GetOptionValue("ToggleCPU");
 
-    if( permitDefection == 0 )
+    if( permitDefection == 0 && toggleCPU != 1 )
     {
         for(int i = 0; i < m_teams.Size(); ++i )
         {

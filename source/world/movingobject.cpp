@@ -58,7 +58,7 @@ void MovingObject::InitialiseTimers()
 {
     WorldObject::InitialiseTimers();
 
-    Fixed gameScale = World::GetGameScale();
+    Fixed gameScale = World::GetUnitScaleFactor();
     m_speed /= gameScale;
     //m_range /= gameScale;
 }

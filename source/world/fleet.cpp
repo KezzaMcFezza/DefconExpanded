@@ -67,7 +67,7 @@ void Fleet::Update()
             slowestSpeed = Fixed::Hundredths(2);
         }
         slowestSpeed *= speedDropoff;
-        slowestSpeed /= World::GetGameScale();
+        slowestSpeed /= World::GetUnitScaleFactor();
         for( int i = 0; i < m_fleetMembers.Size(); ++i )
         {
             if( m_fleetMembers.ValidIndex(i) )
@@ -260,7 +260,7 @@ void Fleet::Update()
 void Fleet::GetFormationPosition( int memberCount, int memberId, Fixed *longitude, Fixed *latitude )
 {
     Fixed offset = Fixed::Hundredths(50);
-    
+    // Scale formation spacing with world size so more ships fit in same space at higher scale
     offset /= g_app->GetWorld()->GetGameScale();
 
     switch( memberCount )

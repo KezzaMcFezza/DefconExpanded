@@ -20,4 +20,14 @@ public:
 };
 
 
+class InfoCPUToggleWindow : public FadingWindow
+{
+public:
+    InfoCPUToggleWindow();
+
+    void Create();
+    void Render( bool _hasFocus );
+};
+
+
 #endif

@@ -34,8 +34,8 @@ GunFire::GunFire( Fixed range )
     
     strcpy( bmpImageFilename, "graphics/laser.bmp" );
 
-    m_speed /= g_app->GetWorld()->GetGameScale();
-    m_turnRate /= g_app->GetWorld()->GetGameScale();
+    m_speed /= g_app->GetWorld()->GetUnitScaleFactor();
+    m_turnRate /= g_app->GetWorld()->GetUnitScaleFactor();
 }
 
 bool GunFire::Update()
@@ -288,8 +288,8 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
 
     m_speed = distance / 50;
 
-    Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetGameScale();
-    Fixed maxSpeed = 2 / g_app->GetWorld()->GetGameScale();
+    Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetUnitScaleFactor();
+    Fixed maxSpeed = 2 / g_app->GetWorld()->GetUnitScaleFactor();
 
     Clamp( m_speed, minSpeed, maxSpeed );
 
