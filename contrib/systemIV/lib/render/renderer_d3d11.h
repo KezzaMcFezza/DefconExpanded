@@ -93,8 +93,11 @@
  
      std::map<unsigned int, ShaderProgram> m_shaderPrograms;
      unsigned int m_nextShaderProgramId;
-     
-     struct TimingQuery 
+    
+     std::map<unsigned int, ID3D11ShaderResourceView*> m_textureMap;
+     unsigned int m_nextTextureId;
+    
+     struct TimingQuery
      {
          ID3D11Query* disjointQuery;
          ID3D11Query* beginQuery;
@@ -175,7 +178,9 @@
      virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }
      virtual int GetCurrentBlendSrcFactor       () const override;
      virtual int GetCurrentBlendDstFactor       () const override;
-     
+    
+     ID3D11ShaderResourceView* GetTextureSRV(unsigned int textureID) const;
+    
     static bool CheckHRResult(HRESULT hr, const char* operation);
     static bool CheckHRResult(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
     

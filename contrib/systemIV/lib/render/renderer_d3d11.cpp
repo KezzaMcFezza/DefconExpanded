@@ -85,6 +85,7 @@ RendererD3D11::RendererD3D11()
 	  m_samplerStateNearestMipNearest( nullptr ),
 	  m_currentSamplerState( nullptr ),
 	  m_nextShaderProgramId( 1 ),
+	  m_nextTextureId( 1 ),
 	  m_timingQueryCount( 0 )
 {
 	//
@@ -169,6 +170,22 @@ RendererD3D11::~RendererD3D11()
 			pair.second.inputLayout->Release();
 	}
 	m_shaderPrograms.clear();
+
+	//
+	// Release textures
+
+	for ( auto &pair : m_textureMap )
+	{
+		if ( pair.second )
+		{
+			ID3D11Resource *resource = nullptr;
+			pair.second->GetResource( &resource );
+			pair.second->Release();
+			if ( resource )
+				resource->Release();
+		}
+	}
+	m_textureMap.clear();
 
 	ReleaseStateObjects();
 }
@@ -2207,6 +2224,8 @@ unsigned int RendererD3D11::CreateTexture( int width, int height, const Colour *
 		return 0;
 	}
 
+	texture->Release();
+
 	if ( mipmapLevel > 0 )
 	{
 		m_deviceContext->GenerateMips( srv );
@@ -2242,7 +2261,9 @@ unsigned int RendererD3D11::CreateTexture( int width, int height, const Colour *
 		}
 	}
 
-	return (unsigned int)(uintptr_t)srv;
+	unsigned int textureId = m_nextTextureId++;
+	m_textureMap[textureId] = srv;
+	return textureId;
 }
 
 
@@ -2251,8 +2272,11 @@ void RendererD3D11::DeleteTexture( unsigned int textureID )
 	if ( textureID == 0 )
 		return;
 
-	ID3D11ShaderResourceView *srv = (ID3D11ShaderResourceView *)(uintptr_t)textureID;
+	auto it = m_textureMap.find( textureID );
+	if ( it == m_textureMap.end() )
+		return;
 
+	ID3D11ShaderResourceView *srv = it->second;
 	if ( srv )
 	{
 		ID3D11Resource *resource = nullptr;
@@ -2265,6 +2289,21 @@ void RendererD3D11::DeleteTexture( unsigned int textureID )
 			resource->Release();
 		}
 	}
+
+	m_textureMap.erase( it );
+}
+
+
+ID3D11ShaderResourceView *RendererD3D11::GetTextureSRV( unsigned int textureID ) const
+{
+	if ( textureID == 0 )
+		return nullptr;
+
+	auto it = m_textureMap.find( textureID );
+	if ( it == m_textureMap.end() )
+		return nullptr;
+
+	return it->second;
 }
 
 

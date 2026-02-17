@@ -770,8 +770,11 @@ void Renderer3DD3D11::SetTextured3DShaderUniforms()
 			unsigned int boundTexture = rendererD3D11->GetCurrentBoundTexture();
 			if ( boundTexture != 0 )
 			{
-				ID3D11ShaderResourceView *srv = (ID3D11ShaderResourceView *)(uintptr_t)boundTexture;
-				m_deviceContext->PSSetShaderResources( 0, 1, &srv );
+				ID3D11ShaderResourceView *srv = rendererD3D11->GetTextureSRV( boundTexture );
+				if ( srv )
+				{
+					m_deviceContext->PSSetShaderResources( 0, 1, &srv );
+				}
 			}
 			else if ( m_currentTextureSRV != nullptr && m_currentTextureID != 0 )
 			{
@@ -1562,7 +1565,9 @@ void Renderer3DD3D11::BindTexture( unsigned int textureID )
 	}
 
 	m_currentTextureID = textureID;
-	m_currentTextureSRV = (ID3D11ShaderResourceView *)(uintptr_t)textureID;
+	
+	RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
+	m_currentTextureSRV = rendererD3D11 ? rendererD3D11->GetTextureSRV( textureID ) : nullptr;
 
 	if ( m_currentTextureSRV && m_deviceContext )
 	{

@@ -769,7 +769,9 @@ void Renderer2DD3D11::BindTexture( unsigned int textureID )
 	}
 
 	m_currentTextureID = textureID;
-	m_currentTextureSRV = (ID3D11ShaderResourceView *)(uintptr_t)textureID;
+	
+	RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
+	m_currentTextureSRV = rendererD3D11 ? rendererD3D11->GetTextureSRV( textureID ) : nullptr;
 }
 
 
