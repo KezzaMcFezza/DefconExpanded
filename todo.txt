@@ -68,11 +68,19 @@ Kezza's Goals:
 - Find memory leak when leaving and rejoing games over and over
 
 Raitos Goals:
-- Dont make shit code
+- Dont make shit code (in progress)
 
-- multi unit selection click-and-drag boxes - DONE
-- QOL fixes for game speed and team switching buttons - DONE
-- Tick rate increased to 100/second - DONE
+- multi unit selection click-and-drag boxes               - DONE
+- QOL fixes for game speed and team switching buttons     - DONE
+- Tick rate increased to 100/second                       - DONE
+- 26 territories and 28 team colors                       - DONE
+- lobby window map expansion                              - DONE
 
-
-
+TODO:
+- gameoptions update
+- multi-tier radar system
+- expansion of unit system
+- territory unique units
+- burst fire system
+- unit stats rebalance
+- performance efficiancy increase
