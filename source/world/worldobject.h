@@ -45,7 +45,39 @@ public:
         TargetTypeLand
     };
 
+    enum Archetype
+    {
+        ArchetypeInvalid,      // invalid, tornado, saucer, explosion
+        ArchetypeBuilding,     // silo, radar, airbase
+        ArchetypeNavy,         // battleship, carrier, sub
+        ArchetypeAircraft,     // fighter, bomber, cruise missile (ClassTypeMissile)
+        ArchetypeNuke          // nuke (ICBM)
+    };
+
+    enum ClassType
+    {
+        ClassTypeInvalid,
+        // Buildings
+        ClassTypeSilo,
+        ClassTypeRadar,
+        ClassTypeAirbase,
+        ClassTypeCity,
+        ClassTypeSAM,          // for future SAM units
+        // Navy
+        ClassTypeBattleShip,
+        ClassTypeCarrier,
+        ClassTypeSub,
+        // Aircraft
+        ClassTypeFighter,
+        ClassTypeBomber,
+        // Missiles
+        ClassTypeNuke,
+        ClassTypeMissile       // for future cruise missiles
+    };
+
     int     m_type;
+    int     m_archetype;
+    int     m_classType;
     int     m_teamId;
     int     m_objectId;
     Fixed   m_longitude;
@@ -177,6 +209,26 @@ public:
     virtual Image       *GetBmpImage     ( int state );
 
     char                *GetBmpBlurFilename();
+
+    // Archetype and ClassType query helpers
+    bool                IsBuilding       () const;
+    bool                IsNavy           () const;
+    bool                IsAircraft       () const;
+    bool                IsMissileClass   () const;   // ClassTypeMissile (cruise missiles - future)
+    bool                IsSubmarine      () const;   // subclass
+    bool                IsSam            () const;   // siloclass (SAM/ABM - for future units)
+    bool                IsAircraftLauncher() const;  // carrierclass, airbaseclass
+    bool                IsNuke           () const;   // nukeclass
+    bool                IsSiloClass      () const;
+    bool                IsRadarClass     () const;
+    bool                IsAirbaseClass   () const;
+    bool                IsCarrierClass   () const;
+    bool                IsBattleShipClass() const;
+    bool                IsFighterClass   () const;
+    bool                IsBomberClass    () const;
+
+    static Archetype    GetArchetypeForType( int type );
+    static ClassType    GetClassTypeForType( int type );
 };
 
 

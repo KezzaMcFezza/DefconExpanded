@@ -42,6 +42,8 @@ WorldObject::WorldObject()
     m_longitude(0),
     m_latitude(0),
     m_type(TypeInvalid),
+    m_archetype(ArchetypeInvalid),
+    m_classType(ClassTypeInvalid),
     m_radarRange(0),
     m_life(1),
 	m_lastHitByTeamId( -1 ),
@@ -114,6 +116,8 @@ void WorldObject::InitialiseTimers()
 void WorldObject::SetType( int type )
 {
     m_type = type;
+    m_archetype = GetArchetypeForType( type );
+    m_classType = GetClassTypeForType( type );
 }
 
 void WorldObject::SetTeamId( int teamId )
@@ -1177,6 +1181,152 @@ char *WorldObject::LogState()
     }
 
     return s_result;
+}
+
+
+// -----------------------------------------------------------------------------
+// Archetype and ClassType
+// -----------------------------------------------------------------------------
+
+WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
+{
+    switch( type )
+    {
+        case TypeSilo:
+        case TypeRadarStation:
+        case TypeAirBase:
+        case TypeCity:
+            return ArchetypeBuilding;
+
+        case TypeSub:
+        case TypeBattleShip:
+        case TypeCarrier:
+            return ArchetypeNavy;
+
+        case TypeFighter:
+        case TypeBomber:
+            return ArchetypeAircraft;
+
+        case TypeNuke:
+            return ArchetypeNuke;
+
+        default:
+            return ArchetypeInvalid;
+    }
+}
+
+
+WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
+{
+    switch( type )
+    {
+        case TypeSilo:          return ClassTypeSilo;
+        case TypeRadarStation:  return ClassTypeRadar;
+        case TypeAirBase:       return ClassTypeAirbase;
+        case TypeCity:          return ClassTypeCity;
+
+        case TypeBattleShip:    return ClassTypeBattleShip;
+        case TypeCarrier:       return ClassTypeCarrier;
+        case TypeSub:           return ClassTypeSub;
+
+        case TypeFighter:       return ClassTypeFighter;
+        case TypeBomber:        return ClassTypeBomber;
+
+        case TypeNuke:          return ClassTypeNuke;
+
+        default:
+            return ClassTypeInvalid;
+    }
+}
+
+
+bool WorldObject::IsBuilding() const
+{
+    return m_archetype == ArchetypeBuilding;
+}
+
+
+bool WorldObject::IsNavy() const
+{
+    return m_archetype == ArchetypeNavy;
+}
+
+
+bool WorldObject::IsAircraft() const
+{
+    return m_archetype == ArchetypeAircraft;
+}
+
+
+bool WorldObject::IsMissileClass() const
+{
+    return m_classType == ClassTypeMissile;
+}
+
+
+bool WorldObject::IsSubmarine() const
+{
+    return m_classType == ClassTypeSub;
+}
+
+
+bool WorldObject::IsSam() const
+{
+    return m_classType == ClassTypeSAM;
+}
+
+
+bool WorldObject::IsAircraftLauncher() const
+{
+    return m_classType == ClassTypeCarrier || m_classType == ClassTypeAirbase;
+}
+
+
+bool WorldObject::IsNuke() const
+{
+    return m_classType == ClassTypeNuke;
+}
+
+
+bool WorldObject::IsSiloClass() const
+{
+    return m_classType == ClassTypeSilo;
+}
+
+
+bool WorldObject::IsRadarClass() const
+{
+    return m_classType == ClassTypeRadar;
+}
+
+
+bool WorldObject::IsAirbaseClass() const
+{
+    return m_classType == ClassTypeAirbase;
+}
+
+
+bool WorldObject::IsCarrierClass() const
+{
+    return m_classType == ClassTypeCarrier;
+}
+
+
+bool WorldObject::IsBattleShipClass() const
+{
+    return m_classType == ClassTypeBattleShip;
+}
+
+
+bool WorldObject::IsFighterClass() const
+{
+    return m_classType == ClassTypeFighter;
+}
+
+
+bool WorldObject::IsBomberClass() const
+{
+    return m_classType == ClassTypeBomber;
 }
 
 

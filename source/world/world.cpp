@@ -1979,7 +1979,7 @@ void World::Update()
     int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
     int toggleCPU = g_app->GetGame()->GetOptionValue("ToggleCPU");
 
-    if( permitDefection == 0 && toggleCPU != 1 )
+    if( toggleCPU != 1 )
     {
         for(int i = 0; i < m_teams.Size(); ++i )
         {

@@ -1217,7 +1217,7 @@ gameoption_MaxGameRealTime          Max Game Real Time
 gameoption_VariableUnitCounts       Variable Unit Counts
 gameoption_WorldScale               World Scale
 gameoption_ScaleUnitStats           Scale Unit Stats
-gameoption_ToggleCPU               Toggle CPU
+gameoption_ToggleCPU                Toggle CPU
 gameoption_WorldUnitScale           Unit Number Scale
 gameoption_EmptyBomberLaunch        Nukeless Bomber Launch
 gameoption_FirstStrikeBonus			First Strike Bonus
