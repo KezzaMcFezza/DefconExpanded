@@ -2636,6 +2636,7 @@ void LobbyWindow::Render( bool _hasFocus )
         char *thisLine = wrapped[i];
         g_renderer2d->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
     }
+    }
 
     //
     // Render the ready timer
