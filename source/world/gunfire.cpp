@@ -303,6 +303,12 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
     m_vel.Normalise();
     m_vel *= m_speed;
 
+    // Latitude speed: near poles, same real speed = more map degrees per tick
+    Fixed latitudeFactor = Fixed(90) - m_latitude.abs();
+    if( latitudeFactor < Fixed(10) ) latitudeFactor = Fixed(10);
+    Fixed speedMult = Fixed(1) + (((Fixed(90) / latitudeFactor) - Fixed(1)) * Fixed(2) / Fixed(8));
+    if( speedMult > Fixed(3) ) speedMult = Fixed(3);
+    m_vel *= speedMult;
 
     *newLongitude = m_longitude + m_vel.x * timePerUpdate;
     *newLatitude = m_latitude + m_vel.y * timePerUpdate;

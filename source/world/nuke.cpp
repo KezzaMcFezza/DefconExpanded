@@ -58,20 +58,45 @@ void Nuke::SetWaypoint( Fixed longitude, Fixed latitude )
     {
         return;
     }
-    MovingObject::SetWaypoint( longitude, latitude );
 
+    if( latitude > 100 || latitude < -100 )
+    {
+        return;
+    }
+
+    ClearWaypoints();
+
+    // Choose shortest path (across date line or direct)
+    while( longitude < -180 ) longitude += 360;
+    while( longitude > 180 ) longitude -= 360;
+
+    Fixed directDiff = (longitude - m_longitude).abs();
+    Fixed seamDiff = 360 - directDiff;
+    if( seamDiff < directDiff )
+    {
+        if( longitude > m_longitude )
+            longitude -= 360;
+        else
+            longitude += 360;
+    }
+
+    m_targetLongitude = longitude;
+    m_targetLatitude = latitude;
+
+    // Latitude-corrected distance for projection (great circle approximation on flat map)
     Vector3<Fixed> target( m_targetLongitude, m_targetLatitude, 0 );
     Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
-    m_totalDistance = (target - pos).Mag();
+    Fixed latFactor = Fixed(90) - ((m_latitude.abs() + m_targetLatitude.abs()) / 2);
+    if( latFactor < Fixed(15) ) latFactor = Fixed(15);
+    Fixed dx = (target.x - pos.x) * (Fixed(90) / latFactor);
+    Fixed dy = target.y - pos.y;
+    m_totalDistance = Fixed::FromDouble(sqrt((dx*dx + dy*dy).DoubleValue()));
 
-    if( m_targetLongitude >= m_longitude )
-    {
-        m_curveDirection = 1;
-    }
-    else
-    {
-        m_curveDirection = -1;
-    }
+    // Curve direction (east/west)
+    m_curveDirection = (m_targetLongitude >= m_longitude) ? Fixed(1) : Fixed(-1);
+
+    // Hemisphere: curve toward N or S pole for great circle path
+    m_curveLatitude = ((m_latitude + m_targetLatitude) >= 0) ? Fixed(1) : Fixed(-1);
 }
 
 
@@ -115,32 +140,29 @@ bool Nuke::Update()
 
 
     //
-    // Move towards target
+    // Move towards target along great circle path (shortest distance on globe)
 
     Vector3<Fixed> target( m_targetLongitude, m_targetLatitude, 0 );
     Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
+    Vector3<Fixed> front = (target - pos).Normalise();
+
     Fixed remainingDistance = (target - pos).Mag();
-    Fixed fractionDistance = 1 - remainingDistance / m_totalDistance;
+    Fixed fractionDistance = m_totalDistance > 0 ? 1 - remainingDistance / m_totalDistance : Fixed::Hundredths(50);
 
-    Vector3<Fixed> front = (target - pos).Normalise();  
-    Fixed fractionNorth = 5 * m_latitude.abs() / ( 200 / 2 );
-    fractionNorth = max( fractionNorth, 3 );
-    
-    front.RotateAroundZ( Fixed::PI / (fractionNorth * m_curveDirection) );
-    front.RotateAroundZ( fractionDistance * (-m_curveDirection * Fixed::PI/fractionNorth) );
+    // Great circle curve: rotate direction toward pole based on hemisphere
+    Fixed latCurveFactor = Fixed(5) * m_latitude.abs() / Fixed(90);
+    if( latCurveFactor < Fixed(3) ) latCurveFactor = Fixed(3);
+    front.RotateAroundZ( Fixed::PI / (latCurveFactor * m_curveDirection * m_curveLatitude) );
+    front.RotateAroundZ( fractionDistance * (-m_curveDirection * m_curveLatitude * Fixed::PI / latCurveFactor) );
 
-    if( pos.y > 85 )
-    {
-        // We are dangerously far north
-        // Make sure we dont go off the top of the world
-        Fixed extremeFractionNorth = (pos.y - 85) / 15;
-        Clamp( extremeFractionNorth, Fixed(0), Fixed(1) );
-        front.y *= ( 1 - extremeFractionNorth );
-        front.Normalise();
-    }
+    // Latitude speed: near poles, same real speed = more map degrees per tick
+    Fixed latitudeFactor = Fixed(90) - m_latitude.abs();
+    if( latitudeFactor < Fixed(10) ) latitudeFactor = Fixed(10);
+    Fixed speedMultiplier = Fixed(1) + (((Fixed(90) / latitudeFactor) - Fixed(1)) * Fixed(2) / Fixed(8));
+    if( speedMultiplier > Fixed(3) ) speedMultiplier = Fixed(3);
 
-    m_vel = Vector3<Fixed>(front * (m_speed/2 + m_speed/2 * fractionDistance * fractionDistance));
-       
+    m_vel = front * (m_speed * speedMultiplier);
+
     Fixed newLongitude = m_longitude + m_vel.x * timePerUpdate;
     Fixed newLatitude = m_latitude + m_vel.y * timePerUpdate;
     Fixed newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude);

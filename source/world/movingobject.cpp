@@ -382,6 +382,7 @@ void MovingObject::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude
     Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
 
     Fixed factor1 = m_turnRate * timePerUpdate / 10;
+    if( factor1 > 1 ) factor1 = 1;
     Fixed factor2 = 1 - factor1;
 
     m_vel = ( targetDir * factor1 ) + ( m_vel * factor2 );
@@ -409,6 +410,14 @@ void MovingObject::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude
     }
 
     m_vel *= m_speed;
+
+    // Latitude-based speed: map is a projection, so near poles same real distance spans more map degrees.
+    // Units should appear to move faster (cross more map per tick) to simulate constant real speed.
+    Fixed latitudeFactor = Fixed(90) - m_latitude.abs();
+    if( latitudeFactor < Fixed(10) ) latitudeFactor = Fixed(10);
+    Fixed speedMult = Fixed(1) + (((Fixed(90) / latitudeFactor) - Fixed(1)) * Fixed(2) / Fixed(8));
+    if( speedMult > Fixed(3) ) speedMult = Fixed(3);
+    m_vel *= speedMult;
 
     *newLongitude = m_longitude + m_vel.x * Fixed(timePerUpdate);
     *newLatitude = m_latitude + m_vel.y * Fixed(timePerUpdate);

@@ -75,9 +75,13 @@ Raitos Goals:
 - Tick rate increased to 100/second                       - DONE
 - 26 territories and 28 team colors                       - DONE
 - lobby window map expansion                              - DONE
+- gameoptions update CPU toggle and unit world scale      - DONE
+- unit categorization archtypes                           - DONE
 
 TODO:
-- gameoptions update
+- globe unit movement
+- unit outlines
+- gunfire interception movement
 - multi-tier radar system
 - expansion of unit system
 - territory unique units

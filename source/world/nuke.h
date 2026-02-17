@@ -8,7 +8,8 @@
 class Nuke : public MovingObject
 {
 protected:
-    Fixed   m_curveDirection;
+    Fixed   m_curveDirection;   // 1 or -1: east/west direction for curve
+    Fixed   m_curveLatitude;    // 1 or -1: curve toward N or S pole (great circle)
     Fixed   m_prevDistanceToTarget;
     
     Fixed   m_newLongitude;             // Used to slowly turn towards new target
