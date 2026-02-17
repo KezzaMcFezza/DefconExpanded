@@ -166,10 +166,6 @@ public:
 
     void      SetGameStartSeqId( int seqId );
     int       GetGameStartSeqId();
-
-#ifdef TARGET_EMSCRIPTEN
-    void RouteServerMessageToClient( Directory *serverMessage );     // Route server messages to client inbox in WebAssembly mode
-#endif
 };
 
 

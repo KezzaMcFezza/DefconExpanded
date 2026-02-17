@@ -342,12 +342,9 @@ void RecordingSelectionWindow::Create()
     RegisterButton(browseBtn);
 #endif
 
-#if !defined(TARGET_EMSCRIPTEN) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
-    // Close button - only show in normal mode, not in replay viewer mode
     CloseButton *close = new CloseButton();
     close->SetProperties("Close", m_w-120, m_h-40, 80, 20, "Cancel", "Close this window", false, true);
     RegisterButton(close);
-#endif
 }
 
 void RecordingSelectionWindow::Render(bool _hasFocus)

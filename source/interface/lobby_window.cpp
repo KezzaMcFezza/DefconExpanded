@@ -19,10 +19,6 @@
 #include "app/game.h"
 #include "lib/multiline_text.h"
 
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/interface.h"
-#endif
-
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
@@ -289,8 +285,6 @@ void TeamOptionsWindow::Create()
         yPos += 18;
     }
 
-#ifndef SYNC_PRACTICE
-
     //
     // Join spectators
 
@@ -302,7 +296,6 @@ void TeamOptionsWindow::Create()
 
         yPos += 18;
     }
-#endif
 
     //
     // Alliance colour buttons
@@ -1003,11 +996,9 @@ class RequestAIButton : public InterfaceButton
     {
         int numTeams = g_app->GetWorld()->m_teams.Size();
         int maxTeams = g_app->GetGame()->GetOptionValue("MaxTeams");
-#ifdef SYNC_PRACTICE
-        return( numTeams < maxTeams-1 );
-#else
+
         return( numTeams < maxTeams );
-#endif
+
     }
 
     void Render( int realX, int realY, bool highlighted, bool clicked )
@@ -1114,10 +1105,6 @@ public:
 
 		g_app->SaveGameName();
         g_app->ShutdownCurrentGame();
-        
-#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        g_app->GetInterface()->OpenReplayViewerWindow();
-#endif
     }
 };
 
@@ -1687,11 +1674,7 @@ void LobbyWindow::Create()
     int boxH    = 25;
     int boxGap  = 5;
     int boxY    = 40;
-#if SYNC_PRACTICE
-    int totalH  = (boxH+boxGap)*(MAX_TEAMS)+15;
-#else
     int totalH  = (boxH+boxGap)*(MAX_TEAMS-1)+15;
-#endif
     totalH += 150;
 
     float worldMapW = boxW + 40;
@@ -1700,11 +1683,7 @@ void LobbyWindow::Create()
     InvertedBox *teamsBox = new InvertedBox();
     teamsBox->SetProperties( "TeamsBox", 10, 30, m_w-20, m_h - 70, " ", " ", false, false );
     RegisterButton( teamsBox );
-#if SYNC_PRACTICE
-    for( int i = 0; i < MAX_TEAMS; ++i )
-#else
     for( int i = 0; i < MAX_TEAMS-1; ++i )
-#endif
     {        
         char buttonName[256];
         sprintf( buttonName, "Team%d", i );
@@ -1768,18 +1747,17 @@ void LobbyWindow::Create()
     }
 
     RegisterGameOptionButton( this, boxX, boxY, boxW+10, 17, 100, serverNameIndex, m_gameOptions, false, true, true, 20 );
-#ifndef SYNC_PRACTICE
     RegisterGameOptionButton( this, boxX, boxY+=40, boxW+10, 17, 100, gameModeIndex, m_gameOptions, false, false, false, 0 );
     RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, scoreModeIndex, m_gameOptions, false, false, false, 0 );
-#endif
+
     AdvancedOptionsButton *options = new AdvancedOptionsButton();
     options->SetProperties( "Advanced Options", 10, m_h - 30, 140, 20, "dialog_lobby_advanced_options", " ", true, false );
     RegisterButton( options );
-#ifndef SYNC_PRACTICE
+
     ExitButton *exit = new ExitButton();
     exit->SetProperties( "Exit", m_w - 260, m_h - 30, 120, 20, "dialog_leavegame", " ", true, false );
     RegisterButton( exit );
-#endif
+
 
 
     //
@@ -2104,14 +2082,9 @@ void LobbyWindow::Render( bool _hasFocus )
 		{
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
-#if SYNC_PRACTICE
-        g_renderer2d->TextSimple( m_x+275, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+232, White, 11, caption );
-#else
+
 		g_renderer2d->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
         g_renderer2d->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );
-#endif
-
 
         char localIp[256];
         GetLocalHostIP( localIp, 256 );
@@ -2120,13 +2093,9 @@ void LobbyWindow::Render( bool _hasFocus )
         strcpy( caption, LANGUAGEPHRASE("dialog_internet_identity_details") );
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
-#if SYNC_PRACTICE
-		g_renderer2d->TextSimple( m_x+275, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer2d->TextCentreSimple( m_x+440, m_y+252, White, 11, caption );  
-#else    
+ 
 		g_renderer2d->TextSimple( m_x+275, m_y+292, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
         g_renderer2d->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );   
-#endif
     }
     else
     {
@@ -2153,7 +2122,6 @@ void LobbyWindow::Render( bool _hasFocus )
     GameOption *gameMode = g_app->GetGame()->GetOption("GameMode");
     GameOption *scoreMode = g_app->GetGame()->GetOption("ScoreMode");
 
-#ifndef SYNC_PRACTICE
     char gameModeStringId[256];
     char scoreModeStringId[256];
 
@@ -2164,13 +2132,9 @@ void LobbyWindow::Render( bool _hasFocus )
     {
         if( gameModeStringId[i] == ' ' ) gameModeStringId[i] = '_';
     }
-#endif
 
     char fullString[10000];
-
-#ifndef SYNC_PRACTICE
     sprintf( fullString, "%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId ) );
-#endif
 
     float captionX = 270;
     float captionY = m_y + m_h - 70;
@@ -2181,10 +2145,8 @@ void LobbyWindow::Render( bool _hasFocus )
 
     for( int i = wrapped.Size()-1; i >= 0; --i )
     {
-#ifndef SYNC_PRACTICE
         char *thisLine = wrapped[i];
         g_renderer2d->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
-#endif
     }
 
     //

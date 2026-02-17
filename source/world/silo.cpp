@@ -38,11 +38,8 @@ Silo::Silo()
     m_life = 25;
 
     m_nukeSupply = 10;
-#ifdef SYNC_PRACTICE
-    AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 5 );   
-#else
+
     AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );  
-#endif
     AddState( LANGUAGEPHRASE("state_airdefense"), 340, 20, 10, 30, true );
 
     InitialiseTimers();
@@ -61,9 +58,6 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         {
             g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, 360 );
             m_numNukesLaunched++;
-#ifdef SYNC_PRACTICE
-            g_app->GetMapRenderer()->RecordSiloLaunch(m_objectId);
-#endif
             for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
             {
                 Team *team = g_app->GetWorld()->m_teams[i];
