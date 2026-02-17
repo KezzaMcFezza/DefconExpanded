@@ -61,11 +61,13 @@
      ID3D11BlendState* m_blendStateSubtractive;
      ID3D11BlendState* m_currentBlendState;
      ID3D11BlendState* m_currentlyBoundBlendState;
-     
+     ID3D11BlendState* m_customBlendState;
+    
      ID3D11DepthStencilState* m_depthStateEnabled;
      ID3D11DepthStencilState* m_depthStateDisabled;
      ID3D11DepthStencilState* m_currentDepthState;
      ID3D11DepthStencilState* m_currentlyBoundDepthState;
+     ID3D11DepthStencilState* m_customDepthState;
      
      ID3D11RasterizerState* m_rasterizerStateNoCull;
      ID3D11RasterizerState* m_rasterizerStateCullBack;

@@ -65,10 +65,12 @@ RendererD3D11::RendererD3D11()
 	  m_blendStateSubtractive( nullptr ),
 	  m_currentBlendState( nullptr ),
 	  m_currentlyBoundBlendState( nullptr ),
+	  m_customBlendState( nullptr ),
 	  m_depthStateEnabled( nullptr ),
 	  m_depthStateDisabled( nullptr ),
 	  m_currentDepthState( nullptr ),
 	  m_currentlyBoundDepthState( nullptr ),
+	  m_customDepthState( nullptr ),
 	  m_rasterizerStateNoCull( nullptr ),
 	  m_rasterizerStateCullBack( nullptr ),
 	  m_rasterizerStateCullFront( nullptr ),
@@ -419,6 +421,11 @@ void RendererD3D11::ReleaseStateObjects()
 		m_blendStateSubtractive->Release();
 		m_blendStateSubtractive = nullptr;
 	}
+	if ( m_customBlendState )
+	{
+		m_customBlendState->Release();
+		m_customBlendState = nullptr;
+	}
 
 	if ( m_depthStateEnabled )
 	{
@@ -429,6 +436,11 @@ void RendererD3D11::ReleaseStateObjects()
 	{
 		m_depthStateDisabled->Release();
 		m_depthStateDisabled = nullptr;
+	}
+	if ( m_customDepthState )
+	{
+		m_customDepthState->Release();
+		m_customDepthState = nullptr;
 	}
 
 	if ( m_rasterizerStateNoCull )
@@ -840,15 +852,14 @@ void RendererD3D11::CreateAndSetBlendState( const D3D11_BLEND_DESC &blendDesc )
 	if ( SUCCEEDED( hr ) && newBlendState )
 	{
 		//
-		// Release old temporary blend state if its not one of the standard ones
-
-		if ( m_currentBlendState && m_currentBlendState != m_blendStateDisabled &&
-			 m_currentBlendState != m_blendStateNormal && m_currentBlendState != m_blendStateAdditive &&
-			 m_currentBlendState != m_blendStateSubtractive )
+		// Release old custom blend state if it exists
+		
+		if ( m_customBlendState )
 		{
-			m_currentBlendState->Release();
+			m_customBlendState->Release();
 		}
-
+		
+		m_customBlendState = newBlendState;
 		m_currentBlendState = newBlendState;
 	}
 }
@@ -1195,12 +1206,12 @@ void RendererD3D11::SetDepthBuffer( bool _enabled, bool _clearNow )
 				HRESULT hr = m_device->CreateDepthStencilState( &desc, &newState );
 				if ( SUCCEEDED( hr ) && newState )
 				{
-					if ( m_currentDepthState && m_currentDepthState != m_depthStateEnabled &&
-						 m_currentDepthState != m_depthStateDisabled )
+					if ( m_customDepthState )
 					{
-						m_currentDepthState->Release();
+						m_customDepthState->Release();
 					}
-
+					
+					m_customDepthState = newState;
 					m_currentDepthState = newState;
 				}
 			}
@@ -1272,12 +1283,12 @@ void RendererD3D11::SetDepthMask( bool enabled )
 			HRESULT hr = m_device->CreateDepthStencilState( &desc, &newState );
 			if ( SUCCEEDED( hr ) && newState )
 			{
-				if ( m_currentDepthState && m_currentDepthState != m_depthStateEnabled &&
-					 m_currentDepthState != m_depthStateDisabled )
+				if ( m_customDepthState )
 				{
-					m_currentDepthState->Release();
+					m_customDepthState->Release();
 				}
-
+				
+				m_customDepthState = newState;
 				m_currentDepthState = newState;
 				UpdateDepthState();
 			}
@@ -1307,12 +1318,12 @@ void RendererD3D11::SetDepthComparison( int comparisonFunc )
 			HRESULT hr = m_device->CreateDepthStencilState( &desc, &newState );
 			if ( SUCCEEDED( hr ) && newState )
 			{
-				if ( m_currentDepthState && m_currentDepthState != m_depthStateEnabled &&
-					 m_currentDepthState != m_depthStateDisabled )
+				if ( m_customDepthState )
 				{
-					m_currentDepthState->Release();
+					m_customDepthState->Release();
 				}
 
+				m_customDepthState = newState;
 				m_currentDepthState = newState;
 				UpdateDepthState();
 			}
