@@ -1,145 +1,34 @@
 #!/bin/bash
 
 show_menu() {
-    echo "Which build do you want to make?"
-    echo "Type --Release or --Debug after entering your number"
+    echo "Which build type?"
     echo
-    echo "1. Replay Viewer"
-    echo "2. Sync Practice"
-    echo "3. Vanilla Defcon"
+    echo "1. Release"
+    echo "2. Debug"
     echo
-    echo "Examples: \"1 --Release\", \"2 --Debug\", \"3\", \"3 --Release\""
-    read -p "Enter your choice: " choice
-    
-    read -r project_choice build_type <<< "$choice"
-    
-    if [[ -z "$build_type" ]]; then
-        build_type=""
-    fi
-    
-    case "$project_choice" in
-        1) handle_replay_choice "$build_type" ;;
-        2) handle_sync_choice "$build_type" ;;
-        3) handle_vanilla_choice "$build_type" ;;
-        *) echo "Invalid choice. Please enter 1, 2, or 3."
+    read -p "Enter your choice (1 or 2): " choice
+
+    case "$choice" in
+        1) start_build "release" ;;
+        2) start_build "debug" ;;
+        *) echo "Invalid choice. Please enter 1 or 2."
            echo
            show_menu ;;
     esac
 }
 
-handle_replay_choice() {
-    local build_type="$1"
-    echo
-    echo "Replay Viewer selected."
-    
-    if [[ -z "$build_type" ]]; then
-        show_replay_menu
-    else
-        case "${build_type,,}" in
-            --Release|1) start_build "replay" "release" "Replay Viewer" ;;
-            --Debug|2) start_build "replay" "debug" "Replay Viewer" ;;
-            *) echo "Invalid build type. Please enter --Release or --Debug."
-               echo
-               show_replay_menu ;;
-        esac
-    fi
-}
-
-handle_sync_choice() {
-    local build_type="$1"
-    echo
-    echo "Sync Practice selected."
-    
-    if [[ -z "$build_type" ]]; then
-        show_sync_menu
-    else
-        case "${build_type,,}" in
-            --Release|1) start_build "sync" "release" "Sync Practice" ;;
-            --Debug|2) start_build "sync" "debug" "Sync Practice" ;;
-            *) echo "Invalid build type. Please enter --Release or --Debug."
-               echo
-               show_sync_menu ;;
-        esac
-    fi
-}
-
-handle_vanilla_choice() {
-    local build_type="$1"
-    echo
-    echo "Vanilla Defcon selected."
-    
-    if [[ -z "$build_type" ]]; then
-        show_vanilla_menu
-    else
-        case "${build_type,,}" in
-            --Release|1) start_build "vanilla" "release" "Vanilla Defcon" ;;
-            --Debug|2) start_build "vanilla" "debug" "Vanilla Defcon" ;;
-            *) echo "Invalid build type. Please enter --Release or --Debug."
-               echo
-               show_vanilla_menu ;;
-        esac
-    fi
-}
-
-show_replay_menu() {
-    echo "Choose build type:"
-    echo "1. Release"
-    echo "2. Debug"
-    echo
-    read -p "Enter build type (1 or 2): " build_type
-    
-    case "$build_type" in
-        1) start_build "replay" "release" "Replay Viewer" ;;
-        2) start_build "replay" "debug" "Replay Viewer" ;;
-        *) echo "Invalid choice. Please enter 1 or 2."
-           echo
-           show_replay_menu ;;
-    esac
-}
-
-show_sync_menu() {
-    echo "Choose build type:"
-    echo "1. Release"
-    echo "2. Debug"
-    echo
-    read -p "Enter build type (1 or 2): " build_type
-    
-    case "$build_type" in
-        1) start_build "sync" "release" "Sync Practice" ;;
-        2) start_build "sync" "debug" "Sync Practice" ;;
-        *) echo "Invalid choice. Please enter 1 or 2."
-           echo
-           show_sync_menu ;;
-    esac
-}
-
-show_vanilla_menu() {
-    echo "Choose build type:"
-    echo "1. Release"
-    echo "2. Debug"
-    echo
-    read -p "Enter build type (1 or 2): " build_type
-    
-    case "$build_type" in
-        1) start_build "vanilla" "release" "Vanilla Defcon" ;;
-        2) start_build "vanilla" "debug" "Vanilla Defcon" ;;
-        *) echo "Invalid choice. Please enter 1 or 2."
-           echo
-           show_vanilla_menu ;;
-    esac
-}
-
 start_build() {
-    local project_type="$1"
-    local build_type="$2"
-    local project_name="$3"
+    local build_type="$1"
     
     echo
-    echo "Building Defcon WebAssembly $build_type ($project_name)..."
+    echo "Building Defcon WebAssembly $build_type..."
     
     ORIGINAL_DIR="$(pwd)"
     NINJA_PATH="$ORIGINAL_DIR/tools/bin/ninja.bin"
     EMSDK_DIR="$ORIGINAL_DIR/contrib/systemIV/contrib/emsdk"
+    BUILD_DIR="wasm-defcon-$build_type"
+    CMAKE_BUILD_FLAG="-DDEFCON_BUILD=ON"
+    TARGET_DIR="defcon"
     
     if [[ ! -f "$NINJA_PATH" ]]; then
         echo "ERROR: Ninja binary not found at $NINJA_PATH"
@@ -169,26 +58,6 @@ start_build() {
     fi
     
     source "$EMSDK_DIR/emsdk_env.sh" > /dev/null 2>&1
-
-    if [[ "$project_type" == "replay" ]]; then
-        BUILD_DIR="wasm-replay-$build_type"
-        CMAKE_BUILD_FLAG="-DREPLAY_VIEWER_BUILD=ON"
-        CMAKE_DEFINES="-DREPLAY_VIEWER=1"
-        TARGET_DIR="replay_viewer"
-        UPDATE_SCRIPT="update_replay_viewer_version.py"
-    elif [[ "$project_type" == "sync" ]]; then
-        BUILD_DIR="wasm-sync_practice-$build_type"
-        CMAKE_BUILD_FLAG="-DSYNC_PRACTICE_BUILD=ON"
-        CMAKE_DEFINES="-DSYNC_PRACTICE=1 -DNOT_REPLAY_VIEWER=1"
-        TARGET_DIR="sync_practice"
-        UPDATE_SCRIPT="update_sync_practice_client.py"
-    else
-        BUILD_DIR="wasm-vanilla-$build_type"
-        CMAKE_BUILD_FLAG="-DREPLAY_VIEWER_BUILD=OFF -DSYNC_PRACTICE_BUILD=OFF -DDEFCON_BUILD=ON"
-        CMAKE_DEFINES=""
-        TARGET_DIR="defcon"
-        UPDATE_SCRIPT="update_defcon_version.py"
-    fi
     
     mkdir -p "build/$BUILD_DIR"
     cd "build/$BUILD_DIR"
@@ -215,8 +84,8 @@ start_build() {
     
     python3 "$ORIGINAL_DIR/contrib/systemIV/contrib/emsdk/upstream/emscripten/emcmake.py" cmake \
         -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
-        -DCMAKE_CXX_FLAGS="$CMAKE_FLAGS $CMAKE_DEFINES" \
-        -DCMAKE_C_FLAGS="$CMAKE_FLAGS $CMAKE_DEFINES" \
+        -DCMAKE_CXX_FLAGS="$CMAKE_FLAGS" \
+        -DCMAKE_C_FLAGS="$CMAKE_FLAGS" \
         $CMAKE_BUILD_FLAG \
         -DCMAKE_MAKE_PROGRAM="$NINJA_PATH" \
         -G "Ninja" \
@@ -248,26 +117,24 @@ start_build() {
     
     echo
     echo "Copying WebAssembly files..."
-    python3 "$ORIGINAL_DIR/targets/emscripten/copy_files.py" "$project_type" "$build_type" "$ORIGINAL_DIR/build/$BUILD_DIR/result/$BUILD_OUTPUT_DIR" "$ORIGINAL_DIR/website/$TARGET_DIR"
+    python3 "$ORIGINAL_DIR/targets/emscripten/copy_files.py" "$build_type" "$ORIGINAL_DIR/build/$BUILD_DIR/result/$BUILD_OUTPUT_DIR" "$ORIGINAL_DIR/website/$TARGET_DIR"
     
     if [[ $? -ne 0 ]]; then
         echo "File copying failed!"
         exit 1
     fi
     
-    if [[ -n "$UPDATE_SCRIPT" ]]; then
-        echo
-        echo "Updating HTML file versions automatically..."
-        python3 "$ORIGINAL_DIR/targets/emscripten/$UPDATE_SCRIPT"
-        if [[ $? -ne 0 ]]; then
-            echo "ERROR: HTML version update failed. You may need to update manually."
-            echo "Manual steps:"
-            echo "1. Rename ${TARGET_DIR}_*.html to match the new version"
-            echo "2. Update the script tag inside the HTML file"
-            exit 1
-        fi
-        echo "HTML version update completed successfully!"
+    echo
+    echo "Updating HTML file versions automatically..."
+    python3 "$ORIGINAL_DIR/targets/emscripten/update_defcon_version.py"
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: HTML version update failed. You may need to update manually."
+        echo "Manual steps:"
+        echo "1. Rename defcon_*.html to match the new version"
+        echo "2. Update the script tag inside the HTML file"
+        exit 1
     fi
+    echo "HTML version update completed successfully!"
     
     echo
     echo "Build complete"
