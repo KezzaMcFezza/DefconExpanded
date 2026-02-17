@@ -195,6 +195,12 @@
     void Setup3DRenderState();
     void CleanupRenderState();
     
+    void HandleDeviceReset();
+    void ReleaseShaderPrograms();
+    void ReleaseTimingQueries();
+    void ReleaseTextures();
+    void ReleaseDeviceAndContext();
+
 protected:
     bool CheckHR(HRESULT hr, const char* operation);
     bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);

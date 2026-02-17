@@ -12,6 +12,7 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
 #include "lib/render/antialiasing/anti_aliasing.h"
+#include "lib/preferences.h"
 #include "lib/resource/bitmap.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -139,43 +140,21 @@ RendererD3D11::~RendererD3D11()
 		m_antiAliasing = nullptr;
 	}
 
-	for ( int i = 0; i < m_timingQueryCount; i++ )
-	{
-		TimingQueryPool &pool = m_timingQueryPools[i];
-		for ( int q = 0; q < pool.poolSize; ++q )
-		{
-			if ( pool.queries[q].disjointQuery )
-			{
-				pool.queries[q].disjointQuery->Release();
-			}
-			if ( pool.queries[q].beginQuery )
-			{
-				pool.queries[q].beginQuery->Release();
-			}
-			if ( pool.queries[q].endQuery )
-			{
-				pool.queries[q].endQuery->Release();
-			}
-		}
-	}
+	ReleaseTextures();
+	ReleaseTimingQueries();
+	ReleaseShaderPrograms();
+	ReleaseStateObjects();
+	ReleaseDeviceAndContext();
+}
 
-	//
-	// Release shader programs
 
-	for ( auto &pair : m_shaderPrograms )
-	{
-		if ( pair.second.vertexShader )
-			pair.second.vertexShader->Release();
-		if ( pair.second.pixelShader )
-			pair.second.pixelShader->Release();
-		if ( pair.second.inputLayout )
-			pair.second.inputLayout->Release();
-	}
-	m_shaderPrograms.clear();
+// ============================================================================
+// CLEANUP
+// ============================================================================
 
-	//
-	// Release textures
 
+void RendererD3D11::ReleaseTextures()
+{
 	for ( auto &pair : m_textureMap )
 	{
 		if ( pair.second )
@@ -188,14 +167,273 @@ RendererD3D11::~RendererD3D11()
 		}
 	}
 	m_textureMap.clear();
+	m_nextTextureId = 1;
+}
 
+
+void RendererD3D11::ReleaseTimingQueries()
+{
+	for ( int i = 0; i < m_timingQueryCount; i++ )
+	{
+		TimingQueryPool &pool = m_timingQueryPools[i];
+		for ( int q = 0; q < pool.poolSize; ++q )
+		{
+			if ( pool.queries[q].disjointQuery )
+			{
+				pool.queries[q].disjointQuery->Release();
+				pool.queries[q].disjointQuery = nullptr;
+			}
+			if ( pool.queries[q].beginQuery )
+			{
+				pool.queries[q].beginQuery->Release();
+				pool.queries[q].beginQuery = nullptr;
+			}
+			if ( pool.queries[q].endQuery )
+			{
+				pool.queries[q].endQuery->Release();
+				pool.queries[q].endQuery = nullptr;
+			}
+		}
+
+		pool.poolSize = 0;
+		pool.nextQueryIndex = 0;
+	}
+
+	m_timingQueryCount = 0;
+}
+
+
+void RendererD3D11::ReleaseShaderPrograms()
+{
+	for ( auto &pair : m_shaderPrograms )
+	{
+		if ( pair.second.vertexShader )
+		{
+			pair.second.vertexShader->Release();
+		}
+		if ( pair.second.pixelShader )
+		{
+			pair.second.pixelShader->Release();
+		}
+		if ( pair.second.inputLayout )
+		{
+			pair.second.inputLayout->Release();
+		}
+	}
+
+	m_shaderPrograms.clear();
+	m_nextShaderProgramId = 1;
+}
+
+
+void RendererD3D11::ReleaseStateObjects()
+{
+	if ( m_blendStateDisabled )
+	{
+		m_blendStateDisabled->Release();
+		m_blendStateDisabled = nullptr;
+	}
+	if ( m_blendStateNormal )
+	{
+		m_blendStateNormal->Release();
+		m_blendStateNormal = nullptr;
+	}
+	if ( m_blendStateAdditive )
+	{
+		m_blendStateAdditive->Release();
+		m_blendStateAdditive = nullptr;
+	}
+	if ( m_blendStateSubtractive )
+	{
+		m_blendStateSubtractive->Release();
+		m_blendStateSubtractive = nullptr;
+	}
+	if ( m_customBlendState )
+	{
+		m_customBlendState->Release();
+		m_customBlendState = nullptr;
+	}
+	if ( m_depthStateEnabled )
+	{
+		m_depthStateEnabled->Release();
+		m_depthStateEnabled = nullptr;
+	}
+	if ( m_depthStateDisabled )
+	{
+		m_depthStateDisabled->Release();
+		m_depthStateDisabled = nullptr;
+	}
+	if ( m_customDepthState )
+	{
+		m_customDepthState->Release();
+		m_customDepthState = nullptr;
+	}
+	if ( m_rasterizerStateNoCull )
+	{
+		m_rasterizerStateNoCull->Release();
+		m_rasterizerStateNoCull = nullptr;
+	}
+	if ( m_rasterizerStateCullBack )
+	{
+		m_rasterizerStateCullBack->Release();
+		m_rasterizerStateCullBack = nullptr;
+	}
+	if ( m_rasterizerStateCullFront )
+	{
+		m_rasterizerStateCullFront->Release();
+		m_rasterizerStateCullFront = nullptr;
+	}
+	if ( m_rasterizerStateCullBoth )
+	{
+		m_rasterizerStateCullBoth->Release();
+		m_rasterizerStateCullBoth = nullptr;
+	}
+	if ( m_rasterizerStateNoCullScissor )
+	{
+		m_rasterizerStateNoCullScissor->Release();
+		m_rasterizerStateNoCullScissor = nullptr;
+	}
+	if ( m_rasterizerStateCullBackScissor )
+	{
+		m_rasterizerStateCullBackScissor->Release();
+		m_rasterizerStateCullBackScissor = nullptr;
+	}
+	if ( m_rasterizerStateCullFrontScissor )
+	{
+		m_rasterizerStateCullFrontScissor->Release();
+		m_rasterizerStateCullFrontScissor = nullptr;
+	}
+	if ( m_rasterizerStateCullBothScissor )
+	{
+		m_rasterizerStateCullBothScissor->Release();
+		m_rasterizerStateCullBothScissor = nullptr;
+	}
+	if ( m_samplerStateLinear )
+	{
+		m_samplerStateLinear->Release();
+		m_samplerStateLinear = nullptr;
+	}
+	if ( m_samplerStateLinearMipLinear )
+	{
+		m_samplerStateLinearMipLinear->Release();
+		m_samplerStateLinearMipLinear = nullptr;
+	}
+	if ( m_samplerStateNearest )
+	{
+		m_samplerStateNearest->Release();
+		m_samplerStateNearest = nullptr;
+	}
+	if ( m_samplerStateNearestMipNearest )
+	{
+		m_samplerStateNearestMipNearest->Release();
+		m_samplerStateNearestMipNearest = nullptr;
+	}
+}
+
+
+void RendererD3D11::ReleaseDeviceAndContext()
+{
+	if ( m_deviceContext )
+	{
+		m_deviceContext->Release();
+		m_deviceContext = nullptr;
+	}
+	if ( m_device )
+	{
+		m_device->Release();
+		m_device = nullptr;
+	}
+}
+
+
+void RendererD3D11::HandleDeviceReset()
+{
+#ifdef _DEBUG
+	AppDebugOut( "RendererD3D11: Beginning device reset...\n" );
+#endif
+	
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
+	}
+	if ( g_megavbo2d )
+	{
+		g_megavbo2d->InvalidateAllVBOs();
+	}
+	if ( g_megavbo3d )
+	{
+		g_megavbo3d->InvalidateAll3DVBOs();
+	}
+
+	ReleaseTextures();
+
+	if ( g_renderer2d )
+	{
+		Renderer2DD3D11 *renderer2dD3D11 = dynamic_cast<Renderer2DD3D11 *>( g_renderer2d );
+		if ( renderer2dD3D11 )
+		{
+			renderer2dD3D11->HandleDeviceReset();
+		}
+	}
+
+	if ( g_renderer3d )
+	{
+		Renderer3DD3D11 *renderer3dD3D11 = dynamic_cast<Renderer3DD3D11 *>( g_renderer3d );
+		if ( renderer3dD3D11 )
+		{
+			renderer3dD3D11->HandleDeviceReset();
+		}
+	}
+	
+	ReleaseTimingQueries();
+	ReleaseShaderPrograms();
 	ReleaseStateObjects();
+	ReleaseDeviceAndContext();
+	
+	GetDeviceAndContext();
+	CreateStateObjects();
+	
+	m_currentlyBoundBlendState = nullptr;
+	m_currentlyBoundDepthState = nullptr;
+	m_currentlyBoundRasterizerState = nullptr;
+	m_currentSamplerState = m_samplerStateLinear;
+	m_currentShaderProgram = 0;
+	m_currentViewportX = -1;
+	m_currentViewportY = -1;
+	m_currentViewportWidth = -1;
+	m_currentViewportHeight = -1;
+	m_currentScissorX = -1;
+	m_currentScissorY = -1;
+	m_currentScissorWidth = -1;
+	m_currentScissorHeight = -1;
+	m_currentBoundTexture = 0;
+	
+	if ( g_preferences )
+	{
+		int msaaSamples = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
+		if ( msaaSamples > 0 )
+		{
+			AntiAliasingType aaType = (AntiAliasingType)g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA );
+			int screenW = g_windowManager->GetPhysicalWidth();
+			int screenH = g_windowManager->GetPhysicalHeight();
+			InitializeAntiAliasing( aaType, screenW, screenH, msaaSamples );
+		}
+	}
+	
+	g_renderer2d->Reset2DViewport();
+
+#ifdef _DEBUG
+	AppDebugOut( "RendererD3D11: Device reset complete\n" );
+#endif
 }
 
 
 // ============================================================================
 // DEVICE & CONTEXT
 // ============================================================================
+
 
 void RendererD3D11::GetDeviceAndContext()
 {
@@ -397,126 +635,6 @@ void RendererD3D11::CreateStateObjects()
 		m_deviceContext->PSSetSamplers( 0, 1, &m_currentSamplerState );
 	}
 }
-
-
-void RendererD3D11::ReleaseStateObjects()
-{
-	if ( m_blendStateDisabled )
-	{
-		m_blendStateDisabled->Release();
-		m_blendStateDisabled = nullptr;
-	}
-	if ( m_blendStateNormal )
-	{
-		m_blendStateNormal->Release();
-		m_blendStateNormal = nullptr;
-	}
-	if ( m_blendStateAdditive )
-	{
-		m_blendStateAdditive->Release();
-		m_blendStateAdditive = nullptr;
-	}
-	if ( m_blendStateSubtractive )
-	{
-		m_blendStateSubtractive->Release();
-		m_blendStateSubtractive = nullptr;
-	}
-	if ( m_customBlendState )
-	{
-		m_customBlendState->Release();
-		m_customBlendState = nullptr;
-	}
-
-	if ( m_depthStateEnabled )
-	{
-		m_depthStateEnabled->Release();
-		m_depthStateEnabled = nullptr;
-	}
-	if ( m_depthStateDisabled )
-	{
-		m_depthStateDisabled->Release();
-		m_depthStateDisabled = nullptr;
-	}
-	if ( m_customDepthState )
-	{
-		m_customDepthState->Release();
-		m_customDepthState = nullptr;
-	}
-
-	if ( m_rasterizerStateNoCull )
-	{
-		m_rasterizerStateNoCull->Release();
-		m_rasterizerStateNoCull = nullptr;
-	}
-	if ( m_rasterizerStateCullBack )
-	{
-		m_rasterizerStateCullBack->Release();
-		m_rasterizerStateCullBack = nullptr;
-	}
-	if ( m_rasterizerStateCullFront )
-	{
-		m_rasterizerStateCullFront->Release();
-		m_rasterizerStateCullFront = nullptr;
-	}
-	if ( m_rasterizerStateCullBoth )
-	{
-		m_rasterizerStateCullBoth->Release();
-		m_rasterizerStateCullBoth = nullptr;
-	}
-	if ( m_rasterizerStateNoCullScissor )
-	{
-		m_rasterizerStateNoCullScissor->Release();
-		m_rasterizerStateNoCullScissor = nullptr;
-	}
-	if ( m_rasterizerStateCullBackScissor )
-	{
-		m_rasterizerStateCullBackScissor->Release();
-		m_rasterizerStateCullBackScissor = nullptr;
-	}
-	if ( m_rasterizerStateCullFrontScissor )
-	{
-		m_rasterizerStateCullFrontScissor->Release();
-		m_rasterizerStateCullFrontScissor = nullptr;
-	}
-	if ( m_rasterizerStateCullBothScissor )
-	{
-		m_rasterizerStateCullBothScissor->Release();
-		m_rasterizerStateCullBothScissor = nullptr;
-	}
-
-	if ( m_samplerStateLinear )
-	{
-		m_samplerStateLinear->Release();
-		m_samplerStateLinear = nullptr;
-	}
-	if ( m_samplerStateLinearMipLinear )
-	{
-		m_samplerStateLinearMipLinear->Release();
-		m_samplerStateLinearMipLinear = nullptr;
-	}
-	if ( m_samplerStateNearest )
-	{
-		m_samplerStateNearest->Release();
-		m_samplerStateNearest = nullptr;
-	}
-	if ( m_samplerStateNearestMipNearest )
-	{
-		m_samplerStateNearestMipNearest->Release();
-		m_samplerStateNearestMipNearest = nullptr;
-	}
-
-	if ( m_device )
-	{
-		m_device->Release();
-		m_device = nullptr;
-	}
-	if ( m_deviceContext )
-	{
-		m_deviceContext->Release();
-		m_deviceContext = nullptr;
-	}
-}
-
 
 // ============================================================================
 // DEBUG
