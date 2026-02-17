@@ -24,6 +24,7 @@ public:
     virtual void    Impact          ();
     bool            MoveToWaypoint  ();
     void            CalculateNewPosition( Fixed *newLongitude,Fixed *newLatitude, Fixed *newDistance );
+    void            SetInitialVelocityTowardWaypoint();
 }; 
 
 

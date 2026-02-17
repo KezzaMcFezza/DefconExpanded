@@ -63,6 +63,9 @@ public:
 
     virtual void    SetWaypoint     ( Fixed longitude, Fixed latitude );
 
+    void            CombatIntercept           ( WorldObject *target );
+    void            GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLongitude, Fixed *interceptLatitude );
+
     void            CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fixed *newDistance );
     void            CrossSeam();
 

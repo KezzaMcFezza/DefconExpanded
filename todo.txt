@@ -77,9 +77,9 @@ Raitos Goals:
 - lobby window map expansion                              - DONE
 - gameoptions update CPU toggle and unit world scale      - DONE
 - unit categorization archtypes                           - DONE
+- globe unit movement                                     - DONE
 
 TODO:
-- globe unit movement
 - unit outlines
 - gunfire interception movement
 - multi-tier radar system

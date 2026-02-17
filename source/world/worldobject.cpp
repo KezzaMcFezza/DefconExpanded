@@ -820,11 +820,14 @@ void WorldObject::FireGun( Fixed range )
     AppAssert( targetObject );
     GunFire *bullet = new GunFire( range );
     bullet->SetPosition( m_longitude, m_latitude );
-    bullet->SetWaypoint( targetObject->m_longitude, targetObject->m_latitude );
     bullet->SetTargetObjectId( targetObject->m_objectId );
     bullet->SetTeamId( m_teamId );
     bullet->m_origin = m_objectId;
-    bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude );
+    Fixed interceptLongitude, interceptLatitude;
+    bullet->GetCombatInterceptionPoint( targetObject, &interceptLongitude, &interceptLatitude );
+    bullet->SetWaypoint( interceptLongitude, interceptLatitude );
+    bullet->SetInitialVelocityTowardWaypoint();
+    bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, interceptLongitude, interceptLatitude );
     bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
     (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
 }

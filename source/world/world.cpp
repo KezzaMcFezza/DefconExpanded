@@ -2878,6 +2878,20 @@ Fixed World::GetDistance( Fixed const &fromLongitude, Fixed const &fromLatitude,
 }
 
 
+void World::SanitiseTargetLongitude( Fixed const &fromLongitude, Fixed &toLongitude )
+{
+    // Pick shortest path across seam for euclidean steering
+    if( toLongitude - fromLongitude < -180 )
+    {
+        do { toLongitude += 360; } while( toLongitude - fromLongitude < -180 );
+    }
+    else if( toLongitude - fromLongitude > 180 )
+    {
+        do { toLongitude -= 360; } while( toLongitude - fromLongitude > 180 );
+    }
+}
+
+
 Fixed World::GetSailDistanceSlow( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude )
 {
     Fixed totalDistanceSqd = 0;

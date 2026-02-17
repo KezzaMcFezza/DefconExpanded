@@ -43,7 +43,7 @@ bool GunFire::Update()
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
     if( obj )
     {
-        SetWaypoint( obj->m_longitude + obj->m_vel.x * 5, obj->m_latitude + obj->m_vel.y * 5 );
+        CombatIntercept( obj );
     }
     else
     {
@@ -280,10 +280,13 @@ bool GunFire::MoveToWaypoint()
 
 void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fixed *newDistance )
 {
-    Vector3<Fixed> targetDir = (Vector3<Fixed>( m_targetLongitude, m_targetLatitude, 0 ) -
-								Vector3<Fixed>( m_longitude, m_latitude, 0 )).Normalise();    
+    Fixed wayLong = m_targetLongitude;
+    Fixed wayLat = m_targetLatitude;
+    World::SanitiseTargetLongitude( m_longitude, wayLong );
+    Vector3<Fixed> targetDir = (Vector3<Fixed>( wayLong, wayLat, 0 ) -
+                                Vector3<Fixed>( m_longitude, m_latitude, 0 )).Normalise();    
     
-    Fixed distance = (Vector3<Fixed>( m_targetLongitude, m_targetLatitude, 0 ) -
+    Fixed distance = (Vector3<Fixed>( wayLong, wayLat, 0 ) -
                       Vector3<Fixed>( m_longitude, m_latitude, 0 )).Mag();
 
     m_speed = distance / 50;
@@ -315,6 +318,26 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
     *newDistance =g_app->GetWorld()->GetDistance( *newLongitude, *newLatitude, m_targetLongitude, m_targetLatitude );
 
 }
+
+
+void GunFire::SetInitialVelocityTowardWaypoint()
+{
+    Fixed wayLong = m_targetLongitude;
+    Fixed wayLat = m_targetLatitude;
+    World::SanitiseTargetLongitude( m_longitude, wayLong );
+    Vector3<Fixed> targetDir = (Vector3<Fixed>( wayLong, wayLat, 0 ) -
+                                Vector3<Fixed>( m_longitude, m_latitude, 0 )).Normalise();
+    Fixed magSq = targetDir.x * targetDir.x + targetDir.y * targetDir.y;
+    if( magSq > Fixed::Hundredths(1) )
+    {
+        m_vel = targetDir * m_speed;
+    }
+    else
+    {
+        m_vel.Zero();
+    }
+}
+
 
 void GunFire::Impact()
 {
