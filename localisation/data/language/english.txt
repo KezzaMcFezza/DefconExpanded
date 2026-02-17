@@ -462,6 +462,15 @@ dialog_shareradar                   Share Radar
 dialog_alliance_leave               Leave your Alliance
 dialog_alliance_kick                Kick this player from your Alliance
 dialog_alliance_join                Request to Join this Alliance
+dialog_you_requested_leave_1        You have requested to
+dialog_you_requested_leave_2        leave your Alliance
+dialog_requested_leave_1            *T has requested to
+dialog_requested_leave_2            leave the Alliance
+dialog_you_req_migrate_alliance_1   You requested to
+dialog_you_req_migrate_alliance_2   change your Alliance color to *A
+dialog_requested_migrate_alliance_1 *T requested to
+dialog_requested_migrate_alliance_2 change Alliance color to *A
+message_alliance_migrate            *O Alliance changed color to *N
 dialog_shareradarbegin              Share your Radar with *T?
 dialog_shareradarend                Stop sharing Radar with *T?
 dialog_vote                         Vote

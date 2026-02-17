@@ -67,7 +67,8 @@ void VotingSystem::RegisterNewVote( int _createTeamId, int _voteType, int _voteD
     vote->m_voteData = _voteData;
 
     if( _voteType == Vote::VoteTypeKickPlayer ||
-        _voteType == Vote::VoteTypeLeaveAlliance )
+        _voteType == Vote::VoteTypeLeaveAlliance ||
+        _voteType == Vote::VoteTypeMigrateAlliance )
     {
         vote->m_votes[_createTeamId] = Vote::VoteYes;
     }
@@ -91,6 +92,16 @@ void VotingSystem::RegisterNewVote( int _createTeamId, int _voteType, int _voteD
                     canSeeVote = true;
                 }
                 break;
+
+            case Vote::VoteTypeMigrateAlliance:
+            {
+                Team *leavetarget = g_app->GetWorld()->GetTeam( vote->m_createTeamId );
+                if( leavetarget && myTeam->m_allianceId == leavetarget->m_allianceId )
+                {
+                    canSeeVote = true;
+                }
+                break;
+            }
 
             case Vote::VoteTypeKickPlayer:
             {
@@ -224,11 +235,19 @@ int Vote::GetRequiredAllianceId()
         requiredAllianceId = m_voteData;
     }
 
+    if( m_voteType == VoteTypeMigrateAlliance )
+    {
+        Team *leavetarget = g_app->GetWorld()->GetTeam( m_createTeamId );
+        if( leavetarget )
+            requiredAllianceId = leavetarget->m_allianceId;
+    }
+
     if( m_voteType == VoteTypeKickPlayer ||
         m_voteType == VoteTypeLeaveAlliance )
     {
         Team *kickMe = g_app->GetWorld()->GetTeam(m_voteData);
-        requiredAllianceId = kickMe->m_allianceId;
+        if( kickMe )
+            requiredAllianceId = kickMe->m_allianceId;
     }
 
     return requiredAllianceId;
@@ -247,6 +266,9 @@ bool Vote::CanSeeVote( int _teamId )
         case VoteTypeJoinAlliance:
             return( team->m_allianceId == reqAllianceId ||
                     team->m_teamId == m_createTeamId );
+
+        case VoteTypeMigrateAlliance:
+            return( team->m_allianceId == reqAllianceId );
 
         case VoteTypeKickPlayer:
             if( team->m_teamId == m_voteData ) 
@@ -373,6 +395,37 @@ void Vote::Finish( int _result )
 
                 team->m_allianceId = g_app->GetWorld()->FindFreeAllianceId();
 
+                break;
+            }
+
+            case VoteTypeMigrateAlliance:
+            {
+                Team *oldAlliance = g_app->GetWorld()->GetTeam(m_createTeamId);
+                if( oldAlliance )
+                {
+                    int oldAllianceId = oldAlliance->m_allianceId;
+                    const char *oldAllianceName = g_app->GetWorld()->GetAllianceName(oldAllianceId);
+                    const char *allianceName = g_app->GetWorld()->GetAllianceName(m_voteData);
+                    for( int i = 0; i < MAX_TEAMS; ++i )
+                    {
+                        team = g_app->GetWorld()->GetTeam(i);
+                        if( team && team->m_allianceId == oldAllianceId )
+                        {
+                            team->m_allianceId = m_voteData;
+                            team->m_alwaysSolo = false;
+                        }
+                    }
+                    if( g_languageTable->DoesPhraseExist("message_alliance_migrate") )
+                        strcpy( msg, LANGUAGEPHRASE("message_alliance_migrate") );
+                    else
+                        strcpy( msg, "*O Alliance changed color to *N" );
+                    LPREPLACESTRINGFLAG('O', oldAllianceName, msg);
+                    LPREPLACESTRINGFLAG('N', allianceName, msg);
+                }
+                else
+                {
+                    strcpy( msg, "Alliance color changed" );
+                }
                 break;
             }
 

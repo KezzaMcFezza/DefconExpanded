@@ -77,4 +77,21 @@ public:
     void Create();
     void Render( bool hasFocus );
 };
+
+// ============================================================================
+
+class ColorPickWindow : public InterfaceWindow
+{
+public:
+    int     m_teamOrder [MAX_TEAMS];
+    int     m_votes     [MAX_TEAMS];
+    int     m_selectionTeamId;
+
+public:
+    ColorPickWindow();
+
+    void Create();
+    void Update();
+    void Render( bool _hasFocus );
+};
 #endif

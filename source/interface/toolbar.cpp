@@ -257,10 +257,14 @@ class ShowAlliancesButton : public ToolbarButton
         if( EclGetWindow( "Alliances" ) )
         {
             EclRemoveWindow( "Alliances" );
+            if( EclGetWindow( "ALLIANCE COLOR" ) )
+                EclRemoveWindow( "ALLIANCE COLOR" );
         }
         else
         {
             EclRegisterWindow( new AlliancesWindow() );
+            if( !EclGetWindow( "ALLIANCE COLOR" ) )
+                EclRegisterWindow( new ColorPickWindow() );
         }
     }
 };

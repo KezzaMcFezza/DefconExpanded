@@ -53,7 +53,8 @@ public:
         VoteTypeInvalid,
         VoteTypeJoinAlliance,
         VoteTypeKickPlayer,
-        VoteTypeLeaveAlliance
+        VoteTypeLeaveAlliance,
+        VoteTypeMigrateAlliance
     };
 
 public:

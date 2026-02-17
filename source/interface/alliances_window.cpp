@@ -17,6 +17,20 @@
 #include "renderer/map_renderer.h"
 
 
+// Close button that also removes the colour-pick window when Alliances is closed
+class CloseAlliancesButton : public CloseButton
+{
+public:
+    void MouseUp()
+    {
+        if( EclGetWindow( "Alliances" ) )
+            EclRemoveWindow( "Alliances" );
+        if( EclGetWindow( "ALLIANCE COLOR" ) )
+            EclRemoveWindow( "ALLIANCE COLOR" );
+    }
+};
+
+
 class JoinLeaveButton : public InterfaceButton
 {    
     void Render( int realX, int realY, bool highlighted, bool clicked )
@@ -403,6 +417,51 @@ void VotingWindow::Render( bool _hasFocus )
                 }
                 break;
 
+            case Vote::VoteTypeLeaveAlliance:
+                if( myTeam->m_teamId == vote->m_createTeamId )
+                {
+                    const char *p1 = g_languageTable->DoesPhraseExist("dialog_you_requested_leave_1") ? LANGUAGEPHRASE("dialog_you_requested_leave_1") : "You have requested to";
+                    const char *p2 = g_languageTable->DoesPhraseExist("dialog_you_requested_leave_2") ? LANGUAGEPHRASE("dialog_you_requested_leave_2") : "leave your Alliance";
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, p1 );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, p2 );
+                }
+                else if( myTeam->m_allianceId == g_app->GetWorld()->GetTeam( vote->m_createTeamId )->m_allianceId )
+                {
+                    Team *team = g_app->GetWorld()->GetTeam( vote->m_createTeamId );
+                    char caption[512];
+                    strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_leave_1") ? LANGUAGEPHRASE("dialog_requested_leave_1") : "*T has requested to" );
+                    LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
+                    const char *p2 = g_languageTable->DoesPhraseExist("dialog_requested_leave_2") ? LANGUAGEPHRASE("dialog_requested_leave_2") : "leave the Alliance";
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, p2 );
+                }
+                break;
+
+            case Vote::VoteTypeMigrateAlliance:
+                if( myTeam->m_teamId == vote->m_createTeamId )
+                {
+                    const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
+                    const char *p1 = g_languageTable->DoesPhraseExist("dialog_you_req_migrate_alliance_1") ? LANGUAGEPHRASE("dialog_you_req_migrate_alliance_1") : "You requested to";
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, p1 );
+                    char caption[512];
+                    strcpy( caption, g_languageTable->DoesPhraseExist("dialog_you_req_migrate_alliance_2") ? LANGUAGEPHRASE("dialog_you_req_migrate_alliance_2") : "change your Alliance color to *A" );
+                    LPREPLACESTRINGFLAG( 'A', allianceName, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
+                }
+                else if( myTeam->m_allianceId == g_app->GetWorld()->GetTeam( vote->m_createTeamId )->m_allianceId )
+                {
+                    const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
+                    Team *team = g_app->GetWorld()->GetTeam( vote->m_createTeamId );
+                    char caption[512];
+                    strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_migrate_alliance_1") ? LANGUAGEPHRASE("dialog_requested_migrate_alliance_1") : "*T requested to" );
+                    LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
+                    strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_migrate_alliance_2") ? LANGUAGEPHRASE("dialog_requested_migrate_alliance_2") : "change Alliance color to *A" );
+                    LPREPLACESTRINGFLAG( 'A', allianceName, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
+                }
+                break;
+
             case Vote::VoteTypeKickPlayer:
             {
                 Team *kickTeam = g_app->GetWorld()->GetTeam(vote->m_voteData);
@@ -686,6 +745,51 @@ public:
 
             switch( vote->m_voteType )
             {
+                case Vote::VoteTypeLeaveAlliance:
+                    if( myTeam->m_teamId == vote->m_createTeamId )
+                    {
+                        const char *p1 = g_languageTable->DoesPhraseExist("dialog_you_requested_leave_1") ? LANGUAGEPHRASE("dialog_you_requested_leave_1") : "You have requested to";
+                        const char *p2 = g_languageTable->DoesPhraseExist("dialog_you_requested_leave_2") ? LANGUAGEPHRASE("dialog_you_requested_leave_2") : "leave your Alliance";
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 14, p1 );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 14, p2 );
+                    }
+                    else if( myTeam->m_allianceId == g_app->GetWorld()->GetTeam( vote->m_createTeamId )->m_allianceId )
+                    {
+                        Team *team = g_app->GetWorld()->GetTeam( vote->m_createTeamId );
+                        char caption[512];
+                        strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_leave_1") ? LANGUAGEPHRASE("dialog_requested_leave_1") : "*T has requested to" );
+                        LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 15, caption );
+                        const char *p2 = g_languageTable->DoesPhraseExist("dialog_requested_leave_2") ? LANGUAGEPHRASE("dialog_requested_leave_2") : "leave the Alliance";
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 14, p2 );
+                    }
+                    break;
+
+                case Vote::VoteTypeMigrateAlliance:
+                    if( myTeam->m_teamId == vote->m_createTeamId )
+                    {
+                        const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
+                        const char *p1 = g_languageTable->DoesPhraseExist("dialog_you_req_migrate_alliance_1") ? LANGUAGEPHRASE("dialog_you_req_migrate_alliance_1") : "You requested to";
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 14, p1 );
+                        char caption[512];
+                        strcpy( caption, g_languageTable->DoesPhraseExist("dialog_you_req_migrate_alliance_2") ? LANGUAGEPHRASE("dialog_you_req_migrate_alliance_2") : "change your Alliance color to *A" );
+                        LPREPLACESTRINGFLAG( 'A', allianceName, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 14, caption );
+                    }
+                    else if( myTeam->m_allianceId == g_app->GetWorld()->GetTeam( vote->m_createTeamId )->m_allianceId )
+                    {
+                        const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
+                        Team *team = g_app->GetWorld()->GetTeam( vote->m_createTeamId );
+                        char caption[512];
+                        strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_migrate_alliance_1") ? LANGUAGEPHRASE("dialog_requested_migrate_alliance_1") : "*T requested to" );
+                        LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 15, caption );
+                        strcpy( caption, g_languageTable->DoesPhraseExist("dialog_requested_migrate_alliance_2") ? LANGUAGEPHRASE("dialog_requested_migrate_alliance_2") : "change Alliance color to *A" );
+                        LPREPLACESTRINGFLAG( 'A', allianceName, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 14, caption );
+                    }
+                    break;
+
                 case Vote::VoteTypeJoinAlliance:
                     if( myTeam->m_teamId == vote->m_createTeamId )
                     {
@@ -777,7 +881,7 @@ AlliancesWindow::AlliancesWindow()
     int numTeams = g_app->GetWorld()->m_teams.Size();
 
     SetSize( 600, 120+numTeams * 35 );
-    SetPosition( g_windowManager->WindowW()/2 - m_w/2,
+    SetPosition( g_windowManager->WindowW()/2 - m_w - 10,
                  g_windowManager->WindowH()/2 - m_h/2 );
 
     for( int i = 0; i < MAX_TEAMS; ++i )
@@ -869,7 +973,7 @@ void AlliancesWindow::Create()
     //
     // Close button
 
-    CloseButton *close = new CloseButton();
+    CloseAlliancesButton *close = new CloseAlliancesButton();
     close->SetProperties( "Close", m_w - 110, m_y - 25, 100, 18, "dialog_close", " ", true, false );
     RegisterButton( close );
 
@@ -1047,5 +1151,141 @@ void AlliancesWindow::Render( bool _hasFocus )
 
 }
 
+
+// ============================================================================
+
+class TeamAllianceColorButton : public InterfaceButton
+{
+public:
+    int m_allianceId;
+
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        Team *myTeam = g_app->GetWorld()->GetMyTeam();
+        if( !myTeam ) return;
+
+        if( myTeam->m_allianceId == m_allianceId )
+        {
+            g_renderer2d->RectFill( realX, realY, m_w-10, m_h, Colour(100,100,200,200) );
+            g_renderer2d->Rect( realX, realY, m_w-10, m_h, Colour(255,255,255,155) );
+        }
+        else if( g_app->GetWorld()->CountAllianceMembers(m_allianceId) >= 1 )
+        {
+            g_renderer2d->RectFill( realX, realY, m_w-10, m_h, Colour(0,0,0,200) );
+            g_renderer2d->Rect( realX, realY, m_w-10, m_h, Colour(100,100,100,155) );
+        }
+
+        if( highlighted || clicked )
+        {
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
+        }
+
+        const char *captionText = m_caption ? ( m_captionIsLanguagePhrase ? LANGUAGEPHRASE(m_caption) : m_caption ) : "";
+        g_renderer2d->TextSimple( realX + 5, realY + m_h/2 - 6, White, 12, captionText );
+
+        Colour allianceCol = g_app->GetWorld()->GetAllianceColour( m_allianceId );
+        allianceCol.m_a = 255;
+        Colour darker = allianceCol;
+        darker.m_r *= 0.3f;
+        darker.m_g *= 0.3f;
+        darker.m_b *= 0.3f;
+
+        float colourX = realX + m_w - 50;
+        float colourY = realY + 3;
+        float colourW = 45;
+        float colourH = m_h - 6;
+
+        g_renderer2d->RectFill( colourX, colourY, colourW, colourH, allianceCol, darker, false );
+        g_renderer2d->Rect( colourX, colourY, colourW, colourH, Colour(255,255,255,55) );
+    }
+
+    void MouseUp()
+    {
+        if( g_app->GetWorld()->CountAllianceMembers(m_allianceId) == 0 )
+        {
+            g_app->GetClientToServer()->BeginVote( g_app->GetWorld()->m_myTeamId, Vote::VoteTypeMigrateAlliance, m_allianceId );
+            EclRemoveWindow( m_parent->m_name );
+            EclRemoveWindow( "Alliances" );
+        }
+    }
+};
+
+
+ColorPickWindow::ColorPickWindow()
+:   InterfaceWindow("ALLIANCE COLOR", g_languageTable->DoesPhraseExist("dialog_pick_color") ? "dialog_pick_color" : "Pick Alliance Color", true),
+    m_selectionTeamId(-1)
+{
+    int colorsPerColumn = 14;
+    float buttonHeight = 30;
+    float windowHeight = 120 + colorsPerColumn * buttonHeight;
+    float windowWidth = 175 * 2 + 20;
+
+    SetSize( windowWidth, windowHeight );
+    SetPosition( g_windowManager->WindowW()/2 + 10,
+                 g_windowManager->WindowH()/2 - m_h/2 );
+
+    for( int i = 0; i < MAX_TEAMS; ++i )
+    {
+        m_teamOrder[i] = -1;
+        m_votes[i] = -1;
+    }
+
+    m_selectionTeamId = g_app->GetWorld()->m_myTeamId;
+}
+
+
+void ColorPickWindow::Create()
+{
+    InterfaceWindow::Create();
+
+    float xPos = 10;
+    float yPos = 30;
+    float buttonWidth = 175;
+    float buttonHeight = 30;
+    float columnGap = 20;
+    int colorsPerColumn = 14;
+
+    for( int i = 0; i < 28; ++i )
+    {
+        int column = i / colorsPerColumn;
+        int row = i % colorsPerColumn;
+
+        float x2Pos = xPos + column * (buttonWidth + columnGap);
+        float y2Pos = yPos + row * buttonHeight;
+        float w = buttonWidth;
+
+        TeamAllianceColorButton *rtb = new TeamAllianceColorButton();
+        rtb->m_allianceId = i;
+        char name[64];
+        sprintf( name, "alliance %d", i + 1 );
+
+        char caption[256];
+        strcpy( caption, LANGUAGEPHRASE("dialog_join_alliance") );
+        LPREPLACESTRINGFLAG( 'A', g_app->GetWorld()->GetAllianceName(i), caption );
+
+        rtb->SetProperties( name, x2Pos, y2Pos, w-10, buttonHeight, caption, " ", false, false );
+        RegisterButton( rtb );
+    }
+
+    CloseButton *close = new CloseButton();
+    close->SetProperties( "Close", m_w/2 - 50, m_h - 30, 100, 18, "dialog_close", " ", true, false );
+    RegisterButton( close );
+}
+
+
+void ColorPickWindow::Update()
+{
+    for( int i = 0; i < MAX_TEAMS; ++i )
+    {
+        m_teamOrder[i] = -1;
+        m_votes[i] = -1;
+    }
+}
+
+
+void ColorPickWindow::Render( bool _hasFocus )
+{
+    InterfaceWindow::Render( _hasFocus );
+}
 
 
