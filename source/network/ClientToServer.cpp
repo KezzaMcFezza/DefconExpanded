@@ -248,6 +248,10 @@ void ClientToServer::AdvanceSender()
 // *** Advance
 void ClientToServer::Advance()
 {
+#ifdef OFFLINE_MODE
+    NetSocketListener::PumpLocalPackets();
+#endif
+
     //
     // Set our basic Client properties
 

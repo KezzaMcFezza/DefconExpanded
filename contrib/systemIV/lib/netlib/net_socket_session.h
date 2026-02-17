@@ -21,6 +21,9 @@ public:
 protected:
 	NetSocketHandle		m_sockfd;
 	NetIpAddress		m_to;
+#ifdef OFFLINE_MODE
+	unsigned short	m_localPort;  // For loopback delivery
+#endif
 };
 
 #endif // INCLUDED_NET_SOCKET_SESSION_H

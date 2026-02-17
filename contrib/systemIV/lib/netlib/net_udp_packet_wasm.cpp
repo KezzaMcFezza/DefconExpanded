@@ -19,12 +19,22 @@ NetUdpPacket::NetUdpPacket()
 
 void NetUdpPacket::IpAddressToStr( char *_ipAddress ) const
 {
-	strcpy( _ipAddress, "127.0.0.1" );
+	//
+	// Use actual address when set, otherwise localhost
+
+	if ( m_clientAddress.sin_addr != 0 )
+	{
+		::IpAddressToStr( m_clientAddress, _ipAddress );
+	}
+	else
+	{
+		strcpy( _ipAddress, "127.0.0.1" );
+	}
 }
 
 int NetUdpPacket::GetPort() const
 {
-	return 0;
+	return (int)m_clientAddress.sin_port;
 }
 
 #endif // TARGET_EMSCRIPTEN

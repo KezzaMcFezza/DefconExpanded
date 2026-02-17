@@ -1549,6 +1549,10 @@ void Server::Advance()
 {
     START_PROFILE( "Server Main Loop" );
 
+#ifdef OFFLINE_MODE
+    NetSocketListener::PumpLocalPackets();
+#endif
+
     //
     // Do some magic stuff in the very first Server Advance
 

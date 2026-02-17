@@ -421,7 +421,11 @@ void MetaServer_Disconnect()
 
 bool MetaServer_IsConnected()
 {
+#ifdef OFFLINE_MODE
+	return true;
+#else
 	return ( s_connectedToWAN );
+#endif
 }
 
 

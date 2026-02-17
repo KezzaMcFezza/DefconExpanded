@@ -335,12 +335,10 @@ void RecordingSelectionWindow::Create()
                           "Skip lobby and start from when the game begins", false, true);
     RegisterButton(gameBtn);
 
-#ifndef TARGET_EMSCRIPTEN
     BrowseRecordingButton *browseBtn = new BrowseRecordingButton();
     browseBtn->SetProperties("BrowseRecording", 50, 240, 120, 20, "Browse Files...", 
                             "Open file browser to select a .dcrec recording", false, true);
     RegisterButton(browseBtn);
-#endif
 
     CloseButton *close = new CloseButton();
     close->SetProperties("Close", m_w-120, m_h-40, 80, 20, "Cancel", "Close this window", false, true);

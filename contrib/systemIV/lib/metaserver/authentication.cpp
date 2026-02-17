@@ -87,6 +87,9 @@ void Authentication_GenerateKey( char *_key, bool _demoKey )
 
 int Authentication_SimpleKeyCheck( char *_key )
 {
+#ifdef OFFLINE_MODE
+	return AuthenticationAccepted;
+#else
 	if ( Authentication_IsHashKey( _key ) )
 	{
 		// This is a hash of a key
@@ -141,6 +144,7 @@ int Authentication_SimpleKeyCheck( char *_key )
 	}
 
 	return AuthenticationAccepted;
+#endif
 }
 
 
@@ -285,6 +289,9 @@ void Authentication_GetKeyHash( char *_key )
 
 bool Authentication_IsDemoKey( char *_key )
 {
+#ifdef OFFLINE_MODE
+	return false;
+#else
 	if ( Authentication_IsHashKey( _key ) )
 	{
 		// We can't tell in this case
@@ -292,6 +299,7 @@ bool Authentication_IsDemoKey( char *_key )
 	}
 
 	return ( strncmp( _key, "DEMO", 4 ) == 0 );
+#endif
 }
 
 

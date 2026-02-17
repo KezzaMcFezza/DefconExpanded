@@ -136,6 +136,7 @@ if(EMSCRIPTEN)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DOFFLINE_MODE)
     #add_definitions(-DTOGGLE_SOUND)
     #add_definitions(-DEMSCRIPTEN_IMGUI)
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
