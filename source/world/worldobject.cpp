@@ -579,6 +579,7 @@ Fixed WorldObject::GetSize3D()
 
     //
     // Returns size in 3D world coordinates
+    // Use sqrt scaling (like GetSize 2D) so units don't shrink too much when world scale is large
 
     Fixed size = Fixed::FromDouble(0.5f);
 
@@ -593,14 +594,9 @@ Fixed WorldObject::GetSize3D()
         size *= Fixed::FromDouble(0.06f);
     }
 
-    Fixed gameScale = g_app->GetWorld()->GetUnitScaleFactor();
-    size /= gameScale;
-    // Linear scale compensation from worldscale 400 (4x) upwards: 2x at 800
-    if( gameScale >= Fixed(4) )
-    {
-        float scaleComp = 1.0f + (gameScale.DoubleValue() - 4.0f) * (7.0f / 12.0f);  // 1.0 at 4x, 8.0 at 16x
-        size *= Fixed::FromDouble(scaleComp);
-    }
+    Fixed gameScale = g_app->GetWorld()->GetGameScale();
+    if( gameScale > Fixed::Hundredths(1) )
+        size /= Fixed::FromDouble(sqrt(gameScale.DoubleValue()));
 
     return size;
 }

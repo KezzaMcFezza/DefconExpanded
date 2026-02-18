@@ -75,7 +75,9 @@ void Explosion::Render2D()
         float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
 								   g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float size = predictedIntensity / 20.0f;
-        size /= g_app->GetWorld()->GetGameScale().DoubleValue();
+        float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
+        if( gameScale > 0.01f )
+            size /= (float)sqrt(gameScale);
 
         float predictedLongitude = m_longitude.DoubleValue();
         float predictedLatitude = m_latitude.DoubleValue();
@@ -110,7 +112,9 @@ void Explosion::Render3D()
         float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
 								   g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float size = predictedIntensity / 20.0f;
-        size /= g_app->GetWorld()->GetGameScale().DoubleValue();
+        float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
+        if( gameScale > 0.01f )
+            size /= (float)sqrt(gameScale);
 
         float predictedLongitude = m_longitude.DoubleValue();
         float predictedLatitude = m_latitude.DoubleValue();

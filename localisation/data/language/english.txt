@@ -985,6 +985,7 @@ tooltip_gameoption_advertiseonlan           If enabled your game will be visible
 tooltip_gameoption_maxteams                 The maximum number of Players that can participate in your game.
 tooltip_gameoption_territoriesperteam       The number of Territories each player will own during the game.
 tooltip_gameoption_citiesperterritory       The number of Cities generated per player-owned territory
+tooltip_gameoption_mincityplacementdistance Minimum distance (in degrees) between cities when selecting which cities to include per territory. 0 = no minimum.
 tooltip_gameoption_populationperterritory   The number of people (in millions) in each territory.\nCity populations will be scaled accordingly
 tooltip_gameoption_citypopulations          Controls how your population is distributed across your Cities.\n\n- Default: City populations are based on real world populations\n\n- Equalised: All cities within a territory have the same population\n\n- Random: Each cities population is random, however the standard cities are chosen so your cities will still be in the same place each game\n\n- Totally Random: Each cities population is random, but in addition random cities will be chosen from the database, meaning the position of your cities will also be random
 tooltip_gameoption_randomterritories        If enabled players will be assigned randomly chosen territories at the start of the game.\n\nUseful for solving arguments over who gets to be Europe.
@@ -1196,6 +1197,10 @@ gameoption_Custom                   Custom
 gameoption_MaxTeams                 MaxT eams
 gameoption_TerritoriesPerTeam       Territories Per Team
 gameoption_CitiesPerTerritory       Cities Per Territory
+gameoption_MinCityPlacementDistance Min City Distance
+gameoption_0                       0
+gameoption_1                       1
+gameoption_2                       2
 gameoption_PopulationPerTerritory   Population Per Territory
 gameoption_CityPopulations          City Populations
 gameoption_Equalised                Equalised

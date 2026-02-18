@@ -552,7 +552,7 @@ void MapRenderer::RenderCountryControl()
                 team->m_teamId == g_app->GetWorld()->m_myTeamId )
             {
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                float maxDistance = 5.0f / g_app->GetWorld()->GetUnitScaleFactor().DoubleValue();
+                float maxDistance = 5.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
 
                 g_renderer->SetDepthBuffer( true, true );
                 for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )

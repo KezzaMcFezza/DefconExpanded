@@ -259,9 +259,7 @@ bool Game::IsOptionEditable( int _optionId )
         case GAMEMODE_STANDARD:
             return( stricmp(optionName, "GameSpeed") != 0 &&
                     stricmp(optionName, "RadarSharing" ) != 0 &&
-                    stricmp(optionName, "VariableUnitCounts" ) != 0 &&
-                    stricmp(optionName, "WorldScale" ) != 0 &&
-                    stricmp(optionName, "WorldUnitScale" ) != 0 );
+                    stricmp(optionName, "VariableUnitCounts" ) != 0 );
 
         case GAMEMODE_OFFICEMODE:
             return( stricmp(optionName, "GameSpeed" ) != 0 &&                

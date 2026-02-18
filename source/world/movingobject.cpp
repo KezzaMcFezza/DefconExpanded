@@ -667,7 +667,9 @@ void MovingObject::RenderHistory2D()
     {
         sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
     }
-    sizeCap /= World::GetGameScale().DoubleValue();
+    float gameScale = World::GetGameScale().DoubleValue();
+    if( gameScale > 0.01f )
+        sizeCap /= (int)sqrt(gameScale);
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
@@ -762,7 +764,9 @@ void MovingObject::RenderHistory3D()
     {
         sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
     }
-    sizeCap /= World::GetGameScale().DoubleValue();
+    float gameScale = World::GetGameScale().DoubleValue();
+    if( gameScale > 0.01f )
+        sizeCap /= (int)sqrt(gameScale);
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {

@@ -35,6 +35,11 @@ GameMode                0       6       6           0
 MaxTeams                1       26      26          1
 TerritoriesPerTeam      1       26      1           1
 CitiesPerTerritory      1       50      25          1
+MinCityPlacementDistance 0       2       0           0
+    0
+    1
+    2
+
 PopulationPerTerritory  10      200     100         10
 
 CityPopulations         0       3       0           0

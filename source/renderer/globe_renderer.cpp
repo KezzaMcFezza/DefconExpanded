@@ -1757,7 +1757,9 @@ void GlobeRenderer::Render3DNukeTrajectories()
 
             sizeCap *= 4;
             
-            sizeCap /= World::GetGameScale().DoubleValue();
+            float gameScale = World::GetGameScale().DoubleValue();
+            if( gameScale > 0.01f )
+                sizeCap /= (int)sqrt(gameScale);
             maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
             
             if (maxSize <= 0) continue;

@@ -438,7 +438,7 @@ void Team::PlacementAI()
                 break;
         }
 
-        Fixed worldScale = World::GetUnitScaleFactor();
+        Fixed worldScale = World::GetGameScale();
         minDistance /= worldScale;
 
         int x = 0;

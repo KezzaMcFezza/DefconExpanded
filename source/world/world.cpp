@@ -227,7 +227,9 @@ Fixed World::GetGameScale()
 	// Game not running 
 
 	GameOption *option = g_app->GetGame()->GetOption( "WorldScale" );
-	Fixed gameScale = Fixed::FromDouble(option->m_currentValue / option->m_default);
+	if( !option || option->m_default == 0 )
+		return Fixed::FromDouble(1.0);
+	Fixed gameScale = Fixed::FromDouble( (double)option->m_currentValue / (double)option->m_default );
 	
     //
 	// Cache the value if game is running
@@ -247,7 +249,7 @@ Fixed World::GetGameScale()
 
 Fixed World::GetUnitScaleFactor()
 {
-    // When ScaleUnitStats is disabled, unit ranges/speeds are not affected by world scale
+    // When ScaleUnitStats is disabled, fuel/action ranges and speeds are not affected by world scale (units operate as if world scale is 100). Placement distance and formation size always use GetGameScale().
     if( g_app && g_app->GetGame() )
     {
         GameOption *scaleOpt = g_app->GetGame()->GetOption( "ScaleUnitStats" );
@@ -260,7 +262,7 @@ Fixed World::GetUnitScaleFactor()
 Fixed World::GetGameUnitScale()
 {
     GameOption *option = g_app->GetGame()->GetOption( "WorldUnitScale" );
-    if( !option ) return Fixed::FromDouble(1.0);
+    if( !option || option->m_default == 0 ) return Fixed::FromDouble(1.0);
     return Fixed::FromDouble( (double)option->m_currentValue / (double)option->m_default );
 }
 
@@ -420,30 +422,21 @@ void World::AssignCities()
     }
     else
     {
-        for( int i = 0; i < WorldObject::NumObjectTypes; i++)
+        // Variable unit mode: 100 available for each unit type, no credits system
+        const int VARIABLE_UNITS_PER_TYPE = 100;
+        for( int j = 0; j < m_teams.Size(); ++j )
         {
-            for( int j = 0; j < m_teams.Size(); ++j )
+            m_teams[j]->m_unitCredits = 999999;
+            for( int i = 0; i < WorldObject::NumObjectTypes; i++ )
             {
-                m_teams[j]->m_unitCredits = 120 * g_app->GetGame()->GetOptionValue( "TerritoriesPerTeam" );
-                if( i == WorldObject::TypeAirBase )
-                {
-                    m_teams[j]->m_unitsAvailable[i] = 8 * territoriesPerTeam;
-                }
-                else if( i == WorldObject::TypeRadarStation )
-                {
-                    m_teams[j]->m_unitsAvailable[i] = 12 * territoriesPerTeam;
-                }
-                else if( i == WorldObject::TypeSilo )
-                {
-                    m_teams[j]->m_unitsAvailable[i] = 10 * territoriesPerTeam;
-                }
-                else if(i == WorldObject::TypeBattleShip ||
-                        i == WorldObject::TypeCarrier ||
-                        i == WorldObject::TypeSub )
-                {
-                    m_teams[j]->m_unitsAvailable[i] = 18 * territoriesPerTeam;
-                }
+                m_teams[j]->m_unitsAvailable[i] = 0;
             }
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeAirBase] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeRadarStation] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSilo] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeBattleShip] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeCarrier] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSub] = VARIABLE_UNITS_PER_TYPE;
         }
     }
     
@@ -510,7 +503,8 @@ void World::AssignCities()
                 Fixed distanceSqd = (Vector3<Fixed>(city->m_longitude, city->m_latitude,0) -
                                   Vector3<Fixed>(thisCity->m_longitude, thisCity->m_latitude,0)).MagSquared();
 
-                if( distanceSqd < 2 * 2 )
+                int minCityDist = g_app->GetGame()->GetOptionValue("MinCityPlacementDistance");
+                if( minCityDist > 0 && distanceSqd < minCityDist * minCityDist )
                 {
                     // Too near - discard lowest pop
                     if( (city->m_population > thisCity->m_population || city->m_capital) &&
@@ -1359,7 +1353,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 5 / GetUnitScaleFactor();
+                    Fixed maxDistance = 5 / GetGameScale();
                     return ( distance > maxDistance );                    
                 }
             }
@@ -1378,7 +1372,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 1 / GetUnitScaleFactor();
+                    Fixed maxDistance = 1 / GetGameScale();
                     return ( distance > maxDistance );
                 }
             }

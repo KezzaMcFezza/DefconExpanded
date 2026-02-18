@@ -262,7 +262,7 @@ public:
     int  GetUnitValue( int _type );
 
     static Fixed GetGameScale();
-    static Fixed GetUnitScaleFactor();   // GetGameScale() when ScaleUnitStats enabled, else 1
+    static Fixed GetUnitScaleFactor();   // For fuel/action ranges only. GetGameScale() when ScaleUnitStats enabled, else 1. Use GetGameScale() for placement distances, formation size, etc.
     static Fixed GetGameUnitScale();    // Unit count scale (after world scale)
     static int   GetTerritoryPopulation( int territoryId );
     static int   GetTeamStartingPopulation( int teamId );  // Sum of GetTerritoryPopulation for team's territories
