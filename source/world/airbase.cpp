@@ -34,7 +34,7 @@ AirBase::AirBase()
     m_selectable = false;  
 
     m_life = 15;
-    m_nukeSupply = 10;
+    m_nukeSupply = -1;  // Infinite resupply - bombers that land get full nukes on relaunch
 
     m_maxFighters = 10;
     m_maxBombers = 10;
@@ -352,12 +352,10 @@ void AirBase::NukeStrike()
 
     float fighterLossFactor = 0.5f;
     float bomberLossFactor = 0.5f;
-    float nukeLossFactor = 0.5f;
 
     m_states[0]->m_numTimesPermitted *= fighterLossFactor;
     m_states[1]->m_numTimesPermitted *= bomberLossFactor;
-
-    m_nukeSupply *= nukeLossFactor;
+    // No m_nukeSupply - airbases don't store nukes
 }
 
 bool AirBase::Update()

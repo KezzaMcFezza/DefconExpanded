@@ -446,8 +446,6 @@ void World::AssignCities()
     Team *team = m_teams[0];
     m_numNukesGivenToEachTeam = 0;
     m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSilo] * 10;
-    m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeAirBase] * 10;
-    m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeCarrier] * 6;
     m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSub] * 5;
 
     AppDebugOut( "Num nukes given to each team on start : %d\n", m_numNukesGivenToEachTeam );
@@ -3199,7 +3197,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                     }
                     if( nbQueued > 0 )
                     {
-                        if( obj->m_type == WorldObject::TypeAirBase || obj->m_type == WorldObject::TypeCarrier )
+                        if( ( obj->m_type == WorldObject::TypeAirBase || obj->m_type == WorldObject::TypeCarrier ) && obj->m_nukeSupply >= 0 )
                         {
                             *queued += ( nbQueued > obj->m_nukeSupply )? obj->m_nukeSupply : nbQueued;
                         }

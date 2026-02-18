@@ -300,8 +300,6 @@ void Game::CountNukes()
 
         m_nukeCount[team->m_teamId] = 0;
         m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSilo] * 10;
-        m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeAirBase] * 5;
-        m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeCarrier] * 2;
         m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSub] * 5;
     }
 
@@ -326,8 +324,8 @@ void Game::CountNukes()
 
                 case WorldObject::TypeAirBase:      
                 case WorldObject::TypeCarrier:
-                    // count only nukes currently loaded onto bombers
-                    m_nukeCount[obj->m_teamId] += std::min(obj->m_nukeSupply, obj->m_states[1]->m_numTimesPermitted);
+                    // count bombers in base/carrier with nukes (each bomber carries 2 nukes)
+                    m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted * 2;
                     break;
 					
                 case WorldObject::TypeBomber:       

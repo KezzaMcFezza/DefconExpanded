@@ -552,7 +552,7 @@ void MapRenderer::RenderCountryControl()
                 team->m_teamId == g_app->GetWorld()->m_myTeamId )
             {
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                float maxDistance = 5.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
+                float maxDistance = 2.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
 
                 g_renderer->SetDepthBuffer( true, true );
                 for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
@@ -913,7 +913,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
         case WorldObject::TypeCarrier:
             numFighters = wobj->m_states[0]->m_numTimesPermitted;
             numBombers = wobj->m_states[1]->m_numTimesPermitted;
-            numNukes = wobj->m_nukeSupply;
+            numNukes = wobj->m_nukeSupply >= 0 ? wobj->m_nukeSupply : wobj->m_states[1]->m_numTimesPermitted * 2;
             break;
     }
 
@@ -2365,14 +2365,11 @@ void MapRenderer::RenderNukeUnits()
 
                         case WorldObject::TypeAirBase:
                         case WorldObject::TypeCarrier:
-                            if( obj->m_nukeSupply > 0 )
-                            {
-                                nukeCount = obj->m_states[1]->m_numTimesPermitted;
-                            }
+                            nukeCount = ( obj->m_states[1]->m_numTimesPermitted - ( obj->UsingNukes() ? obj->m_actionQueue.Size() : 0 ) ) * 2;
                             break;
                     }
 
-                    if( obj->UsingNukes() )
+                    if( obj->UsingNukes() && obj->m_type != WorldObject::TypeAirBase && obj->m_type != WorldObject::TypeCarrier )
                     {
                         nukeCount -= obj->m_actionQueue.Size();
                     }

@@ -132,7 +132,8 @@ bool MovingObject::Update()
                         if( home->m_states[1]->m_numTimesPermitted < home->m_maxBombers )
                         {
                             home->m_states[1]->m_numTimesPermitted++;
-                            home->m_nukeSupply += m_states[1]->m_numTimesPermitted;
+                            if( home->m_nukeSupply >= 0 )
+                                home->m_nukeSupply += m_states[1]->m_numTimesPermitted;
                             landed = true;
                         }
                     }
@@ -1082,7 +1083,7 @@ int MovingObject::GetClosestLandingPad()
                         }
 
                         if( m_type == TypeBomber && 
-                            obj->m_nukeSupply > 0 &&
+                            ( obj->m_nukeSupply > 0 || obj->m_nukeSupply == -1 ) &&
                             distSqd < nearestWithNukesSqd )
                         {
                             nearestWithNukesSqd = distSqd;

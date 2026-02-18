@@ -936,7 +936,8 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
 
     g_app->GetWorld()->AddWorldObject( bomber );
 
-    if( m_nukeSupply <= 0 )
+    // Only clear bomber nukes when we have finite supply and it's exhausted (m_nukeSupply == 0). -1 = infinite resupply.
+    if( m_nukeSupply == 0 )
     {
         bomber->m_bombingRun = false;
         bomber->m_nukeTargetLongitude = 0;

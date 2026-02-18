@@ -40,7 +40,7 @@ Carrier::Carrier()
     m_range = Fixed::MAX;
     m_life = 3;
     
-    m_nukeSupply = 6;
+    m_nukeSupply = -1;  // Infinite resupply - bombers that land get full nukes on relaunch
 
     m_maxFighters = 5;
     m_maxBombers = 2;

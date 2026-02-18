@@ -1973,14 +1973,11 @@ void GlobeRenderer::RenderNukeUnits()
 
                         case WorldObject::TypeAirBase:
                         case WorldObject::TypeCarrier:
-                            if( obj->m_nukeSupply > 0 )
-                            {
-                                nukeCount = obj->m_states[1]->m_numTimesPermitted;
-                            }
+                            nukeCount = ( obj->m_states[1]->m_numTimesPermitted - ( obj->UsingNukes() ? obj->m_actionQueue.Size() : 0 ) ) * 2;
                             break;
                     }
 
-                    if( obj->UsingNukes() )
+                    if( obj->UsingNukes() && obj->m_type != WorldObject::TypeAirBase && obj->m_type != WorldObject::TypeCarrier )
                     {
                         nukeCount -= obj->m_actionQueue.Size();
                     }
