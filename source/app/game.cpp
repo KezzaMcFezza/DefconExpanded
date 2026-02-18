@@ -187,6 +187,7 @@ void Game::SetGameMode( int _mode )
         if( strcmp(option->m_name, "GameMode") != 0 &&
             strcmp(option->m_name, "ServerName") != 0 &&
             strcmp(option->m_name, "ScoreMode") != 0 &&
+            strcmp(option->m_name, "VictoryMode") != 0 &&
             strcmp(option->m_name, "MaxTeams") != 0 &&
             strcmp(option->m_name, "MaxSpectators") )
         {
@@ -274,7 +275,9 @@ bool Game::IsOptionEditable( int _optionId )
             return( stricmp(optionName, "GameSpeed") != 0 &&
                     stricmp(optionName, "RadarSharing" ) != 0 &&
                     stricmp(optionName, "VariableUnitCounts" ) != 0 &&
-                    stricmp(optionName, "WorldScale" ) != 0 );
+                    stricmp(optionName, "WorldScale" ) != 0 &&
+                    stricmp(optionName, "WorldUnitScale" ) != 0 &&
+                    stricmp(optionName, "VictoryMode" ) != 0 );
 
         case GAMEMODE_OFFICEMODE:
             return( stricmp(optionName, "GameSpeed" ) != 0 &&                
@@ -294,7 +297,8 @@ bool Game::IsOptionEditable( int _optionId )
         case GAMEMODE_DIPLOMACY:
             return( stricmp(optionName, "PermitDefection" ) != 0 &&
                     stricmp(optionName, "RadarSharing" ) != 0 &&
-                    stricmp(optionName, "ScoreMode" ) != 0 );
+                    stricmp(optionName, "ScoreMode" ) != 0 &&
+                    stricmp(optionName, "VictoryMode" ) != 0 );
 
         case GAMEMODE_TOURNAMENT:
             return( stricmp(optionName, "GameMode" ) == 0 ||
@@ -385,18 +389,24 @@ void Game::CalculateScores()
             m_pointsPerNuke = 0;
             m_pointsPerCollatoral = -1;
             break;
+
+        case 3:                                             // Team (same weightings as Default; ranking by combined alliance score)
+            m_pointsPerSurvivor = 0;
+            m_pointsPerDeath = -1;
+            m_pointsPerKill = 2;
+            m_pointsPerNuke = 0;
+            m_pointsPerCollatoral = -2;
+            break;
     }
 
     
     //
-    // Work out the scores based on the weightings
-
-    int startingPopulation = GetOptionValue( "PopulationPerTerritory" ) * 1000000.0f;
-    startingPopulation *= GetOptionValue( "TerritoriesPerTeam" );
+    // Work out the scores based on the weightings (per-team; Team score mode uses GetDisplayScore for ranking)
 
     for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
     {
         Team *team = g_app->GetWorld()->m_teams[t];
+        int startingPopulation = World::GetTeamStartingPopulation( team->m_teamId );
 
         m_score[team->m_teamId] = (startingPopulation - team->m_friendlyDeaths) * m_pointsPerSurvivor +
                                      team->m_friendlyDeaths * m_pointsPerDeath +
@@ -545,41 +555,94 @@ void Game::Update()
             if( m_victoryTimer == 0 || m_maxGameTime == 0 )
             {
                 CalculateScores();
-    
+
+                int victoryMode = GetOptionValue( "VictoryMode" );
                 m_winner = -1;
                 int winningScore = 0;
-                for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
-                {
-                    Team *team = g_app->GetWorld()->m_teams[t];
-                    int score = GetScore(team->m_teamId);
-                    g_app->GetClientToServer()->SendTeamScore( team->m_teamId, score );
-                    if( score > winningScore )
-                    {
-                        winningScore = score;
-                        m_winner = team->m_teamId;
-                    }
-                }
+                bool draw = false;
+                int displayTeamId = -1;  // For message colour (team or first in winning alliance)
 
-                int numPlayers = g_app->GetWorld()->m_teams.Size();
-
-                char msg[128];
-                if( m_winner != -1 )
+                if( victoryMode == 1 )
                 {
-                    strcpy(msg, LANGUAGEPHRASE("message_victory"));
-                    LPREPLACESTRINGFLAG( 'T', g_app->GetWorld()->GetTeam(m_winner)->GetTeamName(), msg );
-                    
-                    if( m_winner == g_app->GetWorld()->m_myTeamId &&
-                        numPlayers > 1 )
+                    // Alliance victory: highest combined alliance score wins
+                    for( int a = 0; a < MAX_TEAMS; ++a )
                     {
+                        if( g_app->GetWorld()->CountAllianceMembers( a ) == 0 )
+                            continue;
+                        int allianceScore = 0;
+                        int firstTeamId = -1;
+                        for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
+                        {
+                            Team *team = g_app->GetWorld()->m_teams[t];
+                            if( team->m_allianceId == a )
+                            {
+                                int s = GetScore( team->m_teamId );
+                                g_app->GetClientToServer()->SendTeamScore( team->m_teamId, s );
+                                allianceScore += s;
+                                if( firstTeamId == -1 )
+                                    firstTeamId = team->m_teamId;
+                            }
+                        }
+                        if( allianceScore > winningScore )
+                        {
+                            winningScore = allianceScore;
+                            m_winner = a;
+                            displayTeamId = firstTeamId;
+                            draw = false;
+                        }
+                        else if( allianceScore == winningScore && winningScore > 0 )
+                            draw = true;
                     }
                 }
                 else
                 {
-                    strcpy(msg, LANGUAGEPHRASE("message_stalemate"));
-                    m_winner = 999;
+                    // Individual victory: highest individual score wins
+                    for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
+                    {
+                        Team *team = g_app->GetWorld()->m_teams[t];
+                        int score = GetScore( team->m_teamId );
+                        g_app->GetClientToServer()->SendTeamScore( team->m_teamId, score );
+                        if( score > winningScore )
+                        {
+                            winningScore = score;
+                            m_winner = team->m_teamId;
+                            displayTeamId = team->m_teamId;
+                            draw = false;
+                        }
+                        else if( score == winningScore && winningScore > 0 )
+                            draw = true;
+                    }
                 }
-                strupr(msg);
-                g_app->GetInterface()->ShowMessage( 0, 0, m_winner, msg, true );
+
+                int numPlayers = g_app->GetWorld()->m_teams.Size();
+                int myTeamId = g_app->GetWorld()->m_myTeamId;
+                Team *myTeam = ( myTeamId >= 0 ) ? g_app->GetWorld()->GetTeam( myTeamId ) : 0;
+                bool iWon = ( victoryMode == 1 && myTeam && myTeam->m_allianceId == m_winner ) ||
+                            ( victoryMode == 0 && m_winner == myTeamId );
+
+                char msg[128];
+                if( m_winner != -1 && !draw )
+                {
+                    if( victoryMode == 1 )
+                    {
+                        strcpy( msg, LANGUAGEPHRASE("message_team_victory") );
+                        LPREPLACESTRINGFLAG( 'T', g_app->GetWorld()->GetAllianceName( m_winner ), msg );
+                    }
+                    else
+                    {
+                        strcpy( msg, LANGUAGEPHRASE("message_victory") );
+                        LPREPLACESTRINGFLAG( 'T', g_app->GetWorld()->GetTeam( m_winner )->GetTeamName(), msg );
+                    }
+                    if( iWon && numPlayers > 1 ) { }
+                }
+                else
+                {
+                    strcpy( msg, LANGUAGEPHRASE("message_stalemate") );
+                    m_winner = 999;
+                    displayTeamId = -1;
+                }
+                strupr( msg );
+                g_app->GetInterface()->ShowMessage( 0, 0, displayTeamId >= 0 ? displayTeamId : -1, msg, true );
 
                 g_app->GetWorldRenderer()->SetRenderEverything( true );
                 for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
@@ -612,6 +675,23 @@ void Game::Update()
 int Game::GetScore( int _teamId )
 {
     return m_score[_teamId];
+}
+
+int Game::GetDisplayScore( int _teamId )
+{
+    if( GetOptionValue( "ScoreMode" ) != 3 )
+        return m_score[_teamId];
+    Team *team = g_app->GetWorld()->GetTeam( _teamId );
+    if( !team || team->m_allianceId < 0 )
+        return m_score[_teamId];
+    int total = 0;
+    for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
+    {
+        Team *tteam = g_app->GetWorld()->m_teams[t];
+        if( tteam->m_allianceId == team->m_allianceId )
+            total += m_score[tteam->m_teamId];
+    }
+    return total;
 }
 
 void Game::ResetGame()

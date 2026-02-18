@@ -263,6 +263,9 @@ public:
 
     static Fixed GetGameScale();
     static Fixed GetUnitScaleFactor();   // GetGameScale() when ScaleUnitStats enabled, else 1
+    static Fixed GetGameUnitScale();    // Unit count scale (after world scale)
+    static int   GetTerritoryPopulation( int territoryId );
+    static int   GetTeamStartingPopulation( int teamId );  // Sum of GetTerritoryPopulation for team's territories
 
     void SetAIToggleCPU( bool value );
     bool GetAIToggleCPU();

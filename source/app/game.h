@@ -57,6 +57,7 @@ public:
     void            Update();
 
     int             GetScore        ( int _teamId );
+    int             GetDisplayScore ( int _teamId );  // Combined alliance score when ScoreMode Team, else GetScore
 
     void            ResetOptions    ();
     int             GetOptionValue  ( const char *_name );

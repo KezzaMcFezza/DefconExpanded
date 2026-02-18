@@ -424,8 +424,8 @@ dialog_lobby_server_ident           SERVER IDENTITY : *I:*P
 # I = Ip Address, P = port
 dialog_lobby_server_ident_unknown   SERVER IDENTITY : UNKNOWN
 
-dialog_alliance_0                   Red
-dialog_alliance_1                   Green
+dialog_alliance_0                   Green
+dialog_alliance_1                   Red
 dialog_alliance_2                   Blue
 dialog_alliance_3                   Yellow
 dialog_alliance_4                   Pink
@@ -1220,6 +1220,9 @@ gameoption_ScoreMode                SCORE MODE
 gameoption_VictoryMode              VICTORY MODE
 gameoption_Survivor                 Survivor
 gameoption_Genocide                 Genocide
+gameoption_Team                     Team
+gameoption_Individual               Individual
+gameoption_Alliance                 Alliance
 gameoption_VictoryTrigger           Victory Trigger
 gameoption_VictoryTimer             Victory Timer
 gameoption_MaxGameRealTime          Max Game Real Time

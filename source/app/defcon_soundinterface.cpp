@@ -281,10 +281,10 @@ float DefconSoundInterface::GetPropertyValue( const char *_property, SoundObject
         Team *team = g_app->GetWorld()->GetMyTeam();
         if( !team ) return 0.0f;
         
-        float startintPop = g_app->GetGame()->GetOptionValue( "PopulationPerTerritory" );
-        startintPop *= g_app->GetGame()->GetOptionValue( "TerritoriesPerTeam" );
+        int startintPop = World::GetTeamStartingPopulation( team->m_teamId );
+        if( startintPop <= 0 ) startintPop = 1;
 
-        float fraction = 100 * team->m_enemyKills / startintPop;
+        float fraction = 100.0f * team->m_enemyKills / startintPop;
         Clamp( fraction, 0.0f, 100.0f );
 
         return fraction;

@@ -81,9 +81,13 @@ Raitos Goals:
 - unit categorization archtypes                           - DONE
 - globe unit movement                                     - DONE
 - gunfire interception movement                           - DONE
+- Alliance window includes color migration                - DONE
+- territory unique populations                            - DONE
+- fix gameoption world unit scale                         - DONE
+- team victory mode with combined team score system       - DONE
 
 TODO:
-- unit outlines
+- demo can access custom modes, default options adjusted
 - multi-tier radar system
 - expansion of unit system
 - territory unique units

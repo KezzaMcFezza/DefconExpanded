@@ -257,6 +257,60 @@ Fixed World::GetUnitScaleFactor()
     return GetGameScale();
 }
 
+Fixed World::GetGameUnitScale()
+{
+    GameOption *option = g_app->GetGame()->GetOption( "WorldUnitScale" );
+    if( !option ) return Fixed::FromDouble(1.0);
+    return Fixed::FromDouble( (double)option->m_currentValue / (double)option->m_default );
+}
+
+//
+// Return hardcoded population for each territory (unique per territory by default)
+//
+int World::GetTerritoryPopulation( int territoryId )
+{
+    switch( territoryId )
+    {
+        case TerritoryUSA:              return 322730596;
+        case TerritoryNATO:              return 465337674;
+        case TerritoryAustralia:         return 27723120;
+        case TerritoryBrazil:            return 194510538;
+        case TerritoryChina:             return 963747522;
+        case TerritoryEgypt:             return 48411691;
+        case TerritoryIndia:             return 543094109;
+        case TerritoryIndonesia:         return 170289856;
+        case TerritoryIran:              return 67742160;
+        case TerritoryIsrael:             return 8698703;
+        case TerritoryKorea:              return 42573631;
+        case TerritoryJapan:              return 114609338;
+        case TerritoryNeutralAfrica:      return 540362512;
+        case TerritoryNeutralAmerica:     return 360844333;
+        case TerritoryNeutralAsia:        return 144746636;
+        case TerritoryNeutralEurope:      return 255933579;
+        case TerritoryNorthKorea:         return 16819465;
+        case TerritoryPakistan:           return 87795526;
+        case TerritoryPhilippines:        return 57575972;
+        case TerritoryRussia:             return 115592021;
+        case TerritorySaudi:              return 41036883;
+        case TerritorySouthAfrica:        return 43121714;
+        case TerritoryTaiwan:             return 19414746;
+        case TerritoryThailand:           return 38316626;
+        case TerritoryUkraine:            return 29936928;
+        case TerritoryVietnam:            return 42061790;
+        default:                         return 50000000;
+    }
+}
+
+int World::GetTeamStartingPopulation( int teamId )
+{
+    Team *team = g_app->GetWorld()->GetTeam( teamId );
+    if( !team ) return 0;
+    int total = 0;
+    for( int j = 0; j < team->m_territories.Size(); ++j )
+        total += GetTerritoryPopulation( team->m_territories[j] );
+    return total;
+}
+
 void World::SetAIToggleCPU( bool value )
 {
     for( int i = 0; i < m_teams.Size(); ++i )
@@ -2177,15 +2231,15 @@ void World::Update()
     // Update the map render colour, based on population
     
     START_PROFILE("WorldColour");
-    int territoriesPerTeam = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
-    int populationPerTerritory = g_app->GetGame()->GetOptionValue("PopulationPerTerritory");
-    int totalStartingPop = territoriesPerTeam * populationPerTerritory * 1000000;
 
     //if( g_keys[KEY_O] ) g_app->GetWorld()->GetMyTeam()->m_friendlyDeaths += 3000000;
     //if( g_keys[KEY_P] ) g_app->GetWorld()->GetMyTeam()->m_friendlyDeaths -= 3000000;
     
     for( int i = 0; i < m_teams.Size(); ++i )
     {
+        int totalStartingPop = World::GetTeamStartingPopulation( m_teams[i]->m_teamId );
+        if( totalStartingPop <= 0 ) totalStartingPop = 1;
+
         float numFriendlyDead = m_teams[i]->m_friendlyDeaths;
         float fractionAlive = 1.0f - numFriendlyDead / totalStartingPop;
         fractionAlive = min( fractionAlive, 1.0f );

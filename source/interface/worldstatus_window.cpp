@@ -669,7 +669,7 @@ void ScoresWindow::Render( bool _hasFocus )
     FadingWindow::Render( _hasFocus, false );
 
     //
-    // Order the teams based on their scores
+    // Order the teams based on display score (combined when ScoreMode Team)
     // Lowest first
 
     LList<int> teamOrdering;
@@ -677,12 +677,12 @@ void ScoresWindow::Render( bool _hasFocus )
     for( int i = 0; i <  g_app->GetWorld()->m_teams.Size(); ++i )
     {
         Team *team = g_app->GetWorld()->m_teams[i];
-        int teamScore = g_app->GetGame()->GetScore(team->m_teamId);
+        int teamScore = g_app->GetGame()->GetDisplayScore( team->m_teamId );
 
         bool added = false;
         for( int j = 0; j < teamOrdering.Size(); ++j )
         {
-            int thisScore = g_app->GetGame()->GetScore( teamOrdering[j] );
+            int thisScore = g_app->GetGame()->GetDisplayScore( teamOrdering[j] );
 
             if( teamScore < thisScore )
             {
@@ -700,7 +700,7 @@ void ScoresWindow::Render( bool _hasFocus )
 
 
     //
-    // Render the scores based on their ordering
+    // Render the scores based on their ordering (each player listed; score = display score)
 
     float xPos = m_x + m_w - 10;
     float yPos = m_y + 5;
@@ -719,7 +719,7 @@ void ScoresWindow::Render( bool _hasFocus )
     {
         Team *team = g_app->GetWorld()->GetTeam(teamOrdering[i]);
         Colour col = team->GetTeamColour();
-        int score = g_app->GetGame()->GetScore( teamOrdering[i] );
+        int score = g_app->GetGame()->GetDisplayScore( teamOrdering[i] );
 
         char teamName[256];
         if( team->m_type == Team::TypeAI )
@@ -878,7 +878,7 @@ void StatsWindow::Render( bool hasFocus )
 
 
     //
-    // Order the teams based on their scores
+    // Order the teams based on display score (combined when ScoreMode Team)
     // Lowest first
 
     LList<int> teamOrdering;
@@ -886,12 +886,12 @@ void StatsWindow::Render( bool hasFocus )
     for( int i = 0; i <  g_app->GetWorld()->m_teams.Size(); ++i )
     {
         Team *team = g_app->GetWorld()->m_teams[i];
-        int teamScore = g_app->GetGame()->GetScore(team->m_teamId);
+        int teamScore = g_app->GetGame()->GetDisplayScore( team->m_teamId );
 
         bool added = false;
         for( int j = 0; j < teamOrdering.Size(); ++j )
         {
-            int thisScore = g_app->GetGame()->GetScore( teamOrdering[j] );
+            int thisScore = g_app->GetGame()->GetDisplayScore( teamOrdering[j] );
 
             if( teamScore < thisScore )
             {
@@ -909,8 +909,8 @@ void StatsWindow::Render( bool hasFocus )
 
     
     //
-    // Display the scores in order
-    
+    // Display each player with per-team stats (kills, survivors, etc.) and display score
+    //
     yPos = m_y + 60;
 
     for( int i = teamOrdering.Size()-1; i>=0; --i )
@@ -937,9 +937,7 @@ void StatsWindow::Render( bool hasFocus )
         char collatoral[64];
         char score[64];
 
-        float startintPop = g_app->GetGame()->GetOptionValue( "PopulationPerTerritory" );
-        startintPop *= g_app->GetGame()->GetOptionValue( "TerritoriesPerTeam" );
-
+        float startintPop = World::GetTeamStartingPopulation( teamId ) / 1000000.0f;
         float numSurvivors = startintPop - team->m_friendlyDeaths/1000000.0f;
         
 		char number[32];
@@ -960,7 +958,7 @@ void StatsWindow::Render( bool hasFocus )
         strcpy( collatoral, LANGUAGEPHRASE("dialog_worldstatus_pop_in_millions") );
 		LPREPLACESTRINGFLAG( 'P', number, collatoral );
 
-        sprintf( score, "%d", g_app->GetGame()->GetScore(teamId) );
+        sprintf( score, "%d", g_app->GetGame()->GetDisplayScore( teamId ) );
         
         if( g_app->GetGame()->m_pointsPerNuke > 0 ||
             g_app->GetGame()->m_winner != -1 ||

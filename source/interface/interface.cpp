@@ -558,8 +558,7 @@ void Interface::Render()
                 if( timeOnScreen > 4.0f ) alpha = 5.0f - timeOnScreen;
                 alpha = max(alpha, 0.0f);
                 alpha *= 255;
-                            
-                Colour col( 255, 255, 255, alpha );
+                Colour col( 255, 255, 255, (int)alpha );
                 float size = ( g_windowManager->WindowW() / 12.0f );
                 float xPos = g_windowManager->WindowW()/2.0f;
                 float yPos = g_windowManager->WindowH()*0.8f;            
