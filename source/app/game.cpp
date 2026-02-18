@@ -178,9 +178,15 @@ void Game::SetOptionValue( const char *_name, int _value )
 
 void Game::SetGameMode( int _mode )
 {
-    //
-    // Reset all options to defaults
+    m_gameMode = _mode;
 
+    //
+    // Default mode: do not overwrite manually set options; only apply mode presets for other modes
+    if( _mode == GAMEMODE_STANDARD )
+        return;
+
+    //
+    // Reset all options to defaults, then apply mode-specific presets
     for( int i = 0; i < m_options.Size(); ++i )
     {
         GameOption *option = m_options[i];
@@ -195,15 +201,12 @@ void Game::SetGameMode( int _mode )
         }
     }
 
-    m_gameMode = _mode;
-
-
     //
-    // Set specific options
+    // Set specific options for this mode
 
     switch( _mode )
     {
-        case GAMEMODE_STANDARD:            
+        case GAMEMODE_STANDARD:
             break;
 
         case GAMEMODE_OFFICEMODE:
@@ -241,24 +244,6 @@ void Game::SetGameMode( int _mode )
 
 bool Game::IsOptionEditable( int _optionId )
 {
-    //
-    // If we are a demo, nothing is editable
-    // Except the server name
-    
-    char authKey[256];
-    Authentication_GetKey( authKey );
-    if( Authentication_IsDemoKey(authKey) )
-    {
-        if( stricmp(m_options[_optionId]->m_name, "ServerName" ) == 0 )
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-
-
     int mode = GetOptionValue("GameMode");
     char *optionName = m_options[_optionId]->m_name;
 
@@ -276,8 +261,7 @@ bool Game::IsOptionEditable( int _optionId )
                     stricmp(optionName, "RadarSharing" ) != 0 &&
                     stricmp(optionName, "VariableUnitCounts" ) != 0 &&
                     stricmp(optionName, "WorldScale" ) != 0 &&
-                    stricmp(optionName, "WorldUnitScale" ) != 0 &&
-                    stricmp(optionName, "VictoryMode" ) != 0 );
+                    stricmp(optionName, "WorldUnitScale" ) != 0 );
 
         case GAMEMODE_OFFICEMODE:
             return( stricmp(optionName, "GameSpeed" ) != 0 &&                
@@ -297,8 +281,7 @@ bool Game::IsOptionEditable( int _optionId )
         case GAMEMODE_DIPLOMACY:
             return( stricmp(optionName, "PermitDefection" ) != 0 &&
                     stricmp(optionName, "RadarSharing" ) != 0 &&
-                    stricmp(optionName, "ScoreMode" ) != 0 &&
-                    stricmp(optionName, "VictoryMode" ) != 0 );
+                    stricmp(optionName, "ScoreMode" ) != 0 );
 
         case GAMEMODE_TOURNAMENT:
             return( stricmp(optionName, "GameMode" ) == 0 ||
@@ -389,19 +372,11 @@ void Game::CalculateScores()
             m_pointsPerNuke = 0;
             m_pointsPerCollatoral = -1;
             break;
-
-        case 3:                                             // Team (same weightings as Default; ranking by combined alliance score)
-            m_pointsPerSurvivor = 0;
-            m_pointsPerDeath = -1;
-            m_pointsPerKill = 2;
-            m_pointsPerNuke = 0;
-            m_pointsPerCollatoral = -2;
-            break;
     }
 
     
     //
-    // Work out the scores based on the weightings (per-team; Team score mode uses GetDisplayScore for ranking)
+    // Work out the scores based on the weightings (per-team; when VictoryMode is Alliance, GetDisplayScore shows combined alliance score for ranking)
 
     for( int t = 0; t < g_app->GetWorld()->m_teams.Size(); ++t )
     {
@@ -679,7 +654,7 @@ int Game::GetScore( int _teamId )
 
 int Game::GetDisplayScore( int _teamId )
 {
-    if( GetOptionValue( "ScoreMode" ) != 3 )
+    if( GetOptionValue( "VictoryMode" ) != 1 )
         return m_score[_teamId];
     Team *team = g_app->GetWorld()->GetTeam( _teamId );
     if( !team || team->m_allianceId < 0 )

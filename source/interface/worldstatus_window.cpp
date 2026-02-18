@@ -669,7 +669,7 @@ void ScoresWindow::Render( bool _hasFocus )
     FadingWindow::Render( _hasFocus, false );
 
     //
-    // Order the teams based on display score (combined when ScoreMode Team)
+    // Order the teams based on display score (combined when VictoryMode Alliance)
     // Lowest first
 
     LList<int> teamOrdering;
@@ -878,7 +878,7 @@ void StatsWindow::Render( bool hasFocus )
 
 
     //
-    // Order the teams based on display score (combined when ScoreMode Team)
+    // Order the teams based on display score (combined when VictoryMode Alliance)
     // Lowest first
 
     LList<int> teamOrdering;

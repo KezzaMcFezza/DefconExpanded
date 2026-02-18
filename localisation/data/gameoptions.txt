@@ -23,7 +23,7 @@ AdvertiseOnLAN          0       1       1           0
     Disabled
     Enabled
 
-GameMode                0       6       0           0
+GameMode                0       6       6           0
     Default
     Office Mode
     Speed Defcon
@@ -73,13 +73,12 @@ SlowestSpeed            0       5       0           0
     50x Real Time
     200x Real Time
     
-ScoreMode               0       3       0           0
+ScoreMode               0       2       1           0
     Default
     Survivor
     Genocide
-    Team
 
-VictoryMode              0       1       0           0
+VictoryMode              0       1       1           0
     Individual
     Alliance
 

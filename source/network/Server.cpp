@@ -709,12 +709,6 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
             AppDebugOut( "SERVER: Failed to create new team : already too many demo players\n" );
             return;
         }
-
-        if( g_app->GetGame()->GetOptionValue("GameMode") != 0 )
-        {
-            AppDebugOut( "SERVER: Failed to create Demo team because GameMode isn't default\n" );
-            return;
-        }
     }
 
 
@@ -2335,8 +2329,7 @@ void Server::AuthenticateClient ( int _clientId )
             maxDemoPlayers = max( maxDemoPlayers, 2 );
         }
 
-        if( numDemoTeams >= maxDemoPlayers ||
-            g_app->GetGame()->GetOptionValue("GameMode") != 0 )
+        if( numDemoTeams >= maxDemoPlayers )
         {
             if( numSpectators >= maxSpectators )
             {

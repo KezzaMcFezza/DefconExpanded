@@ -861,7 +861,7 @@ void World::InitialiseTeam ( int teamId, int teamType, int clientId )
     }
     else
     {
-        team->m_desiredGameSpeed = GAMESPEED_SLOW;
+        team->m_desiredGameSpeed = GAMESPEED_REALTIME;
     }
 
     team->m_aiActionTimer = syncfrand( team->m_aiActionSpeed );

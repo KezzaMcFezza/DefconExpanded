@@ -30,7 +30,7 @@ Team::Team()
     m_numTerritories(0),
     m_currentState(StatePlacement),
     m_previousState(-1),
-    m_desiredGameSpeed(GAMESPEED_MEDIUM),
+    m_desiredGameSpeed(GAMESPEED_REALTIME),
     m_teamColourFader(1),
     m_readyToStart(false),
     m_targetTeam(-1),

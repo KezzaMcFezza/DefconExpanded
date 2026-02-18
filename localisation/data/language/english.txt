@@ -1027,7 +1027,9 @@ tooltip_scoremode_survivor                  Score 1 point for every survivor in 
 tooltip_scoremode_genocide                  Score 1 point for every enemy kill. Simple, yet horrible.
 
 tooltip_victorymode_individual              The Winner will be the individual player with the highest score.
+tooltip_victorymode_Individual              The Winner will be the individual player with the highest score.
 tooltip_victorymode_team                    The Winners will be the players on the team with the highest combined score.
+tooltip_victorymode_Alliance                The Winners will be the players on the team with the highest combined score.
 
 tooltip_defection_no                        Defection is not permitted. The Alliances will remain fixed for the entire game.\n\nYou are automatically in a state of Cease Fire with your allies.
 tooltip_defection_yes                       Defection is permitted. You or any other player can chose to changes Alliance at any time.\n\nYou can enable or disable your Cease Fire status with your allies at any time.

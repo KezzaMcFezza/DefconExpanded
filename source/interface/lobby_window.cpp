@@ -1804,7 +1804,8 @@ void LobbyOptionsWindow::Create()
         if( stricmp( param->m_name, "MaxTeams" ) != 0 &&
             stricmp( param->m_name, "ServerName" ) != 0 &&
             stricmp( param->m_name, "GameMode" ) != 0 &&
-            stricmp( param->m_name, "ScoreMode" ) != 0 )
+            stricmp( param->m_name, "ScoreMode" ) != 0 &&
+            stricmp( param->m_name, "VictoryMode" ) != 0 )
         {
             RegisterGameOptionButton( this, optionX, optionY, optionW, optionH, 170, i, m_gameOptions, true, false, false, 0 );
 
@@ -1953,19 +1954,8 @@ void LobbyOptionsWindow::Render( bool _hasFocus )
         if( !g_app->GetGame()->IsOptionEditable(paramIndex) )
         {
             y+=30;
-
-            char authKey[256];
-            Authentication_GetKey( authKey );
-            if( Authentication_IsDemoKey(authKey) )
-            {
-                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_1") );
-                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_2") );
-            }
-            else
-            {
-                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_1") );
-                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_2") );
-            }
+            g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_1") );
+            g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_2") );
         }
     }
 }
@@ -2212,6 +2202,7 @@ void LobbyWindow::Create()
     int serverNameIndex = g_app->GetGame()->GetOptionIndex("ServerName");
     int gameModeIndex = g_app->GetGame()->GetOptionIndex("GameMode");
     int scoreModeIndex = g_app->GetGame()->GetOptionIndex("ScoreMode");
+    int victoryModeIndex = g_app->GetGame()->GetOptionIndex("VictoryMode");
 
     if( g_app->HasServerPrivileges() )
     {
@@ -2222,6 +2213,7 @@ void LobbyWindow::Create()
     RegisterGameOptionButton( this, boxX, boxY, boxW+10, 17, 100, serverNameIndex, m_gameOptions, false, true, true, 20 );
     RegisterGameOptionButton( this, boxX, boxY+=40, boxW+10, 17, 100, gameModeIndex, m_gameOptions, false, false, false, 0 );
     RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, scoreModeIndex, m_gameOptions, false, false, false, 0 );
+    RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, victoryModeIndex, m_gameOptions, false, false, false, 0 );
 
     AdvancedOptionsButton *options = new AdvancedOptionsButton();
     options->SetProperties( "Advanced Options", 10, m_h - 30, 140, 20, "dialog_lobby_advanced_options", " ", true, false );
@@ -2614,20 +2606,31 @@ void LobbyWindow::Render( bool _hasFocus )
 
     GameOption *gameMode = g_app->GetGame()->GetOption("GameMode");
     GameOption *scoreMode = g_app->GetGame()->GetOption("ScoreMode");
+    GameOption *victoryMode = g_app->GetGame()->GetOption("VictoryMode");
 
     char gameModeStringId[256];
     char scoreModeStringId[256];
+    char victoryModeStringId[256];
 
     sprintf( gameModeStringId, "tooltip_gamemode_%s", gameMode->m_subOptions[gameMode->m_currentValue] );
     sprintf( scoreModeStringId, "tooltip_scoremode_%s", scoreMode->m_subOptions[scoreMode->m_currentValue] );
+    sprintf( victoryModeStringId, "tooltip_victorymode_%s", victoryMode->m_subOptions[victoryMode->m_currentValue] );
 
     for( int i = 0; i < strlen(gameModeStringId); ++i )
     {
         if( gameModeStringId[i] == ' ' ) gameModeStringId[i] = '_';
     }
+    for( int i = 0; i < strlen(scoreModeStringId); ++i )
+    {
+        if( scoreModeStringId[i] == ' ' ) scoreModeStringId[i] = '_';
+    }
+    for( int i = 0; i < strlen(victoryModeStringId); ++i )
+    {
+        if( victoryModeStringId[i] == ' ' ) victoryModeStringId[i] = '_';
+    }
 
     char fullString[10000];
-    sprintf( fullString, "%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId ) );
+    sprintf( fullString, "%s\n\n%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId), LANGUAGEPHRASE(victoryModeStringId) );
 
     MultiLineText wrapped(fullString, captionW, 10 );
 

@@ -1979,8 +1979,7 @@ void App::ShutdownCurrentGame()
 
 void App::InitWorld()
 {
-    m_game->ResetOptions();
-    
+    // Do not reset game options here - use options already set in lobby / from server / from file defaults
     m_world = new World();
     m_world->Init();
 }
