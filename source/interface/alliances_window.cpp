@@ -309,18 +309,18 @@ public:
             {       
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
-                g_renderer2d->RectFill ( realX, realY, m_w, m_h, Colour(100,100,100,50) );
+                g_renderer2d->RectFill ( realX, realY, m_w, m_h, Colour(100,100,100,50), true );
 
                 if( highlighted || clicked )
                 {
-                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20) );
+                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150), true );
+                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20), true );
                 }
 
                 if( vote->GetCurrentVote( myTeam->m_teamId ) == m_vote )
                 {
-                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, White );
+                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150), true );
+                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, White, true );
                 }
 
                 g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(100,100,100,100) );
@@ -549,19 +549,19 @@ public:
             myTeam &&
             team != myTeam )
         {
-            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100), true );
             g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55), true );
             }
 
             if( myTeam->m_ceaseFire[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White, true );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
             }
@@ -600,19 +600,19 @@ public:
         if( team &&
             team != myTeam )
         {
-            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100), true );
             g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55), true );
             }
 
             if( myTeam->m_sharingRadar[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White, true );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );                
             }
         }
@@ -657,11 +657,11 @@ public:
             teamColDark.m_g *= 0.2f;
             teamColDark.m_b *= 0.2f;
 
-            g_renderer2d->RectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol, true );
             g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             
-            g_renderer2d->RectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50) );
-            g_renderer2d->RectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50) );
+            g_renderer2d->RectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50), true );
+            g_renderer2d->RectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50), true );
 
             if( teamId == g_app->GetWorld()->m_myTeamId )
             {
@@ -678,7 +678,7 @@ public:
                 if( myTeamId != -1 &&
                     team->m_sharingRadar[myTeamId] )
                 {
-                    g_renderer2d->StaticSprite( img, realX+175, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+175, realY+8, 15, 15, White, true );
                 }           
 
                 int sharingRadar = g_app->GetGame()->GetOptionValue("RadarSharing");
@@ -686,7 +686,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_sharingRadar[teamId] )                    
                 {
-                    g_renderer2d->StaticSprite( img, realX+235, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+235, realY+8, 15, 15, White, true );
                 }
 
                 int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
@@ -694,7 +694,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_ceaseFire[teamId] )
                 {
-                    g_renderer2d->StaticSprite( img, realX+320, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+320, realY+8, 15, 15, White, true );
                 }
 
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -733,13 +733,13 @@ public:
         
         if( vote )
         {
-            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,200) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,200), true );
             
             Colour borderCol(255,255,255,100);
             if( highlighted || clicked ) 
             {
                 borderCol.m_a = 255;
-                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100), true );
             }
             g_renderer2d->Rect( realX, realY, m_w, m_h, borderCol );
 
