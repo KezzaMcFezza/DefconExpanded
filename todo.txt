@@ -85,9 +85,13 @@ Raitos Goals:
 - territory unique populations                            - DONE
 - fix gameoption world unit scale                         - DONE
 - team victory mode with combined team score system       - DONE
+- demo can access custom modes, default options adjusted  - DONE
+- world scale improved, variable unit count improved      - DONE
+- flying units are no longer rendered a little head of
+  where they actually are                                 - DONE
+
 
 TODO:
-- demo can access custom modes, default options adjusted
 - multi-tier radar system
 - expansion of unit system
 - territory unique units

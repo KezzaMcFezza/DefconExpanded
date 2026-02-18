@@ -496,8 +496,8 @@ void Bomber::Render2D()
 
         float size = GetSize().DoubleValue() * 0.4f;
         
-        g_renderer2d->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 4, 
-                                  predictedLatitude + m_vel.y.DoubleValue() * 4,
+        g_renderer2d->RotatingSprite( bmpImage, predictedLongitude, 
+                                  predictedLatitude,
                                   size/2, 
                                   size/2, 
                                   colour, 
@@ -533,10 +533,7 @@ void Bomber::Render3D()
             float size = GetSize3D().DoubleValue();
             float iconSize = size * 0.4f;
 
-            float offsetLon = predictedLongitude + m_vel.x.DoubleValue() * 4;
-            float offsetLat = predictedLatitude + m_vel.y.DoubleValue() * 4;
-            
-            Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(offsetLon, offsetLat);
+            Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
             Vector3<float> normal = spritePos;
             normal.Normalise();
             spritePos += normal * GLOBE_ELEVATION;

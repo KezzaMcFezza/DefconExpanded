@@ -201,7 +201,8 @@ bool Sub::Update()
 void Sub::Render2D()
 {
     MovingObject::Render2D();
-
+#if 0
+    // Sub nuke count display - disabled, ships can carry large ordinance counts
     if( m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
@@ -242,12 +243,14 @@ void Sub::Render2D()
             }
         }
     }
+#endif
 }
 
 void Sub::Render3D()
 {
     MovingObject::Render3D();
-
+#if 0
+    // Sub nuke count display - disabled, ships can carry large ordinance counts
     if( m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
@@ -307,6 +310,7 @@ void Sub::Render3D()
             }
         }
     }
+#endif
 }
 
 void Sub::RunAI()

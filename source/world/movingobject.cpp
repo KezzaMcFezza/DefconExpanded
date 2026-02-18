@@ -549,8 +549,8 @@ void MovingObject::Render2D()
         Image *bmpImage = g_resource->GetImage( bmpImageFilename );
 
         g_renderer2d->RotatingSprite( bmpImage,
-                          predictedLongitude + m_vel.x.DoubleValue() * 2,
-                          predictedLatitude + m_vel.y.DoubleValue() * 2,
+                          predictedLongitude,
+                          predictedLatitude,
                           size/2,
                           size/2,
                           colour,
@@ -569,8 +569,8 @@ void MovingObject::Render2D()
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
                 g_renderer2d->RotatingSprite( bmpImage,
-                                predictedLongitude + m_vel.x.DoubleValue() * 2,
-                                predictedLatitude + m_vel.y.DoubleValue() * 2,
+                                predictedLongitude,
+                                predictedLatitude,
                                 size/2,
                                 size/2,
                                 colour,
@@ -619,10 +619,7 @@ void MovingObject::Render3D()
 
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         
-        float offsetLon = predictedLongitude + m_vel.x.DoubleValue() * 2;
-        float offsetLat = predictedLatitude + m_vel.y.DoubleValue() * 2;
-        
-        Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(offsetLon, offsetLat);
+        Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
         Vector3<float> normal = spritePos;
         normal.Normalise();
         spritePos += normal * GLOBE_ELEVATION;
