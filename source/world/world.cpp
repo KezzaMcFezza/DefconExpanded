@@ -811,6 +811,8 @@ bool World::IsFriend( int _teamId1, int _teamId2 )
     
     return( team1 && 
             team2 &&
+            team1->m_allianceId >= 0 &&
+            team2->m_allianceId >= 0 &&
             team1->m_allianceId == team2->m_allianceId );
 }
 

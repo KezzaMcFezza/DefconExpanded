@@ -90,13 +90,13 @@ Raitos Goals:
 - flying units are no longer rendered a little head of
   where they actually are                                 - DONE
 - subs don't render smallnuke                             - DONE
+- unit queue order improvements                           - DONE
+- order line color management                             - DONE
+- allies start in ceasefire                               - DONE
 
 TODO:
 - stanby mode queueing
 - submarines passive sonar adjustment
-- allies start in ceasefire
-- unit queue order improvements
-- order line color management
 - multi-tier radar system
 - expansion of unit system
 - territory unique units
