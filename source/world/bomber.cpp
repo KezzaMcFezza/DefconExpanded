@@ -542,8 +542,14 @@ void Bomber::RequestAction( ActionOrder *_action )
             delete _action;
             return;
         }
+        // Only set waypoint to the new target if it becomes our current (first) order.
+        // When adding to an existing queue, keep flying to the first target until we launch.
+        bool wasQueueEmpty = ( m_actionQueue.Size() == 0 );
         WorldObject::RequestAction( _action );
-        SetWaypoint( _action->m_longitude, _action->m_latitude );
+        if( wasQueueEmpty )
+        {
+            SetWaypoint( _action->m_longitude, _action->m_latitude );
+        }
     }
     else
     {

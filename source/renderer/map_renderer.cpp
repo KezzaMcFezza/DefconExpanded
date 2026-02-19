@@ -2119,7 +2119,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
         
         
         //
-        // Render red action line to our combat target
+        // Render action line to our combat target (pink = nuke attack orders, orange = conventional attack)
 
         int targetObjectId = wobj->GetTargetObjectId();
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( targetObjectId );
@@ -2132,7 +2132,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 									   targetObject->m_vel.y.DoubleValue() * g_predictionTime * 
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
-            Colour actionCursorCol( 255,0,0,150 );
+            Colour actionCursorCol = wobj->UsingNukes() ? Colour( 255, 0, 255, 150 ) : Colour( 255, 127, 0, 150 );  // Pink / Orange
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
 
@@ -2154,7 +2154,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
         
 
         //
-        // Render blue action line to our movement target
+        // Render action line to our movement target (red = nuke in flight, blue = move, green = landing, lavender = bomber nuke mode waypoint only)
 
         if( !targetObject && wobj->IsMovingObject() )
         {
@@ -2177,19 +2177,22 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             }
             if( actionCursorLongitude != 0.0f || actionCursorLatitude != 0.0f )
             {
-                Colour actionCursorCol( 0,0,255,150 );
+                Colour actionCursorCol( 0, 0, 255, 150 );
                 float actionCursorSize = 2.0f;
                 float actionCursorAngle = 0;
 
-                if( mobj->m_type == WorldObject::TypeNuke )
+                if( mobj->IsNuke() )
                 {
-                    actionCursorCol.Set( 255,0,0,150 );
+                    actionCursorCol.Set( 255, 0, 0, 150 );   // Red: nuke in flight movement order line
                 }
-
-                if( mobj->m_type == WorldObject::TypeBomber &&
-                    mobj->m_currentState == 1 )
+                else if( mobj->IsAircraft() && mobj->m_isLanding != -1 )
                 {
-                    actionCursorCol.Set( 255,0,0,150 );
+                    actionCursorCol.Set( 0, 255, 0, 150 );   // Green: landing
+                }
+                else if( mobj->IsBomberClass() && mobj->m_currentState == 1 )
+                {
+                    // Bomber in nuke mode but no nuke target set: waypoint only (Lavender)
+                    actionCursorCol.Set( 187, 127, 255, 150 );
                 }
 
                 Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
@@ -2211,13 +2214,12 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
 
         //
-        // Render our action queue
+        // Render our action queue (with distinction: active target vs queued targets; pink/salmon = nuke, gray = silo standby, blue = waypoint, yellow = conventional)
 
         if( wobj->m_actionQueue.Size() )
         {
             Image *img = NULL;
             float size = 1.0f;
-            Colour col(255,255,255,100);
 
             switch( wobj->m_type )
             {
@@ -2261,17 +2263,32 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     float angle = atan( -lineX / lineY );
                     if( lineY < 0.0f ) angle += M_PI;
                 
+                    bool isActiveTarget = ( i == 0 );
+                    Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
+                    if( wobj->IsSiloClass() && wobj->m_currentState == 0 )
+                        iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );
+                    float lineWidth = isActiveTarget ? 1.0f : 0.5f;
+                    Colour lineCol;
+                    if( wobj->IsSiloClass() && wobj->m_currentState == 0 )
+                        lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: silo StandBy queue
+                    else if( wobj->UsingNukes() )
+                        lineCol = isActiveTarget ? Colour( 255, 0, 255, 180 ) : Colour( 255, 102, 140, 180 );   // Pink / Salmon (nuke firing / queued)
+                    else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
+                        lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue (launch to location)
+                    else
+                        lineCol = isActiveTarget ? Colour( 255, 255, 0, 180 ) : Colour( 255, 211, 102, 180 );   // Yellow / Lemon (conventional attack)
+
                     g_renderer2d->RotatingSprite( img, targetLongitude, targetLatitude,
-                                                  size, size, col, angle );
+                                                  size, size, iconCol, angle );
                     if( isFirstSeamIteration )
                     {
                         g_renderer2d->RotatingSprite( img, targetLongitude + GetLongitudeMod(), targetLatitude,
-                                                      size, size, col, angle );
+                                                      size, size, iconCol, angle );
                     }
                                                   
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
-                                      col, 1.0f );
+                                      lineCol, lineWidth );
                 }
             }
         }
