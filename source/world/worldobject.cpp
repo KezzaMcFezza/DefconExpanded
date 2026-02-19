@@ -259,6 +259,19 @@ bool WorldObject::Update()
 
     if( m_stateTimer <= 0 )
     {
+        for( int i = m_actionQueue.Size() - 1; i >= 0; --i )
+        {
+            ActionOrder *action = m_actionQueue[i];
+            if( action->m_targetObjectId != -1 )
+            {
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+                if( !obj || obj->m_life <= 0 )
+                {
+                    m_actionQueue.RemoveData( i );
+                    delete action;
+                }
+            }
+        }
         if( m_actionQueue.Size() > 0 )
         {
             ActionOrder *action = m_actionQueue[0];
@@ -904,7 +917,11 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
             if( !target->IsMovingObject() )
             {
                 bomber->SetState(1);
-                bomber->SetNukeTarget( longitude, latitude );
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = longitude;
+                order->m_latitude = latitude;
+                bomber->RequestAction( order );
                 bomber->m_bombingRun = true;
             }
         }
@@ -926,7 +943,11 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
                     city->m_latitude == latitude )
                 {
                     bomber->SetState(1);
-                    bomber->SetNukeTarget( longitude, latitude );
+                    ActionOrder *order = new ActionOrder();
+                    order->m_targetObjectId = city->m_objectId;
+                    order->m_longitude = longitude;
+                    order->m_latitude = latitude;
+                    bomber->RequestAction( order );
                     bomber->m_bombingRun = true;
                     break;
                 }
@@ -939,6 +960,7 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
     // Only clear bomber nukes when we have finite supply and it's exhausted (m_nukeSupply == 0). -1 = infinite resupply.
     if( m_nukeSupply == 0 )
     {
+        bomber->ClearActionQueue();
         bomber->m_bombingRun = false;
         bomber->m_nukeTargetLongitude = 0;
         bomber->m_nukeTargetLatitude = 0;

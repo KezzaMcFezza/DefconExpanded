@@ -3216,6 +3216,10 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
         nearest *= Fixed::FromDouble(g_app->GetMapRenderer()->GetZoomFactor() * 4);
     }
 
+    Fixed mouseLong = Fixed::FromDouble(_mouseX);
+    Fixed mouseLat = Fixed::FromDouble(_mouseY);
+    Fixed maxConsiderSqd = Fixed(25) * Fixed(25);  // Skip objects farther than 25 units
+
     //
     // Find the nearest object to the Mouse
 
@@ -3224,13 +3228,15 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )
         {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( wobj->m_longitude, wobj->m_latitude, mouseLong, mouseLat );
+            if( distSqd > maxConsiderSqd )
+                continue;
             if( g_app->GetWorld()->m_myTeamId == -1 ||
                 wobj->m_visible[g_app->GetWorld()->m_myTeamId] ||
                 wobj->m_lastSeenTime[g_app->GetWorld()->m_myTeamId] > 0 ||
                 g_app->GetGame()->m_winner != -1 )
             {
-                Fixed distance = g_app->GetWorld()->GetDistance( wobj->m_longitude, wobj->m_latitude,
-																 Fixed::FromDouble(_mouseX), Fixed::FromDouble(_mouseY) );
+                Fixed distance = g_app->GetWorld()->GetDistance( wobj->m_longitude, wobj->m_latitude, mouseLong, mouseLat );
                 if( distance < nearest )
                 {
                     underMouseId = wobj->m_objectId;
@@ -3246,8 +3252,10 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
     for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
     {
         City *city = g_app->GetWorld()->m_cities[i];
-        Fixed distance = g_app->GetWorld()->GetDistance( city->m_longitude, city->m_latitude,
-														 Fixed::FromDouble(_mouseX), Fixed::FromDouble(_mouseY) );
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( city->m_longitude, city->m_latitude, mouseLong, mouseLat );
+        if( distSqd > maxConsiderSqd )
+            continue;
+        Fixed distance = g_app->GetWorld()->GetDistance( city->m_longitude, city->m_latitude, mouseLong, mouseLat );
         if( distance < nearest )
         {
             underMouseId = city->m_objectId;
@@ -3474,6 +3482,74 @@ void MapRenderer::HandleClickStateMenu()
 }
 
 
+static bool SelectionHasNukingUnit()
+{
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( obj && obj->UsingNukes() )
+            return true;
+    }
+    return false;
+}
+
+
+static bool SelectionHasLaunchableUnit()
+{
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( obj && ( obj->CanLaunchFighter() || obj->CanLaunchBomber() ) )
+            return true;
+    }
+    return false;
+}
+
+
+static int ResolveNukeTargetForStatic( Fixed longitude, Fixed latitude )
+{
+    // Find static target (city, building) at position. Nukes target static only.
+    World *world = g_app->GetWorld();
+    Fixed nearestSqd = Fixed( 25 );  // 5 units threshold
+    int resultId = -1;
+
+    for( int i = 0; i < world->m_cities.Size(); ++i )
+    {
+        if( !world->m_cities.ValidIndex(i) ) continue;
+        City *city = world->m_cities[i];
+        Fixed distSqd = world->GetDistanceSqd( city->m_longitude, city->m_latitude, longitude, latitude );
+        if( distSqd < nearestSqd )
+        {
+            nearestSqd = distSqd;
+            resultId = city->m_objectId;
+        }
+    }
+
+    for( int i = 0; i < world->m_objects.Size(); ++i )
+    {
+        if( !world->m_objects.ValidIndex(i) ) continue;
+        WorldObject *obj = world->m_objects[i];
+        if( !obj || obj->IsMovingObject() ) continue;
+        if( obj->m_type != WorldObject::TypeSilo &&
+            obj->m_type != WorldObject::TypeRadarStation &&
+            obj->m_type != WorldObject::TypeAirBase )
+            continue;
+        Fixed distSqd = world->GetDistanceSqd( obj->m_longitude, obj->m_latitude, longitude, latitude );
+        if( distSqd < nearestSqd )
+        {
+            nearestSqd = distSqd;
+            resultId = obj->m_objectId;
+        }
+    }
+
+    return resultId;
+}
+
+
 void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMouseId )
 {
     WorldObject *underMouse = g_app->GetWorld()->GetWorldObject(underMouseId);
@@ -3511,25 +3587,28 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
         bool canAction = true;
         if( !underMouse )
         {
-            if( obj->m_type == WorldObject::TypeBattleShip )
-                canAction = false;
-            if( obj->m_type == WorldObject::TypeSub )
-                canAction = false;
-            if( obj->m_type == WorldObject::TypeCarrier ||
-                obj->m_type == WorldObject::TypeAirBase )
+            if( obj->UsingNukes() )
             {
-                if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
+                canAction = ( obj->IsValidMovementTarget( targetLong, targetLat ) > WorldObject::TargetTypeInvalid );
+            }
+            else
+            {
+                if( obj->m_type == WorldObject::TypeBattleShip )
                     canAction = false;
+                if( obj->m_type == WorldObject::TypeSub )
+                    canAction = false;
+                if( obj->m_type == WorldObject::TypeCarrier ||
+                    obj->m_type == WorldObject::TypeAirBase )
+                {
+                    if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
+                        canAction = false;
+                }
             }
         }
         else
         {
-            if( obj->m_type == WorldObject::TypeCarrier ||
-                obj->m_type == WorldObject::TypeAirBase )
-            {
-                if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
-                    canAction = false;
-            }
+            int combatResult = obj->IsValidCombatTarget( underMouseId );
+            canAction = ( combatResult > WorldObject::TargetTypeInvalid );
         }
 
         if( !canAction ) continue;
@@ -3869,25 +3948,51 @@ void MapRenderer::Update()
                 {             
                     HandleClickStateMenu();
                 }
-                else if( underMouse &&
-                         underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )                             
-                {                
-                    HandleSelectObject(underMouseId);
+                else if( underMouse )
+                {
+                    // If we have selection that can attack the object under mouse, give attack order (enables targeting cities, silos, etc.)
+                    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+                    bool hasValidCombatTarget = false;
+                    for( int si = 0; si < selCount; ++si )
+                    {
+                        int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                        if( obj && obj->IsValidCombatTarget( underMouseId ) > WorldObject::TargetTypeInvalid )
+                        {
+                            hasValidCombatTarget = true;
+                            break;
+                        }
+                    }
+                    if( hasValidCombatTarget )
+                    {
+                        if( SelectionHasNukingUnit() && underMouse->IsMovingObject() )
+                        {
+                            int resolvedId = ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+                            HandleObjectAction( longitude, latitude, resolvedId );
+                        }
+                        else
+                        {
+                            HandleObjectAction(longitude, latitude, underMouseId);
+                        }
+                    }
+                    else if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
+                    {
+                        HandleSelectObject(underMouseId);
+                    }
                 }
                 else if( !underMouse )
                 {
                     if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                     {
-                        HandleObjectAction(longitude, latitude, -1);
+                        if( SelectionHasNukingUnit() || SelectionHasLaunchableUnit() )
+                            HandleObjectAction(longitude, latitude, -1);
+                        else
+                            HandleSetWaypoint( longitude, latitude, false );
                     }
                     else
                     {
                         g_app->GetWorldRenderer()->ClearSelection();
                     }
-                }
-                else 
-                {
-                    HandleObjectAction(longitude, latitude, underMouseId);
                 }
             }
         }

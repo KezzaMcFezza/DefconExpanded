@@ -89,12 +89,18 @@ Raitos Goals:
 - world scale improved, variable unit count improved      - DONE
 - flying units are no longer rendered a little head of
   where they actually are                                 - DONE
-
+- subs don't render smallnuke                             - DONE
 
 TODO:
+- stanby mode queueing
+- submarines passive sonar adjustment
+- allies start in ceasefire
+- unit queue order improvements
+- order line color management
 - multi-tier radar system
 - expansion of unit system
 - territory unique units
 - burst fire system
 - unit stats rebalance
 - performance efficiancy increase
+- find a better way to render bomber payloads

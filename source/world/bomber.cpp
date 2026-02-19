@@ -54,9 +54,21 @@ Bomber::Bomber()
 
 void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
-    if( !CheckCurrentState() ||
-        m_stateTimer > 0 )
+    if( !CheckCurrentState() )
     {
+        return;
+    }
+    if( m_stateTimer > 0 )
+    {
+        if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 &&
+            ( targetObjectId != -1 || ( longitude != 0 || latitude != 0 ) ) )
+        {
+            ActionOrder *retry = new ActionOrder();
+            retry->m_targetObjectId = targetObjectId;
+            retry->m_longitude = longitude;
+            retry->m_latitude = latitude;
+            m_actionQueue.PutDataAtStart( retry );
+        }
         return;
     }
 
@@ -93,11 +105,6 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_currentState == 0 )
     {    
-        //if( m_teamId == g_app->GetWorld()->m_myTeamId )
-        //{
-        //    g_app->GetMapRenderer()->CreateAnimation( MapRenderer::AnimationTypeActionMarker, m_objectId, longitude, latitude );
-        //}
-        //SetWaypoint( longitude, latitude );
         WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
         if( target &&
             target->m_visible[m_teamId] &&
@@ -108,28 +115,67 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     }
     else if( m_currentState == 1 )
     {
-        if( m_states[1]->m_numTimesPermitted > 0 )
+        if( m_states[1]->m_numTimesPermitted <= 0 )
+            return;
+
+        int deadTargetCheck = targetObjectId;
+        if( deadTargetCheck != -1 )
         {
-            Fixed nukeRange = GetActionRange();
-            if( m_stateTimer <= 0 &&
-                g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude ) <= nukeRange * nukeRange )
-            {                
-                g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, nukeRange );
-                m_nukeTargetLongitude = 0;
-                m_nukeTargetLatitude = 0;
-                m_bombingRun = true;
-            }
-            else
+            WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( deadTargetCheck );
+            if( !targetObj || targetObj->m_life <= 0 )
+                return;
+        }
+
+        Fixed nukeRange = GetActionRange();
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude );
+        bool inRange = ( distSqd <= nukeRange * nukeRange );
+
+        if( inRange )
+        {
+            MovingObject::Action( targetObjectId, longitude, latitude );
+            g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, nukeRange );
+            m_nukeTargetLongitude = 0;
+            m_nukeTargetLatitude = 0;
+            m_bombingRun = true;
+
+            int remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size();
+            if( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 && targetObjectId != -1 )
             {
-                m_bombingRun = true;
+                ActionOrder *repeat = new ActionOrder();
+                repeat->m_targetObjectId = targetObjectId;
+                repeat->m_longitude = longitude;
+                repeat->m_latitude = latitude;
+                RequestAction( repeat );
+            }
+            else if( m_actionQueue.Size() > 0 )
+            {
+                ActionOrder *next = m_actionQueue[0];
+                SetWaypoint( next->m_longitude, next->m_latitude );
+            }
+            return;
+        }
+        else
+        {
+            if( targetObjectId == -1 )
+            {
                 SetNukeTarget( longitude, latitude );
-                //SetWaypoint( longitude, latitude );
+                m_bombingRun = true;
                 return;
             }
+            ActionOrder *retry = new ActionOrder();
+            retry->m_targetObjectId = targetObjectId;
+            retry->m_longitude = longitude;
+            retry->m_latitude = latitude;
+            m_actionQueue.PutDataAtStart( retry );
+            SetWaypoint( longitude, latitude );
+            m_bombingRun = true;
+            return;
         }
     }
-
-    MovingObject::Action( targetObjectId, longitude, latitude );
+    else
+    {
+        MovingObject::Action( targetObjectId, longitude, latitude );
+    }
 }
 
 bool Bomber::Update()
@@ -141,6 +187,35 @@ bool Bomber::Update()
 
     bool arrived = MoveToWaypoint();
 
+    // If we arrived at waypoint but have a queued attack or pending nuke, keep waypoint set so we orbit until reload allows firing
+    if( arrived && m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+    {
+        Fixed orbitLon = 0, orbitLat = 0;
+        if( m_actionQueue.Size() > 0 )
+        {
+            ActionOrder *next = m_actionQueue[0];
+            orbitLon = next->m_longitude;
+            orbitLat = next->m_latitude;
+            if( next->m_targetObjectId != -1 )
+            {
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject( next->m_targetObjectId );
+                if( obj )
+                {
+                    orbitLon = obj->m_longitude;
+                    orbitLat = obj->m_latitude;
+                }
+            }
+        }
+        else if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0 )
+        {
+            orbitLon = m_nukeTargetLongitude;
+            orbitLat = m_nukeTargetLatitude;
+        }
+        if( orbitLon != 0 || orbitLat != 0 )
+        {
+            SetWaypoint( orbitLon, orbitLat );
+        }
+    }
 
     //
     // Do we move ?
@@ -250,8 +325,11 @@ bool Bomber::Update()
         SetState(1);
     }
 
-    if( (m_bombingRun && m_states[1]->m_numTimesPermitted ==  0) ||
-        IsIdle() )
+    bool hasQueuedAttack = ( m_currentState == 1 ) && ( m_actionQueue.Size() > 0 );
+    bool hasAmmoAndWaypoint = ( m_currentState == 1 ) && ( m_states[1]->m_numTimesPermitted > 0 ) &&
+        ( m_targetLongitude != 0 || m_targetLatitude != 0 );
+    if( ( m_bombingRun && m_states[1]->m_numTimesPermitted == 0 ) ||
+        ( IsIdle() && !hasQueuedAttack && !hasAmmoAndWaypoint ) )
     {
         Land( GetClosestLandingPad() );
     }
@@ -436,19 +514,11 @@ int Bomber::IsValidCombatTarget( int _objectId )
     bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );    
     if( !isFriend )
     {       
+        // Nuke mode: static targets only (empty, city, building). Never moving.
         if( !obj->IsMovingObject() &&
             m_states[1]->m_numTimesPermitted > 0 )
         {
             return TargetTypeLaunchNuke;
-        }
-
-        if( obj->IsMovingObject() )
-        {
-            MovingObject *mobj = (MovingObject *) obj;
-            if( mobj->m_movementType == MovementTypeSea )
-            {
-                return TargetTypeValid;
-            }
         }
     }
 
@@ -456,11 +526,42 @@ int Bomber::IsValidCombatTarget( int _objectId )
 }
 
 
+bool Bomber::IsActionQueueable()
+{
+    return ( m_currentState == 1 );  // nuke mode only in DefconExpanded
+}
+
+
+void Bomber::RequestAction( ActionOrder *_action )
+{
+    if( m_currentState == 1 )
+    {
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( _action->m_targetObjectId );
+        if( target && ( target->IsAircraft() || target->IsMissileClass() ) )
+        {
+            delete _action;
+            return;
+        }
+        WorldObject::RequestAction( _action );
+        SetWaypoint( _action->m_longitude, _action->m_latitude );
+    }
+    else
+    {
+        WorldObject::RequestAction( _action );
+    }
+}
+
+
 void Bomber::CeaseFire( int teamId )
 {
-    if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0)
+    if( m_currentState == 1 && m_actionQueue.Size() > 0 )
     {
-        if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, m_targetLongitude, m_targetLatitude, false ) )
+        ClearActionQueue();
+        Land( GetClosestLandingPad() );
+    }
+    if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0 )
+    {
+        if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, m_nukeTargetLongitude, m_nukeTargetLatitude, false ) )
         {
             m_nukeTargetLongitude = 0;
             m_nukeTargetLatitude = 0;

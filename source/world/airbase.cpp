@@ -48,14 +48,8 @@ AirBase::AirBase()
 
 void AirBase::RequestAction(ActionOrder *_action)
 {
-    if(g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, _action->m_longitude, _action->m_latitude ) < GetActionRangeSqd() )
-    {
-        WorldObject::RequestAction(_action);
-    }
-    else
-    {
-        delete _action;
-    }
+    // Accept all launch orders regardless of range. Range = fuel indicator for aircraft.
+    WorldObject::RequestAction(_action);
 }
 
 
@@ -448,32 +442,23 @@ int AirBase::IsValidCombatTarget( int _objectId )
     bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );    
     if( !isFriend )
     {       
-        Fixed distanceSqd = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, 
-                                                            obj->m_longitude, obj->m_latitude );
-
-        if( distanceSqd < GetActionRangeSqd() )
+        // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target.
+        if( m_currentState == 0 )
         {
-            if( m_currentState == 0 )
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+            if( attackOdds > 0 )
             {
-                int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-                if( attackOdds > 0 )
-                {
-                    return TargetTypeLaunchFighter;
-                }
-            }
-
-            if( m_currentState == 1 )
-            {
-                int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
-                if( attackOdds > 0 || !obj->IsMovingObject() )
-                {
-                    return TargetTypeLaunchBomber;
-                }
+                return TargetTypeLaunchFighter;
             }
         }
-        else
+
+        if( m_currentState == 1 )
         {
-            return TargetTypeOutOfRange;
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
+            if( attackOdds > 0 || !obj->IsMovingObject() )
+            {
+                return TargetTypeLaunchBomber;
+            }
         }
     }
 
@@ -483,17 +468,7 @@ int AirBase::IsValidCombatTarget( int _objectId )
 
 int AirBase::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 {
-    Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, 
-                                                           longitude, latitude );
-
-    Fixed actionRangeSqd = m_states[m_currentState]->m_actionRange;
-    actionRangeSqd *= actionRangeSqd;
-
-    if( distanceSqd > actionRangeSqd )
-    {
-        return TargetTypeOutOfRange;
-    }
-
+    // For state 0/1: range is not a gate. Allow out-of-range (fuel indicator only).
     if( m_states[m_currentState]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
     {
         return TargetTypeOutOfStock;

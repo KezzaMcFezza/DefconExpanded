@@ -33,6 +33,9 @@ public:
     int     GetAttackOdds       ( int _defenderType );
     int     IsValidCombatTarget ( int _objectId );
 
+    bool    IsActionQueueable  ();
+    void    RequestAction      ( ActionOrder *_action );
+
     void    CeaseFire       ( int teamId );
     bool    SetWaypointOnAction();
 

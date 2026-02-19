@@ -451,10 +451,36 @@ bool MovingObject::MoveToWaypoint()
             newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude );
         }
 
+        // Aircraft overshoot: don't clear waypoints - apply the move so they fly past and circle back
+        bool aircraftOvershoot = ( m_movementType == MovementTypeAir && newDistance < 3 && newDistance > distToTarget );
+        if( aircraftOvershoot )
+        {
+            if( m_range <= 0 )
+            {
+                m_life = 0;
+                m_lastHitByTeamId = m_teamId;
+                g_app->GetWorld()->AddOutOfFueldMessage( m_objectId );
+            }
+            m_longitude = newLongitude;
+            m_latitude = newLatitude;
+            return false;   // not arrived - keep waypoint so we turn and circle back
+        }
+
+        // Aircraft with queued attack or bomber in nuke mode with ammo: don't clear waypoints on arrival - keeps flying/orbiting until reload allows firing
+        bool hasQueue = m_actionQueue.Size() > 0;
+        bool bomberWithAmmo = ( IsBomberClass() && m_states.ValidIndex( m_currentState ) &&
+            m_currentState == 1 &&
+            m_states[m_currentState]->m_numTimesPermitted != -1 &&
+            m_states[m_currentState]->m_numTimesPermitted - (int)m_actionQueue.Size() > 0 );
+        bool aircraftWithQueue = ( m_movementType == MovementTypeAir && ( hasQueue || bomberWithAmmo ) );
+        if( aircraftWithQueue && newDistance < timePerUpdate * m_speed * Fixed::Hundredths(50) )
+        {
+            m_longitude = newLongitude;
+            m_latitude = newLatitude;
+            return true;   // arrived but waypoint stays set - we're in position to fire when reload allows
+        }
+
         if( (newDistance < timePerUpdate * m_speed * Fixed::Hundredths(50)) ||
-            (m_movementType == MovementTypeAir &&
-             newDistance < 3 &&
-             newDistance > distToTarget) ||
             (m_movementType == MovementTypeSea &&
              newDistance < 1 &&
              newDistance > distToTarget))

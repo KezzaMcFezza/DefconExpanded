@@ -1,0 +1,432 @@
+================================================================================
+BOMBER ORDER QUEUEING IMPLEMENTATION PLAN
+(Thundy-style, adapted for DefconExpanded)
+================================================================================
+
+Scope: DefconExpanded has only 2 bomber states (0=air-to-sea, 1=nuke). No LACM.
+Thundy has 3 states (0=standby, 1=nuke, 2=LACM/LASM). We adapt Thundy's nuke
+queueing logic for DefconExpanded state 1 only.
+
+--------------------------------------------------------------------------------
+DESIGN CONSTRAINTS (user requirements)
+--------------------------------------------------------------------------------
+
+1. CARRIERS STAY PUT
+   - Carriers must NEVER move towards launch targets, even when out of range.
+   - Do NOT call AlterWaypoints/fleet move when carrier gets an attack order.
+   - Carrier queues the order and stays put.
+
+2. LAUNCH RANGE IS NOT A LAUNCH GATE (fuel indicator only)
+   - For launching aircraft (fighters, bombers) from carriers and airbases,
+     range is NOT a limiting factor for whether launch is permitted.
+   - Range indicates fuel level for the aircraft - a distant target may mean
+     the aircraft runs out of fuel before reaching it, but that's separate.
+   - Carrier and AirBase MUST always accept and process launch orders, even
+     when target is out of range. Launch immediately; aircraft flies toward
+     target. (Bombers: queue order, launch bomber, bomber flies. Same for
+     fighters.)
+
+3. BOMBERS CAN QUEUE OUT-OF-RANGE TARGETS
+   - Bombers can fly, so they MUST accept and queue attack orders even when
+     the target is out of range. Bomber will fly towards target and fire
+     when in range.
+   - Bomber::RequestAction: accept regardless of range. SetWaypoint so bomber
+     flies towards target.
+   - Interface: allow left-click on enemy with bomber selected even when
+     bomber is out of range.
+
+4. CLICK SEMANTICS: RIGHT = WAYPOINT, LEFT = ATTACK (when applicable)
+   - RIGHT CLICK: Movement/waypoint orders ONLY. Never adds attack orders.
+     Units path to the location without attacking anything along the way.
+   - LEFT CLICK:
+     a) On valid combat target: HandleObjectAction (attack order)
+     b) On EMPTY ground: If selection includes a NUKING unit (bomber in nuke
+        mode, silo, sub), HandleObjectAction (attack order - nuke at coords).
+        Nukes can be launched on empty space (no target object required).
+     c) Else (empty + non-nuking, or friendly/invalid target): HandleSetWaypoint
+   - This prevents bombers armed for nuke from auto-attacking when the player
+     right-clicks to path them. Waypoint = pure movement.
+   - File: source/renderer/map_renderer.cpp - left-click handler must branch
+     on: underMouseId, valid combat target, and "has nuking unit" for empty.
+
+5. NUKE ORDERS: STATIC TARGETS ONLY (never moving)
+   - Nuke launch orders can only target: empty space, city, or building.
+   - NEVER target moving units (ships, subs, fighters, bombers, etc.).
+   - When user left-clicks on a MOVING target with nuking unit selected:
+     Resolve to static: (a) building/city at those coordinates, or (b) -1 for
+     empty space. Use the click (longitude, latitude) - find what's "underneath"
+     the moving unit at that location.
+   - ResolveNukeTarget(underMouseId, lon, lat): if underMouse->IsMovingObject(),
+     then search for static at (lon,lat): city (exact or nearest), building
+     (silo, radar, etc.). Return that objectId or -1. Never return moving ID.
+   - Bomber::IsValidCombatTarget: when in nuke mode (state 1), remove the
+     block that returns TargetTypeValid for moving sea objects. Nukes target
+     static only. (Carrier/airbase bomber launch: same - they pass orders to
+     bomber, which nukes static. Silo/sub: same.)
+
+--------------------------------------------------------------------------------
+PHASE 1: LAUNCH PLATFORM - PASS ORDERS VIA QUEUE
+--------------------------------------------------------------------------------
+
+File: source/world/worldobject.cpp
+Function: WorldObject::LaunchBomber
+
+CURRENT (DefconExpanded):
+- For building targets: SetState(1), SetNukeTarget(lon,lat), m_bombingRun=true
+- For city-at-coords fallback: same
+- Never creates ActionOrder or calls bomber->RequestAction
+
+TARGET (match Thundy):
+- For building/static targets: SetState(1), create ActionOrder with
+  targetObjectId, longitude, latitude, call bomber->RequestAction(order),
+  set m_bombingRun=true
+- For city-at-coords fallback: same (ActionOrder with city's objectId)
+- Keep SetNukeTarget for edge case where targetObjectId==-1 (coord-only)
+  but prefer queue path
+
+Changes:
+1. Replace SetNukeTarget( longitude, latitude ) + m_bombingRun = true with:
+   ActionOrder *order = new ActionOrder();
+   order->m_targetObjectId = targetObjectId;  // or city->m_objectId for city block
+   order->m_longitude = longitude;
+   order->m_latitude = latitude;
+   bomber->RequestAction( order );
+   bomber->m_bombingRun = true;
+2. Apply in both the main target block and the city-at-coords fallback block
+3. LaunchBomber signature stays the same (no aircraftMode param - DefconExpanded
+   only has nuke mode for bombers)
+
+--------------------------------------------------------------------------------
+PHASE 2a: BOMBER - IsValidCombatTarget (nuke = static only)
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.cpp
+Function: Bomber::IsValidCombatTarget
+
+Per design constraint 5: nuke orders target static only (empty, city, building).
+Never moving targets.
+
+CURRENT:
+- Returns TargetTypeValid for moving sea objects (obj->IsMovingObject() &&
+  mobj->m_movementType == MovementTypeSea)
+
+TARGET:
+- Remove the block (lines 445-452) that returns TargetTypeValid for moving
+  objects. When in nuke mode (state 1), only static targets are valid.
+- Keep TargetTypeLaunchNuke for !obj->IsMovingObject().
+
+--------------------------------------------------------------------------------
+PHASE 2: BOMBER - IsActionQueueable AND RequestAction
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.h
+- Add: bool IsActionQueueable();
+- Add: void RequestAction( ActionOrder *_action );
+
+File: source/world/bomber.cpp
+
+IsActionQueueable():
+- return ( m_currentState == 1 );  // nuke mode only in DefconExpanded
+
+RequestAction( ActionOrder *_action ):
+- if ( m_currentState == 1 ):
+  - Optionally reject aircraft/missile targets (Thundy does this; DefconExpanded
+    has no IsAircraft/IsMissile - can skip or use type checks)
+  - WorldObject::RequestAction( _action );
+  - SetWaypoint( _action->m_longitude, _action->m_latitude );
+- else:
+  - MovingObject::RequestAction( _action );  // or WorldObject::RequestAction
+
+--------------------------------------------------------------------------------
+PHASE 3: BOMBER - ACTION (FIRE, AUTO-REPEAT, OUT-OF-RANGE RE-QUEUE)
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.cpp
+Function: Bomber::Action
+
+CURRENT flow for state 1:
+- In range: LaunchNuke, clear m_nukeTarget, m_bombingRun=true, fall through to
+  MovingObject::Action (which decrements ammo)
+- Out of range: SetNukeTarget, return (order is LOST)
+
+TARGET (match Thundy):
+- Add dead-target check at start of state 1 block:
+  if ( targetObjectId != -1 ):
+    WorldObject *targetObj = GetWorldObject( targetObjectId );
+    if ( !targetObj || targetObj->m_life <= 0 ) return;  // don't consume ammo
+- In range: WorldObject::Action first (decrements), then LaunchNuke
+  (DefconExpanded calls MovingObject::Action which calls WorldObject::Action -
+   keep that, but ensure order: decrement then launch)
+- After launch: AUTO-REPEAT logic:
+  remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size();
+  if ( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 && targetObjectId != -1 ):
+    create repeat ActionOrder, RequestAction(repeat), SetWaypoint
+  else if ( m_actionQueue.Size() > 0 ):
+    SetWaypoint to next queued target
+- Out of range, targetObjectId == -1: SetNukeTarget, m_bombingRun=true, return
+- Out of range, targetObjectId != -1: RE-QUEUE at front:
+  ActionOrder *retry = new ActionOrder();
+  retry->m_targetObjectId = targetObjectId;
+  retry->m_longitude = longitude;
+  retry->m_latitude = latitude;
+  m_actionQueue.PutDataAtStart( retry );
+  SetWaypoint( longitude, latitude );
+  return
+- State 1 block must return at end (do NOT fall through to MovingObject::Action
+  for state 1 after handling - Thundy returns; we need MovingObject::Action only
+  when we actually launched, for timer/ammo. Thundy calls WorldObject::Action
+  directly. DefconExpanded uses MovingObject::Action. Ensure we call
+  MovingObject::Action when we launch - before the auto-repeat block.)
+
+NOTE: Ammo decrement - Thundy calls WorldObject::Action() explicitly before
+Launch. DefconExpanded falls through to MovingObject::Action. Keep the
+fall-through but ensure we only reach it when we launched. Currently when we
+launch we don't return - we fall through. Good. When we don't launch (out of
+range or dead target) we return. Good.
+
+--------------------------------------------------------------------------------
+PHASE 4: BOMBER - UPDATE (FIRE FROM QUEUE + LEGACY m_nukeTarget)
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.cpp
+Function: Bomber::Update
+
+CURRENT:
+- Simple block: if state 1 and m_nukeTarget set and m_stateTimer==0 and in
+  range, call Action(-1, m_nukeTargetLongitude, m_nukeTargetLatitude)
+- No queue-based firing
+- No "arrived but have queued attack" waypoint hold
+- No hasQueuedAttack / hasAmmoAndWaypoint for landing decision
+- No waypoint update to next queued target
+
+TARGET (match Thundy):
+1. After MoveToWaypoint(), add:
+   if ( arrived && m_currentState == 1 && m_actionQueue.Size() > 0 ):
+     SetWaypoint( next->m_longitude, next->m_latitude )
+   (so we don't become "idle" and land before we can fire)
+
+2. Replace the simple nuke firing block with unified block:
+   if ( m_currentState == 1 && m_stateTimer == 0 ):
+     targetLon, targetLat, targetObjId = from m_nukeTarget OR from m_actionQueue[0]
+     firedFromLegacyTarget = (m_nukeTarget was set)
+     hasTarget = m_nukeTarget set OR queue not empty
+     if hasTarget and in range:
+       if queue not empty: remove from queue, delete consumed
+       Action( targetObjId, targetLon, targetLat )
+       m_bombingRun = true
+       if firedFromLegacyTarget:
+         remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size()
+         if remainingAfterQueue > 0 && m_actionQueue.Size() == 0:
+           create repeat with targetObjectId=-1, lon, lat
+           RequestAction(repeat), SetWaypoint
+
+3. Landing logic:
+   hasQueuedAttack = (m_currentState==1) && m_actionQueue.Size() > 0
+   hasAmmoAndWaypoint = (m_currentState==1) && m_states[1]->m_numTimesPermitted > 0
+     && (m_targetLongitude != 0 || m_targetLatitude != 0)
+   Land when: (m_bombingRun && ammo==0) OR (IsIdle() && !hasQueuedAttack && !hasAmmoAndWaypoint)
+
+4. State 1 post-block:
+   if ammo==0 && queue empty: SetState(0), Land
+   else if queue not empty: update waypoint to next
+   else if queue empty: ClearWaypoints, Land
+
+--------------------------------------------------------------------------------
+PHASE 5: WORLDOBJECT::UPDATE - DEAD TARGET PURGE
+--------------------------------------------------------------------------------
+
+File: source/world/worldobject.cpp
+Function: WorldObject::Update
+
+CURRENT:
+- No dead-target purge before queue processing
+
+TARGET (match Thundy):
+- Before "if ( m_actionQueue.Size() > 0 )", add purge loop:
+  for ( i = m_actionQueue.Size()-1; i >= 0; --i ):
+    action = m_actionQueue[i]
+    if action->m_targetObjectId != -1:
+      obj = GetWorldObject( action->m_targetObjectId )
+      if !obj || obj->m_life <= 0:
+        RemoveData(i), delete action
+
+- Do NOT add bomber skip (Thundy does not skip). Both Bomber::Update and
+  WorldObject::Update can process. Bomber::Update consumes from queue before
+  firing when in range, so no double-process. When out of range,
+  WorldObject::Update pops, Bomber::Action re-queues with PutDataAtStart.
+
+--------------------------------------------------------------------------------
+PHASE 6: BOMBER - CeaseFire
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.cpp
+Function: Bomber::CeaseFire
+
+CURRENT:
+- Only clears m_nukeTarget when territory matches
+- Does not clear m_actionQueue
+
+TARGET (match Thundy):
+- At start: if ( m_currentState == 1 && m_actionQueue.Size() > 0 ):
+  ClearActionQueue(), Land( GetClosestLandingPad() )
+- Then existing m_nukeTarget/territory logic
+- Fix: use m_nukeTargetLongitude/Latitude for territory check (not
+  m_targetLongitude - that's waypoint)
+
+--------------------------------------------------------------------------------
+PHASE 1b: CARRIER AND AIRBASE - ACCEPT OUT-OF-RANGE LAUNCH ORDERS
+--------------------------------------------------------------------------------
+
+Per design constraint 2: Range is NOT a launch gate. Range = fuel indicator for
+the aircraft. Launch platforms MUST always accept and process launch orders.
+
+File: source/world/carrier.cpp
+Function: Carrier::RequestAction
+
+CURRENT:
+- For state 0/1: if target out of range, delete _action and return
+- Only queues when in range
+
+TARGET (per design constraints 1 & 2):
+- Accept out-of-range orders: always call WorldObject::RequestAction(_action)
+  for fighter/bomber launch (state 0/1). Remove the distance check.
+- NEVER call AlterWaypoints or fleet move for attack orders. Carrier stays put.
+- Launch happens when order is processed; aircraft flies toward target.
+  (Range/fuel may limit whether aircraft reaches target - separate mechanic.)
+
+Changes:
+1. In RequestAction: remove the if (distance < range) block that deletes.
+   Replace with: if ( m_currentState < 2 ) { WorldObject::RequestAction(_action); }
+2. Ensure no AlterWaypoints/fleet move for attack orders.
+
+File: source/world/airbase.cpp
+Function: AirBase::RequestAction
+
+CURRENT:
+- Same as Carrier: deletes _action when out of range
+
+TARGET:
+- Always call WorldObject::RequestAction(_action). Remove distance check.
+- Launch platforms always launch on command; range = fuel indicator only.
+
+File: source/world/carrier.cpp
+Function: Carrier::IsValidCombatTarget (for UI)
+
+CURRENT:
+- Returns TargetTypeOutOfRange when distanceSqd >= GetActionRangeSqd()
+
+TARGET:
+- For fighter/bomber launch (state 0/1): return TargetTypeLaunchFighter/
+  TargetTypeLaunchBomber even when out of range. UI must allow the order.
+
+File: source/world/airbase.cpp
+Functions: AirBase::IsValidCombatTarget, AirBase::IsValidMovementTarget
+
+CURRENT:
+- Both return TargetTypeOutOfRange when target position is beyond action range
+
+TARGET:
+- For launch states (0/1): remove range gate. Return TargetTypeLaunchFighter/
+  TargetTypeLaunchBomber when target is valid type, regardless of distance.
+- IsValidMovementTarget: for state 0/1, skip the distanceSqd > actionRangeSqd
+  early-return (or treat range as fuel indicator only, not a block).
+
+--------------------------------------------------------------------------------
+PHASE 7: IsValidCombatTarget - QUEUE AWARENESS (OPTIONAL)
+--------------------------------------------------------------------------------
+
+File: source/world/bomber.cpp
+Function: Bomber::IsValidCombatTarget
+
+Thundy checks ( m_states[2]->m_numTimesPermitted - m_actionQueue.Size() > 0 )
+for LACM. For DefconExpanded nuke mode, consider:
+  m_states[1]->m_numTimesPermitted - m_actionQueue.Size() > 0
+when deciding if we can accept another target. Currently uses only
+m_states[1]->m_numTimesPermitted > 0. Low priority.
+
+--------------------------------------------------------------------------------
+PHASE 8: MAP RENDERER - CLICK SEMANTICS (RIGHT=WAYPOINT, LEFT=ATTACK OR WAYPOINT)
+--------------------------------------------------------------------------------
+
+File: source/renderer/map_renderer.cpp
+Location: Left-click handler (lmbUnClicked block, ~line 3865)
+
+CURRENT:
+- Click on empty with selection: HandleObjectAction(longitude, latitude, -1)
+- Click on object with selection: HandleObjectAction(longitude, latitude, underMouseId)
+- Right-click: HandleSetWaypoint only (already correct - never HandleObjectAction)
+
+TARGET (per design constraints 4 & 5):
+- RIGHT CLICK: Already correct. Only HandleSetWaypoint. Never attack orders.
+- LEFT CLICK with selection:
+  a) Click on EMPTY (underMouseId == -1):
+     - If SelectionHasNukingUnit(): HandleObjectAction(longitude, latitude, -1)
+     - Else: HandleSetWaypoint
+  b) Click on OBJECT (underMouseId != -1):
+     - If SelectionHasNukingUnit() AND underMouse->IsMovingObject():
+       ResolveNukeTarget: find static at (lon,lat) - city, building, or use -1.
+       Call HandleObjectAction with resolved targetId (never pass moving target).
+     - Else if hasValidCombatTarget: HandleObjectAction(underMouseId)
+     - Else: HandleSetWaypoint
+
+Helper: SelectionHasNukingUnit() - obj->UsingNukes() for any selected unit.
+
+Helper: ResolveNukeTargetForStatic(underMouseId, lon, lat) - per constraint 5:
+  If underMouse && underMouse->IsMovingObject(): do NOT use underMouseId.
+  Search at (lon,lat) for: city (exact/nearest match), static building
+  (silo, radar in m_objects, !IsMovingObject). Return objectId or -1.
+  Use underMouse's longitude/latitude for the search position.
+
+Implementation:
+1. Left-click on empty: if SelectionHasNukingUnit() then HandleObjectAction(-1);
+   else HandleSetWaypoint.
+2. Left-click on object with nuking unit + moving target:
+   (resolvedId, lon, lat) = ResolveNukeTargetForStatic(...);
+   HandleObjectAction(lon, lat, resolvedId);
+3. Left-click on object otherwise: if hasValidCombatTarget then HandleObjectAction;
+   else HandleSetWaypoint.
+4. Bomber::IsValidCombatTarget: remove block that returns TargetTypeValid for
+   moving sea objects (state 1 nuke mode). Nukes = static only.
+5. HandleObjectAction: keep !underMouse branch; when underMouse use
+   IsValidCombatTarget for canAction.
+
+--------------------------------------------------------------------------------
+IMPLEMENTATION ORDER
+--------------------------------------------------------------------------------
+
+1. Phase 2a (bomber.cpp - IsValidCombatTarget, nuke=static only)
+2. Phase 2 (bomber.h/cpp - IsActionQueueable, RequestAction)
+3. Phase 1 (worldobject.cpp - LaunchBomber use RequestAction)
+4. Phase 1b (carrier.cpp, airbase.cpp - accept out-of-range, never move)
+5. Phase 8 (map_renderer.cpp - click semantics + ResolveNukeTargetForStatic)
+6. Phase 4 (bomber.cpp Update - queue firing block, landing logic)
+7. Phase 3 (bomber.cpp Action - auto-repeat, out-of-range re-queue, dead-target)
+8. Phase 5 (worldobject.cpp - dead target purge)
+9. Phase 6 (bomber.cpp CeaseFire)
+10. Phase 7 (optional - IsValidCombatTarget queue awareness)
+
+--------------------------------------------------------------------------------
+VERIFICATION CHECKLIST
+--------------------------------------------------------------------------------
+
+- [ ] Airbase launches bomber at city: bomber gets order in queue, flies, fires
+- [ ] Carrier launches bomber at city: same
+- [ ] User LEFT-clicks city with bomber: attack order queued, bomber flies, fires
+- [ ] User LEFT-clicks empty ground with silo/bomber-nuke/sub: nuke/attack order at coords
+- [ ] User LEFT-clicks moving target (ship) with nuking unit: resolves to building/city
+      at that spot, or empty; never nuke-order on the ship itself
+- [ ] User RIGHT-clicks with bomber selected: waypoint only, bomber paths without
+      attacking (no nuke launch on waypoint)
+- [ ] Bomber with 2 nukes: first fire auto-queues second on same target
+- [ ] Bomber out of range: order re-queued, bomber flies in, fires when in range
+- [ ] Bomber can queue out-of-range target via left-click (flies toward target)
+- [ ] Carrier accepts out-of-range left-click: order queued, carrier STAYS PUT
+- [ ] AirBase accepts out-of-range launch order: launches immediately, aircraft flies
+- [ ] Carrier never moves toward attack targets (no AlterWaypoints for attack)
+- [ ] Dead target: order removed from queue, no ammo consumed
+- [ ] CeaseFire: clears queue, bomber returns
+- [ ] Ammo decrements correctly on each launch
+- [ ] Map renderer lastQueuedId: bomber IsActionQueueable so selection stays for
+      multi-queue (already works if we add IsActionQueueable)
+
+--------------------------------------------------------------------------------
