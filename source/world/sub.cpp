@@ -64,8 +64,10 @@ void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
         if( targetObject )
         {
-            if( targetObject->m_visible[m_teamId] && 
-                g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 )
+            bool canTarget = ( targetObject->m_visible[m_teamId] || targetObject->m_seen[m_teamId] );
+            if( m_currentState == 0 )  // passive: only non-hidden (surface ships, surfaced subs)
+                canTarget = canTarget && ( !targetObject->IsSubmarine() || !targetObject->IsHiddenFrom() );
+            if( canTarget && g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 )
             {
                 m_targetObjectId = targetObjectId;
             }
@@ -134,6 +136,12 @@ bool Sub::Update()
         {
             Ping();
             m_stateTimer = m_states[1]->m_timeToReload;
+            canAttack = true;
+        }
+        else if( m_stateTimer <= 0 && m_currentState == 0 )
+        {
+            PassivePing();
+            m_stateTimer = m_states[0]->m_timeToReload;
             canAttack = true;
         }
 
@@ -446,15 +454,19 @@ WorldObject *Sub::FindTarget()
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
             Fleet *fleetTarget = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
 
+            bool canTarget = ( obj->m_visible[m_teamId] || obj->m_seen[m_teamId] );
+            if( m_currentState == 0 )  // passive: only non-hidden ships
+                canTarget = canTarget && ( !obj->IsSubmarine() || !obj->IsHiddenFrom() );
+
             if( fleetTarget &&
-                obj->m_visible[m_teamId] &&
+                canTarget &&
                 !team->m_ceaseFire[ obj->m_teamId ] &&
                 !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
                 g_app->GetWorld()->GetAttackOdds( WorldObject::TypeSub, obj->m_type ) > 0 )
             {
                 bool safeTarget = ( m_states[2]->m_numTimesPermitted == 0 || IsSafeTarget( fleetTarget ) );
                 if( safeTarget &&
-                    g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude) <= 5 * 5 )
+                    g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude) <= GetActionRangeSqd() )
                 {
                     if( fleet->m_pursueTarget )
                     {
@@ -466,7 +478,7 @@ WorldObject *Sub::FindTarget()
                     }
                     else
                     {
-                        if( m_currentState == 1 )
+                        if( m_currentState == 1 )  // active only: passive evades, strikes only when ordered
                         {
                             return obj;
                         }
@@ -659,10 +671,12 @@ void Sub::FleetAction( int targetObjectId )
     if( m_targetObjectId == -1 )
     {
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetObjectId );
-        if( obj &&
-            obj->m_visible[ m_teamId ] )
+        if( obj )
         {
-            if( m_currentState == 0 || m_currentState == 1 )
+            bool canTarget = ( obj->m_visible[ m_teamId ] || obj->m_seen[ m_teamId ] );
+            if( m_currentState == 0 )  // passive: only non-hidden ships
+                canTarget = canTarget && ( !obj->IsSubmarine() || !obj->IsHiddenFrom() );
+            if( canTarget && ( m_currentState == 0 || m_currentState == 1 ) )
             {
                 if( g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type ) > 0 )
                 {

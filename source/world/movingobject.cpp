@@ -1292,6 +1292,13 @@ void MovingObject::Ping()
     if( fleet == NULL ||
         fleet->m_currentState == Fleet::FleetStateAggressive )
     {
+        Fixed pingRangeSqd = GetActionRangeSqd();
+        if( IsSubmarine() && m_states.Size() > 0 )
+        {
+            Fixed r0 = m_states[0]->m_actionRange;
+            pingRangeSqd = r0 * r0 * 4;  // active sonar: 2x action range
+        }
+
         for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
         {
             if( g_app->GetWorld()->m_objects.ValidIndex(i) )
@@ -1305,7 +1312,7 @@ void MovingObject::Ping()
                 {
                     Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
 
-                    if( distanceSqd <= GetActionRangeSqd() )
+                    if( distanceSqd <= pingRangeSqd )
                     {
                         if( obj->m_movementType == MovementTypeSea )
                         {
@@ -1357,6 +1364,60 @@ void MovingObject::Ping()
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+void MovingObject::PassivePing()
+{
+    // Passive sonar: no visible ping, no sound, no self-reveal. Detects non-hidden ships (surface + surfaced subs) at 1.5x action range.
+    Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
+    if( fleet == NULL ||
+        fleet->m_currentState == Fleet::FleetStateAggressive )
+    {
+        Fixed passiveRangeSqd = ( m_states.Size() > 0 ) ? ( m_states[0]->m_actionRange * m_states[0]->m_actionRange * Fixed::FromDouble(2.25) ) : GetActionRangeSqd();  // 1.5x = 2.25
+
+        for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+        {
+            if( !g_app->GetWorld()->m_objects.ValidIndex(i) )
+                continue;
+            MovingObject *obj = (MovingObject *)g_app->GetWorld()->m_objects[i];
+
+            Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
+            if( distanceSqd > passiveRangeSqd )
+                continue;
+            if( !obj->IsMovingObject() ||
+                obj->m_movementType != MovementTypeSea ||
+                ( obj->IsSubmarine() && obj->IsHiddenFrom() ) ||  // skip hidden (submerged) subs
+                obj->m_objectId == m_objectId ||
+                obj->m_visible[ m_teamId ] ||
+                m_teamId == obj->m_teamId )
+                continue;
+
+            for( int j = 0; j < g_app->GetWorld()->m_teams.Size(); ++j )
+            {
+                Team *team = g_app->GetWorld()->m_teams[j];
+                if( g_app->GetWorld()->IsFriend(team->m_teamId, m_teamId ) )
+                {
+                    obj->m_lastSeenTime[team->m_teamId] = obj->m_ghostFadeTime;
+                    obj->m_lastKnownPosition[team->m_teamId] = Vector3<Fixed>( obj->m_longitude, obj->m_latitude, 0 );
+                    obj->m_seen[team->m_teamId] = true;
+                    obj->m_lastKnownVelocity[team->m_teamId].Zero();
+                }
+            }
+
+            if( !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ] )
+            {
+                if( m_targetObjectId == -1 )
+                    m_targetObjectId = obj->m_objectId;
+                if( g_app->GetWorld()->GetTeam( m_teamId )->m_type == Team::TypeAI )
+                {
+                    if( obj->IsSubmarine() )
+                        g_app->GetWorld()->GetTeam( m_teamId )->AddEvent( Event::TypeSubDetected, obj->m_objectId, obj->m_teamId, obj->m_fleetId, obj->m_longitude, obj->m_latitude );
+                    else
+                        g_app->GetWorld()->GetTeam( m_teamId )->AddEvent( Event::TypeEnemyIncursion, obj->m_objectId, obj->m_teamId, obj->m_fleetId, obj->m_longitude, obj->m_latitude );
                 }
             }
         }

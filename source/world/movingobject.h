@@ -85,7 +85,8 @@ public:
 
     virtual void    Retaliate       ( int attackerId );
 
-    void            Ping            ();
+    void            Ping            ();       // active sonar: creates visible ping, reveals ships and pinger
+    void            PassivePing     ();       // passive sonar: detects non-hidden ships at 1.5x range, no ping, sub stays hidden
     void            SetSpeed        ( Fixed speed );
 
     char            *LogState();
