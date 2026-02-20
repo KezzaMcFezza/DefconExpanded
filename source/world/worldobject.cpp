@@ -567,8 +567,7 @@ Fixed WorldObject::GetSize()
 {
 	Fixed size = 2;
 
-    if( m_type == TypeFighter || 
-        m_type == TypeBomber )
+    if( IsAircraft() )
     {
         size *= 1;
     }
@@ -596,9 +595,7 @@ Fixed WorldObject::GetSize3D()
 
     Fixed size = Fixed::FromDouble(0.5f);
 
-    if( m_type == TypeFighter || 
-        m_type == TypeBomber  ||
-        m_type == TypeNuke )
+    if( IsAircraft() || IsNuke() )
     {
         size *= Fixed::FromDouble(0.05f);
     }
@@ -778,16 +775,7 @@ Image *WorldObject::GetBmpImage( int state )
 
 bool WorldObject::IsMovingObject()
 {
-    if( m_type == TypeSub ||
-        m_type == TypeBattleShip ||        
-        m_type == TypeFighter ||
-        m_type == TypeBomber ||
-        m_type == TypeCarrier ||
-        m_type == TypeNuke )
-    {
-        return true;
-    }
-    else return false;
+    return IsNavy() || IsAircraft() || IsNuke();
 }
 
 void WorldObject::RequestAction( ActionOrder *_action )
@@ -1307,6 +1295,12 @@ bool WorldObject::IsAircraftLauncher() const
 bool WorldObject::IsNuke() const
 {
     return m_classType == ClassTypeNuke;
+}
+
+
+bool WorldObject::IsCityClass() const
+{
+    return m_classType == ClassTypeCity;
 }
 
 

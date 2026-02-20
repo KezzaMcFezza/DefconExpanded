@@ -78,9 +78,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
     if( target )
     {
-        if( target->m_type == WorldObject::TypeBattleShip ||
-            target->m_type == WorldObject::TypeCarrier ||
-            target->m_type == WorldObject::TypeSub )
+        if( target->IsNavy() )
         {
             if( m_currentState != 0 )
             {
@@ -88,10 +86,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             }
         }
 
-        if( target->m_type == WorldObject::TypeCity ||
-            target->m_type == WorldObject::TypeSilo ||
-            target->m_type == WorldObject::TypeRadarStation ||
-            target->m_type == WorldObject::TypeAirBase )
+        if( target->IsBuilding() )
         {
             if( m_currentState != 1 &&
                 m_states[1]->m_numTimesPermitted > 0 )
@@ -232,8 +227,7 @@ bool Bomber::Update()
             {
                 if( targetObject->m_teamId == m_teamId )
                 {
-                    if( targetObject->m_type == WorldObject::TypeCarrier ||
-                        targetObject->m_type == WorldObject::TypeAirBase )
+                if( targetObject->IsAircraftLauncher() )
                     {
                         SetWaypoint( targetObject->m_longitude, targetObject->m_latitude );
                         Land( m_targetObjectId );
@@ -450,7 +444,7 @@ void Bomber::Retaliate( int attackerId )
             WorldObject *obj = g_app->GetWorld()->GetWorldObject( attackerId );
             if( obj )
             {
-                if( obj->m_type == WorldObject::TypeSilo &&
+                if( obj->IsSiloClass() &&
                     obj->m_seen[ m_teamId ] )
                 {
                     if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude ) <= GetActionRangeSqd() )
@@ -478,10 +472,7 @@ int Bomber::GetAttackOdds( int _defenderType )
 {
     if( m_states[1]->m_numTimesPermitted > 0 )
     {
-        if( _defenderType == TypeCity ||
-            _defenderType == TypeSilo ||
-            _defenderType == TypeAirBase ||
-            _defenderType == TypeRadarStation )
+        if( WorldObject::GetArchetypeForType( _defenderType ) == WorldObject::ArchetypeBuilding )
         {
             return g_app->GetWorld()->GetAttackOdds( TypeNuke, _defenderType );
         }
@@ -501,8 +492,7 @@ int Bomber::IsValidCombatTarget( int _objectId )
         return basicResult;
     }
 
-    if( obj->m_type == TypeCarrier || 
-        obj->m_type == TypeAirBase )
+    if( obj->IsAircraftLauncher() )
     {
         if( obj->m_teamId == m_teamId )
         {

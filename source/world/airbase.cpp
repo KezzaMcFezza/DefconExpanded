@@ -175,8 +175,7 @@ void AirBase::RunAI()
                             team->CountTargettedUnits( obj->m_objectId ) < 3 &&
                             g_app->GetWorld()->GetDistance( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude ) <= aggressionDistance )
                         {
-                            if( obj->m_type == WorldObject::TypeFighter ||
-                                obj->m_type == WorldObject::TypeBomber )
+                            if( obj->IsAircraft() )
                             {
                                 if( m_states[0]->m_numTimesPermitted > 0 )
                                 {
@@ -190,7 +189,7 @@ void AirBase::RunAI()
                                     continue;
                                 }
                             }
-                            else if( obj->m_type == WorldObject::TypeSub )
+                            else if( obj->IsSubmarine() )
                             {
                                 if( m_states[1]->m_numTimesPermitted > 0 )
                                 {

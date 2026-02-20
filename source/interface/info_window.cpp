@@ -144,7 +144,7 @@ void InfoWindow::Render( bool _hasFocus )
         }
         else if( highlight )
         {
-            if( highlight->m_type != WorldObject::TypeCity )
+            if( !highlight->IsCityClass() )
             {
                 SwitchInfoDisplay( highlight->m_type, highlight->m_objectId );
             }

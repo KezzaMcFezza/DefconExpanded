@@ -344,7 +344,7 @@ void GunFire::Impact()
     WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
     if( targetObject )
     {
-        if( targetObject->m_type == WorldObject::TypeSub &&
+        if( targetObject->IsSubmarine() &&
             targetObject->m_currentState == 2 )
         {
             m_attackOdds *= 2;

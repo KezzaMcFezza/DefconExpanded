@@ -1231,7 +1231,7 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
         }
     }
 
-    bool silentNukeLaunch = ( from->m_type == WorldObject::TypeBomber );
+    bool silentNukeLaunch = ( from->IsBomberClass() );
 
     if( !silentNukeLaunch )
     {
@@ -1339,11 +1339,9 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
 {
     if( teamId == -1 ) return false;
 
-    switch( objectType )
+    switch( WorldObject::GetArchetypeForType( objectType ) )
     {
-        case WorldObject::TypeSilo:      
-        case WorldObject::TypeRadarStation:
-        case WorldObject::TypeAirBase:
+        case WorldObject::ArchetypeBuilding:
         {
             if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
             {
@@ -1360,9 +1358,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
             break;
         }
 
-        case WorldObject::TypeSub:
-        case WorldObject::TypeBattleShip:
-        case WorldObject::TypeCarrier:
+        case WorldObject::ArchetypeNavy:
         {
             if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, true ) )
             {
@@ -1378,12 +1374,12 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
             }
             break;
         }
-        case WorldObject::TypeFighter:
-        case WorldObject::TypeBomber:
+        case WorldObject::ArchetypeAircraft:
         {
             return true;
         }
-        break;
+        default:
+            break;
     }
 
     return false;
@@ -1488,7 +1484,7 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
             {
                 WorldObject *wobj = m_objects[i];
 
-                if( wobj->m_type != WorldObject::TypeNuke &&
+                if( !wobj->IsNuke() &&
                     wobj->m_type != WorldObject::TypeExplosion &&
                     wobj->m_life > 0 &&
                     GetDistance( longitude, latitude, wobj->m_longitude, wobj->m_latitude) <= intensity/50 )
@@ -2420,7 +2416,7 @@ void World::UpdateRadar()
                     bool showObject = ( wobj->m_teamId == thisTeamId );
 
                     if( GetTeam( wobj->m_teamId )->m_sharingRadar[ thisTeamId ] &&
-                        wobj->m_type != WorldObject::TypeSub )
+                        !wobj->IsSubmarine() )
                     {
                         showObject = true;
                     }
@@ -2545,7 +2541,7 @@ void World::UpdateRadar()
 
                         if( team->m_teamId == m_myTeamId &&
                             !wobj->m_seen[team->m_teamId] &&
-                            wobj->m_type == WorldObject::TypeSub &&
+                            wobj->IsSubmarine() &&
                             g_app->m_hidden )
                         {
                             g_app->GetStatusIcon()->SetSubIcon( STATUS_ICON_SUB );
@@ -2559,7 +2555,7 @@ void World::UpdateRadar()
                                 team->m_type == Team::TypeAI &&
                                 wobj->m_teamId != team->m_teamId )
                             {
-                                if( wobj->m_type == WorldObject::TypeSub )
+                                if( wobj->IsSubmarine() )
                                 {
                                     if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
                                     {
@@ -2570,17 +2566,14 @@ void World::UpdateRadar()
                                         team->AddEvent( Event::TypeSubDetected, wobj->m_objectId, wobj->m_teamId, wobj->m_fleetId, wobj->m_longitude, wobj->m_latitude );
                                     }
                                 }
-                                else if (wobj->m_type == WorldObject::TypeFighter ||
-                                         wobj->m_type == WorldObject::TypeBomber )
+                                else if ( wobj->IsAircraft() )
                                 {
                                     if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, false ) )
                                     {
                                         team->AddEvent( Event::TypeIncomingAircraft, wobj->m_objectId, wobj->m_teamId, wobj->m_fleetId, wobj->m_longitude, wobj->m_latitude );                                         
                                     }
                                 }
-                                else if ( wobj->m_type == WorldObject::TypeBattleShip ||
-                                          wobj->m_type == WorldObject::TypeSub ||
-                                          wobj->m_type == WorldObject::TypeCarrier )
+                                else if ( wobj->IsNavy() )
                                 {
                                     if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
                                     {
@@ -3199,7 +3192,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                     }
                     if( nbQueued > 0 )
                     {
-                        if( ( obj->m_type == WorldObject::TypeAirBase || obj->m_type == WorldObject::TypeCarrier ) && obj->m_nukeSupply >= 0 )
+                        if( obj->IsAircraftLauncher() && obj->m_nukeSupply >= 0 )
                         {
                             *queued += ( nbQueued > obj->m_nukeSupply )? obj->m_nukeSupply : nbQueued;
                         }
@@ -3209,7 +3202,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                         }
                     }
 
-                    if( obj->m_type == WorldObject::TypeBomber &&
+                    if( obj->IsBomberClass() &&
                         obj->m_actionQueue.Size() == 0 )
                     {
                         Bomber *bomber = (Bomber *)obj;
@@ -3231,7 +3224,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                     }
                 }
 
-                if( obj->m_type == WorldObject::TypeNuke )
+                if( obj->IsNuke() )
                 {
                     MovingObject *nuke = (MovingObject *)obj;
                     Fixed longitude = nuke->m_targetLongitude;
@@ -3447,7 +3440,7 @@ int World::GetUnitValue( int _type )
             case WorldObject::TypeAirBase:
             case WorldObject::TypeCarrier:
             case WorldObject::TypeBattleShip:   return 2;
-            case WorldObject::TypeSub :
+            case WorldObject::TypeSub:
             case WorldObject::TypeSilo:     return 3;
             default : return 2;
         }

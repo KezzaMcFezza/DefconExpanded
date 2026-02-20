@@ -297,7 +297,7 @@ class SilosIntoNukeModePopup : public TutorialPopup
                 WorldObject *wobj = g_app->GetWorld()->m_objects[i];
                 if( wobj &&
                     wobj->m_teamId == 1 &&
-                    wobj->m_type == WorldObject::TypeSilo &&
+                    wobj->IsSiloClass() &&
                     wobj->m_currentState == 1 &&
                     wobj->m_states[0]->m_numTimesPermitted > 0 )
                 {
@@ -475,7 +475,7 @@ class ClickOnAirbasePopup : public TutorialPopup
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeAirBase &&
+                    if( wobj->IsAirbaseClass() &&
                         wobj->m_teamId == 1 &&
                         wobj->m_currentState == 0 &&
                         wobj->m_states[0]->m_numTimesPermitted > 0 &&
@@ -508,7 +508,7 @@ class ScoutFightersHerePopup : public TutorialPopup
             WorldObject *wobj = g_app->GetWorld()->GetWorldObject(selectionId);
 
             if( wobj &&
-                wobj->m_type == WorldObject::TypeAirBase &&
+                wobj->IsAirbaseClass() &&
                 wobj->m_currentState == 0 &&
                 wobj->m_states[0]->m_numTimesPermitted > 0 &&
                 wobj->m_actionQueue.Size() < wobj->m_states[0]->m_numTimesPermitted )
@@ -546,7 +546,7 @@ class SwitchToBomberModePopup : public TutorialPopup
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeAirBase &&
+                    if( wobj->IsAirbaseClass() &&
                         wobj->m_teamId == 1 &&
                         wobj->m_states[1]->m_numTimesPermitted > 0 )
                     {
@@ -602,7 +602,7 @@ class ClickOnAirbaseBomberPopup : public TutorialPopup
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeAirBase &&
+                    if( wobj->IsAirbaseClass() &&
                         wobj->m_teamId == 1 &&
                         wobj->m_currentState == 1 &&
                         wobj->m_states[1]->m_numTimesPermitted > 0 &&
@@ -635,7 +635,7 @@ class NukeEnemyBuildingPopup : public TutorialPopup
 
         if( inChapter && 
             wobj &&
-            wobj->m_type == WorldObject::TypeAirBase &&
+            wobj->IsAirbaseClass() &&
             g_app->GetWorld()->GetWorldObject(m_objectId) )
         {
             int numInFlight, numInQueue;
@@ -871,7 +871,7 @@ class SelectSubsPopup : public TutorialPopup
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
                     if( wobj->m_teamId == 1 &&
-                        wobj->m_type == WorldObject::TypeSub )
+                        wobj->IsSubmarine() )
                     {
                         Fleet *fleet = g_app->GetWorld()->GetTeam(1)->GetFleet(wobj->m_fleetId);
                         m_targetLongitude = fleet->m_longitude.DoubleValue();
@@ -916,7 +916,7 @@ class SwitchToDepthChargeModePopup : public TutorialPopup
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeCarrier &&
+                    if( wobj->IsCarrierClass() &&
                         wobj->m_teamId == 1 )
                     {
                         if( wobj->m_currentState != 2 &&
@@ -957,7 +957,7 @@ public:
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeCarrier &&
+                    if( wobj->IsCarrierClass() &&
                         wobj->m_teamId == 1 &&
                         wobj->m_currentState == 2 )
                     {                        
@@ -996,7 +996,7 @@ class SwitchSubsToNukeModePopup : public TutorialPopup
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *wobj = g_app->GetWorld()->m_objects[i];
-                    if( wobj->m_type == WorldObject::TypeSub &&
+                    if( wobj->IsSubmarine() &&
                         wobj->m_teamId == 1 )
                     {
                         if( wobj->m_currentState != 2 )
@@ -1032,7 +1032,7 @@ class SubNukeEnemySiloPopup : public TutorialPopup
         {
             WorldObject *wobj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
             if( wobj && 
-                wobj->m_type == WorldObject::TypeSub &&
+                wobj->IsSubmarine() &&
                 g_app->GetWorld()->GetWorldObject(m_objectId) )
             {
                 TutorialPopup::Render( _hasFocus );
@@ -1194,7 +1194,7 @@ class Mission7ScoutChinaPopup : public TutorialPopup
                     {
                         MovingObject *mobj = (MovingObject*)g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[j] );
                         if( mobj && 
-                            mobj->m_type == WorldObject::TypeCarrier )
+                            mobj->IsCarrierClass() )
                         {
                             int numTimesPermitted = mobj->m_states[0]->m_numTimesPermitted;
                             if( mobj->m_currentState == 0 ) numTimesPermitted -= mobj->m_actionQueue.Size();
@@ -1231,7 +1231,7 @@ class Mission7EnemySubsPopup : public TutorialPopup
             {
                 WorldObject *wobj = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
                 if( wobj &&
-                    wobj->m_type == WorldObject::TypeSub &&
+                    wobj->IsSubmarine() &&
                     wobj->m_currentState == 2 )
                 {
                     numUsingNukes++;
@@ -2148,7 +2148,7 @@ void Tutorial::UpdateLevel1()
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                    if( obj->m_type == WorldObject::TypeNuke )
+                    if( obj->IsNuke() )
                     {
                         nukeCount++;
                     }
@@ -2304,7 +2304,7 @@ void Tutorial::UpdateLevel3()
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                    if( obj->m_type == WorldObject::TypeNuke )
+                    if( obj->IsNuke() )
                     {
                         nukeCount++;
                     }
@@ -2384,18 +2384,18 @@ void Tutorial::UpdateLevel4()
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                    if( obj->m_type == WorldObject::TypeNuke )
+                    if( obj->IsNuke() )
                     {
                         nukeCount++;
                     }
-                    else if( obj->m_type == WorldObject::TypeAirBase )
+                    else if( obj->IsAirbaseClass() )
                     {
                         if( obj->m_states[1]->m_numTimesPermitted > 0 )
                         {
                             nukeCount += obj->m_nukeSupply;
                         }
                     }
-                    else if( obj->m_type == WorldObject::TypeBomber )
+                    else if( obj->IsBomberClass() )
                     {
                         nukeCount += obj->m_states[1]->m_numTimesPermitted;
                     }
@@ -2425,18 +2425,18 @@ void Tutorial::UpdateLevel4()
                 if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                    if( obj->m_type == WorldObject::TypeNuke )
+                    if( obj->IsNuke() )
                     {
                         nukeCount++;
                     }
-                    else if( obj->m_type == WorldObject::TypeAirBase )
+                    else if( obj->IsAirbaseClass() )
                     {
                         if( obj->m_states[1]->m_numTimesPermitted > 0 )
                         {
                             nukeCount += obj->m_nukeSupply;
                         }
                     }
-                    else if( obj->m_type == WorldObject::TypeBomber )
+                    else if( obj->IsBomberClass() )
                     {
                         nukeCount += obj->m_states[1]->m_numTimesPermitted;
                     }
@@ -2571,7 +2571,7 @@ void Tutorial::UpdateLevel6()
                 {
                     int shipId = fleet->m_fleetMembers[i];
                     WorldObject *wobj = g_app->GetWorld()->GetWorldObject(shipId);
-                    if( wobj->m_type == WorldObject::TypeSub )
+                    if( wobj->IsSubmarine() )
                     {
                         ++numSubs;
                     }
@@ -2608,7 +2608,7 @@ void Tutorial::UpdateLevel6()
             if( g_app->GetWorld()->m_objects.ValidIndex(i) )
             {
                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                if( obj->m_type == WorldObject::TypeSub &&
+                if( obj->IsSubmarine() &&
                     g_app->GetWorld()->GetDistance( obj->m_longitude, obj->m_latitude, enemySilo->m_longitude, enemySilo->m_latitude ) < 45 )
                 {
                     subsInRange++;
@@ -2632,7 +2632,7 @@ void Tutorial::UpdateLevel6()
             {
                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
                 if( obj->m_teamId == 1 &&
-                    obj->m_type == WorldObject::TypeNuke )
+                    obj->IsNuke() )
                 {
                     nukeCount++;
                 }
@@ -2686,7 +2686,7 @@ void Tutorial::UpdateLevel7()
                 WorldObject *wobj = g_app->GetWorld()->m_objects[i];
                 if( wobj &&
                     wobj->m_teamId == 0 &&
-                    wobj->m_type == WorldObject::TypeNuke )
+                    wobj->IsNuke() )
                 {
                     RunNextChapter(3);                    
                     break;

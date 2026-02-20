@@ -219,6 +219,7 @@ public:
     bool                IsSam            () const;   // siloclass (SAM/ABM - for future units)
     bool                IsAircraftLauncher() const;  // carrierclass, airbaseclass
     bool                IsNuke           () const;   // nukeclass
+    bool                IsCityClass      () const;
     bool                IsSiloClass      () const;
     bool                IsRadarClass     () const;
     bool                IsAirbaseClass   () const;

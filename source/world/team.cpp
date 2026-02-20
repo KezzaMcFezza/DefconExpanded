@@ -1271,9 +1271,7 @@ int Team::GetNumTargets()
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
             if( !g_app->GetWorld()->IsFriend(obj->m_teamId, m_teamId ) &&
                 ( obj->m_visible[m_teamId] || obj->m_seen[m_teamId] ) &&
-                ( obj->m_type == WorldObject::TypeSilo ||
-                  obj->m_type == WorldObject::TypeRadarStation ||
-                  obj->m_type == WorldObject::TypeAirBase ) )           
+                ( obj->IsSiloClass() || obj->IsRadarClass() || obj->IsAirbaseClass() ) )           
             {
                 num++;
             }

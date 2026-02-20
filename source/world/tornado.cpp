@@ -53,7 +53,7 @@ bool Tornado::Update()
 	{
 		if( g_app->GetWorld()->m_objects.ValidIndex(i) )
 		{
-			if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeNuke )
+			if( g_app->GetWorld()->m_objects[i]->IsNuke() )
 			{
 				Nuke *nuke = (Nuke *)g_app->GetWorld()->m_objects[i];
 				Fixed distance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, nuke->m_longitude, nuke->m_latitude);
@@ -64,7 +64,7 @@ bool Tornado::Update()
 					nuke->SetWaypoint(targetLongitude, targetLatitude);
 				}
 			}
-			else if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeTornado )
+			else if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeTornado )  // unique type, no archetype
 			{
 				if( m_size < 40 )
 				{

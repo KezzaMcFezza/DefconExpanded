@@ -392,7 +392,7 @@ void Fleet::MoveFleet( Fixed longitude, Fixed latitude, bool cancelPursuits )
         {
             WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
             if( obj &&
-                obj->m_type == WorldObject::TypeSub &&
+                obj->IsSubmarine() &&
                 obj->m_currentState == 2 )
             {
                 obj->ClearActionQueue();
@@ -1040,7 +1040,7 @@ void Fleet::RunAIIntercepting()
                         WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
                         if( obj )
                         {
-                            if( obj->m_type == WorldObject::TypeCarrier  )
+                            if( obj->IsCarrierClass() )
                             {
                                 obj->SetState(2);
                             }
@@ -1280,7 +1280,7 @@ void Fleet::CounterSubs()
     for( int i = 0; i < m_fleetMembers.Size(); ++i )
     {
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
-        if( obj && obj->m_type == WorldObject::TypeCarrier )
+        if( obj && obj->IsCarrierClass() )
         {
             if( obj->m_currentState == 2 )
             {
@@ -1310,11 +1310,11 @@ int Fleet::CountNukesInFleet()
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
         if( obj )
         {
-            if( obj->m_type == WorldObject::TypeSub )
+            if( obj->IsSubmarine() )
             {
                 nukesInFleet += obj->m_states[2]->m_numTimesPermitted;
             }
-            else if(obj->m_type == WorldObject::TypeCarrier )
+            else if( obj->IsCarrierClass() )
             {
                 nukesInFleet += obj->m_states[1]->m_numTimesPermitted;
             }
@@ -1502,7 +1502,7 @@ bool Fleet::IgnoreSpeedDropoff()
     {
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
         if( obj &&
-            obj->m_type != WorldObject::TypeSub )
+            !obj->IsSubmarine() )
         {
             return false;
         }

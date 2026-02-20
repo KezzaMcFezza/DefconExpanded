@@ -120,7 +120,7 @@ void DepthCharge::Impact()
         {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
 
-            if( wobj->m_type == WorldObject::TypeSub &&
+            if( wobj->IsSubmarine() &&
                 wobj->m_teamId != m_teamId )
             {
                 Fixed rangeSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, wobj->m_longitude, wobj->m_latitude);

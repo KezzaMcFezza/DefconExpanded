@@ -75,8 +75,7 @@ bool Fighter::Update()
         {
             if( targetObject->m_teamId == m_teamId )
             {
-                if( targetObject->m_type == WorldObject::TypeCarrier ||
-                    targetObject->m_type == WorldObject::TypeAirBase )
+                if( targetObject->IsAircraftLauncher() )
                 {
                     Land( m_targetObjectId );
                 }
@@ -234,7 +233,7 @@ int Fighter::CountTargettedFighters( int targetId )
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )
         {
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
-            if( obj->m_type == WorldObject::TypeFighter &&
+            if( obj->IsFighterClass() &&
                 obj->m_teamId == m_teamId &&
                 obj->m_targetObjectId == targetId )
             {

@@ -79,7 +79,7 @@ bool MovingObject::Update()
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
         {
-            if( m_type == WorldObject::TypeNuke )
+            if( IsNuke() )
             {
                 m_historyTimer = 1;
             }
@@ -107,9 +107,9 @@ bool MovingObject::Update()
         WorldObject *home = g_app->GetWorld()->GetWorldObject( m_isLanding );
         if( home )
         {
-            if((m_type == WorldObject::TypeFighter &&
+            if(( IsFighterClass() &&
                 home->m_states[0]->m_numTimesPermitted >= home->m_maxFighters ) ||
-                (m_type == WorldObject::TypeBomber &&
+                ( IsBomberClass() &&
                 home->m_states[1]->m_numTimesPermitted >= home->m_maxBombers ))
             {
                 Land( GetClosestLandingPad() );
@@ -119,7 +119,7 @@ bool MovingObject::Update()
                 if( home->m_teamId == m_teamId )
                 {
                     bool landed = false;
-                    if( m_type == WorldObject::TypeFighter )
+                    if( IsFighterClass() )
                     {
                         if( home->m_states[0]->m_numTimesPermitted < home->m_maxFighters )
                         {
@@ -531,7 +531,7 @@ void MovingObject::CrossSeam()
         m_targetLongitude += 360;
     }
 
-    if( m_type != WorldObject::TypeNuke )
+    if( !IsNuke() )
     {
         // nukes have their own seperate calculation for this kind of thing
         Fixed seamDistanceSqd =  g_app->GetWorld()->GetDistanceAcrossSeamSqd( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
@@ -614,7 +614,7 @@ void MovingObject::Render2D()
 
 void MovingObject::Render3D()
 {
-    if( m_type == WorldObject::TypeNuke && g_app->IsGlobeMode() )
+    if( IsNuke() && g_app->IsGlobeMode() )
     {
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
@@ -770,7 +770,7 @@ void MovingObject::RenderHistory2D()
 
 void MovingObject::RenderHistory3D()
 {
-    if (m_type == WorldObject::TypeNuke && g_app->IsGlobeMode()) {
+    if (IsNuke() && g_app->IsGlobeMode()) {
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if (globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories()) {
             return;
@@ -1092,12 +1092,11 @@ int MovingObject::GetClosestLandingPad()
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
             if( obj->m_teamId == m_teamId )
             {
-                if( obj->m_type == WorldObject::TypeCarrier ||
-                    obj->m_type == WorldObject::TypeAirBase )
+                if( obj->IsAircraftLauncher() )
                 {
                     int roomInside = 0;
-                    if( m_type == TypeFighter ) roomInside = obj->m_maxFighters - obj->m_states[0]->m_numTimesPermitted;
-                    if( m_type == TypeBomber ) roomInside = obj->m_maxBombers - obj->m_states[1]->m_numTimesPermitted;
+                    if( IsFighterClass() ) roomInside = obj->m_maxFighters - obj->m_states[0]->m_numTimesPermitted;
+                    if( IsBomberClass() ) roomInside = obj->m_maxBombers - obj->m_states[1]->m_numTimesPermitted;
 
                     if( roomInside > 0 )
                     {
@@ -1108,7 +1107,7 @@ int MovingObject::GetClosestLandingPad()
                             nearestId = obj->m_objectId;
                         }
 
-                        if( m_type == TypeBomber && 
+                        if( IsBomberClass() && 
                             ( obj->m_nukeSupply > 0 || obj->m_nukeSupply == -1 ) &&
                             distSqd < nearestWithNukesSqd )
                         {
@@ -1259,7 +1258,7 @@ void MovingObject::Retaliate( int attackerId )
                 g_app->GetWorld()->GetTeam( m_teamId )->m_fleets[ m_fleetId ]->FleetAction( m_targetObjectId );
             }
         }
-        if( obj->m_type == WorldObject::TypeSub )
+        if( obj->IsSubmarine() )
         {
             Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
             if( fleet )
@@ -1324,7 +1323,7 @@ void MovingObject::Ping()
                             }
                         }
 
-                        if( m_type == WorldObject::TypeSub )
+                        if( IsSubmarine() )
                         {
                             for( int j = 0; j < g_app->GetWorld()->m_teams.Size(); ++j )
                             {
@@ -1347,7 +1346,7 @@ void MovingObject::Ping()
                             }
                             if( g_app->GetWorld()->GetTeam( m_teamId )->m_type == Team::TypeAI )
                             {
-                                if( obj->m_type == WorldObject::TypeSub )
+                                if( obj->IsSubmarine() )
                                 {
                                     g_app->GetWorld()->GetTeam( m_teamId )->AddEvent( Event::TypeSubDetected, obj->m_objectId, obj->m_teamId, obj->m_fleetId, obj->m_longitude, obj->m_latitude );
                                 }

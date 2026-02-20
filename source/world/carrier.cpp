@@ -190,7 +190,7 @@ void Carrier::RunAI()
                         WorldObject *obj = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
                         if( obj )
                         {
-                            if( obj->m_type == WorldObject::TypeCarrier && 
+                            if( obj->IsCarrierClass() && 
                                 obj->m_currentState == 2 && 
                                 obj->m_objectId != m_objectId )
                             {
@@ -250,7 +250,7 @@ void Carrier::RunAI()
                     {
                         WorldObject *obj = g_app->GetWorld()->m_objects[i];
                         bool visible = obj->m_visible[m_teamId];
-                        if( obj->m_type == WorldObject::TypeSub && m_currentState == 1 ) visible = true;                // TODO CHRIS : This looks like a bug to me.  surely current state should be 2?
+                        if( obj->IsSubmarine() && m_currentState == 1 ) visible = true;                // TODO CHRIS : This looks like a bug to me.  surely current state should be 2?
 
                         if( !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId) &&                            
                             visible &&
@@ -271,8 +271,7 @@ void Carrier::RunAI()
                 WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetIndex );
                 if( obj )
                 {                
-                    if( obj->m_type == WorldObject::TypeFighter ||
-                        obj->m_type == WorldObject::TypeBomber )
+                    if( obj->IsAircraft() )
                     {
                         if( m_stateTimer <= 0 ) 
                         {
@@ -285,7 +284,7 @@ void Carrier::RunAI()
                         action->m_latitude = obj->m_latitude;
                         RequestAction(action);
                     }
-                    else if( obj->m_type == WorldObject::TypeSub )
+                    else if( obj->IsSubmarine() )
                     {
                         if( m_stateTimer <= 0 ) 
                         {
@@ -334,8 +333,7 @@ void Carrier::RunAI()
                             {
                                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
                                 if( obj->m_teamId == m_teamId &&
-                                    ( obj->m_type == WorldObject::TypeCarrier ||
-                                      obj->m_type == WorldObject::TypeAirBase ) )
+                                    obj->IsAircraftLauncher() )
                                 {
                                     if( obj->m_nukeSupply - obj->m_states[1]->m_numTimesPermitted > 0 )
                                     {
@@ -526,7 +524,7 @@ void Carrier::FleetAction( int targetObjectId )
         {
             if( m_states[ m_currentState ]->m_numTimesPermitted != 0 )
             {
-                if( obj->m_type == WorldObject::TypeSub )
+                if( obj->IsSubmarine() )
                 {
                     SetState(2);
                 }
@@ -697,7 +695,7 @@ int Carrier::CountIncomingFighters()
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )
         {
             MovingObject *obj = (MovingObject *)g_app->GetWorld()->m_objects[i];
-            if( obj->m_type == WorldObject::TypeFighter &&
+            if( obj->IsFighterClass() &&
                 obj->m_teamId == m_teamId &&
                 obj->m_isLanding == m_objectId )
             {

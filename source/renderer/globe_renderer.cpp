@@ -1441,7 +1441,7 @@ void GlobeRenderer::RenderObjects()
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
 
             bool onScreen = IsPointVisible( ConvertLongLatTo3DPosition(wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() ), GetCameraPosition(), GLOBE_RADIUS );
-            if( onScreen || wobj->m_type == WorldObject::TypeNuke )
+            if( onScreen || wobj->IsNuke() )
             {
                 if( myTeamId == -1 ||
                     wobj->m_teamId == myTeamId ||
@@ -1579,7 +1579,7 @@ void GlobeRenderer::Render3DNukes()
         if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             
-            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            if (!wobj->IsNuke()) continue;
             if (!wobj->IsMovingObject()) continue;
             
             Nuke* nuke = (Nuke*)wobj;
@@ -1719,7 +1719,7 @@ void GlobeRenderer::Render3DNukeTrajectories()
             //
             // Make sure to only process nukes
 
-            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            if (!wobj->IsNuke()) continue;
             if (!wobj->IsMovingObject()) continue;
             
             MovingObject *mobj = (MovingObject*)wobj;
@@ -1957,27 +1957,27 @@ void GlobeRenderer::RenderNukeUnits()
                 {
                     int nukeCount = 0;
 
-                    switch( obj->m_type )
+                    switch( obj->m_classType )
                     {
-                        case WorldObject::TypeSilo:
+                        case WorldObject::ClassTypeSilo:
                             nukeCount = obj->m_states[0]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeSub:
+                        case WorldObject::ClassTypeSub:
                             nukeCount = obj->m_states[2]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeBomber:
+                        case WorldObject::ClassTypeBomber:
                             nukeCount = obj->m_states[1]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeAirBase:
-                        case WorldObject::TypeCarrier:
+                        case WorldObject::ClassTypeAirbase:
+                        case WorldObject::ClassTypeCarrier:
                             nukeCount = ( obj->m_states[1]->m_numTimesPermitted - ( obj->UsingNukes() ? obj->m_actionQueue.Size() : 0 ) ) * 2;
                             break;
                     }
 
-                    if( obj->UsingNukes() && obj->m_type != WorldObject::TypeAirBase && obj->m_type != WorldObject::TypeCarrier )
+                    if( obj->UsingNukes() && !obj->IsAircraftLauncher() )
                     {
                         nukeCount -= obj->m_actionQueue.Size();
                     }
@@ -2635,19 +2635,19 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
             Image *img = NULL;
             float size = 0.025f;
 
-            switch( wobj->m_type )
+            switch( wobj->m_classType )
             {
-                case WorldObject::TypeAirBase:  
-                case WorldObject::TypeCarrier:
+                case WorldObject::ClassTypeAirbase:
+                case WorldObject::ClassTypeCarrier:
                     if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
                     break;
 
-                case WorldObject::TypeSilo:
+                case WorldObject::ClassTypeSilo:
                     if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
 
-                case WorldObject::TypeSub:
+                case WorldObject::ClassTypeSub:
                     if( wobj->m_currentState == 2 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
             }

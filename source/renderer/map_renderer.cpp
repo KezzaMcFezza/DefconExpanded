@@ -671,7 +671,7 @@ void MapRenderer::RenderWorldObjectDetails( WorldObject *wobj )
     //
     // Render more details
         
-    if( wobj->m_type == WorldObject::TypeCity )
+    if( wobj->IsCityClass() )
     {
         RenderCityObjectDetails( wobj, &boxX, &boxY, &boxW, &boxH, &gapSize );
     }
@@ -1274,7 +1274,7 @@ void MapRenderer::GetWorldObjectStatePosition( WorldObject *wobj, int state, flo
     *screenX = predictedLongitude - (*screenW/4 * m_drawScale);
 
     if( wobj->m_teamId == g_app->GetWorld()->m_myTeamId &&
-        wobj->m_type != WorldObject::TypeCity )
+        !wobj->IsCityClass() )
     {
         *screenW = 34.0f;
     }
@@ -1572,8 +1572,8 @@ void MapRenderer::RenderMouse()
 
             // check for landing
             if( highlight && 
-                ( highlight->m_type == WorldObject::TypeCarrier || highlight->m_type == WorldObject::TypeAirBase ) &&
-                ( selection->m_type == WorldObject::TypeFighter || selection->m_type == WorldObject::TypeBomber ) )
+                highlight->IsAircraftLauncher() &&
+                selection->IsAircraft() )
             {   
                 actionCursorLongitude = highlight->m_longitude.DoubleValue() + highlight->m_vel.x.DoubleValue() * g_predictionTime * timeScale;
                 actionCursorLatitude = highlight->m_latitude.DoubleValue() + highlight->m_vel.y.DoubleValue() * g_predictionTime  * timeScale;
@@ -1780,8 +1780,8 @@ void MapRenderer::RenderMouse()
 
 
         if( highlight->m_teamId == g_app->GetWorld()->m_myTeamId &&
-            highlight->m_type != WorldObject::TypeCity &&
-            highlight->m_type != WorldObject::TypeRadarStation )
+            !highlight->IsCityClass() &&
+            !highlight->IsRadarClass() )
         {
             bool lmbDone = false;
 
@@ -1795,13 +1795,13 @@ void MapRenderer::RenderMouse()
                 }
             }
 
-            if( !lmbDone && highlight->m_type != WorldObject::TypeNuke )
+            if( !lmbDone && !highlight->IsNuke() )
             {
                 tooltip->PutData( LANGUAGEPHRASE("tooltip_selectobject") );
             }
 
-            if( highlight->m_type != WorldObject::TypeBattleShip &&
-                highlight->m_type != WorldObject::TypeFighter )
+            if( !highlight->IsBattleShipClass() &&
+                !highlight->IsFighterClass() )
             {
                 tooltip->PutData( LANGUAGEPHRASE("tooltip_setobjectstate") );
             }
@@ -2221,19 +2221,19 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             Image *img = NULL;
             float size = 1.0f;
 
-            switch( wobj->m_type )
+            switch( wobj->m_classType )
             {
-                case WorldObject::TypeAirBase:  
-                case WorldObject::TypeCarrier:
+                case WorldObject::ClassTypeAirbase:
+                case WorldObject::ClassTypeCarrier:
                     if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
                     break;
 
-                case WorldObject::TypeSilo:
+                case WorldObject::ClassTypeSilo:
                     if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
 
-                case WorldObject::TypeSub:
+                case WorldObject::ClassTypeSub:
                     if( wobj->m_currentState == 2 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
             }
@@ -2366,27 +2366,27 @@ void MapRenderer::RenderNukeUnits()
                 {
                     int nukeCount = 0;
 
-                    switch( obj->m_type )
+                    switch( obj->m_classType )
                     {
-                        case WorldObject::TypeSilo:
+                        case WorldObject::ClassTypeSilo:
                             nukeCount = obj->m_states[0]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeSub:
+                        case WorldObject::ClassTypeSub:
                             nukeCount = obj->m_states[2]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeBomber:
+                        case WorldObject::ClassTypeBomber:
                             nukeCount = obj->m_states[1]->m_numTimesPermitted;
                             break;
 
-                        case WorldObject::TypeAirBase:
-                        case WorldObject::TypeCarrier:
+                        case WorldObject::ClassTypeAirbase:
+                        case WorldObject::ClassTypeCarrier:
                             nukeCount = ( obj->m_states[1]->m_numTimesPermitted - ( obj->UsingNukes() ? obj->m_actionQueue.Size() : 0 ) ) * 2;
                             break;
                     }
 
-                    if( obj->UsingNukes() && obj->m_type != WorldObject::TypeAirBase && obj->m_type != WorldObject::TypeCarrier )
+                    if( obj->UsingNukes() && !obj->IsAircraftLauncher() )
                     {
                         nukeCount -= obj->m_actionQueue.Size();
                     }
@@ -2555,7 +2555,7 @@ void MapRenderer::RenderObjects()
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
 
             bool onScreen = IsOnScreen( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() );
-            if( onScreen || wobj->m_type == WorldObject::TypeNuke )
+            if( onScreen || wobj->IsNuke() )
             {
                 if( myTeamId == -1 ||
                     wobj->m_teamId == myTeamId ||
@@ -3303,11 +3303,9 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
     if( selection && 
         selection->m_teamId == g_app->GetWorld()->m_myTeamId )
     {
-        bool selectionLandable = ( selection->m_type == WorldObject::TypeFighter ||
-                                   selection->m_type == WorldObject::TypeBomber );
+        bool selectionLandable = selection->IsAircraft();
 
-        bool underMouseLandable = ( undermouse->m_type == WorldObject::TypeAirBase ||
-                                    undermouse->m_type == WorldObject::TypeCarrier );
+        bool underMouseLandable = undermouse->IsAircraftLauncher();
 
         if( selectionLandable && underMouseLandable )
         {
@@ -3325,7 +3323,7 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
         bool selectable = undermouse->IsActionable() ||
                           undermouse->IsMovingObject();
 
-        if( selectable && undermouse->m_type != WorldObject::TypeNuke )
+        if( selectable && !undermouse->IsNuke() )
         {
             if( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] )
             {
@@ -3343,7 +3341,7 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
                     if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
                     if( !obj || obj->m_teamId != myTeam || obj->m_type != unitType ) continue;
-                    if( obj->m_type == WorldObject::TypeNuke ) continue;
+                    if( obj->IsNuke() ) continue;
                     if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
                     if( !IsOnScreen( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue() ) ) continue;
                     g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
@@ -3382,7 +3380,7 @@ void MapRenderer::HandleClickStateMenu()
     {
         if( g_keys[KEY_SHIFT] && m_stateApplyToSelectionSameType && g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
         {
-            // Shift+click: apply to all selected units of same type
+            // Shift+click: apply to all selected units of same type (exact subunit)
             int targetType = highlight->m_type;
             bool anySuccess = false;
             bool anyFailure = false;
@@ -3551,9 +3549,9 @@ static int ResolveNukeTargetForStatic( Fixed longitude, Fixed latitude )
         if( !world->m_objects.ValidIndex(i) ) continue;
         WorldObject *obj = world->m_objects[i];
         if( !obj || obj->IsMovingObject() ) continue;
-        if( obj->m_type != WorldObject::TypeSilo &&
-            obj->m_type != WorldObject::TypeRadarStation &&
-            obj->m_type != WorldObject::TypeAirBase )
+        if( !obj->IsSiloClass() &&
+            !obj->IsRadarClass() &&
+            !obj->IsAirbaseClass() )
             continue;
         Fixed distSqd = world->GetDistanceSqd( obj->m_longitude, obj->m_latitude, longitude, latitude );
         if( distSqd < nearestSqd )
@@ -3610,12 +3608,11 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
             }
             else
             {
-                if( obj->m_type == WorldObject::TypeBattleShip )
+                if( obj->IsBattleShipClass() )
                     canAction = false;
-                if( obj->m_type == WorldObject::TypeSub )
+                if( obj->IsSubmarine() )
                     canAction = false;
-                if( obj->m_type == WorldObject::TypeCarrier ||
-                    obj->m_type == WorldObject::TypeAirBase )
+                if( obj->IsAircraftLauncher() )
                 {
                     if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
                         canAction = false;
@@ -3647,7 +3644,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
             action->m_targetType = obj->IsValidCombatTarget( underMouseId );
             action->m_combatTarget = ( action->m_targetType > WorldObject::TargetTypeInvalid );
             if( action->m_targetType == WorldObject::TargetTypeInvalid &&
-                ( obj->m_type == WorldObject::TypeCarrier || obj->m_type == WorldObject::TypeAirBase ) &&
+                obj->IsAircraftLauncher() &&
                 obj->m_currentState == 0 )
             {
                 action->m_targetType = WorldObject::TargetTypeLaunchFighter;
@@ -3931,7 +3928,7 @@ void MapRenderer::Update()
                         if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
                         WorldObject *obj = g_app->GetWorld()->m_objects[i];
                         if( !obj || obj->m_teamId != myTeam ) continue;
-                        if( obj->m_type == WorldObject::TypeNuke ) continue;
+                        if( obj->IsNuke() ) continue;
                         if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
 
                         Fixed lon = obj->m_longitude;
@@ -4110,7 +4107,7 @@ void MapRenderer::Update()
     else if( !g_inputManager->m_lmb )                                 // Mouse highlights something of ours
     {
         if( !underMouse ||
-            underMouse->m_type == WorldObject::TypeCity ||
+            underMouse->IsCityClass() ||
             underMouseId == -1 ||
             g_app->GetWorld()->m_myTeamId == -1 ||
             g_app->GetGame()->m_winner ||

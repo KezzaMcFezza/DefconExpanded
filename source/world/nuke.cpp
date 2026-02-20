@@ -255,8 +255,8 @@ void Nuke::FindTarget( int team, int targetTeam, int launchedBy, Fixed range, Fi
                 {                    
                     int numTargetedNukes = CountTargetedNukes( team, obj->m_longitude, obj->m_latitude );
                     
-                    if( (obj->m_type == WorldObject::TypeRadarStation && numTargetedNukes < 2 ) ||
-                        (obj->m_type != WorldObject::TypeRadarStation && numTargetedNukes < 4 ) )
+                    if( (obj->IsRadarClass() && numTargetedNukes < 2 ) ||
+                        (!obj->IsRadarClass() && numTargetedNukes < 4 ) )
                     {
                         validTargets.PutData(obj->m_objectId);
                     }
@@ -316,7 +316,7 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
     {
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )
         {
-            if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeNuke )
+            if( g_app->GetWorld()->m_objects[i]->IsNuke() )
             {
                 MovingObject *obj = (MovingObject *)g_app->GetWorld()->m_objects[i];
                 Fixed targetLongitude = obj->m_targetLongitude;
@@ -336,7 +336,7 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
                     ++targetedNukes;
                 }
             }
-            else if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeBomber )
+            else if( g_app->GetWorld()->m_objects[i]->IsBomberClass() )
             {
                 Bomber *obj = (Bomber *)g_app->GetWorld()->m_objects[i];
                 if( obj->m_teamId == teamId &&
@@ -346,12 +346,12 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
                     ++targetedNukes;
                 }
             }
-            else if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeSub ||
-                     g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeSilo)
+            else if( g_app->GetWorld()->m_objects[i]->IsSubmarine() ||
+                     g_app->GetWorld()->m_objects[i]->IsSiloClass() )
             {
                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
                 int nukeState = 0;
-                if( obj->m_type == WorldObject::TypeSub ) 
+                if( obj->IsSubmarine() ) 
                 {
                     nukeState = 2;
                 }
@@ -368,8 +368,7 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
                     }
                 }
             }
-            else if( g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeAirBase ||
-                     g_app->GetWorld()->m_objects[i]->m_type == WorldObject::TypeCarrier )
+            else if( g_app->GetWorld()->m_objects[i]->IsAircraftLauncher() )
             {
                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
                 if( obj->m_teamId == teamId &&

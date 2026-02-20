@@ -701,7 +701,7 @@ bool Sub::IsSafeTarget( Fleet *_fleet )
         WorldObject *ship = g_app->GetWorld()->GetWorldObject( _fleet->m_fleetMembers[i] );
         if( ship )
         {
-            if( ship->m_type == WorldObject::TypeCarrier &&
+            if( ship->IsCarrierClass() &&
                 ship->m_visible[ m_teamId ] )
             {
                 return false;
