@@ -47,7 +47,10 @@ Sub::Sub()
     
     AddState( LANGUAGEPHRASE("state_passivesonar"), 240, 20, 0, 5, true, -1, 3 );
     AddState( LANGUAGEPHRASE("state_activesonar"), 240, 20, 0, 5, false, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 0, 45, true, 5, 3 );
     AddState( LANGUAGEPHRASE("state_subnuke"), 120, 120, 3, 45, true, 5, 1 );
+
+    m_states[2]->m_numTimesPermitted = m_states[3]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
@@ -73,7 +76,7 @@ void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             }
         }            
     }
-    else if( m_currentState == 2 )
+    else if( m_currentState == 3 )
     {
         if( m_stateTimer <= 0 )
         {
@@ -82,6 +85,7 @@ void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
             if( fleet ) fleet->m_subNukesLaunched++;
 
+            m_states[2]->m_numTimesPermitted = m_states[3]->m_numTimesPermitted;
         }
         else 
         {
@@ -94,24 +98,20 @@ void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
 bool Sub::IsHiddenFrom()
 {
-    if( ( m_currentState <= 0 || m_currentState == 1 ) 
-         && m_stateTimer <= 0 ) 
+    if( m_currentState != 3 )
     {
-        // Active or passive sonar
-        // We are under water
-        m_hidden = true;
-        return true;
-    }
-    else if( ( m_currentState <= 0 || m_currentState == 1 ) && 
-             m_stateTimer > 0 )
-    {
-        // Switching to active or passive sonar
-        // Hidden status depends on the previous state
-        return( m_hidden );
+        if( m_stateTimer <= 0 )
+        {
+            m_hidden = true;
+            return true;
+        }
+        else
+        {
+            return( m_hidden );
+        }
     }
     else
     {
-        // We aren't in a hidden state
         m_hidden = false;
         return WorldObject::IsHiddenFrom();
     }
@@ -119,7 +119,7 @@ bool Sub::IsHiddenFrom()
 
 bool Sub::Update()
 {        
-    if( m_currentState == 2 )
+    if( m_currentState == 3 )
     {
         strcpy( bmpImageFilename, "graphics/sub_surfaced.bmp" );
     }
@@ -129,7 +129,7 @@ bool Sub::Update()
     }
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
-    if( fleet )
+    if( fleet && ( m_currentState == 0 || m_currentState == 1 ) )
     {
         bool canAttack = false;
         if( m_stateTimer <= 0 && m_currentState == 1 )
@@ -145,7 +145,6 @@ bool Sub::Update()
             canAttack = true;
         }
 
-        // Are we shooting?
         bool haveValidTarget = false;
 
         if( m_targetObjectId != -1 )
@@ -193,13 +192,15 @@ bool Sub::Update()
         }
     }
 
-    if( m_currentState != 2 )
+    if( m_currentState != 3 )
     {
         bool arrived = MoveToWaypoint();
     }
-    else if( m_states[m_currentState]->m_numTimesPermitted == 0 &&
-             m_currentState != 0 )
+
+    if( m_currentState == 3 &&
+        m_states[3]->m_numTimesPermitted == 0 )
     {
+        m_states[2]->m_numTimesPermitted = 0;
         SetState(0);
     }
     
@@ -219,7 +220,7 @@ void Sub::Render2D()
         float predictedLongitude = m_longitude.DoubleValue() + m_vel.x.DoubleValue() * predictionTime;
         float predictedLatitude = m_latitude.DoubleValue() + m_vel.y.DoubleValue() * predictionTime; 
 
-        int numNukesInStore = m_states[2]->m_numTimesPermitted;
+        int numNukesInStore = m_states[3]->m_numTimesPermitted;
         int numNukesInQueue = m_actionQueue.Size();
 
         Team *team = g_app->GetWorld()->GetTeam(m_teamId);
@@ -267,7 +268,7 @@ void Sub::Render3D()
         float predictedLongitude = m_longitude.DoubleValue() + m_vel.x.DoubleValue() * predictionTime;
         float predictedLatitude = m_latitude.DoubleValue() + m_vel.y.DoubleValue() * predictionTime; 
 
-        int numNukesInStore = m_states[2]->m_numTimesPermitted;
+        int numNukesInStore = m_states[3]->m_numTimesPermitted;
         int numNukesInQueue = m_actionQueue.Size();
 
         Team *team = g_app->GetWorld()->GetTeam(m_teamId);
@@ -353,7 +354,7 @@ void Sub::RunAI()
                 if( team->m_maxTargetsSeen >= 4 ||
                     (team->m_currentState >= Team::StateAssault && m_stateTimer == 0) )
                 {            
-                    if( m_states[2]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
+                    if( m_states[3]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
                     {
                         END_PROFILE("SubAI");
                         return;
@@ -404,11 +405,11 @@ void Sub::RunAI()
                     if( (longitude != 0 && latitude != 0) &&
                         (targetsInRange >= 4  || (team->m_currentState >= Team::StateAssault ) ))
                     {
-                        if( m_states[2]->m_numTimesPermitted - m_actionQueue.Size() > 0 )
+                        if( m_states[3]->m_numTimesPermitted - m_actionQueue.Size() > 0 )
                         {
-                            if( m_currentState != 2 )
+                            if( m_currentState != 3 )
                             {
-                                SetState(2);
+                                SetState(3);
                             }
                             ActionOrder *action = new ActionOrder();
                             action->m_longitude = longitude;
@@ -464,7 +465,7 @@ WorldObject *Sub::FindTarget()
                 !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
                 g_app->GetWorld()->GetAttackOdds( WorldObject::TypeSub, obj->m_type ) > 0 )
             {
-                bool safeTarget = ( m_states[2]->m_numTimesPermitted == 0 || IsSafeTarget( fleetTarget ) );
+                bool safeTarget = ( m_states[3]->m_numTimesPermitted == 0 || IsSafeTarget( fleetTarget ) );
                 if( safeTarget &&
                     g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude) <= GetActionRangeSqd() )
                 {
@@ -506,33 +507,65 @@ bool Sub::IsIdle()
 
 bool Sub::UsingGuns()
 {
-    if( m_currentState == 0 ||
-        m_currentState == 1 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 0 || m_currentState == 1 );
 }
 
 bool Sub::UsingNukes()
 {
-    if( m_currentState == 2 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 3 );
+}
+
+bool Sub::ShouldProcessActionQueue()
+{
+    return ( m_currentState != 2 );
 }
 
 void Sub::SetState( int state )
 {
-    MovingObject::SetState( state );
-    if( m_currentState == 2 )
+    if( !CanSetState( state ) )
+        return;
+
+    bool preserveQueue = ( m_currentState == 2 && state == 3 );
+
+    if( preserveQueue )
+    {
+        Fixed actionRangeSqd = m_states[3]->m_actionRange * m_states[3]->m_actionRange;
+        LList<ActionOrder *> outOfRange;
+        for( int i = m_actionQueue.Size() - 1; i >= 0; --i )
+        {
+            ActionOrder *action = m_actionQueue[i];
+            Fixed lon = action->m_longitude;
+            Fixed lat = action->m_latitude;
+            if( action->m_targetObjectId != -1 )
+            {
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+                if( obj )
+                {
+                    lon = obj->m_longitude;
+                    lat = obj->m_latitude;
+                }
+            }
+            Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lon, lat );
+            if( distSqd > actionRangeSqd )
+            {
+                outOfRange.PutDataAtStart( action );
+                m_actionQueue.RemoveData( i );
+            }
+        }
+        for( int i = 0; i < outOfRange.Size(); ++i )
+            m_actionQueue.PutData( outOfRange[i] );
+
+        WorldObjectState *theState = m_states[state];
+        m_currentState = state;
+        m_stateTimer = theState->m_timeToPrepare;
+        m_targetObjectId = -1;
+    }
+    else
+    {
+        MovingObject::SetState( state );
+    }
+
+    if( m_currentState == 3 )
     {
         g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId )->StopFleet();
     }
@@ -560,14 +593,7 @@ void Sub::ChangePosition()
 
 bool Sub::IsActionQueueable()
 {
-    if( m_currentState == 2 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 2 || m_currentState == 3 );
 }
 
 bool Sub::IsPinging()
@@ -584,7 +610,7 @@ bool Sub::IsPinging()
 
 int Sub::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 {
-    if( m_currentState == 2 )
+    if( m_currentState == 3 )
     {
         return TypeInvalid;
     }
@@ -595,8 +621,8 @@ int Sub::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 
 int Sub::GetAttackOdds( int _defenderType )
 {
-    if( m_currentState == 2 &&
-        m_states[2]->m_numTimesPermitted > 0 )
+    if( ( m_currentState == 2 || m_currentState == 3 ) &&
+        m_states[3]->m_numTimesPermitted > 0 )
     {
         if( _defenderType == TypeCity ||
             _defenderType == TypeSilo ||
@@ -607,9 +633,8 @@ int Sub::GetAttackOdds( int _defenderType )
         }
     }
 
-    if( m_currentState == 2 )
+    if( m_currentState == 2 || m_currentState == 3 )
     {
-        // We are surfaced, so can't attack anything other than nuke attacks
         return 0;
     }
 
@@ -633,10 +658,15 @@ int Sub::IsValidCombatTarget( int _objectId )
     {       
         if( m_currentState == 2 && !obj->IsMovingObject() )
         {
+            return TargetTypeLaunchNuke;
+        }
+
+        if( m_currentState == 3 && !obj->IsMovingObject() )
+        {
             Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, 
                                                                 obj->m_longitude, obj->m_latitude );
 
-            Fixed actionRangeSqd = m_states[2]->m_actionRange;
+            Fixed actionRangeSqd = m_states[3]->m_actionRange;
             actionRangeSqd *= actionRangeSqd;
 
             if( distanceSqd < actionRangeSqd )
@@ -689,7 +719,7 @@ void Sub::FleetAction( int targetObjectId )
 
 void Sub::RequestAction(ActionOrder *_action)
 {
-    if( m_currentState == 2 )
+    if( m_currentState == 3 )
     {
         if(g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, _action->m_longitude, _action->m_latitude ) < GetActionRangeSqd() )
         {

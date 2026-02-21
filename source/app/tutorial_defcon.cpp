@@ -999,12 +999,12 @@ class SwitchSubsToNukeModePopup : public TutorialPopup
                     if( wobj->IsSubmarine() &&
                         wobj->m_teamId == 1 )
                     {
-                        if( wobj->m_currentState != 2 )
+                        if( wobj->m_currentState != 3 )
                         {
                             m_objectId = wobj->m_objectId;
                         }
 
-                        if( wobj->m_currentState == 2 )
+                        if( wobj->m_currentState == 3 )
                         {                        
                             numInMode++;
                         }
@@ -1232,7 +1232,7 @@ class Mission7EnemySubsPopup : public TutorialPopup
                 WorldObject *wobj = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
                 if( wobj &&
                     wobj->IsSubmarine() &&
-                    wobj->m_currentState == 2 )
+                    wobj->m_currentState == 3 )
                 {
                     numUsingNukes++;
                 }

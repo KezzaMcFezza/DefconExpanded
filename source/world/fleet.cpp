@@ -393,7 +393,7 @@ void Fleet::MoveFleet( Fixed longitude, Fixed latitude, bool cancelPursuits )
             WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
             if( obj &&
                 obj->IsSubmarine() &&
-                obj->m_currentState == 2 )
+                obj->m_currentState == 3 )
             {
                 obj->ClearActionQueue();
                 obj->SetState(0);

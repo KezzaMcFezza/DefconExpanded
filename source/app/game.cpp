@@ -315,11 +315,11 @@ void Game::CountNukes()
                     break;
 
                 case WorldObject::TypeSilo:
-                    m_nukeCount[obj->m_teamId] += obj->m_states[0]->m_numTimesPermitted;           
+                    m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted;           
                     break;
 
                 case WorldObject::TypeSub:          
-                    m_nukeCount[obj->m_teamId] += obj->m_states[2]->m_numTimesPermitted;           
+                    m_nukeCount[obj->m_teamId] += obj->m_states[3]->m_numTimesPermitted;           
                     break;
 
                 case WorldObject::TypeAirBase:      

@@ -272,7 +272,7 @@ bool WorldObject::Update()
                 }
             }
         }
-        if( m_actionQueue.Size() > 0 )
+        if( m_actionQueue.Size() > 0 && ShouldProcessActionQueue() )
         {
             ActionOrder *action = m_actionQueue[0];
             m_actionQueue.RemoveData(0);
@@ -786,6 +786,11 @@ void WorldObject::RequestAction( ActionOrder *_action )
 bool WorldObject::IsActionQueueable()
 {
     return false;
+}
+
+bool WorldObject::ShouldProcessActionQueue()
+{
+    return true;
 }
 
 bool WorldObject::UsingGuns()

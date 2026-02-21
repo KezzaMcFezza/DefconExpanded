@@ -28,6 +28,7 @@ public:
     bool    IsIdle          ();
     bool    UsingGuns       ();
     bool    UsingNukes      ();
+    bool    ShouldProcessActionQueue();
     void    SetState        ( int state );
     void    ChangePosition  ();
     bool    IsActionQueueable();

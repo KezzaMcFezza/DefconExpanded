@@ -45,8 +45,10 @@ Bomber::Bomber()
 
     m_movementType = MovementTypeAir;
 
-    AddState( LANGUAGEPHRASE("state_airtoseamissile"), 60, 30, 10, 20, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 5, 25, true, 2, 3 );
     AddState( LANGUAGEPHRASE("state_bombernuke"), 240, 120, 5, 25, true, 2, 1 );
+
+    m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
@@ -75,40 +77,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     m_nukeTargetLongitude = 0;
     m_nukeTargetLatitude = 0;
 
-    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-    if( target )
-    {
-        if( target->IsNavy() )
-        {
-            if( m_currentState != 0 )
-            {
-                SetState(0);
-            }
-        }
-
-        if( target->IsBuilding() )
-        {
-            if( m_currentState != 1 &&
-                m_states[1]->m_numTimesPermitted > 0 )
-            {
-                m_bombingRun = true;
-                SetNukeTarget( longitude, latitude );
-            }
-        }
-    }
-
-
-    if( m_currentState == 0 )
-    {    
-        WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-        if( target &&
-            target->m_visible[m_teamId] &&
-            g_app->GetWorld()->GetAttackOdds( m_type, target->m_type ) > 0)
-        {
-            m_targetObjectId = targetObjectId;
-        }
-    }
-    else if( m_currentState == 1 )
+    if( m_currentState == 1 )
     {
         if( m_states[1]->m_numTimesPermitted <= 0 )
             return;
@@ -132,6 +101,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             m_nukeTargetLongitude = 0;
             m_nukeTargetLatitude = 0;
             m_bombingRun = true;
+            m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
             int remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size();
             if( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 && targetObjectId != -1 )
@@ -212,71 +182,7 @@ bool Bomber::Update()
         }
     }
 
-    //
-    // Do we move ?
-    
     Vector3<Fixed> oldVel = m_vel;
-
-    bool hasTarget = false;
-    if( m_targetObjectId != -1 )
-    {
-        if( m_currentState == 0 )
-        {
-            WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
-            if( targetObject )
-            {
-                if( targetObject->m_teamId == m_teamId )
-                {
-                if( targetObject->IsAircraftLauncher() )
-                    {
-                        SetWaypoint( targetObject->m_longitude, targetObject->m_latitude );
-                        Land( m_targetObjectId );
-                    }
-                    m_targetObjectId = -1;
-                }
-                else
-                {
-                    if( m_targetLongitude == 0 && m_targetLatitude == 0 )
-                    {
-                        SetWaypoint( targetObject->m_longitude, targetObject->m_latitude );
-                    }
-
-                    if( targetObject->m_visible[ m_teamId ] )
-                    {
-                        hasTarget = true;
-                        if(m_stateTimer <= 0)
-                        {
-                            Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude);
-                            if( distanceSqd <= GetActionRangeSqd() )
-                            {
-                                FireGun( GetActionRange() );
-                                m_stateTimer = m_states[0]->m_timeToReload;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                m_targetObjectId = -1;
-            }
-        }            
-    }
-
-    if( m_currentState == 0 &&
-        !hasTarget &&
-        m_retargetTimer <= 0 &&
-        !m_bombingRun &&
-        m_isLanding == -1 )
-    {
-        m_retargetTimer = 10;
-        m_targetObjectId = -1;
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( GetTarget(25) );
-        if( obj )
-        {
-            m_targetObjectId = obj->m_objectId;
-        }
-    }
 
     if( arrived )
     {
@@ -312,15 +218,8 @@ bool Bomber::Update()
         }
     }
 
-    if( m_bombingRun && m_states[1]->m_numTimesPermitted > 0 &&
-        g_app->GetWorld()->GetDefcon() == 1 &&
-        m_currentState != 1 )
-    {
-        SetState(1);
-    }
-
-    bool hasQueuedAttack = ( m_currentState == 1 ) && ( m_actionQueue.Size() > 0 );
-    bool hasAmmoAndWaypoint = ( m_currentState == 1 ) && ( m_states[1]->m_numTimesPermitted > 0 ) &&
+    bool hasQueuedAttack = ( m_actionQueue.Size() > 0 );
+    bool hasAmmoAndWaypoint = ( m_states[1]->m_numTimesPermitted > 0 ) &&
         ( m_targetLongitude != 0 || m_targetLatitude != 0 );
     if( ( m_bombingRun && m_states[1]->m_numTimesPermitted == 0 ) ||
         ( IsIdle() && !hasQueuedAttack && !hasAmmoAndWaypoint ) )
@@ -328,12 +227,11 @@ bool Bomber::Update()
         Land( GetClosestLandingPad() );
     }
 
-    if( m_currentState == 1 )
+    if( m_currentState == 1 &&
+        m_states[1]->m_numTimesPermitted == 0 )
     {
-        if( m_states[1]->m_numTimesPermitted == 0 )
-        {
-            SetState(0);
-        }
+        m_states[0]->m_numTimesPermitted = 0;
+        SetState(0);
     }
 
     //
@@ -380,20 +278,26 @@ void Bomber::RunAI()
 {
     if( IsIdle() )
     {
-        for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+        if( m_states[1]->m_numTimesPermitted > 0 &&
+            g_app->GetWorld()->GetDefcon() == 1 )
         {
-            if( g_app->GetWorld()->m_objects.ValidIndex(i) )
+            for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
             {
-                WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                if( obj )
+                if( g_app->GetWorld()->m_objects.ValidIndex(i) )
                 {
-                    if( g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type ) > 0 &&
+                    WorldObject *obj = g_app->GetWorld()->m_objects[i];
+                    if( obj && !obj->IsMovingObject() &&
                         !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId ) &&                        
                         obj->m_visible[m_teamId] &&
                         g_app->GetWorld()->GetDistance( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude ) < m_range - 15 )
                     {
-                        SetState(0);
-                        Action( obj->m_targetObjectId, obj->m_longitude, obj->m_latitude );
+                        if( m_currentState != 1 )
+                            SetState(1);
+                        ActionOrder *action = new ActionOrder();
+                        action->m_targetObjectId = obj->m_objectId;
+                        action->m_longitude = obj->m_longitude;
+                        action->m_latitude = obj->m_latitude;
+                        RequestAction( action );
                         return;
                     }
                 }
@@ -460,7 +364,55 @@ void Bomber::Retaliate( int attackerId )
 
 void Bomber::SetState( int state )
 {
-    MovingObject::SetState( state );
+    if( !CanSetState( state ) )
+        return;
+
+    bool preserveQueue = ( m_currentState == 0 && state == 1 );
+
+    if( preserveQueue )
+    {
+        Fixed actionRangeSqd = m_states[1]->m_actionRange * m_states[1]->m_actionRange;
+        LList<ActionOrder *> outOfRange;
+        for( int i = m_actionQueue.Size() - 1; i >= 0; --i )
+        {
+            ActionOrder *action = m_actionQueue[i];
+            Fixed lon = action->m_longitude;
+            Fixed lat = action->m_latitude;
+            if( action->m_targetObjectId != -1 )
+            {
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+                if( obj )
+                {
+                    lon = obj->m_longitude;
+                    lat = obj->m_latitude;
+                }
+            }
+            Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lon, lat );
+            if( distSqd > actionRangeSqd )
+            {
+                outOfRange.PutDataAtStart( action );
+                m_actionQueue.RemoveData( i );
+            }
+        }
+        for( int i = 0; i < outOfRange.Size(); ++i )
+            m_actionQueue.PutData( outOfRange[i] );
+
+        WorldObjectState *theState = m_states[state];
+        m_currentState = state;
+        m_stateTimer = theState->m_timeToPrepare;
+        m_targetObjectId = -1;
+
+        if( m_actionQueue.Size() > 0 )
+        {
+            ActionOrder *first = m_actionQueue[0];
+            SetWaypoint( first->m_longitude, first->m_latitude );
+        }
+    }
+    else
+    {
+        MovingObject::SetState( state );
+    }
+
     if( m_currentState != 1 )
     {
         m_bombingRun = false;
@@ -518,13 +470,17 @@ int Bomber::IsValidCombatTarget( int _objectId )
 
 bool Bomber::IsActionQueueable()
 {
-    return ( m_currentState == 1 );  // nuke mode only in DefconExpanded
+    return ( m_currentState == 0 || m_currentState == 1 );
 }
 
+bool Bomber::ShouldProcessActionQueue()
+{
+    return ( m_currentState != 0 );
+}
 
 void Bomber::RequestAction( ActionOrder *_action )
 {
-    if( m_currentState == 1 )
+    if( m_currentState == 0 || m_currentState == 1 )
     {
         WorldObject *target = g_app->GetWorld()->GetWorldObject( _action->m_targetObjectId );
         if( target && ( target->IsAircraft() || target->IsMissileClass() ) )
@@ -532,11 +488,9 @@ void Bomber::RequestAction( ActionOrder *_action )
             delete _action;
             return;
         }
-        // Only set waypoint to the new target if it becomes our current (first) order.
-        // When adding to an existing queue, keep flying to the first target until we launch.
         bool wasQueueEmpty = ( m_actionQueue.Size() == 0 );
         WorldObject::RequestAction( _action );
-        if( wasQueueEmpty )
+        if( wasQueueEmpty && m_currentState == 1 )
         {
             SetWaypoint( _action->m_longitude, _action->m_latitude );
         }
@@ -550,7 +504,7 @@ void Bomber::RequestAction( ActionOrder *_action )
 
 void Bomber::CeaseFire( int teamId )
 {
-    if( m_currentState == 1 && m_actionQueue.Size() > 0 )
+    if( ( m_currentState == 0 || m_currentState == 1 ) && m_actionQueue.Size() > 0 )
     {
         ClearActionQueue();
         Land( GetClosestLandingPad() );

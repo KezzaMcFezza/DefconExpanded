@@ -93,14 +93,15 @@ Raitos Goals:
 - unit queue order improvements                           - DONE
 - order line color management                             - DONE
 - allies start in ceasefire                               - DONE
+- submarines passive sonar adjustment                     - DONE
+- stanby mode queueing
 
 TODO:
-- stanby mode queueing
-- submarines passive sonar adjustment
 - multi-tier radar system
+- burst fire system
 - expansion of unit system
 - territory unique units
-- burst fire system
 - unit stats rebalance
+- unit outlines
 - performance efficiancy increase
 - find a better way to render bomber payloads

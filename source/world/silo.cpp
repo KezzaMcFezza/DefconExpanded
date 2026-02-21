@@ -34,13 +34,16 @@ Silo::Silo()
     m_radarRange = 20;
     m_selectable = true;
 
-    m_currentState = 1;
+    m_currentState = 2;
     m_life = 25;
 
     m_nukeSupply = 10;
 
+    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 10, Fixed::MAX, true, 10, 5 );
     AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );  
     AddState( LANGUAGEPHRASE("state_airdefense"), 340, 20, 10, 30, true );
+
+    m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
@@ -54,7 +57,7 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_stateTimer <= 0 )
     {
-        if( m_currentState == 0 )
+        if( m_currentState == 1 )
         {
             g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, 360 );
             m_numNukesLaunched++;
@@ -65,9 +68,9 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 m_lastSeenTime[team->m_teamId] = m_ghostFadeTime;
                 m_seen[team->m_teamId] = true;
             }
-    
+            m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
         }
-        else if( m_currentState == 1 )
+        else if( m_currentState == 2 )
         {
             WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
             if( targetObject )
@@ -95,14 +98,25 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
 void Silo::SetState( int state )
 {
-    WorldObject::SetState( state );
-    if( m_currentState == 0 )
+    if( CanSetState( state ) )
     {
-        strcpy( bmpImageFilename, "graphics/silo.bmp" );
-    }
-    else
-    {
-        strcpy( bmpImageFilename, "graphics/sam.bmp" );
+        bool preserveQueue = ( m_currentState == 0 && state == 1 );
+
+        WorldObjectState *theState = m_states[state];
+        m_currentState = state;
+        m_stateTimer = theState->m_timeToPrepare;
+        m_targetObjectId = -1;
+        if( !preserveQueue )
+            m_actionQueue.EmptyAndDelete();
+
+        if( m_currentState == 0 || m_currentState == 1 )
+        {
+            strcpy( bmpImageFilename, "graphics/silo.bmp" );
+        }
+        else
+        {
+            strcpy( bmpImageFilename, "graphics/sam.bmp" );
+        }
     }
 }
         
@@ -123,7 +137,7 @@ bool Silo::Update()
     //}
 //#endif
 
-    if( m_stateTimer <= 0 )
+    if( m_currentState == 2 && m_stateTimer <= 0 )
     {
         if( m_retargetTimer <= 0 )
         {
@@ -140,7 +154,7 @@ bool Silo::Update()
                     g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
                 {
                     FireGun( GetActionRange() );
-                    m_stateTimer = m_states[1]->m_timeToReload;
+                    m_stateTimer = m_states[2]->m_timeToReload;
                 }
                 else
                 {
@@ -154,10 +168,11 @@ bool Silo::Update()
         }
     }
 
-    if( m_currentState == 0 &&
-        m_states[0]->m_numTimesPermitted == 0 )
+    if( m_currentState == 1 &&
+        m_states[1]->m_numTimesPermitted == 0 )
     {
-        SetState(1);
+        m_states[0]->m_numTimesPermitted = 0;
+        SetState(2);
     }
 
     return WorldObject::Update();
@@ -171,7 +186,7 @@ void Silo::Render2D()
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
     {   
-        int numNukesInStore = m_states[0]->m_numTimesPermitted;
+        int numNukesInStore = m_states[1]->m_numTimesPermitted;
         int numNukesInQueue = m_actionQueue.Size();
 
         Team *team = g_app->GetWorld()->GetTeam(m_teamId);
@@ -207,7 +222,7 @@ void Silo::Render3D()
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
     {   
-        int numNukesInStore = m_states[0]->m_numTimesPermitted;
+        int numNukesInStore = m_states[1]->m_numTimesPermitted;
         int numNukesInQueue = m_actionQueue.Size();
 
         Team *team = g_app->GetWorld()->GetTeam(m_teamId);
@@ -263,18 +278,18 @@ void Silo::RunAI()
          team->m_subState >= Team::SubStateLaunchNukes) ||
         team->m_currentState == Team::StatePanic )
     {
-        if( m_currentState != 0 &&
-            m_states[0]->m_numTimesPermitted > 0 )
+        if( m_currentState != 1 &&
+            m_states[1]->m_numTimesPermitted > 0 )
         {
             if( team->m_siloSwitchTimer <= 0 )
             {
-                SetState(0);
+                SetState(1);
                 team->m_siloSwitchTimer = 30;
             }
         }
 
-        if( m_currentState == 0 &&
-            m_states[0]->m_numTimesPermitted > 0 &&
+        if( m_currentState == 1 &&
+            m_states[1]->m_numTimesPermitted > 0 &&
             m_stateTimer <= 0 )
         {
             Fixed longitude = 0;
@@ -301,48 +316,30 @@ int Silo::GetTargetObjectId()
 
 bool Silo::IsActionQueueable()
 {
-    if( m_currentState == 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 0 || m_currentState == 1 );
+}
+
+bool Silo::ShouldProcessActionQueue()
+{
+    return ( m_currentState != 0 );
 }
 
 bool Silo::UsingGuns()
 {
-    if( m_currentState == 1 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 2 );
 }
 
 bool Silo::UsingNukes()
 {
-    if( m_currentState == 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState == 1 );
 }
 
 void Silo::NukeStrike()
 {
-    // Hit by nuke:
-    // reduce remaining nukes
-
     Fixed lossFraction = Fixed(1) / 2;
-    m_states[0]->m_numTimesPermitted = (m_states[0]->m_numTimesPermitted * lossFraction).IntValue();
-    m_nukeSupply = m_states[0]->m_numTimesPermitted;
+    m_states[1]->m_numTimesPermitted = (m_states[1]->m_numTimesPermitted * lossFraction).IntValue();
+    m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
+    m_nukeSupply = m_states[1]->m_numTimesPermitted;
 }
 
 void Silo::AirDefense()
@@ -351,7 +348,7 @@ void Silo::AirDefense()
     {
         return;
     }
-    if( m_currentState == 1 )
+    if( m_currentState == 2 )
     {
         Fixed actionRangeSqd = GetActionRangeSqd();
 
@@ -394,13 +391,13 @@ void Silo::AirDefense()
 
 int Silo::GetAttackOdds( int _defenderType )
 {
-    if( m_currentState == 0 &&
-        m_states[0]->m_numTimesPermitted > 0 )
+    if( ( m_currentState == 0 || m_currentState == 1 ) &&
+        m_states[1]->m_numTimesPermitted > 0 )
     {
         return g_app->GetWorld()->GetAttackOdds( TypeNuke, _defenderType );
     }
 
-    if( m_currentState == 1 )
+    if( m_currentState == 2 )
     {
         return WorldObject::GetAttackOdds( _defenderType );
     }
@@ -421,15 +418,15 @@ int Silo::IsValidCombatTarget( int _objectId )
     if( !isFriend )
     {
         int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeNuke, obj->m_type );
-        if( m_currentState == 0 && 
-            m_states[0]->m_numTimesPermitted > 0 &&
+        if( ( m_currentState == 0 || m_currentState == 1 ) && 
+            m_states[1]->m_numTimesPermitted > 0 &&
             attackOdds > 0 )
         {
             return TargetTypeLaunchNuke;
         }
 
         attackOdds = g_app->GetWorld()->GetAttackOdds( TypeSilo, obj->m_type );
-        if( m_currentState == 1 &&
+        if( m_currentState == 2 &&
             attackOdds > 0 )
         {
             return TargetTypeValid;
@@ -442,7 +439,7 @@ int Silo::IsValidCombatTarget( int _objectId )
 
 Image *Silo::GetBmpImage( int state )
 {
-    if( state == 0 )
+    if( state == 0 || state == 1 )
     {
         return g_resource->GetImage( "graphics/silo.bmp" );
     }

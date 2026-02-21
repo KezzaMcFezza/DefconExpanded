@@ -345,7 +345,7 @@ void GunFire::Impact()
     if( targetObject )
     {
         if( targetObject->IsSubmarine() &&
-            targetObject->m_currentState == 2 )
+            targetObject->m_currentState == 3 )
         {
             m_attackOdds *= 2;
         }

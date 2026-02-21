@@ -350,13 +350,12 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
                      g_app->GetWorld()->m_objects[i]->IsSiloClass() )
             {
                 WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                int nukeState = 0;
-                if( obj->IsSubmarine() ) 
-                {
-                    nukeState = 2;
-                }
-                if( obj->m_teamId == teamId &&
-                    obj->m_currentState == nukeState )
+                bool inNukeMode = false;
+                if( obj->IsSiloClass() )
+                    inNukeMode = ( obj->m_currentState == 0 || obj->m_currentState == 1 );
+                else if( obj->IsSubmarine() )
+                    inNukeMode = ( obj->m_currentState == 2 || obj->m_currentState == 3 );
+                if( obj->m_teamId == teamId && inNukeMode )
                 {
                     for( int j = 0; j < obj->m_actionQueue.Size(); ++j )
                     {

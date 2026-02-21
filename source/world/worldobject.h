@@ -148,6 +148,7 @@ public:
     virtual bool        CanSetState     ( int state );
     virtual void        SetState        ( int state );
     virtual bool        IsActionable    ();
+    virtual bool        ShouldProcessActionQueue();
     virtual Fixed       GetActionRange  ();
     virtual Fixed       GetActionRangeSqd();
     virtual void        Action          ( int targetObjectId, Fixed longitude, Fixed latitude );

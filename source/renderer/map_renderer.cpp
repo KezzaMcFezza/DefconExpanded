@@ -898,11 +898,11 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     switch( wobj->m_type )
     {
         case WorldObject::TypeSilo:
-            //numNukes = wobj->m_states[0]->m_numTimesPermitted;
+            //numNukes = wobj->m_states[1]->m_numTimesPermitted;
             break;
 
         case WorldObject::TypeSub:
-            //numNukes = wobj->m_states[2]->m_numTimesPermitted;
+            //numNukes = wobj->m_states[3]->m_numTimesPermitted;
             break;
 
         case WorldObject::TypeBomber:
@@ -2230,11 +2230,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     break;
 
                 case WorldObject::ClassTypeSilo:
-                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
 
                 case WorldObject::ClassTypeSub:
-                    if( wobj->m_currentState == 2 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
             }
             
@@ -2264,13 +2264,14 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( lineY < 0.0f ) angle += M_PI;
                 
                     bool isActiveTarget = ( i == 0 );
+                    bool isStandbyQueue = ( wobj->IsActionQueueable() && !wobj->UsingNukes() );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
-                    if( wobj->IsSiloClass() && wobj->m_currentState == 0 )
+                    if( isStandbyQueue )
                         iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );
                     float lineWidth = isActiveTarget ? 1.0f : 0.5f;
                     Colour lineCol;
-                    if( wobj->IsSiloClass() && wobj->m_currentState == 0 )
-                        lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: silo StandBy queue
+                    if( isStandbyQueue )
+                        lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: standby queue
                     else if( wobj->UsingNukes() )
                         lineCol = isActiveTarget ? Colour( 255, 0, 255, 180 ) : Colour( 255, 102, 140, 180 );   // Pink / Salmon (nuke firing / queued)
                     else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
@@ -2369,11 +2370,11 @@ void MapRenderer::RenderNukeUnits()
                     switch( obj->m_classType )
                     {
                         case WorldObject::ClassTypeSilo:
-                            nukeCount = obj->m_states[0]->m_numTimesPermitted;
+                            nukeCount = obj->m_states[1]->m_numTimesPermitted;
                             break;
 
                         case WorldObject::ClassTypeSub:
-                            nukeCount = obj->m_states[2]->m_numTimesPermitted;
+                            nukeCount = obj->m_states[3]->m_numTimesPermitted;
                             break;
 
                         case WorldObject::ClassTypeBomber:

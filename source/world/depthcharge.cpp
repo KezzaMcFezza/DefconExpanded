@@ -126,7 +126,7 @@ void DepthCharge::Impact()
                 Fixed rangeSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, wobj->m_longitude, wobj->m_latitude);
                 if( rangeSqd <= 5 * 5 )
                 {
-                    if( wobj->m_currentState == 2 )
+                    if( wobj->m_currentState == 3 )
                     {
                         m_attackOdds = 0;
                     }

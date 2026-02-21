@@ -21,6 +21,7 @@ public:
 	void	RunAI			();
     int     GetTargetObjectId();
     bool    IsActionQueueable();
+    bool    ShouldProcessActionQueue();
     bool    UsingGuns       ();
     bool    UsingNukes      ();
     void    NukeStrike      ();
