@@ -1641,6 +1641,13 @@ void World::ObjectSetWaypoint  ( int objectId, Fixed longitude, Fixed latitude )
     WorldObject *wobj = GetWorldObject(objectId);
     if( wobj && wobj->IsMovingObject() )
     {
+        if( wobj->m_type == WorldObject::TypeSub && wobj->m_currentState == 3 )
+        {
+            if( wobj->m_actionQueue.Size() > 0 )
+                wobj->SetState(2);
+            else
+                wobj->SetState(0);
+        }
         MovingObject *mobj = (MovingObject *) wobj;
         mobj->SetWaypoint( longitude, latitude );
     }

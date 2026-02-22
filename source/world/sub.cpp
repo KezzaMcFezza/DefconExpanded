@@ -80,6 +80,17 @@ void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     }
     else if( m_currentState == 3 )
     {
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude );
+        if( distSqd > GetActionRangeSqd() )
+        {
+            ActionOrder *requeue = new ActionOrder();
+            requeue->m_targetObjectId = targetObjectId;
+            requeue->m_longitude = longitude;
+            requeue->m_latitude = latitude;
+            m_actionQueue.PutData( requeue );
+            return;
+        }
+
         if( m_stateTimer <= 0 )
         {
             g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, 90 );
@@ -547,35 +558,39 @@ void Sub::SetState( int state )
     if( !CanSetState( state ) )
         return;
 
-    bool preserveQueue = ( m_currentState == 2 && state == 3 );
+    bool preserveQueue = ( m_currentState == 2 && state == 3 ) ||
+                          ( m_currentState == 3 && state == 2 );
 
     if( preserveQueue )
     {
-        Fixed actionRangeSqd = m_states[3]->m_actionRange * m_states[3]->m_actionRange;
-        LList<ActionOrder *> outOfRange;
-        for( int i = m_actionQueue.Size() - 1; i >= 0; --i )
+        if( m_currentState == 2 && state == 3 )
         {
-            ActionOrder *action = m_actionQueue[i];
-            Fixed lon = action->m_longitude;
-            Fixed lat = action->m_latitude;
-            if( action->m_targetObjectId != -1 )
+            Fixed actionRangeSqd = m_states[3]->m_actionRange * m_states[3]->m_actionRange;
+            LList<ActionOrder *> outOfRange;
+            for( int i = m_actionQueue.Size() - 1; i >= 0; --i )
             {
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-                if( obj )
+                ActionOrder *action = m_actionQueue[i];
+                Fixed lon = action->m_longitude;
+                Fixed lat = action->m_latitude;
+                if( action->m_targetObjectId != -1 )
                 {
-                    lon = obj->m_longitude;
-                    lat = obj->m_latitude;
+                    WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+                    if( obj )
+                    {
+                        lon = obj->m_longitude;
+                        lat = obj->m_latitude;
+                    }
+                }
+                Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lon, lat );
+                if( distSqd > actionRangeSqd )
+                {
+                    outOfRange.PutDataAtStart( action );
+                    m_actionQueue.RemoveData( i );
                 }
             }
-            Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lon, lat );
-            if( distSqd > actionRangeSqd )
-            {
-                outOfRange.PutDataAtStart( action );
-                m_actionQueue.RemoveData( i );
-            }
+            for( int i = 0; i < outOfRange.Size(); ++i )
+                m_actionQueue.PutData( outOfRange[i] );
         }
-        for( int i = 0; i < outOfRange.Size(); ++i )
-            m_actionQueue.PutData( outOfRange[i] );
 
         WorldObjectState *theState = m_states[state];
         m_currentState = state;

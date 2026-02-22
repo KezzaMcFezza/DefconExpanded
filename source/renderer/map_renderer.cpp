@@ -2236,6 +2236,10 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 case WorldObject::ClassTypeSub:
                     if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
+
+                case WorldObject::ClassTypeBomber:
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
             }
             
             if( img )
@@ -3619,15 +3623,22 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
         bool canAction = true;
         if( !underMouse )
         {
-            if( obj->UsingNukes() )
+            if( obj->IsSubmarine() && obj->UsingNukes() )
+            {
+                Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( obj->m_longitude, obj->m_latitude, targetLong, targetLat );
+                canAction = ( distSqd < obj->GetActionRangeSqd() );
+            }
+            else if( obj->UsingNukes() )
             {
                 canAction = ( obj->IsValidMovementTarget( targetLong, targetLat ) > WorldObject::TargetTypeInvalid );
+            }
+            else if( obj->IsSubmarine() )
+            {
+                canAction = ( obj->m_currentState == 2 );
             }
             else
             {
                 if( obj->IsBattleShipClass() )
-                    canAction = false;
-                if( obj->IsSubmarine() )
                     canAction = false;
                 if( obj->IsAircraftLauncher() )
                 {

@@ -2650,6 +2650,10 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                 case WorldObject::ClassTypeSub:
                     if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
+
+                case WorldObject::ClassTypeBomber:
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
             }
             
             if( img )

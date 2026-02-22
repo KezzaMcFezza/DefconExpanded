@@ -395,8 +395,14 @@ void Fleet::MoveFleet( Fixed longitude, Fixed latitude, bool cancelPursuits )
                 obj->IsSubmarine() &&
                 obj->m_currentState == 3 )
             {
-                obj->ClearActionQueue();
-                obj->SetState(0);
+                if( obj->m_actionQueue.Size() > 0 )
+                {
+                    obj->SetState(2);
+                }
+                else
+                {
+                    obj->SetState(0);
+                }
             }
         }
     }

@@ -221,8 +221,9 @@ bool Bomber::Update()
     bool hasQueuedAttack = ( m_actionQueue.Size() > 0 );
     bool hasAmmoAndWaypoint = ( m_states[1]->m_numTimesPermitted > 0 ) &&
         ( m_targetLongitude != 0 || m_targetLatitude != 0 );
-    if( ( m_bombingRun && m_states[1]->m_numTimesPermitted == 0 ) ||
-        ( IsIdle() && !hasQueuedAttack && !hasAmmoAndWaypoint ) )
+    if( IsIdle() &&
+        ( ( m_bombingRun && m_states[1]->m_numTimesPermitted == 0 ) ||
+          ( !hasQueuedAttack && !hasAmmoAndWaypoint ) ) )
     {
         Land( GetClosestLandingPad() );
     }
