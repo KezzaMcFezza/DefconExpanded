@@ -31,6 +31,7 @@ SidePanel::SidePanel( const char *name )
     m_moving(false),
     m_mode(ModeUnitPlacement),
     m_currentFleetId(-1),
+    m_fleetTeamId(-1),
     m_previousUnitCount(0),
 	m_fontsize(13.0f)
 {
@@ -51,21 +52,18 @@ SidePanel::SidePanel( const char *name )
 
 SidePanel::~SidePanel()
 {
-	Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
-	
-	//
-	// clean up any inactive fleet templates when side panel is closed
-	
-	if( myTeam->m_fleets.ValidIndex( m_currentFleetId ) &&
-	    !myTeam->m_fleets[ m_currentFleetId ]->m_active )
+	if( m_currentFleetId != -1 && m_fleetTeamId != -1 )
 	{
-		Fleet *fleet = myTeam->GetFleet( m_currentFleetId );
+		Team *fleetTeam = g_app->GetWorld()->GetTeam( m_fleetTeamId );
 		
-		//
-		// dont put back units, fleet is just a template
-		
-		myTeam->m_fleets.RemoveData( m_currentFleetId );
-		delete fleet;
+		if( fleetTeam &&
+		    fleetTeam->m_fleets.ValidIndex( m_currentFleetId ) &&
+		    !fleetTeam->m_fleets[ m_currentFleetId ]->m_active )
+		{
+			Fleet *fleet = fleetTeam->GetFleet( m_currentFleetId );
+			fleetTeam->m_fleets.RemoveData( m_currentFleetId );
+			delete fleet;
+		}
 	}
 	
     SaveProperties( "WindowUnitCreation" );
@@ -111,8 +109,16 @@ void SidePanel::Render( bool hasFocus )
         {
             ChangeMode( ModeUnitPlacement );
             m_currentFleetId = -1;
+            m_fleetTeamId = -1;
         }
     }
+
+    if( m_currentFleetId != -1 && m_fleetTeamId != g_app->GetWorld()->m_myTeamId )
+    {
+        EclRemoveWindow( "Placement" );
+        ChangeMode( ModeUnitPlacement );
+    }
+
     Team *myTeam = g_app->GetWorld()->GetMyTeam();
 
     if( m_mode == ModeUnitPlacement )
@@ -304,6 +310,23 @@ void SidePanel::ChangeMode( int mode )
     int y = 50;
     m_w = 100;
 
+    int currentTeamId = g_app->GetWorld()->m_myTeamId;
+
+    if( m_currentFleetId != -1 && m_fleetTeamId != currentTeamId )
+    {
+        Team *oldTeam = g_app->GetWorld()->GetTeam( m_fleetTeamId );
+        if( oldTeam &&
+            oldTeam->m_fleets.ValidIndex( m_currentFleetId ) &&
+            !oldTeam->m_fleets[ m_currentFleetId ]->m_active )
+        {
+            Fleet *fleet = oldTeam->GetFleet( m_currentFleetId );
+            oldTeam->m_fleets.RemoveData( m_currentFleetId );
+            delete fleet;
+        }
+        m_currentFleetId = -1;
+        m_fleetTeamId = -1;
+    }
+
     InterfaceWindow::Remove();
 //    CreateExpandButton();
 
@@ -321,11 +344,14 @@ void SidePanel::ChangeMode( int mode )
         airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
         RegisterButton( airbase );
 
-        Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
+        Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
         int shipsRemaining = 0;
-        shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
-        shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
-        shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+        if( myTeam )
+        {
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+        }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
         fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
@@ -375,18 +401,24 @@ void SidePanel::ChangeMode( int mode )
         fpb->SetProperties( "PlaceFleet", x, y, 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
         RegisterButton( fpb );
 
-        Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
-        if( m_currentFleetId == -1 ||
-            myTeam->m_fleets[myTeam->m_fleets.Size()-1]->m_active == true )
+        Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
+        if( myTeam )
         {
-            int shipsRemaining = 0;
-            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
-            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
-            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
-            if( shipsRemaining > 0 )
+            bool needNewFleet = ( m_currentFleetId == -1 ||
+                                  myTeam->m_fleets.Size() == 0 ||
+                                  myTeam->m_fleets[myTeam->m_fleets.Size()-1]->m_active == true );
+            if( needNewFleet )
             {
-                m_currentFleetId = myTeam->m_fleets.Size();
-                g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+                int shipsRemaining = 0;
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+                if( shipsRemaining > 0 )
+                {
+                    m_currentFleetId = myTeam->m_fleets.Size();
+                    m_fleetTeamId = myTeam->m_teamId;
+                    g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+                }
             }
         }
     }

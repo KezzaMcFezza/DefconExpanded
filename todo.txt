@@ -94,7 +94,7 @@ Raitos Goals:
 - order line color management                             - DONE
 - allies start in ceasefire                               - DONE
 - submarines passive sonar adjustment                     - DONE
-- stanby mode queueing
+- stanby mode queueing                                    - DONE
 
 TODO:
 - multi-tier radar system

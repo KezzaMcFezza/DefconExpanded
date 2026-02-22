@@ -192,6 +192,15 @@ bool Sub::Update()
         }
     }
 
+    if( fleet && m_currentState == 2 )
+    {
+        if( m_stateTimer <= 0 )
+        {
+            PassivePing();
+            m_stateTimer = m_states[0]->m_timeToReload;
+        }
+    }
+
     if( m_currentState != 3 )
     {
         bool arrived = MoveToWaypoint();

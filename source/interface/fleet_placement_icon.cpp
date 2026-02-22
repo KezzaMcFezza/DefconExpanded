@@ -331,6 +331,7 @@ void FleetPlacementIconButton::MouseUp()
                 
                 sidepanel->ChangeMode(SidePanel::ModeUnitPlacement);
                 sidepanel->m_currentFleetId = -1;
+                sidepanel->m_fleetTeamId = -1;
             }
         }
         else
@@ -368,6 +369,7 @@ void FleetPlacementIconButton::MouseUp()
                 // Update side panel and this window to use new template
                 
                 sidepanel->m_currentFleetId = nextTemplateId;
+                sidepanel->m_fleetTeamId = team->m_teamId;
                 m_fleetId = nextTemplateId;
             }
         }

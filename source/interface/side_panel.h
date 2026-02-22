@@ -15,6 +15,7 @@ public:
 
     int m_mode;
     int m_currentFleetId;
+    int m_fleetTeamId;
     
     int m_previousUnitCount;
 

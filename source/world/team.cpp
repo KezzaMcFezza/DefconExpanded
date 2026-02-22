@@ -491,22 +491,9 @@ void Team::PlacementAI()
                 for( int i = 0; i < g_app->GetWorld()->m_aiPlacementPoints.Size(); ++i )
                 {
                     Vector3<Fixed> *point = g_app->GetWorld()->m_aiPlacementPoints[i];
-                    if( g_app->GetWorldRenderer()->GetTerritory( point->x, point->y, true ) == m_teamId )
+                    if( g_app->GetWorldRenderer()->IsValidTerritory( m_teamId, point->x, point->y, true ) )
                     {
-                        //Fixed distance = Fixed::MAX;
-                        //for( int j = 0; j < m_fleets.Size(); ++j )
-                        //{
-                        //    Fleet *fleet = GetFleet(j);
-                        //    if( g_app->GetWorld()->GetDistance( fleet->m_longitude, fleet->m_latitude, point->x, point->y ) < distance )
-                        //    {
-                        //        distance = g_app->GetWorld()->GetDistance( fleet->m_longitude, fleet->m_latitude, point->x, point->y );
-                        //    }
-                        //}
-                        //Fixed maxDistance = 2 / worldScale;
-                        //if( distance > maxDistance )
-                        {
-                            validPointsList.PutData(i);
-                        }
+                        validPointsList.PutData(i);
                     }
                 }
 
