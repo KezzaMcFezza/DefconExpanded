@@ -417,7 +417,14 @@ void SidePanel::ChangeMode( int mode )
                 {
                     m_currentFleetId = myTeam->m_fleets.Size();
                     m_fleetTeamId = myTeam->m_teamId;
-                    g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+                    if( myTeam->m_type == Team::TypeAI )
+                    {
+                        myTeam->CreateFleet();
+                    }
+                    else
+                    {
+                        g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+                    }
                 }
             }
         }
@@ -945,7 +952,14 @@ void NewFleetButton::MouseUp()
 
     if( myTeam->m_fleets.Size() < 9 )
     {
-        g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+        if( myTeam->m_type == Team::TypeAI )
+        {
+            myTeam->CreateFleet();
+        }
+        else
+        {
+            g_app->GetClientToServer()->RequestFleet( myTeam->m_teamId );
+        }
     }
 }
 

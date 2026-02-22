@@ -226,8 +226,17 @@ void FleetPlacementIconButton::MouseUp()
         //
         // create a new fleet for the actual placement
 
+        bool isAITeam = (team->m_type == Team::TypeAI);
+
         int newFleetId = team->m_fleets.Size();
-        g_app->GetClientToServer()->RequestFleet( team->m_teamId );
+        if( isAITeam )
+        {
+            team->CreateFleet();
+        }
+        else
+        {
+            g_app->GetClientToServer()->RequestFleet( team->m_teamId );
+        }
         
         for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
         {
@@ -247,12 +256,16 @@ void FleetPlacementIconButton::MouseUp()
                 thisLong += 360;
             }
 
-            //
-            // queue the placement locally so we can send it only after
-            // the server acknowledges the new fleet
-
-            g_app->GetClientToServer()->QueueFleetPlacement( team->m_teamId, newFleetId, team->m_fleets[m_fleetId]->m_memberType[i],
-                                                             thisLong, thisLat );
+            if( isAITeam )
+            {
+                g_app->GetClientToServer()->RequestPlacement( team->m_teamId, team->m_fleets[m_fleetId]->m_memberType[i],
+                                                              thisLong, thisLat, newFleetId );
+            }
+            else
+            {
+                g_app->GetClientToServer()->QueueFleetPlacement( team->m_teamId, newFleetId, team->m_fleets[m_fleetId]->m_memberType[i],
+                                                                 thisLong, thisLat );
+            }
         }
         
         //
@@ -354,7 +367,14 @@ void FleetPlacementIconButton::MouseUp()
                 // Create new template fleet
                 
                 int nextTemplateId = team->m_fleets.Size();
-                g_app->GetClientToServer()->RequestFleet( team->m_teamId );
+                if( isAITeam )
+                {
+                    team->CreateFleet();
+                }
+                else
+                {
+                    g_app->GetClientToServer()->RequestFleet( team->m_teamId );
+                }
                 
                 //
                 // Copy composition to new template locally

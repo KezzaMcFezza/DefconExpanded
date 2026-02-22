@@ -3526,6 +3526,22 @@ static bool SelectionHasLaunchableUnit()
 }
 
 
+static bool SelectionHasStandbyNukeUnit()
+{
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( !obj ) continue;
+        if( obj->m_type == WorldObject::TypeSub && obj->m_currentState == 2 ) return true;
+        if( obj->m_type == WorldObject::TypeSilo && obj->m_currentState == 0 ) return true;
+        if( obj->m_type == WorldObject::TypeBomber && obj->m_currentState == 0 ) return true;
+    }
+    return false;
+}
+
+
 static int ResolveNukeTargetForStatic( Fixed longitude, Fixed latitude )
 {
     // Find static target (city, building) at position. Nukes target static only.
@@ -3980,7 +3996,7 @@ void MapRenderer::Update()
                     }
                     if( hasValidCombatTarget )
                     {
-                        if( SelectionHasNukingUnit() && underMouse->IsMovingObject() )
+                        if( (SelectionHasNukingUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
                         {
                             int resolvedId = ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
                             HandleObjectAction( longitude, latitude, resolvedId );
@@ -3989,6 +4005,11 @@ void MapRenderer::Update()
                         {
                             HandleObjectAction(longitude, latitude, underMouseId);
                         }
+                    }
+                    else if( SelectionHasStandbyNukeUnit() && underMouse->IsMovingObject() )
+                    {
+                        int resolvedId = ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+                        HandleObjectAction( longitude, latitude, resolvedId );
                     }
                     else if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
                     {
@@ -3999,7 +4020,7 @@ void MapRenderer::Update()
                 {
                     if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                     {
-                        if( SelectionHasNukingUnit() || SelectionHasLaunchableUnit() )
+                        if( SelectionHasNukingUnit() || SelectionHasLaunchableUnit() || SelectionHasStandbyNukeUnit() )
                             HandleObjectAction(longitude, latitude, -1);
                         else
                             HandleSetWaypoint( longitude, latitude, false );

@@ -597,5 +597,6 @@ void Bomber::Render3D()
 
 bool Bomber::SetWaypointOnAction()
 {
-    return true;
+    if( m_currentState == 0 ) return false;
+    return ( m_actionQueue.Size() == 0 );
 }
