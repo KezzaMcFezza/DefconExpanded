@@ -49,6 +49,7 @@ WorldObject::WorldObject()
     m_classType(ClassTypeInvalid),
     m_radarRange(0),
     m_life(1),
+    m_stealthType(100),
 	m_lastHitByTeamId( -1 ),
     m_selectable(false),
     m_currentState(0),
@@ -60,6 +61,10 @@ WorldObject::WorldObject()
     m_fleetId(-1),
     m_nukeSupply(-1),
     m_previousRadarRange(0),
+    m_previousRadarEarly1Range(0),
+    m_previousRadarEarly2Range(0),
+    m_previousRadarStealth1Range(0),
+    m_previousRadarStealth2Range(0),
     m_offensive(false),
     m_aiTimer(0),
     m_aiSpeed(5),
@@ -149,6 +154,10 @@ void WorldObject::AddState( const char *stateName, Fixed prepareTime, Fixed relo
     state->m_timeToPrepare = prepareTime;
     state->m_timeToReload = reloadTime;
     state->m_radarRange = radarRange;
+    state->m_radarearly1Range = radarRange * Fixed::FromDouble(1.5);
+    state->m_radarearly2Range = radarRange * Fixed::FromDouble(2.0);
+    state->m_radarstealth1Range = radarRange * Fixed::FromDouble(0.33);
+    state->m_radarstealth2Range = radarRange * Fixed::FromDouble(0.66);
     state->m_actionRange = actionRange;
     state->m_isActionable = isActionable;
     state->m_numTimesPermitted = numTimesPermitted;
@@ -156,6 +165,10 @@ void WorldObject::AddState( const char *stateName, Fixed prepareTime, Fixed relo
 
     Fixed gameScale = World::GetUnitScaleFactor();
     state->m_radarRange /= gameScale;
+    state->m_radarearly1Range /= gameScale;
+    state->m_radarearly2Range /= gameScale;
+    state->m_radarstealth1Range /= gameScale;
+    state->m_radarstealth2Range /= gameScale;
     state->m_actionRange /= gameScale;
 
     m_states.PutData( state );
@@ -181,6 +194,30 @@ Fixed WorldObject::GetActionRangeSqd()
 Fixed WorldObject::GetRadarRange ()
 {
     Fixed result = m_states[m_currentState]->m_radarRange;
+    return result;
+}
+
+Fixed WorldObject::GetRadarEarly1Range ()
+{
+    Fixed result = m_states[m_currentState]->m_radarearly1Range;
+    return result;
+}
+
+Fixed WorldObject::GetRadarEarly2Range ()
+{
+    Fixed result = m_states[m_currentState]->m_radarearly2Range;
+    return result;
+}
+
+Fixed WorldObject::GetRadarStealth1Range ()
+{
+    Fixed result = m_states[m_currentState]->m_radarstealth1Range;
+    return result;
+}
+
+Fixed WorldObject::GetRadarStealth2Range ()
+{
+    Fixed result = m_states[m_currentState]->m_radarstealth2Range;
     return result;
 }
 
@@ -1360,7 +1397,7 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
         case TypeFighter:       return ClassTypeFighter;
         case TypeBomber:        return ClassTypeBomber;
 
-        case TypeNuke:          return ClassTypeNuke;
+        case TypeNuke:          return ClassTypeBallisticMissile;
 
         default:
             return ClassTypeInvalid;
@@ -1388,7 +1425,7 @@ bool WorldObject::IsAircraft() const
 
 bool WorldObject::IsMissileClass() const
 {
-    return m_classType == ClassTypeMissile;
+    return m_classType == ClassTypeCruiseMissile;
 }
 
 
@@ -1412,7 +1449,7 @@ bool WorldObject::IsAircraftLauncher() const
 
 bool WorldObject::IsNuke() const
 {
-    return m_classType == ClassTypeNuke;
+    return m_classType == ClassTypeBallisticMissile;
 }
 
 

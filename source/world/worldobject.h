@@ -50,7 +50,7 @@ public:
         ArchetypeInvalid,      // invalid, tornado, saucer, explosion
         ArchetypeBuilding,     // silo, radar, airbase
         ArchetypeNavy,         // battleship, carrier, sub
-        ArchetypeAircraft,     // fighter, bomber, cruise missile (ClassTypeMissile)
+        ArchetypeAircraft,     // fighter, bomber, cruise missile (ClassTypeCruiseMissileissile)
         ArchetypeNuke          // nuke (ICBM)
     };
 
@@ -71,8 +71,8 @@ public:
         ClassTypeFighter,
         ClassTypeBomber,
         // Missiles
-        ClassTypeNuke,
-        ClassTypeMissile       // for future cruise missiles
+        ClassTypeBallisticMissile,
+        ClassTypeCruiseMissile       // for future cruise missiles
     };
 
     int     m_type;
@@ -83,6 +83,7 @@ public:
     Fixed   m_longitude;
     Fixed   m_latitude;
     int     m_life;                                     // Cities population, or 1/0 for sea units, or 0-30 for ground units
+    int     m_stealthType;                              // Radar visibility tier: <=33 stealth1, <=66 stealth2, <=100 normal, <200 early1, >=200 early2
 	int		m_lastHitByTeamId;
     bool    m_selectable;
     
@@ -93,6 +94,10 @@ public:
     int     m_previousState;
     Fixed   m_stateTimer;                               // Time until we're in this state
     Fixed   m_previousRadarRange;                       // The size we previously added into the radar grid
+    Fixed   m_previousRadarEarly1Range;
+    Fixed   m_previousRadarEarly2Range;
+    Fixed   m_previousRadarStealth1Range;
+    Fixed   m_previousRadarStealth2Range;
 
     BoundedArray<bool>      m_visible;
     BoundedArray<bool>      m_seen;                     // seen objects memory
@@ -147,6 +152,10 @@ public:
     
     void                SetRadarRange   ( Fixed radarRange );
     virtual Fixed       GetRadarRange   ();
+    virtual Fixed       GetRadarEarly1Range   ();
+    virtual Fixed       GetRadarEarly2Range   ();
+    virtual Fixed       GetRadarStealth1Range ();
+    virtual Fixed       GetRadarStealth2Range ();
 
     void                AddState        ( const char *stateName, Fixed prepareTime, Fixed reloadTime, Fixed radarRange,
                                           Fixed actionRange, bool isActionable, int numTimesPermitted = -1, int defconPermitted = 5 );
@@ -232,7 +241,7 @@ public:
     bool                IsBuilding       () const;
     bool                IsNavy           () const;
     bool                IsAircraft       () const;
-    bool                IsMissileClass   () const;   // ClassTypeMissile (cruise missiles - future)
+    bool                IsMissileClass   () const;   // ClassTypeCruiseMissileissile (cruise missiles - future)
     bool                IsSubmarine      () const;   // subclass
     bool                IsSam            () const;   // siloclass (SAM/ABM - for future units)
     bool                IsAircraftLauncher() const;  // carrierclass, airbaseclass
@@ -268,6 +277,10 @@ public:
     Fixed   m_timeToReload;                 // ie minimum time between launches
 
     Fixed   m_radarRange;
+    Fixed   m_radarearly1Range;
+    Fixed   m_radarearly2Range;
+    Fixed   m_radarstealth1Range;
+    Fixed   m_radarstealth2Range;
     Fixed   m_actionRange;
     bool    m_isActionable;
 

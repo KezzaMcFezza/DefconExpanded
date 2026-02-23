@@ -94,9 +94,13 @@ void World::Init()
 
 
     //
-    // Initialise radar system
+    // Initialise radar system (multi-tier: stealth1/stealth2 = short range, radar = standard, early1/early2 = long range)
 
     m_radarGrid.Initialise( 1, MAX_TEAMS );
+    m_radarearly1Grid.Initialise( 1, MAX_TEAMS );
+    m_radarearly2Grid.Initialise( 1, MAX_TEAMS );
+    m_radarstealth1Grid.Initialise( 1, MAX_TEAMS );
+    m_radarstealth2Grid.Initialise( 1, MAX_TEAMS );
 }
 
 
@@ -614,6 +618,10 @@ void World::AssignCities()
 
                 populations[i] += city->m_population;
                 m_radarGrid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarRange(), city->m_teamId );
+                m_radarearly1Grid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarEarly1Range(), city->m_teamId );
+                m_radarearly2Grid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarEarly2Range(), city->m_teamId );
+                m_radarstealth1Grid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarStealth1Range(), city->m_teamId );
+                m_radarstealth2Grid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarStealth2Range(), city->m_teamId );
             }
         }
     }
@@ -2057,6 +2065,10 @@ void World::Update()
             Fixed oldLongitude = wobj->m_longitude;
             Fixed oldLatitude = wobj->m_latitude;
             Fixed oldRadarSize = wobj->m_previousRadarRange;
+            Fixed oldRadarEarly1Size = wobj->m_previousRadarEarly1Range;
+            Fixed oldRadarEarly2Size = wobj->m_previousRadarEarly2Range;
+            Fixed oldRadarStealth1Size = wobj->m_previousRadarStealth1Range;
+            Fixed oldRadarStealth2Size = wobj->m_previousRadarStealth2Range;
 
             if( trackSyncRand ) SyncRandLog( wobj->LogState() );
 
@@ -2069,15 +2081,37 @@ void World::Update()
                 if( amIdead )
                 {
                     m_radarGrid.RemoveCoverage( oldLongitude, oldLatitude, oldRadarSize, wobj->m_teamId );
+                    m_radarearly1Grid.RemoveCoverage( oldLongitude, oldLatitude, oldRadarEarly1Size, wobj->m_teamId );
+                    m_radarearly2Grid.RemoveCoverage( oldLongitude, oldLatitude, oldRadarEarly2Size, wobj->m_teamId );
+                    m_radarstealth1Grid.RemoveCoverage( oldLongitude, oldLatitude, oldRadarStealth1Size, wobj->m_teamId );
+                    m_radarstealth2Grid.RemoveCoverage( oldLongitude, oldLatitude, oldRadarStealth2Size, wobj->m_teamId );
                     m_objects.RemoveData(i);
                     delete wobj;
                 }
                 else
                 {
                     Fixed newRadarRange = wobj->GetRadarRange();
+                    Fixed newRadarEarly1Range = wobj->GetRadarEarly1Range();
+                    Fixed newRadarEarly2Range = wobj->GetRadarEarly2Range();
+                    Fixed newRadarStealth1Range = wobj->GetRadarStealth1Range();
+                    Fixed newRadarStealth2Range = wobj->GetRadarStealth2Range();
+
                     m_radarGrid.UpdateCoverage( oldLongitude, oldLatitude, oldRadarSize, 
                         wobj->m_longitude, wobj->m_latitude, newRadarRange, wobj->m_teamId );
+                    m_radarearly1Grid.UpdateCoverage( oldLongitude, oldLatitude, oldRadarEarly1Size,
+                        wobj->m_longitude, wobj->m_latitude, newRadarEarly1Range, wobj->m_teamId );
+                    m_radarearly2Grid.UpdateCoverage( oldLongitude, oldLatitude, oldRadarEarly2Size,
+                        wobj->m_longitude, wobj->m_latitude, newRadarEarly2Range, wobj->m_teamId );
+                    m_radarstealth1Grid.UpdateCoverage( oldLongitude, oldLatitude, oldRadarStealth1Size,
+                        wobj->m_longitude, wobj->m_latitude, newRadarStealth1Range, wobj->m_teamId );
+                    m_radarstealth2Grid.UpdateCoverage( oldLongitude, oldLatitude, oldRadarStealth2Size,
+                        wobj->m_longitude, wobj->m_latitude, newRadarStealth2Range, wobj->m_teamId );
+
                     wobj->m_previousRadarRange = newRadarRange;
+                    wobj->m_previousRadarEarly1Range = newRadarEarly1Range;
+                    wobj->m_previousRadarEarly2Range = newRadarEarly2Range;
+                    wobj->m_previousRadarStealth1Range = newRadarStealth1Range;
+                    wobj->m_previousRadarStealth2Range = newRadarStealth2Range;
                 }
             }
             else
@@ -2376,37 +2410,51 @@ bool World::CanSetTimeFactor( Fixed factor )
 
 
 bool World::IsVisible( Fixed longitude, Fixed latitude, int teamId )
+{
+    return IsVisible( 100, longitude, latitude, teamId );  // default: normal tier
+}
+
+bool World::IsVisible( int stealthType, Fixed longitude, Fixed latitude, int teamId )
 {       
     if( teamId == -1 ) return false;
 
     //
-    // Check our own radar first
-
-    if( m_radarGrid.GetCoverage( longitude, latitude, teamId ) > 0 )
+    // Check our own radar - which grid depends on unit's radar visibility (stealth) tier
+    if( stealthType <= 33 )
     {
-        return true;
+        if( m_radarstealth1Grid.GetCoverage( longitude, latitude, teamId ) > 0 ) return true;
+    }
+    else if( stealthType <= 66 )
+    {
+        if( m_radarstealth2Grid.GetCoverage( longitude, latitude, teamId ) > 0 ) return true;
+    }
+    else if( stealthType <= 100 )
+    {
+        if( m_radarGrid.GetCoverage( longitude, latitude, teamId ) > 0 ) return true;
+    }
+    else if( stealthType < 200 )
+    {
+        if( m_radarearly1Grid.GetCoverage( longitude, latitude, teamId ) > 0 ) return true;
+    }
+    else
+    {
+        if( m_radarearly2Grid.GetCoverage( longitude, latitude, teamId ) > 0 ) return true;
     }
 
-
     //
-    // Not on our radar - but maybe its on our allies radar
-    // And maybe our allies are nice enough to share their radar (the fools)
-
+    // Not on our radar - check allies' shared radar
     for( int t = 0; t < m_teams.Size(); ++t )
     {
         Team *team = m_teams[t];
-        if( teamId != team->m_teamId &&
-            teamId != -1 &&
-            team->m_sharingRadar[teamId] &&
-            m_radarGrid.GetCoverage( longitude, latitude, team->m_teamId ) )
+        if( teamId != team->m_teamId && teamId != -1 && team->m_sharingRadar[teamId] )
         {
-            return true;
+            if( stealthType <= 33 && m_radarstealth1Grid.GetCoverage( longitude, latitude, team->m_teamId ) > 0 ) return true;
+            if( stealthType <= 66 && m_radarstealth2Grid.GetCoverage( longitude, latitude, team->m_teamId ) > 0 ) return true;
+            if( stealthType <= 100 && m_radarGrid.GetCoverage( longitude, latitude, team->m_teamId ) > 0 ) return true;
+            if( stealthType < 200 && m_radarearly1Grid.GetCoverage( longitude, latitude, team->m_teamId ) > 0 ) return true;
+            if( stealthType >= 200 && m_radarearly2Grid.GetCoverage( longitude, latitude, team->m_teamId ) > 0 ) return true;
         }
     }
-
-
-    //
-    // Nope, can't see it
 
     return false;
 }
@@ -2461,7 +2509,7 @@ void World::UpdateRadar()
             for( int k = 0; k < m_teams.Size(); ++k )
             {
                 Team *team = m_teams[k];
-                potential->m_visible[team->m_teamId] = IsVisible( potential->m_longitude, potential->m_latitude, team->m_teamId );
+                potential->m_visible[team->m_teamId] = IsVisible( potential->m_stealthType, potential->m_longitude, potential->m_latitude, team->m_teamId );
             }
         }
     }
@@ -2517,7 +2565,7 @@ void World::UpdateRadar()
                 explosion->m_visible[team->m_teamId] = explosion->m_targetTeamId == team->m_teamId ||
                                                        explosion->m_teamId == team->m_teamId ||
                                                        explosion->m_initialIntensity > 30 ||
-                                                       IsVisible( explosion->m_longitude, explosion->m_latitude, team->m_teamId );
+                                                       IsVisible( explosion->m_stealthType, explosion->m_longitude, explosion->m_latitude, team->m_teamId );
             }
         }
     }
@@ -2546,7 +2594,7 @@ void World::UpdateRadar()
                 }
 
                 if( wobj->m_teamId == TEAMID_SPECIALOBJECTS ||
-                    IsVisible( wobj->m_longitude, wobj->m_latitude, team->m_teamId ) )
+                    IsVisible( wobj->m_stealthType, wobj->m_longitude, wobj->m_latitude, team->m_teamId ) )
                 {
                     int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
                     if( !wobj->IsHiddenFrom() || 

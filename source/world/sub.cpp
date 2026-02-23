@@ -31,6 +31,7 @@ Sub::Sub()
 {
     SetType( TypeSub );
 
+    m_stealthType = 33;  // stealth1 - only in shortest-range coverage
     strcpy( bmpImageFilename, "graphics/sub.bmp" );
 
     m_radarRange = 0;

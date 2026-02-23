@@ -98,8 +98,8 @@ Raitos Goals:
 - burst fire system                                       - DONE
 - Bomber/Sub payloads use tooltip window
   instead of smallnuke graphic                            - DONE
-- nuke impact zone
-- launch render improvments
+- nuke impact zone                                        - DONE
+- launch render improvments                               - DONE
 
 TODO:
 - multi-tier radar system

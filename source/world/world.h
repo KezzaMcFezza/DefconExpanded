@@ -135,6 +135,10 @@ public:
     int             m_myTeamId;
     Date            m_theDate;
     RadarGrid       m_radarGrid;
+    RadarGrid       m_radarearly1Grid;
+    RadarGrid       m_radarearly2Grid;
+    RadarGrid       m_radarstealth1Grid;
+    RadarGrid       m_radarstealth2Grid;
     VotingSystem    m_votingSystem;
 
     BoundedArray<int>   m_defconTime;     // time in minutes when each defcon starts
@@ -203,6 +207,7 @@ public:
     void CreateExplosion    ( int teamId, Fixed longitude, Fixed latitude, Fixed intensity, int targetTeamId=-1 );
 
     bool IsVisible          ( Fixed longitude, Fixed latitude, int teamId );
+    bool IsVisible          ( int stealthType, Fixed longitude, Fixed latitude, int teamId );
 
     void ObjectPlacement        ( int teamId, int unitType, Fixed longitude, Fixed latitude, int fleetId );
     void ObjectStateChange      ( int objectId, int newState );

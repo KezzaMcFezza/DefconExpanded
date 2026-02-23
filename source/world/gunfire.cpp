@@ -25,6 +25,7 @@ GunFire::GunFire( Fixed range )
     m_origin(-1),
     m_distanceToTarget(0)
 {
+    m_stealthType = 100;  // normal
     m_range = range;
     m_speed = Fixed::Hundredths(50);
 

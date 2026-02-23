@@ -1280,7 +1280,7 @@ void MovingObject::Ping()
     if( g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetWorld()->m_myTeamId == m_teamId ||
         g_app->GetWorldRenderer()->CanRenderEverything() ||
-        g_app->GetWorld()->IsVisible( m_longitude, m_latitude, g_app->GetWorld()->m_myTeamId) )
+        g_app->GetWorld()->IsVisible( m_stealthType, m_longitude, m_latitude, g_app->GetWorld()->m_myTeamId) )
     {
 #ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "SonarPing" );
@@ -1335,7 +1335,7 @@ void MovingObject::Ping()
                             for( int j = 0; j < g_app->GetWorld()->m_teams.Size(); ++j )
                             {
                                 Team *team = g_app->GetWorld()->m_teams[j];
-                                if( g_app->GetWorld()->IsVisible( m_longitude, m_latitude, team->m_teamId ) )
+                                if( g_app->GetWorld()->IsVisible( m_stealthType, m_longitude, m_latitude, team->m_teamId ) )
                                 {
                                     m_seen[team->m_teamId] = true;
                                     m_lastSeenTime[team->m_teamId] = m_ghostFadeTime;

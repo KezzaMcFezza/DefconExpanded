@@ -23,6 +23,7 @@ Explosion::Explosion()
 {
     SetType( TypeExplosion );
 
+    m_stealthType = 200;  // early2 - very visible
     strcpy( bmpImageFilename, "graphics/explosion.bmp" );
 }
 

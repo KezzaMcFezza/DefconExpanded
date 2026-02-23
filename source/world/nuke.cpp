@@ -34,6 +34,7 @@ Nuke::Nuke()
 {
     SetType( TypeNuke );
 
+    m_stealthType = 200;  // early2 - very visible
     strcpy( bmpImageFilename, "graphics/nuke.bmp" );
 
     m_radarRange = 0;
