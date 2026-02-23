@@ -55,6 +55,22 @@ Sub::Sub()
     InitialiseTimers();
 }
 
+void Sub::AcquireTargetFromAction( ActionOrder *action )
+{
+    if( ( m_currentState != 0 && m_currentState != 1 ) || action->m_targetObjectId == -1 ) return;
+    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+    if( targetObject )
+    {
+        bool canTarget = ( targetObject->m_visible[m_teamId] || targetObject->m_seen[m_teamId] );
+        if( m_currentState == 0 )
+            canTarget = canTarget && ( !targetObject->IsSubmarine() || !targetObject->IsHiddenFrom() );
+        if( canTarget && g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 )
+        {
+            m_targetObjectId = action->m_targetObjectId;
+        }
+    }
+}
+
 void Sub::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
     if( !CheckCurrentState() )
@@ -183,6 +199,23 @@ bool Sub::Update()
                             g_app->GetWorld()->GetDefcon() <= 3 )
                         {
                             FireGun( GetActionRange() );
+                            if( BurstFireOnFired( m_targetObjectId ) )
+                            {
+                                LList<int> excluded;
+                                BurstFireGetExcludedIds( excluded );
+                                WorldObject *newObj = FindTarget( excluded.Size() > 0 ? &excluded : nullptr );
+                                if( newObj )
+                                {
+                                    m_targetObjectId = newObj->m_objectId;
+                                    BurstFireResetShotCount();
+                                }
+                                else
+                                {
+                                    BurstFireAccelerateCountdowns( Fixed(10) );
+                                    BurstFireRemoveTarget( m_targetObjectId );
+                                    BurstFireResetShotCount();
+                                }
+                            }
                             if( m_currentState == 0 )
                             {
                                 m_stateTimer = m_states[0]->m_timeToReload;
@@ -197,11 +230,13 @@ bool Sub::Update()
         {
             START_PROFILE("FindTarget");
             m_targetObjectId = -1;
+            BurstFireResetShotCount();
             if( g_app->GetWorld()->GetDefcon() < 4 )
             {
                 m_retargetTimer = 5 + syncfrand(10);
-                
-                WorldObject *obj = FindTarget();
+                LList<int> excluded;
+                BurstFireGetExcludedIds( excluded );
+                WorldObject *obj = FindTarget( excluded.Size() > 0 ? &excluded : nullptr );
                 if( obj )
                 {
                     m_targetObjectId = obj->m_objectId;
@@ -475,7 +510,7 @@ void Sub::RunAI()
     END_PROFILE("SubAI");
 }
 
-WorldObject *Sub::FindTarget()
+WorldObject *Sub::FindTarget( const LList<int> *excludeIds )
 {
     Team *team = g_app->GetWorld()->GetTeam( m_teamId );
     Fleet *fleet = team->GetFleet( m_fleetId );
@@ -486,6 +521,13 @@ WorldObject *Sub::FindTarget()
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )
         {
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
+            if( excludeIds )
+            {
+                bool excluded = false;
+                for( int e = 0; e < excludeIds->Size(); ++e )
+                    if( excludeIds->GetData( e ) == obj->m_objectId ) { excluded = true; break; }
+                if( excluded ) continue;
+            }
             Fleet *fleetTarget = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
 
             bool canTarget = ( obj->m_visible[m_teamId] || obj->m_seen[m_teamId] );
@@ -522,6 +564,11 @@ WorldObject *Sub::FindTarget()
         }
     }
     return NULL;
+}
+
+int Sub::GetBurstFireShots() const
+{
+    return 3;
 }
 
 int Sub::GetAttackState()

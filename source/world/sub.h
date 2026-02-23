@@ -10,7 +10,7 @@ class Sub : public MovingObject
 protected:
     bool    m_hidden;
 
-    WorldObject *FindTarget      ();
+    WorldObject *FindTarget      ( const LList<int> *excludeIds = nullptr );
     bool         IsSafeTarget    ( Fleet *_fleet );
 
 public:
@@ -21,6 +21,7 @@ public:
     void    Render3D        ();
 
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
+    void    AcquireTargetFromAction( ActionOrder *action ) override;
     bool    IsHiddenFrom    ();
     bool    Update          ();
     void    RunAI           ();
@@ -38,6 +39,7 @@ public:
 
     void    RequestAction   ( ActionOrder *_action );
 
+    int     GetBurstFireShots       () const;
     int     GetAttackOdds           ( int _defenderType );
     int     IsValidCombatTarget     ( int _objectId );
     int     IsValidMovementTarget   ( Fixed longitude, Fixed latitude );

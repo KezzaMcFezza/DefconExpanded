@@ -35,6 +35,18 @@ BattleShip::BattleShip()
     InitialiseTimers();
 }
 
+void BattleShip::AcquireTargetFromAction( ActionOrder *action )
+{
+    if( action->m_targetObjectId == -1 ) return;
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+    if( target &&
+        target->m_visible[m_teamId] &&
+        g_app->GetWorld()->GetAttackOdds( m_type, target->m_type, m_objectId ) > 0 )
+    {
+        m_targetObjectId = action->m_targetObjectId;
+    }
+}
+
 void BattleShip::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
     if( !CheckCurrentState() )
@@ -84,6 +96,23 @@ bool BattleShip::Update()
                             FireGun( GetActionRange() );
                             m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
                             fleet->FleetAction( m_targetObjectId );
+                            if( BurstFireOnFired( m_targetObjectId ) )
+                            {
+                                LList<int> excluded;
+                                BurstFireGetExcludedIds( excluded );
+                                int newId = GetTarget( 10, &excluded );
+                                if( newId != -1 )
+                                {
+                                    m_targetObjectId = newId;
+                                    BurstFireResetShotCount();
+                                }
+                                else
+                                {
+                                    BurstFireAccelerateCountdowns( Fixed(10) );
+                                    BurstFireRemoveTarget( m_targetObjectId );
+                                    BurstFireResetShotCount();
+                                }
+                            }
                         }
                     }
                 }
@@ -93,13 +122,16 @@ bool BattleShip::Update()
         if( !hasTarget && m_retargetTimer <= 0)
         {
             m_targetObjectId = -1;
+            BurstFireResetShotCount();
             if( g_app->GetWorld()->GetDefcon() < 4 )
             {
                 m_retargetTimer = 10;
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject( GetTarget( 10 ) );
-                if( obj )
+                LList<int> excluded;
+                BurstFireGetExcludedIds( excluded );
+                int tid = GetTarget( 10, &excluded );
+                if( tid != -1 )
                 {
-                    m_targetObjectId = obj->m_objectId;
+                    m_targetObjectId = tid;
                 }                
             }
         }
@@ -158,7 +190,7 @@ bool BattleShip::UsingGuns()
     return true;
 }
 
-int BattleShip::GetTarget( Fixed range )
+int BattleShip::GetTarget( Fixed range, const LList<int> *excludeIds )
 {
     LList<int> targets;
     Team *team = g_app->GetWorld()->GetTeam( m_teamId );
@@ -173,6 +205,13 @@ int BattleShip::GetTarget( Fixed range )
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
             if( obj->m_teamId != TEAMID_SPECIALOBJECTS )
             {
+                if( excludeIds )
+                {
+                    bool excluded = false;
+                    for( int e = 0; e < excludeIds->Size(); ++e )
+                        if( excludeIds->GetData( e ) == obj->m_objectId ) { excluded = true; break; }
+                    if( excluded ) continue;
+                }
                 bool validNewTarget = !currentTarget ||
                                         GetAttackPriority( currentTarget->m_type ) > GetAttackPriority( obj->m_type );
 

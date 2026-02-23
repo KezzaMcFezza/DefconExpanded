@@ -20,6 +20,7 @@ public:
 
     void    RequestAction       (ActionOrder *_action);
     void    Action              ( int targetObjectId, Fixed longitude, Fixed latitude );
+    void    AcquireTargetFromAction( ActionOrder *action ) override;
     bool    Update              ();
     void    RunAI               ();
     bool    IsActionQueueable   ();

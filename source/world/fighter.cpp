@@ -28,6 +28,7 @@ Fighter::Fighter()
     m_range = 45;
 
     m_movementType = MovementTypeAir;
+    m_opportunityFireOnly = false;
 
     AddState( LANGUAGEPHRASE("state_attack"), 60, 20, 5, 10, true );
 
@@ -35,9 +36,22 @@ Fighter::Fighter()
 }
 
 
+void Fighter::AcquireTargetFromAction( ActionOrder *action )
+{
+    if( m_currentState != 0 || action->m_targetObjectId == -1 ) return;
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+    if( target &&
+        target->m_visible[m_teamId] &&
+        g_app->GetWorld()->GetAttackOdds( m_type, target->m_type ) > 0 )
+    {
+        m_targetObjectId = action->m_targetObjectId;
+    }
+}
+
 void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {   
     m_targetObjectId = -1;
+    m_opportunityFireOnly = false;
 
     if( m_currentState == 0 )
     {
@@ -80,10 +94,11 @@ bool Fighter::Update()
                     Land( m_targetObjectId );
                 }
                 m_targetObjectId = -1;
+                m_opportunityFireOnly = false;
             }
             else
             {
-                if( !m_isRetaliating )
+                if( !m_isRetaliating && !m_opportunityFireOnly )
                 {
                     SetWaypoint( targetObject->m_lastKnownPosition[m_teamId].x, 
                                  targetObject->m_lastKnownPosition[m_teamId].y );
@@ -94,6 +109,7 @@ bool Fighter::Update()
                     if( !targetObject->m_visible[m_teamId] )
                     {
                         m_targetObjectId = -1;
+                        m_opportunityFireOnly = false;
                     }
                     holdingPattern = true;
                 }
@@ -108,11 +124,30 @@ bool Fighter::Update()
                         {
                             FireGun( GetActionRange() );
                             m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
+                            if( BurstFireOnFired( m_targetObjectId ) )
+                            {
+                                LList<int> excluded;
+                                BurstFireGetExcludedIds( excluded );
+                                int newId = GetTarget( ( m_range < 40 ) ? m_range : 40, &excluded );
+                                if( newId != -1 )
+                                {
+                                    m_targetObjectId = newId;
+                                    BurstFireResetShotCount();
+                                }
+                                else
+                                {
+                                    BurstFireAccelerateCountdowns( Fixed(10) );
+                                    BurstFireRemoveTarget( m_targetObjectId );
+                                    BurstFireResetShotCount();
+                                }
+                            }
                         }
                     }
                     else
                     {
                         m_targetObjectId = -1;
+                        m_opportunityFireOnly = false;
+                        BurstFireResetShotCount();
                     }
                 }
             }
@@ -120,6 +155,33 @@ bool Fighter::Update()
         else
         {
             m_targetObjectId = -1;
+            m_opportunityFireOnly = false;
+            BurstFireResetShotCount();
+        }
+    }
+    else if( m_targetObjectId == -1 &&
+             m_isLanding == -1 &&
+             ( m_targetLongitude != 0 || m_targetLatitude != 0 ) )
+    {
+        // On patrol: opportunity fire at hostiles in range without changing course
+        if( m_stateTimer <= 0 )
+        {
+            LList<int> excluded;
+            BurstFireGetExcludedIds( excluded );
+            int targetId = GetTarget( ( m_range < 40 ) ? m_range : 40, excluded.Size() > 0 ? &excluded : nullptr );
+            if( targetId != -1 )
+            {
+                WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( targetId );
+                if( targetObject &&
+                    g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude ) <= GetActionRangeSqd() )
+                {
+                    m_targetObjectId = targetId;
+                    m_opportunityFireOnly = true;
+                    FireGun( GetActionRange() );
+                    m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
+                    BurstFireOnFired( targetId );
+                }
+            }
         }
     }
 
@@ -145,7 +207,10 @@ bool Fighter::Update()
 
     if( IsIdle() )
     {
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( GetTarget( ( m_range < 40 ) ? m_range : 40 ) );
+        LList<int> excluded;
+        BurstFireGetExcludedIds( excluded );
+        int targetId = GetTarget( ( m_range < 40 ) ? m_range : 40, excluded.Size() > 0 ? &excluded : nullptr );
+        WorldObject *obj = ( targetId != -1 ) ? g_app->GetWorld()->GetWorldObject( targetId ) : nullptr;
         if( obj )
         {
             SetWaypoint( obj->m_longitude, obj->m_latitude );

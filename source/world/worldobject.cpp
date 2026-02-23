@@ -35,6 +35,9 @@
 #include "world/tornado.h"
 #include "world/fleet.h"
 
+const int    WorldObject::BURST_FIRE_SHOTS = 5;
+const Fixed  WorldObject::BURST_FIRE_COOLDOWN_SECONDS = Fixed(30);
+
 
 WorldObject::WorldObject()
 :   m_teamId(-1),
@@ -66,7 +69,8 @@ WorldObject::WorldObject()
     m_forceAction(false),
     m_maxFighters(0),
     m_maxBombers(0),
-    m_retargetTimer(0)
+    m_retargetTimer(0),
+    m_burstFireShotCount(0)
 {
     m_visible.Initialise(MAX_TEAMS);
     m_seen.Initialise(MAX_TEAMS);
@@ -88,6 +92,7 @@ WorldObject::WorldObject()
 
 WorldObject::~WorldObject()
 {
+    BurstFireClear();
     if( g_app->m_gameRunning )
     {
         Team *team = g_app->GetWorld()->GetTeam( m_teamId );
@@ -240,7 +245,8 @@ void WorldObject::SetState( int state )
 
 
 bool WorldObject::Update()
-{    
+{
+    BurstFireTick();
     if( m_stateTimer > 0 )
     {
         m_stateTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
@@ -255,6 +261,13 @@ bool WorldObject::Update()
                 //    m_states[m_currentState]->GetReadyName(), WorldMessage::TypeObjectState,false );                
             }
         }
+    }
+
+    if( m_actionQueue.Size() > 0 && ShouldProcessActionQueue() )
+    {
+        ActionOrder *headAction = m_actionQueue[0];
+        if( headAction->m_targetObjectId != -1 )
+            AcquireTargetFromAction( headAction );
     }
 
     if( m_stateTimer <= 0 )
@@ -816,6 +829,99 @@ bool WorldObject::IsPinging()
     return false;
 }
 
+void WorldObject::BurstFireTick()
+{
+    Fixed dt = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
+    for( int i = m_burstFireTargetIds.Size() - 1; i >= 0; --i )
+    {
+        int targetId = m_burstFireTargetIds.GetData( i );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetId );
+        if( !obj || obj->m_life <= 0 )
+        {
+            m_burstFireTargetIds.RemoveData( i );
+            m_burstFireCountdowns.RemoveData( i );
+            continue;
+        }
+        Fixed *cd = m_burstFireCountdowns.GetPointer( i );
+        if( cd )
+        {
+            *cd -= dt;
+            if( *cd <= 0 )
+            {
+                m_burstFireTargetIds.RemoveData( i );
+                m_burstFireCountdowns.RemoveData( i );
+            }
+        }
+    }
+}
+
+int WorldObject::GetBurstFireShots() const
+{
+    return BURST_FIRE_SHOTS;
+}
+
+bool WorldObject::BurstFireOnFired( int currentTargetId )
+{
+    if( currentTargetId == -1 )
+        return false;
+    m_burstFireShotCount++;
+    if( m_burstFireShotCount >= GetBurstFireShots() )
+    {
+        m_burstFireTargetIds.PutData( currentTargetId );
+        m_burstFireCountdowns.PutData( BURST_FIRE_COOLDOWN_SECONDS );
+        return true;
+    }
+    return false;
+}
+
+void WorldObject::BurstFireResetShotCount()
+{
+    m_burstFireShotCount = 0;
+}
+
+void WorldObject::BurstFireRemoveTarget( int targetId )
+{
+    for( int i = m_burstFireTargetIds.Size() - 1; i >= 0; --i )
+    {
+        if( m_burstFireTargetIds.GetData( i ) == targetId )
+        {
+            m_burstFireTargetIds.RemoveData( i );
+            m_burstFireCountdowns.RemoveData( i );
+            return;
+        }
+    }
+}
+
+void WorldObject::BurstFireClear()
+{
+    m_burstFireTargetIds.Empty();
+    m_burstFireCountdowns.Empty();
+    m_burstFireShotCount = 0;
+}
+
+void WorldObject::BurstFireGetExcludedIds( LList<int> &out ) const
+{
+    out.Empty();
+    for( int i = 0; i < m_burstFireTargetIds.Size(); ++i )
+    {
+        out.PutData( m_burstFireTargetIds.GetData( i ) );
+    }
+}
+
+void WorldObject::BurstFireAccelerateCountdowns( Fixed amount )
+{
+    for( int i = 0; i < m_burstFireCountdowns.Size(); ++i )
+    {
+        Fixed *cd = m_burstFireCountdowns.GetPointer( i );
+        if( cd )
+        {
+            *cd -= amount;
+            if( *cd < 0 )
+                *cd = 0;
+        }
+    }
+}
+
 void WorldObject::FireGun( Fixed range )
 {
     WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
@@ -884,6 +990,10 @@ void WorldObject::SetTargetObjectId( int targetObjectId )
 int WorldObject::GetTargetObjectId()
 {
     return m_targetObjectId;
+}
+
+void WorldObject::AcquireTargetFromAction( ActionOrder *action )
+{
 }
 
 void WorldObject::FleetAction( int targetObjectId )

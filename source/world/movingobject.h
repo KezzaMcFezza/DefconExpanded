@@ -91,7 +91,7 @@ public:
 
     char            *LogState();
 
-    virtual int     GetTarget( Fixed range );
+    virtual int     GetTarget( Fixed range, const LList<int> *excludeIds = nullptr );
 };
 
 /*

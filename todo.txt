@@ -95,13 +95,17 @@ Raitos Goals:
 - allies start in ceasefire                               - DONE
 - submarines passive sonar adjustment                     - DONE
 - stanby mode queueing                                    - DONE
+- burst fire system                                       - DONE
 
 TODO:
+- nuke impact zone
+- launch render improvments
 - multi-tier radar system
-- burst fire system
 - expansion of unit system
 - territory unique units
+- asm batteries
 - unit stats rebalance
 - unit outlines
 - performance efficiancy increase
 - find a better way to render bomber payloads
+- ballistic anti ship missiles

@@ -55,6 +55,19 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         return;
     }
 
+    if( m_currentState == 2 )
+    {
+        WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
+        if( targetObject &&
+            targetObject->m_visible[m_teamId] &&
+            g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
+            g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
+        {
+            m_targetObjectId = targetObjectId;
+        }
+        return;
+    }
+
     if( m_stateTimer <= 0 )
     {
         if( m_currentState == 1 )
@@ -70,28 +83,6 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             }
             m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
         }
-        else if( m_currentState == 2 )
-        {
-            WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
-            if( targetObject )
-            {
-                if( targetObject->m_visible[m_teamId] &&                     
-                    g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
-                    g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
-                {
-                    m_targetObjectId = targetObjectId;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                return;
-            }
-        }
-
         WorldObject::Action( targetObjectId, longitude, latitude );
     }
 }
@@ -155,15 +146,31 @@ bool Silo::Update()
                 {
                     FireGun( GetActionRange() );
                     m_stateTimer = m_states[2]->m_timeToReload;
+                    if( BurstFireOnFired( m_targetObjectId ) )
+                    {
+                        int previousId = m_targetObjectId;
+                        m_targetObjectId = -1;
+                        m_retargetTimer = 0;
+                        AirDefense();
+                        if( m_targetObjectId == -1 )
+                        {
+                            BurstFireAccelerateCountdowns( Fixed(10) );
+                            BurstFireRemoveTarget( previousId );
+                            m_targetObjectId = previousId;
+                        }
+                        BurstFireResetShotCount();
+                    }
                 }
                 else
                 {
                     m_targetObjectId = -1;
+                    BurstFireResetShotCount();
                 }
             }
             else
             {
                 m_targetObjectId = -1;
+                BurstFireResetShotCount();
             }
         }
     }
@@ -334,6 +341,19 @@ bool Silo::UsingNukes()
     return ( m_currentState == 1 );
 }
 
+void Silo::AcquireTargetFromAction( ActionOrder *action )
+{
+    if( m_currentState != 2 || action->m_targetObjectId == -1 ) return;
+    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+    if( targetObject &&
+        targetObject->m_visible[m_teamId] &&
+        g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
+        g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
+    {
+        m_targetObjectId = action->m_targetObjectId;
+    }
+}
+
 void Silo::NukeStrike()
 {
     Fixed lossFraction = Fixed(1) / 2;
@@ -351,8 +371,11 @@ void Silo::AirDefense()
     if( m_currentState == 2 )
     {
         Fixed actionRangeSqd = GetActionRangeSqd();
+        LList<int> excluded;
+        BurstFireGetExcludedIds( excluded );
+        const LList<int> *excludePtr = excluded.Size() > 0 ? &excluded : nullptr;
 
-        int nukeId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeNuke, true );
+        int nukeId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeNuke, true, excludePtr );
         WorldObject *nuke = g_app->GetWorld()->GetWorldObject( nukeId );
         if( nuke )
         {
@@ -363,7 +386,7 @@ void Silo::AirDefense()
             }
         }
         
-        int bomberId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeBomber, true );
+        int bomberId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeBomber, true, excludePtr );
         WorldObject *bomber = g_app->GetWorld()->GetWorldObject( bomberId );
         if( bomber )
         {
@@ -375,7 +398,7 @@ void Silo::AirDefense()
         }
         
         
-        int fighterId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeFighter, true );
+        int fighterId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeFighter, true, excludePtr );
         WorldObject *fighter = g_app->GetWorld()->GetWorldObject( fighterId );
         if( fighter )
         {
@@ -433,6 +456,18 @@ int Silo::IsValidCombatTarget( int _objectId )
         }
     }
 
+    return TargetTypeInvalid;
+}
+
+int Silo::IsValidMovementTarget( Fixed longitude, Fixed latitude )
+{
+    if( latitude > 100 || latitude < -100 )
+        return TargetTypeInvalid;
+    if( ( m_currentState == 0 || m_currentState == 1 ) &&
+        m_states[1]->m_numTimesPermitted > 0 )
+    {
+        return TargetTypeLaunchNuke;
+    }
     return TargetTypeInvalid;
 }
 

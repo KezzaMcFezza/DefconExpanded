@@ -3546,6 +3546,20 @@ static bool SelectionHasStandbyNukeUnit()
 }
 
 
+static bool SelectionHasMovingUnit()
+{
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( obj && obj->IsMovingObject() )
+            return true;
+    }
+    return false;
+}
+
+
 static int ResolveNukeTargetForStatic( Fixed longitude, Fixed latitude )
 {
     // Find static target (city, building) at position. Nukes target static only.
@@ -4081,24 +4095,27 @@ void MapRenderer::Update()
             {
                 if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                 {
-                    // Double-right-click on empty space: set waypoint with isDoubleClick=true
-                    if( isDoubleClick && underMouseId == -1 )
+                    // Silos and other static units take no waypoints - right-click is no-op
+                    if( SelectionHasMovingUnit() )
                     {
-                        HandleSetWaypoint( longitude, latitude, true );
-                    }
-                    else
-                    {
-                        WorldObject *primaryObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
-                        if( primaryObj &&
-                            primaryObj->m_fleetId != -1 &&
-                            underMouse &&
-                            underMouse->m_fleetId == primaryObj->m_fleetId )
+                        if( isDoubleClick && underMouseId == -1 )
                         {
-                            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                            HandleSetWaypoint( longitude, latitude, true );
                         }
                         else
                         {
-                            HandleSetWaypoint( longitude, latitude, false );
+                            WorldObject *primaryObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+                            if( primaryObj &&
+                                primaryObj->m_fleetId != -1 &&
+                                underMouse &&
+                                underMouse->m_fleetId == primaryObj->m_fleetId )
+                            {
+                                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                            }
+                            else
+                            {
+                                HandleSetWaypoint( longitude, latitude, false );
+                            }
                         }
                     }
                 }

@@ -515,6 +515,18 @@ void Carrier::FireGun( Fixed range)
     (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
 }
 
+void Carrier::AcquireTargetFromAction( ActionOrder *action )
+{
+    if( m_currentState != 2 || action->m_targetObjectId == -1 ) return;
+    WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+    if( obj && ( obj->m_visible[m_teamId] || obj->m_seen[m_teamId] ) &&
+        obj->IsSubmarine() &&
+        g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, obj->m_type ) > 0 )
+    {
+        m_targetObjectId = action->m_targetObjectId;
+    }
+}
+
 void Carrier::FleetAction( int targetObjectId )
 {
     if( m_targetObjectId == -1 )

@@ -117,6 +117,12 @@ public:
     int     m_numNukesInQueue;
     double  m_nukeCountTimer;
 
+    static const int BURST_FIRE_SHOTS;
+    static const Fixed BURST_FIRE_COOLDOWN_SECONDS;
+    LList<int>   m_burstFireTargetIds;
+    LList<Fixed> m_burstFireCountdowns;
+    int     m_burstFireShotCount;
+
     int     m_maxFighters;
     int     m_maxBombers;               // max number of aircraft this unit can hold
 
@@ -152,6 +158,7 @@ public:
     virtual Fixed       GetActionRange  ();
     virtual Fixed       GetActionRangeSqd();
     virtual void        Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
+    virtual void        AcquireTargetFromAction( ActionOrder *action );
     virtual void        FleetAction     ( int targetObjectId );
     virtual bool        IsHiddenFrom    ();
 
@@ -174,6 +181,15 @@ public:
     void                ClearLastAction();
 
     virtual void        FireGun         ( Fixed range );
+
+    void                BurstFireTick   ();
+    virtual int         GetBurstFireShots() const;
+    bool                BurstFireOnFired( int currentTargetId );
+    void                BurstFireResetShotCount ();
+    void                BurstFireRemoveTarget  ( int targetId );
+    void                BurstFireClear  ();
+    void                BurstFireGetExcludedIds( LList<int> &out ) const;
+    void                BurstFireAccelerateCountdowns( Fixed amount );
 
     virtual bool        UsingNukes      ();
     virtual bool        UsingGuns       ();

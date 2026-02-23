@@ -16,7 +16,8 @@ public:
     void    Render2D        ();
     void    Render3D        ();
 
-    void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude ); 
+    void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
+    void    AcquireTargetFromAction( ActionOrder *action ) override;
     bool    Update          ();
 	void	RunAI			();
     int     GetTargetObjectId();
@@ -30,7 +31,8 @@ public:
     Image   *GetBmpImage    ( int state );
 
     int     GetAttackOdds       ( int _defenderType );
-    int     IsValidCombatTarget ( int _objectId );                                      // returns TargetType...
+    int     IsValidCombatTarget ( int _objectId );
+    int     IsValidMovementTarget( Fixed longitude, Fixed latitude );                                      // returns TargetType...
 
     void    CeaseFire       ( int teamId );
 

@@ -1305,7 +1305,7 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
     }
 }
 
-int World::GetNearestObject( int teamId, Fixed longitude, Fixed latitude, int objectType, bool enemyTeam )
+int World::GetNearestObject( int teamId, Fixed longitude, Fixed latitude, int objectType, bool enemyTeam, const LList<int> *excludeIds )
 {
     int result = -1;
     Fixed nearestSqd = Fixed::MAX;
@@ -1316,6 +1316,14 @@ int World::GetNearestObject( int teamId, Fixed longitude, Fixed latitude, int ob
         {
             WorldObject *obj = m_objects[i];
             bool isFriend = IsFriend( obj->m_teamId, teamId );
+
+            if( excludeIds )
+            {
+                bool excluded = false;
+                for( int e = 0; e < excludeIds->Size(); ++e )
+                    if( excludeIds->GetData( e ) == obj->m_objectId ) { excluded = true; break; }
+                if( excluded ) continue;
+            }
 
             if( ( (isFriend && !enemyTeam) || (!isFriend && enemyTeam )) &&
                 ( objectType == -1 || obj->m_type == objectType) &&

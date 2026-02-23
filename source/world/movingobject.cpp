@@ -1429,7 +1429,7 @@ void MovingObject::SetSpeed( Fixed speed )
     m_speed = speed;
 }
 
-int MovingObject::GetTarget( Fixed range )
+int MovingObject::GetTarget( Fixed range, const LList<int> *excludeIds )
 {
     LList<int> farTargets;
     LList<int> closeTargets;
@@ -1440,6 +1440,13 @@ int MovingObject::GetTarget( Fixed range )
             WorldObject *obj = g_app->GetWorld()->m_objects[i];
             if( obj->m_teamId != TEAMID_SPECIALOBJECTS )
             {
+                if( excludeIds )
+                {
+                    bool excluded = false;
+                    for( int e = 0; e < excludeIds->Size(); ++e )
+                        if( excludeIds->GetData( e ) == obj->m_objectId ) { excluded = true; break; }
+                    if( excluded ) continue;
+                }
                 if( !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
                     g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type ) > 0 &&
                     obj->m_visible[m_teamId] &&
@@ -1599,8 +1606,8 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
     }
 
     Fixed timeLeft = distanceMag / projectileSpeed;
-    const int maxIter = 12;
-    const Fixed epsilon = Fixed::Hundredths(2);
+    const int maxIter = 16;
+    const Fixed epsilon = Fixed::Hundredths(1);
 
     for( int iter = 0; iter < maxIter; ++iter )
     {
@@ -1618,25 +1625,46 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
     if( timeLeft > timeLimit ) timeLeft = timeLimit;
     if( timeLeft < 0 ) timeLeft = 0;
 
-    // Turn delay: gunfire has limited turn rate, needs extra lead when far to curve toward intercept
-    Fixed distNear = Fixed(5);
-    Fixed distFar  = Fixed(25);
-    Fixed distRange = distFar - distNear;
-    Fixed distFactor = ( distanceMag - distNear ) / distRange;
-    if( distFactor < 0 ) distFactor = 0;
-    if( distFactor > 1 ) distFactor = 1;
-    Fixed turnDelayFactor = Fixed(1) + distFactor * Fixed::Hundredths(40);
-    timeLeft = timeLeft * turnDelayFactor;
+    if( target->IsNuke() )
+    {
+        // Nukes follow curved paths over the map; linear extrapolation over-predicts. Clamp lead
+        // so we aim closer to current position and meet the curve instead of overshooting.
+        Fixed closeDist = Fixed(2);
+        Fixed farDist   = Fixed(20);
+        Fixed leadRange = farDist - closeDist;
+        Fixed distFactor = ( distanceMag - closeDist ) / leadRange;
+        if( distFactor < 0 ) distFactor = 0;
+        if( distFactor > 1 ) distFactor = 1;
+        Fixed leadFactor = Fixed::Hundredths(72) + distFactor * Fixed::Hundredths(18);
+        timeLeft = timeLeft * leadFactor;
+    }
+    else
+    {
+        // Turn delay: gunfire has limited turn rate, slight extra lead when far. Reduced from 40%
+        // to avoid overshooting - bullet re-aims every frame so over-compensation causes misses.
+        Fixed distNear = Fixed(5);
+        Fixed distFar  = Fixed(25);
+        Fixed distRange = distFar - distNear;
+        Fixed distFactor = ( distanceMag - distNear ) / distRange;
+        if( distFactor < 0 ) distFactor = 0;
+        if( distFactor > 1 ) distFactor = 1;
+        Fixed turnDelayFactor = Fixed(1) + distFactor * Fixed::Hundredths(12);
+        timeLeft = timeLeft * turnDelayFactor;
 
-    // Lead narrowing: as distance closes, reduce how far ahead we aim to avoid overshoot.
-    // At impact we aim at current position (target catches up to us).
-    Fixed closeDist = Fixed(3);
-    Fixed farDist   = Fixed(20);
-    Fixed leadRange = farDist - closeDist;
-    Fixed leadFactor = ( distanceMag - closeDist ) / leadRange;
-    if( leadFactor < 0 ) leadFactor = 0;
-    if( leadFactor > 1 ) leadFactor = 1;
-    timeLeft = timeLeft * leadFactor;
+        // Lead narrowing for aircraft.
+        Fixed targetSpeed = sqrt( targetSpeedSqd );
+        Fixed speedRatio = ( projectileSpeed > Fixed::Hundredths(1) ) ? ( targetSpeed / projectileSpeed ) : Fixed(0);
+        Fixed closeDist = Fixed(2);
+        Fixed farDist   = Fixed(25);
+        Fixed leadRange = farDist - closeDist;
+        Fixed distLeadFactor = ( distanceMag - closeDist ) / leadRange;
+        if( distLeadFactor < 0 ) distLeadFactor = 0;
+        if( distLeadFactor > 1 ) distLeadFactor = 1;
+        Fixed leadFactor = Fixed::Hundredths(92) + distLeadFactor * Fixed::Hundredths(8);
+        if( speedRatio > Fixed::Hundredths(50) )
+            leadFactor = Fixed::Hundredths(96) + distLeadFactor * Fixed::Hundredths(4);
+        timeLeft = timeLeft * leadFactor;
+    }
 
     *interceptLongitude = targetLongitude + timeLeft * targetVel.x;
     *interceptLatitude  = target->m_latitude + timeLeft * targetVel.y;

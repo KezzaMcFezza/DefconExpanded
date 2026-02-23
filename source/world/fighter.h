@@ -9,6 +9,7 @@ class Fighter : public MovingObject
 {  
 public:
     bool    m_playerSetWaypoint;
+    bool    m_opportunityFireOnly;   // Target acquired via patrol opportunity fire; engage but don't pursue
 
 public:
     Fighter();
@@ -17,6 +18,7 @@ public:
     void    Render3D        ();
     
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
+    void    AcquireTargetFromAction( ActionOrder *action ) override;
     bool    Update          ();
 
 	void	RunAI			();
