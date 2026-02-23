@@ -8,7 +8,6 @@
 class Nuke : public MovingObject
 {
 protected:
-    Fixed   m_curveDirection;   // 1 or -1: east/west direction for curve
     Fixed   m_curveLatitude;    // 1 or -1: curve toward N or S pole (great circle)
     Fixed   m_prevDistanceToTarget;
     
@@ -19,6 +18,12 @@ protected:
 
 public:
     Nuke();
+
+    // Impact zone graphic (estimated nuke impact area) - public for MapRenderer
+    Fixed   m_curveDirection;   // 1 or -1: east/west direction for curve
+    float   m_impactzone_x, m_impactzone_y, m_impactzone_w, m_impactzone_h;
+    float   m_cointoss_x, m_cointoss_y;
+    Fixed   m_launchposition_x, m_launchposition_y;
 
     // moved total distance to public section to be used by the 3d trail rendering
     

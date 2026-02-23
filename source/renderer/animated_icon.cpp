@@ -76,7 +76,7 @@ void ActionMarker::Render2D()
             {
                 case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
                 case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
-                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );          break;
+                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
             }
 
             if( img )
@@ -125,7 +125,7 @@ void ActionMarker::Render3D()
             {
                 case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
                 case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
-                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );          break;
+                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nukesymbol.bmp" );    break;
             }
 
             if( img )
@@ -336,8 +336,9 @@ void NukePointer::Render2D()
     {
         if( m_mode == 0 )
         {
-            Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-            g_renderer2d->RotatingSprite( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
+            Image *img = g_resource->GetImage( "graphics/launchsymbol.bmp" );
+            if( img )
+                g_renderer2d->RotatingSprite( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
         }
     }
 
@@ -415,8 +416,9 @@ void NukePointer::Render3D()
             
             float size3D = size * 0.035f;
             
-            Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-            g_renderer3d->RotatingSprite3D( img, objPos.x, objPos.y, objPos.z, size3D*2, size3D*2, col, 0, BILLBOARD_SURFACE_ALIGNED );
+            Image *img = g_resource->GetImage( "graphics/launchsymbol.bmp" );
+            if( img )
+                g_renderer3d->RotatingSprite3D( img, objPos.x, objPos.y, objPos.z, size3D*2, size3D*2, col, 0, BILLBOARD_SURFACE_ALIGNED );
         }
     }
 }

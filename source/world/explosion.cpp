@@ -87,6 +87,34 @@ void Explosion::Render2D()
     }      
 }
 
+void Explosion::RenderImpactSymbol()
+{
+    // Nuclear explosions only: impactsymbol in red, rendered in separate overlay pass after all explosions
+    Fixed initIntensity = ( m_initialIntensity > Fixed::FromDouble(-0.5f) ) ? m_initialIntensity : m_intensity;
+    if( initIntensity <= 90 ) return;
+
+    float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
+        g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
+    if( predictedIntensity <= 0 ) return;
+
+    float size = predictedIntensity / 20.0f;
+    float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
+    if( gameScale > 0.01f )
+        size /= (float)sqrt(gameScale);
+
+    float predictedLongitude = m_longitude.DoubleValue();
+    float predictedLatitude = m_latitude.DoubleValue();
+
+    Image *impactImg = g_resource->GetImage( "graphics/impactsymbol.bmp" );
+    if( impactImg )
+    {
+        Colour impactCol( 255, 0, 0, 255 );
+        float impactSize = size * 0.6f;
+        g_renderer2d->StaticSprite( impactImg, predictedLongitude - impactSize, predictedLatitude + impactSize,
+                                    impactSize * 2, -impactSize * 2, impactCol );
+    }
+}
+
 void Explosion::Render3D()
 {
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );

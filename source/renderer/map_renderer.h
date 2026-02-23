@@ -170,6 +170,8 @@ public:
     void    RenderUnitHighlight( int _objectId );
     void    RenderDragSelectionMarquee();
     void    RenderNukeUnits();
+    void    RenderImpactSymbolsOverlay();
+    void    RenderNukeImpactZone( class Nuke *nuke, float targetLong, float targetLat, float viewerLong, float viewerLat );
 	
 	void	RenderSanta();
 

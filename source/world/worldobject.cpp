@@ -35,7 +35,7 @@
 #include "world/tornado.h"
 #include "world/fleet.h"
 
-const int    WorldObject::BURST_FIRE_SHOTS = 5;
+const int    WorldObject::BURST_FIRE_SHOTS = 3;
 const Fixed  WorldObject::BURST_FIRE_COOLDOWN_SECONDS = Fixed(30);
 
 

@@ -27,7 +27,10 @@ Nuke::Nuke()
     m_prevDistanceToTarget( Fixed::MAX ),
     m_newLongitude(0),
     m_newLatitude(0),
-    m_targetLocked(false)
+    m_targetLocked(false),
+    m_impactzone_x(0.0f), m_impactzone_y(0.0f), m_impactzone_w(0.0f), m_impactzone_h(0.0f),
+    m_cointoss_x(1.0f), m_cointoss_y(1.0f),
+    m_launchposition_x(0), m_launchposition_y(0)
 {
     SetType( TypeNuke );
 
@@ -43,6 +46,15 @@ Nuke::Nuke()
 
     AddState( LANGUAGEPHRASE("state_ontarget"), 0, 0, 0, Fixed::MAX, false );
     AddState( LANGUAGEPHRASE("state_disarm"), 100, 0, 0, 0, false );
+
+    m_impactzone_w = (syncfrand(50).DoubleValue() + 10) / 100.0f;
+    m_impactzone_h = (syncfrand(50).DoubleValue() + 10) / 100.0f;
+    m_impactzone_x = (syncfrand(50).DoubleValue() + 10) / 100.0f;
+    m_impactzone_y = (syncfrand(50).DoubleValue() + 10) / 100.0f;
+    m_cointoss_x = 1.0f;
+    m_cointoss_y = 1.0f;
+    if (syncfrand(2).IntValue() < 1) m_cointoss_x = -1.0f;
+    if (syncfrand(2).IntValue() < 1) m_cointoss_y = -1.0f;
 }
 
 
@@ -82,6 +94,8 @@ void Nuke::SetWaypoint( Fixed longitude, Fixed latitude )
 
     m_targetLongitude = longitude;
     m_targetLatitude = latitude;
+    m_launchposition_x = m_longitude;
+    m_launchposition_y = m_latitude;
 
     // Latitude-corrected distance for projection (great circle approximation on flat map)
     Vector3<Fixed> target( m_targetLongitude, m_targetLatitude, 0 );

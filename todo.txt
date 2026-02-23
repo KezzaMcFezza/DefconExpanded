@@ -96,10 +96,12 @@ Raitos Goals:
 - submarines passive sonar adjustment                     - DONE
 - stanby mode queueing                                    - DONE
 - burst fire system                                       - DONE
-
-TODO:
+- Bomber/Sub payloads use tooltip window
+  instead of smallnuke graphic                            - DONE
 - nuke impact zone
 - launch render improvments
+
+TODO:
 - multi-tier radar system
 - expansion of unit system
 - territory unique units
@@ -107,5 +109,4 @@ TODO:
 - unit stats rebalance
 - unit outlines
 - performance efficiancy increase
-- find a better way to render bomber payloads
 - ballistic anti ship missiles

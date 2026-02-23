@@ -18,6 +18,7 @@ public:
 
     void Render2D();
     void Render3D();
+    void RenderImpactSymbol();   // Nuclear only; call in separate overlay pass after explosions for correct layering
 
     bool Update();
 

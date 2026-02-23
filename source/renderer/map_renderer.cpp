@@ -42,6 +42,7 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
+#include "world/explosion.h"
 #include "world/city.h"
 #include "world/silo.h"
 #include "world/nuke.h"
@@ -257,6 +258,7 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
         RenderExplosions();
+        RenderImpactSymbolsOverlay();
         RenderAnimations();
 
         if( g_app->GetWorldRenderer()->m_showRadiation ) 
@@ -440,6 +442,66 @@ void MapRenderer::RenderExplosions()
     END_PROFILE( "Explosions" );
 }
 
+void MapRenderer::RenderImpactSymbolsOverlay()
+{
+    START_PROFILE( "ImpactSymbolsOverlay" );
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    for( int i = 0; i < g_app->GetWorld()->m_explosions.Size(); ++i )
+    {
+        if( g_app->GetWorld()->m_explosions.ValidIndex(i) )
+        {
+            Explosion *explosion = g_app->GetWorld()->m_explosions[i];
+            if( IsOnScreen( explosion->m_longitude.DoubleValue(), explosion->m_latitude.DoubleValue() ) )
+            {
+                if( myTeamId == -1 ||
+                    explosion->m_visible[myTeamId] ||
+                    g_app->GetWorldRenderer()->CanRenderEverything() )
+                {
+                    explosion->RenderImpactSymbol();
+                }
+            }
+        }
+    }
+    END_PROFILE( "ImpactSymbolsOverlay" );
+}
+
+// Symbology: launchsymbol=launch notifications, impactsymbol=nuclear explosions, nukesymbol=targets.
+// Future: cruise missile / LACM will use separate symbology (e.g. cruise missilesymbol).
+void MapRenderer::RenderNukeImpactZone( Nuke *nuke, float targetLong, float targetLat, float viewerLong, float viewerLat )
+{
+    float launchLong = nuke->m_launchposition_x.DoubleValue();
+    float launchLat = nuke->m_launchposition_y.DoubleValue();
+    int curveDirection = nuke->m_curveDirection.IntValue();
+
+    float calculatedAngle = atan2(launchLong - targetLong, launchLat - targetLat);
+    if( curveDirection < 0 )
+        calculatedAngle += (float)M_PI / 2.0f;
+
+    float distance = g_app->GetWorld()->GetDistance(
+        Fixed::FromDouble(viewerLong),
+        Fixed::FromDouble(viewerLat),
+        Fixed::FromDouble(targetLong),
+        Fixed::FromDouble(targetLat)
+    ).DoubleValue();
+
+    float sizeFactor = (2.0f * powf(2.71828f, 0.02f * distance)) - 2.0f;
+    if( sizeFactor < 0.1f ) sizeFactor = 0.1f;
+    if( sizeFactor > 50.0f ) sizeFactor = 50.0f;
+
+    float zoneWidth = nuke->m_impactzone_w * 2.0f * sizeFactor;
+    float zoneHeight = nuke->m_impactzone_h * 2.0f * sizeFactor;
+
+    float offsetX = nuke->m_impactzone_x * sizeFactor * 2.0f / 100.0f * nuke->m_cointoss_x + 1.0f;
+    float offsetY = nuke->m_impactzone_y * sizeFactor * 2.0f / 100.0f * nuke->m_cointoss_y + 1.0f;
+
+    Colour zoneColour(255, 255, 255, 100);
+    Image *impactZoneImage = g_resource->GetImage("graphics/impact_zone.bmp");
+    if( impactZoneImage )
+    {
+        g_renderer2d->RotatingSprite( impactZoneImage, targetLong * offsetX, targetLat * offsetY,
+                                     2.0f * zoneWidth, 2.0f * zoneHeight, zoneColour, calculatedAngle );
+    }
+}
 
 void MapRenderer::RenderAnimations()
 {
@@ -2055,7 +2117,8 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
     bool isFirstSeamIteration = ( m_seamIteration == 0 );
 
     if( wobj->m_teamId == g_app->GetWorld()->m_myTeamId ||
-        g_app->GetWorld()->m_myTeamId == -1 )
+        g_app->GetWorld()->m_myTeamId == -1 ||
+        wobj->IsNuke() )
     {
         float predictedLongitude = wobj->m_longitude.DoubleValue() +
 								   wobj->m_vel.x.DoubleValue() * g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
@@ -2179,6 +2242,16 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             }
             if( actionCursorLongitude != 0.0f || actionCursorLatitude != 0.0f )
             {
+                if( mobj->IsNuke() &&
+                    wobj->m_teamId != g_app->GetWorld()->m_myTeamId &&
+                    g_app->GetWorld()->m_myTeamId != -1 )
+                {
+                    Nuke *nuke = (Nuke *)mobj;
+                    RenderNukeImpactZone( nuke, actionCursorLongitude, actionCursorLatitude,
+                                         predictedLongitude, predictedLatitude );
+                }
+                else
+                {
                 Colour actionCursorCol( 0, 0, 255, 150 );
                 float actionCursorSize = 2.0f;
                 float actionCursorAngle = 0;
@@ -2211,6 +2284,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 RenderActionLine( predictedLongitude, predictedLatitude, 
                                   actionCursorLongitude, actionCursorLatitude, 
                                   actionCursorCol, 1.0f );
+                }
             }
         }
 
