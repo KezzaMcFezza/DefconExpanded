@@ -737,41 +737,37 @@ int Sub::IsValidCombatTarget( int _objectId )
         return basicResult;
     }
 
-    bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );    
-    if( !isFriend )
-    {       
-        if( m_currentState == 2 && !obj->IsMovingObject() )
+    if( m_currentState == 2 && !obj->IsMovingObject() )
+    {
+        return TargetTypeLaunchNuke;
+    }
+
+    if( m_currentState == 3 && !obj->IsMovingObject() )
+    {
+        Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, 
+                                                            obj->m_longitude, obj->m_latitude );
+
+        Fixed actionRangeSqd = m_states[3]->m_actionRange;
+        actionRangeSqd *= actionRangeSqd;
+
+        if( distanceSqd < actionRangeSqd )
         {
             return TargetTypeLaunchNuke;
         }
-
-        if( m_currentState == 3 && !obj->IsMovingObject() )
+        else
         {
-            Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, 
-                                                                obj->m_longitude, obj->m_latitude );
-
-            Fixed actionRangeSqd = m_states[3]->m_actionRange;
-            actionRangeSqd *= actionRangeSqd;
-
-            if( distanceSqd < actionRangeSqd )
-            {
-                return TargetTypeLaunchNuke;
-            }
-            else
-            {
-                return TargetTypeOutOfRange;
-            }
+            return TargetTypeOutOfRange;
         }
+    }
 
-        if( m_currentState == 0 || m_currentState == 1 )
+    if( m_currentState == 0 || m_currentState == 1 )
+    {
+        if( obj->IsMovingObject() )
         {
-            if( obj->IsMovingObject() )
+            MovingObject *mobj = (MovingObject *) obj;
+            if( mobj->m_movementType == MovementTypeSea )
             {
-                MovingObject *mobj = (MovingObject *) obj;
-                if( mobj->m_movementType == MovementTypeSea )
-                {
-                    return TargetTypeValid;
-                }
+                return TargetTypeValid;
             }
         }
     }

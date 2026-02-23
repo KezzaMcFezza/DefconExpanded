@@ -438,26 +438,22 @@ int AirBase::IsValidCombatTarget( int _objectId )
     int basicCheck = WorldObject::IsValidCombatTarget( _objectId );
     if( basicCheck < TargetTypeInvalid ) return basicCheck;
 
-    bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );    
-    if( !isFriend )
-    {       
-        // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target.
-        if( m_currentState == 0 )
+    // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target. Allow allies.
+    if( m_currentState == 0 )
+    {
+        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+        if( attackOdds > 0 )
         {
-            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-            if( attackOdds > 0 )
-            {
-                return TargetTypeLaunchFighter;
-            }
+            return TargetTypeLaunchFighter;
         }
+    }
 
-        if( m_currentState == 1 )
+    if( m_currentState == 1 )
+    {
+        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
+        if( attackOdds > 0 || !obj->IsMovingObject() )
         {
-            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
-            if( attackOdds > 0 || !obj->IsMovingObject() )
-            {
-                return TargetTypeLaunchBomber;
-            }
+            return TargetTypeLaunchBomber;
         }
     }
 

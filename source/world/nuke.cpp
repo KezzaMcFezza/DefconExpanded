@@ -340,8 +340,8 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
             {
                 Bomber *obj = (Bomber *)g_app->GetWorld()->m_objects[i];
                 if( obj->m_teamId == teamId &&
-                    obj->m_nukeTargetLongitude == longitude &&
-                    obj->m_nukeTargetLatitude == latitude )
+                    obj->GetNukeTargetLongitude() == longitude &&
+                    obj->GetNukeTargetLatitude() == latitude )
                 {
                     ++targetedNukes;
                 }

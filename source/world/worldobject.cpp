@@ -285,7 +285,7 @@ bool WorldObject::Update()
                 }
             }
         }
-        if( m_actionQueue.Size() > 0 && ShouldProcessActionQueue() )
+        if( m_actionQueue.Size() > 0 && ShouldProcessActionQueue() && ShouldProcessNextQueuedAction() )
         {
             ActionOrder *action = m_actionQueue[0];
             m_actionQueue.RemoveData(0);
@@ -801,6 +801,11 @@ bool WorldObject::IsActionQueueable()
     return false;
 }
 
+bool WorldObject::ShouldProcessNextQueuedAction()
+{
+    return true;
+}
+
 bool WorldObject::ShouldProcessActionQueue()
 {
     return true;
@@ -1065,8 +1070,6 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
     {
         bomber->ClearActionQueue();
         bomber->m_bombingRun = false;
-        bomber->m_nukeTargetLongitude = 0;
-        bomber->m_nukeTargetLatitude = 0;
         bomber->m_states[1]->m_numTimesPermitted = 0;
     }
 
@@ -1141,7 +1144,7 @@ int WorldObject::IsValidCombatTarget( int _objectId )
         return TargetTypeOutOfStock;
     }
     
-    if( !isFriend && attackOdds > 0 )
+    if( attackOdds > 0 )
     {
         return TargetTypeValid;
     }

@@ -26,8 +26,6 @@
 
 Bomber::Bomber()
 :   MovingObject(),
-    m_nukeTargetLongitude(0),
-    m_nukeTargetLatitude(0),
     m_bombingRun(false)
 {
     SetType( TypeBomber );
@@ -74,9 +72,6 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         return;
     }
 
-    m_nukeTargetLongitude = 0;
-    m_nukeTargetLatitude = 0;
-
     if( m_currentState == 1 )
     {
         if( m_states[1]->m_numTimesPermitted <= 0 )
@@ -96,15 +91,21 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
         if( inRange )
         {
+            if( targetObjectId == -1 && m_actionQueue.Size() > 0 &&
+                m_actionQueue[0]->m_targetObjectId == -1 &&
+                m_actionQueue[0]->m_longitude == longitude &&
+                m_actionQueue[0]->m_latitude == latitude )
+            {
+                delete m_actionQueue[0];
+                m_actionQueue.RemoveData( 0 );
+            }
             MovingObject::Action( targetObjectId, longitude, latitude );
             g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, nukeRange );
-            m_nukeTargetLongitude = 0;
-            m_nukeTargetLatitude = 0;
             m_bombingRun = true;
             m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
             int remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size();
-            if( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 && targetObjectId != -1 )
+            if( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 )
             {
                 ActionOrder *repeat = new ActionOrder();
                 repeat->m_targetObjectId = targetObjectId;
@@ -123,7 +124,12 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         {
             if( targetObjectId == -1 )
             {
-                SetNukeTarget( longitude, latitude );
+                ActionOrder *retry = new ActionOrder();
+                retry->m_targetObjectId = -1;
+                retry->m_longitude = longitude;
+                retry->m_latitude = latitude;
+                m_actionQueue.PutDataAtStart( retry );
+                SetWaypoint( longitude, latitude );
                 m_bombingRun = true;
                 return;
             }
@@ -152,9 +158,13 @@ bool Bomber::Update()
 
     bool arrived = MoveToWaypoint();
 
-    // If we arrived at waypoint but have a queued attack or pending nuke, keep waypoint set so we orbit until reload allows firing
-    if( arrived && m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+    if( arrived && m_actionQueue.Size() == 0 )
     {
+        Land( GetClosestLandingPad() );
+    }
+    else if( arrived && m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+    {
+        // If we arrived at waypoint but have a queued attack or pending nuke, keep waypoint set so we orbit until reload allows firing
         Fixed orbitLon = 0, orbitLat = 0;
         if( m_actionQueue.Size() > 0 )
         {
@@ -171,10 +181,10 @@ bool Bomber::Update()
                 }
             }
         }
-        else if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0 )
+        else if( GetNukeTargetLongitude() != 0 || GetNukeTargetLatitude() != 0 )
         {
-            orbitLon = m_nukeTargetLongitude;
-            orbitLat = m_nukeTargetLatitude;
+            orbitLon = GetNukeTargetLongitude();
+            orbitLat = GetNukeTargetLatitude();
         }
         if( orbitLon != 0 || orbitLat != 0 )
         {
@@ -204,14 +214,16 @@ bool Bomber::Update()
     
     if( m_currentState == 1 )
     {
-        if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0 )
+        Fixed nukeLon = GetNukeTargetLongitude();
+        Fixed nukeLat = GetNukeTargetLatitude();
+        if( nukeLon != 0 || nukeLat != 0 )
         {
             if( m_stateTimer == 0 )
             {
-                Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, m_nukeTargetLongitude, m_nukeTargetLatitude );
+                Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, nukeLon, nukeLat );
                 if( distanceSqd <= GetActionRangeSqd() )
                 {
-                    Action( -1, m_nukeTargetLongitude, m_nukeTargetLatitude );
+                    Action( -1, nukeLon, nukeLat );
                     m_bombingRun = true;
                 }
             }
@@ -233,6 +245,7 @@ bool Bomber::Update()
     {
         m_states[0]->m_numTimesPermitted = 0;
         SetState(0);
+        Land( GetClosestLandingPad() );
     }
 
     //
@@ -332,10 +345,26 @@ bool Bomber::UsingNukes()
     }
 }
 
-void Bomber::SetNukeTarget( Fixed longitude, Fixed latitude )
+Fixed Bomber::GetNukeTargetLongitude()
 {
-    m_nukeTargetLongitude = longitude;
-    m_nukeTargetLatitude = latitude;
+    if( m_actionQueue.Size() > 0 )
+    {
+        ActionOrder *head = m_actionQueue[0];
+        if( head->m_targetObjectId == -1 )
+            return head->m_longitude;
+    }
+    return 0;
+}
+
+Fixed Bomber::GetNukeTargetLatitude()
+{
+    if( m_actionQueue.Size() > 0 )
+    {
+        ActionOrder *head = m_actionQueue[0];
+        if( head->m_targetObjectId == -1 )
+            return head->m_latitude;
+    }
+    return 0;
 }
 
 void Bomber::Retaliate( int attackerId )
@@ -361,6 +390,13 @@ void Bomber::Retaliate( int attackerId )
             }
         }
     }
+}
+
+bool Bomber::CanSetState( int state )
+{
+    if( state == 0 && m_currentState == 1 && m_states[1]->m_numTimesPermitted == 0 )
+        return true;
+    return MovingObject::CanSetState( state );
 }
 
 void Bomber::SetState( int state )
@@ -454,15 +490,12 @@ int Bomber::IsValidCombatTarget( int _objectId )
     }
 
 
-    bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );    
-    if( !isFriend )
-    {       
-        // Nuke mode: static targets only (empty, city, building). Never moving.
-        if( !obj->IsMovingObject() &&
-            m_states[1]->m_numTimesPermitted > 0 )
-        {
-            return TargetTypeLaunchNuke;
-        }
+    bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );
+    // Nuke mode: static targets only (empty, city, building). Never moving. Allow allies.
+    if( !obj->IsMovingObject() &&
+        m_states[1]->m_numTimesPermitted > 0 )
+    {
+        return TargetTypeLaunchNuke;
     }
 
     return TargetTypeInvalid;
@@ -479,6 +512,20 @@ bool Bomber::ShouldProcessActionQueue()
     return ( m_currentState != 0 );
 }
 
+bool Bomber::ShouldProcessNextQueuedAction()
+{
+    if( m_currentState != 1 )
+        return true;
+    Fixed nukeLon = GetNukeTargetLongitude();
+    Fixed nukeLat = GetNukeTargetLatitude();
+    if( nukeLon == 0 && nukeLat == 0 )
+        return true;
+    Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, nukeLon, nukeLat );
+    if( distSqd <= GetActionRangeSqd() )
+        return true;
+    return false;
+}
+
 void Bomber::RequestAction( ActionOrder *_action )
 {
     if( m_currentState == 0 || m_currentState == 1 )
@@ -493,7 +540,10 @@ void Bomber::RequestAction( ActionOrder *_action )
         WorldObject::RequestAction( _action );
         if( wasQueueEmpty && m_currentState == 1 )
         {
-            SetWaypoint( _action->m_longitude, _action->m_latitude );
+            if( GetNukeTargetLongitude() == 0 && GetNukeTargetLatitude() == 0 )
+            {
+                SetWaypoint( _action->m_longitude, _action->m_latitude );
+            }
         }
     }
     else
@@ -510,12 +560,11 @@ void Bomber::CeaseFire( int teamId )
         ClearActionQueue();
         Land( GetClosestLandingPad() );
     }
-    if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0 )
+    if( GetNukeTargetLongitude() != 0 || GetNukeTargetLatitude() != 0 )
     {
-        if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, m_nukeTargetLongitude, m_nukeTargetLatitude, false ) )
+        if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, GetNukeTargetLongitude(), GetNukeTargetLatitude(), false ) )
         {
-            m_nukeTargetLongitude = 0;
-            m_nukeTargetLatitude = 0;
+            ClearActionQueue();
             m_bombingRun = false;
             Land( GetClosestLandingPad() );
         }
@@ -598,6 +647,9 @@ void Bomber::Render3D()
 
 bool Bomber::SetWaypointOnAction()
 {
-    if( m_currentState == 0 ) return false;
+    if( m_currentState == 0 )
+        return ( m_actionQueue.Size() == 0 );
+    if( GetNukeTargetLongitude() != 0 || GetNukeTargetLatitude() != 0 )
+        return false;
     return ( m_actionQueue.Size() == 0 );
 }

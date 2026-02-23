@@ -177,6 +177,7 @@ public:
 
     virtual void        RequestAction   ( ActionOrder *_action );
     virtual bool        IsActionQueueable();
+    virtual bool        ShouldProcessNextQueuedAction();
     void                ClearActionQueue();
     void                ClearLastAction();
 

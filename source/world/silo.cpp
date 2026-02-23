@@ -438,16 +438,16 @@ int Silo::IsValidCombatTarget( int _objectId )
     if( basicResult < TargetTypeInvalid ) return basicResult;
 
     bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );
+    int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeNuke, obj->m_type );
+    if( ( m_currentState == 0 || m_currentState == 1 ) && 
+        m_states[1]->m_numTimesPermitted > 0 &&
+        ( attackOdds > 0 || ( isFriend && !obj->IsMovingObject() ) ) )
+    {
+        return TargetTypeLaunchNuke;
+    }
+
     if( !isFriend )
     {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeNuke, obj->m_type );
-        if( ( m_currentState == 0 || m_currentState == 1 ) && 
-            m_states[1]->m_numTimesPermitted > 0 &&
-            attackOdds > 0 )
-        {
-            return TargetTypeLaunchNuke;
-        }
-
         attackOdds = g_app->GetWorld()->GetAttackOdds( TypeSilo, obj->m_type );
         if( m_currentState == 2 &&
             attackOdds > 0 )

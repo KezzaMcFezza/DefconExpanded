@@ -3632,7 +3632,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 
         int numTimesRemaining = obj->m_states[obj->m_currentState]->m_numTimesPermitted;
         if( numTimesRemaining > -1 ) numTimesRemaining -= obj->m_actionQueue.Size();
-        if( numTimesRemaining == 0 ) continue;
+        if( numTimesRemaining == 0 && !obj->SetWaypointOnAction() ) continue;
 
         bool canAction = true;
         if( !underMouse )
@@ -3644,7 +3644,9 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
             }
             else if( obj->UsingNukes() )
             {
-                canAction = ( obj->IsValidMovementTarget( targetLong, targetLat ) > WorldObject::TargetTypeInvalid );
+                int moveResult = obj->IsValidMovementTarget( targetLong, targetLat );
+                canAction = ( moveResult > WorldObject::TargetTypeInvalid ||
+                             moveResult == WorldObject::TargetTypeOutOfRange );
             }
             else if( obj->IsSubmarine() )
             {
@@ -3664,7 +3666,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
         else
         {
             int combatResult = obj->IsValidCombatTarget( underMouseId );
-            canAction = ( combatResult > WorldObject::TargetTypeInvalid );
+            canAction = ( combatResult > WorldObject::TargetTypeInvalid ||
+                         combatResult == WorldObject::TargetTypeOutOfRange );
         }
 
         if( !canAction ) continue;

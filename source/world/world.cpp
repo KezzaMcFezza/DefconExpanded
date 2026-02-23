@@ -1657,6 +1657,7 @@ void World::ObjectSetWaypoint  ( int objectId, Fixed longitude, Fixed latitude )
                 wobj->SetState(0);
         }
         MovingObject *mobj = (MovingObject *) wobj;
+        mobj->m_isLanding = -1;
         mobj->SetWaypoint( longitude, latitude );
     }
 }
@@ -3214,27 +3215,6 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                         else
                         {
                             *queued += nbQueued;
-                        }
-                    }
-
-                    if( obj->IsBomberClass() &&
-                        obj->m_actionQueue.Size() == 0 )
-                    {
-                        Bomber *bomber = (Bomber *)obj;
-                        Fixed longitude = bomber->m_nukeTargetLongitude;
-                        if( longitude > 180 )
-                        {
-                            longitude -= 360;
-                        }
-                        else if( longitude < -180 )
-                        {
-                            longitude += 360;
-                        }
-                        if( longitude == wobj->m_longitude &&
-                            bomber->m_nukeTargetLatitude == wobj->m_latitude &&
-                            bomber->m_teamId != wobj->m_teamId )
-                        {
-                            (*queued)++;
                         }
                     }
                 }

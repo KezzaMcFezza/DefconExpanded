@@ -87,12 +87,9 @@ bool Fighter::Update()
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);  
         if( targetObject )
         {
-            if( targetObject->m_teamId == m_teamId )
+            if( g_app->GetWorld()->IsFriend( m_teamId, targetObject->m_teamId ) && targetObject->IsAircraftLauncher() )
             {
-                if( targetObject->IsAircraftLauncher() )
-                {
-                    Land( m_targetObjectId );
-                }
+                Land( m_targetObjectId );
                 m_targetObjectId = -1;
                 m_opportunityFireOnly = false;
             }

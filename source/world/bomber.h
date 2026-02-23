@@ -8,11 +8,11 @@
 class Bomber : public MovingObject
 {
 public:
-    Fixed   m_nukeTargetLongitude;
-    Fixed   m_nukeTargetLatitude;
-
     bool    m_bombingRun;   // set to true if the bomber is launched to nuke a ground target, in which case it will land after firing
-    
+
+    Fixed   GetNukeTargetLongitude();
+    Fixed   GetNukeTargetLatitude();
+
 public:
 
     Bomber();
@@ -27,19 +27,19 @@ public:
     void    Land            ( int targetId );
     bool    UsingNukes      ();
     bool    ShouldProcessActionQueue();
-    void    SetNukeTarget   ( Fixed longitude, Fixed latitude );
     void    Retaliate       ( int attackerId );
-    void    SetState        (int state );
+    bool    CanSetState     ( int state );
+    void    SetState        ( int state );
 
     int     GetAttackOdds       ( int _defenderType );
     int     IsValidCombatTarget ( int _objectId );
 
-    bool    IsActionQueueable  ();
+    bool    IsActionQueueable       ();
+    bool    ShouldProcessNextQueuedAction();
     void    RequestAction      ( ActionOrder *_action );
 
     void    CeaseFire       ( int teamId );
     bool    SetWaypointOnAction();
-
 };
 
 #endif
