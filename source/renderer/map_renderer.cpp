@@ -889,7 +889,9 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     fontCol.m_a             *= originalAlpha;
 
     //
-    // Spawn object counters
+    // Spawn object counters (fighters, bombers, ammunition)
+    // DESIGN: Use tooltip counters for ammunition instead of on-sprite graphics (e.g. smallnuke).
+    // When adding new units/buildings with ammo, add a case here and avoid per-unit sprite overlays.
 
     int numFighters = -1;
     int numBombers = -1;
@@ -901,19 +903,19 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             //numNukes = wobj->m_states[1]->m_numTimesPermitted;
             break;
 
-        case WorldObject::TypeSub:
-            //numNukes = wobj->m_states[3]->m_numTimesPermitted;
-            break;
-
-        case WorldObject::TypeBomber:
-            //numNukes = wobj->m_states[1]->m_numTimesPermitted;
-            break;
-
         case WorldObject::TypeAirBase:
         case WorldObject::TypeCarrier:
             numFighters = wobj->m_states[0]->m_numTimesPermitted;
             numBombers = wobj->m_states[1]->m_numTimesPermitted;
-            numNukes = wobj->m_nukeSupply >= 0 ? wobj->m_nukeSupply : wobj->m_states[1]->m_numTimesPermitted * 2;
+            // No nukes - airbase/carrier have infinite resupply, don't show nuke storage
+            break;
+
+        case WorldObject::TypeBomber:
+            numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            break;
+
+        case WorldObject::TypeSub:
+            numNukes = wobj->m_states[3]->m_numTimesPermitted;
             break;
     }
 

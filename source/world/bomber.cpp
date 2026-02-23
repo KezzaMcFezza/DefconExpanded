@@ -576,73 +576,13 @@ void Bomber::CeaseFire( int teamId )
 void Bomber::Render2D()
 {
     MovingObject::Render2D();
-
-    if( (m_teamId == g_app->GetWorld()->m_myTeamId ||
-        g_app->GetWorld()->m_myTeamId == -1 ||
-        g_app->GetGame()->m_winner != -1 ) &&
-        m_states[1]->m_numTimesPermitted > 0 )
-    {
-        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-        float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
-        float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
-    
-        float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
-        if( m_vel.y < 0 ) angle += M_PI;
-    
-        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
-        Colour colour = team->GetTeamColour();            
-        colour.m_a = 150;
-
-        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp", 0.0625f, 0.10f );
-
-        float size = GetSize().DoubleValue() * 0.4f;
-        
-        g_renderer2d->RotatingSprite( bmpImage, predictedLongitude, 
-                                  predictedLatitude,
-                                  size/2, 
-                                  size/2, 
-                                  colour, 
-                                  angle );
-    }
+    // Ammunition shown in mouse-over tooltip instead of smallnuke sprite
 }
 
 void Bomber::Render3D()
 {
     MovingObject::Render3D();
-
-    if( (m_teamId == g_app->GetWorld()->m_myTeamId ||
-        g_app->GetWorld()->m_myTeamId == -1 ||
-        g_app->GetGame()->m_winner != -1 ) &&
-        m_states[1]->m_numTimesPermitted > 0 )
-    {
-        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-        float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
-        float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
-    
-        float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
-        if( m_vel.y < 0 ) angle += M_PI;
-    
-        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
-        Colour colour = team->GetTeamColour();            
-        colour.m_a = 150;
-
-        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp", 0.0625f, 0.10f );
-
-        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
-        if( globeRenderer && bmpImage )
-        {
-            float size = GetSize3D().DoubleValue();
-            float iconSize = size * 0.4f;
-
-            Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
-            Vector3<float> normal = spritePos;
-            normal.Normalise();
-            spritePos += normal * GLOBE_ELEVATION;
-            
-            g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
-                                            iconSize, iconSize, colour, angle, BILLBOARD_SURFACE_ALIGNED );
-        }
-    }
+    // Ammunition shown in mouse-over tooltip instead of smallnuke sprite
 }
 
 bool Bomber::SetWaypointOnAction()
