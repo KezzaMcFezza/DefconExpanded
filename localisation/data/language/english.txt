@@ -1298,6 +1298,7 @@ unit_sam                            SAM
 unit_abm                            ABM
 unit_nuke                           WARHEAD
 unit_lacm                           LACM
+unit_cbm                            CBM
 unit_lasm                           ASCM
 unit_lanm                           NUCLEAR-TIPPED LACM
 unit_city                           city

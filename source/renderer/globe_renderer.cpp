@@ -2622,7 +2622,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
             Vector3<float> targetPos = ConvertLongLatTo3DPosition(TpredictedLongitude, TpredictedLatitude);
             Vector3<float> targetRenderPos = GetElevatedPosition(targetPos);
 
-            Colour actionCursorCol = wobj->UsingNukes() ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, conventional
+            Colour actionCursorCol = ( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
             float actionCursorSize = GLOBE_ANIMATED_ICON_SIZE;
             float actionCursorAngle = g_gameTime * -1.0f;
 
@@ -2762,8 +2762,8 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     Colour lineCol;
                     if( isStandbyQueue )
                         lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: standby queue
-                    else if( wobj->UsingNukes() )
-                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic (and future nuclear cruise)
+                    else if( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() )
+                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic
                     else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
                         lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue (launch to location)
                     else

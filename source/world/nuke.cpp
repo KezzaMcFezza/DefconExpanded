@@ -198,7 +198,7 @@ bool Nuke::Update()
         m_targetLongitude = 0;
         m_targetLatitude = 0;
         m_vel.Zero();
-        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 100, -1, true );
+        OnImpact();
 #ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif
@@ -403,6 +403,11 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
     return targetedNukes;
 }
 
+
+void Nuke::OnImpact()
+{
+    g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 100, -1, true );
+}
 
 void Nuke::CeaseFire( int teamId )
 {

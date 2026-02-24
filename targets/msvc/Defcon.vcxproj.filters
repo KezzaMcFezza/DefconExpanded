@@ -132,6 +132,12 @@
     <ClCompile Include="..\..\source\world\lacm.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\world\cbm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\lanm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\world\radargrid.cpp">
       <Filter>world</Filter>
     </ClCompile>

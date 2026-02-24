@@ -45,6 +45,9 @@ public:
     int     IsValidMovementTarget( Fixed longitude, Fixed latitude );
 
     void    LockTarget();
+
+    /** Called on impact; override in subclasses (e.g. CBM) for different explosion type. */
+    virtual void OnImpact();
 }; 
 
 

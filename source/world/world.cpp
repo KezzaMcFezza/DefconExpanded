@@ -26,6 +26,8 @@
 #include "world/team.h"
 #include "world/nuke.h"
 #include "world/lacm.h"
+#include "world/cbm.h"
+#include "world/lanm.h"
 #include "world/city.h"
 #include "world/sub.h"
 #include "world/radarstation.h"
@@ -1319,6 +1321,25 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
     }
 }
 
+void World::LaunchCBM( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId )
+{
+    WorldObject *from = GetWorldObject(objId);
+    AppDebugAssert( from );
+
+    CBM *cbm = new CBM();
+    cbm->m_teamId = teamId;
+    cbm->m_longitude = from->m_longitude;
+    cbm->m_latitude = from->m_latitude;
+    cbm->SetWaypoint( longitude, latitude );
+    if( targetObjectId == -1 )
+        cbm->LockTarget();
+    else
+        cbm->SetTargetObjectId( targetObjectId );
+    cbm->m_range = range;
+
+    AddWorldObject( cbm );
+}
+
 void World::LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId )
 {
     WorldObject *from = GetWorldObject(objId);
@@ -1335,6 +1356,24 @@ void World::LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed l
     cm->SetTargetObjectId( targetObjectId );
 
     AddWorldObject( cm );
+}
+
+void World::LaunchLANM( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId )
+{
+    WorldObject *from = GetWorldObject(objId);
+    AppDebugAssert( from );
+
+    LANM *lanm = new LANM();
+    lanm->m_teamId = teamId;
+    lanm->m_longitude = from->m_longitude;
+    lanm->m_latitude = from->m_latitude;
+    lanm->SetOrigin( objId );
+    lanm->SetWaypoint( longitude, latitude );
+    lanm->LockTarget();
+    lanm->m_range = range;
+    lanm->SetTargetObjectId( targetObjectId );
+
+    AddWorldObject( lanm );
 }
 
 int World::GetNearestObject( int teamId, Fixed longitude, Fixed latitude, int objectType, bool enemyTeam, const LList<int> *excludeIds )
@@ -1533,8 +1572,8 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
                     if( wobj->IsMovingObject() )
                     {
                         int damageDone = 1;
-                        if( wobj->IsSubmarine() && (wobj->m_currentState == 0 || wobj->m_currentState == 1) )
-                            damageDone = 0;  // submerged subs take no nuke splash damage
+                        if( wobj->IsSubmarine() && wobj->IsHiddenFrom() )
+                            damageDone = 0;  // submerged (hidden) subs take no nuke splash damage
                         if( damageDone > 0 )
                         {
                             wobj->m_life = 0;
@@ -3773,39 +3812,104 @@ int World::GetAttackOdds( int attackerType, int defenderType, int attackerId )
 
 int World::GetAttackOdds( int attackerType, int defenderType )
 {
-    
     AppDebugAssert( attackerType >= 0 && attackerType < WorldObject::NumObjectTypes &&
                     defenderType >= 0 && defenderType < WorldObject::NumObjectTypes );
 
-    static int id = 10;               // odds of identical units against each other
+    WorldObject::ClassType attackerClass = WorldObject::GetClassTypeForType( attackerType );
+    WorldObject::ClassType defenderClass = WorldObject::GetClassTypeForType( defenderType );
+    WorldObject::Archetype attackerArchetype = WorldObject::GetArchetypeForType( attackerType );
+    WorldObject::Archetype defenderArchetype = WorldObject::GetArchetypeForType( defenderType );
 
-    static int s_attackOdds[ WorldObject::NumObjectTypes ] [ WorldObject::NumObjectTypes ] = 
+    //static const int id = 10;   // odds of identical units against each other
 
-                                                /* ATTACKER */
+    // -------------------------------------------------------------------------
+    // Early-exit: non-combat invalid
+    // -------------------------------------------------------------------------
+    if( attackerArchetype == WorldObject::ArchetypeInvalid || defenderArchetype == WorldObject::ArchetypeInvalid )
+    {
+        return 0;
+    }
 
-                                    /* INV CTY SIL SAM RDR NUK EXP SUB SHP AIR FTR BMR CRR TOR SAU  CM */
+    // -------------------------------------------------------------------------
+    // Buildings (except SAM) do not deal direct attack odds; they launch.
+    // -------------------------------------------------------------------------
+    if( attackerArchetype == WorldObject::ArchetypeBuilding && attackerClass != WorldObject::ClassTypeSAM )
+    {
+        return 0;
+    }
 
-                                    {   
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Invalid
-                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // City
-                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0, 50, 50, 50,  // Silo
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10, 30,  0,  0,  0,  0,  // SAM
-                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // Radar
-                                        0,  0, 25, 40,  0,  0,  0,  0, 25,  0,  0,  0,  0,  0,  0,  0,  // Nuke            DEFENDER
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Explosion
-                                        0,  0,  0,  0,  0, 99,  0, id, 30,  0,  3, 25, 30,  0, 50, 30,  // Sub
-                                        0,  0,  0,  0,  0, 99,  0, 20, id,  0, 10, 25,  0,  0, 50, 30,  // BattleShip
-                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // Airbase
-                                        0,  0, 10, 30,  0,  0,  0,  0, 30,  0, id,  0,  0,  0, 50,  0,  // Fighter
-                                        0,  0, 10, 30,  0,  0,  0,  0, 20,  0, 30,  0,  0,  0, 50,  0,  // Bomber
-                                        0,  0,  0,  0,  0, 99,  0, 20, 20,  0, 10, 25,  0,  0, 50, 30,  // Carrier
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Tornado
-                                        0,  0, 10,  0,  0,  0,  0,  0, 10,  0, 10,  0,  0,  0,  0,  0,  // Saucer
-                                        0,  0,  0, 40,  0,  0,  0,  0, 40,  0,  0,  0,  0,  0,  0,  0,  // LACM
-                                    };
+    if( attackerClass == WorldObject::ClassTypeCarrier){
+        return 0;
+    }
 
+    // -------------------------------------------------------------------------
+    // Ballistic nuclear (Nuke) and nuclear cruise (LANM): 99 vs most, 0 vs missiles
+    // Subunits (CBM, LANM) caught by type check; ClassType used for Nuke.
+    // -------------------------------------------------------------------------
+    if( attackerType == WorldObject::TypeNuke || attackerType == WorldObject::TypeLANM )
+    {
+        if( defenderClass == WorldObject::ClassTypeBallisticMissile || defenderClass == WorldObject::ClassTypeCruiseMissile )
+            return 0;
+        return 99;
+    }
 
-    return s_attackOdds[ defenderType ][ attackerType ];
+    // -------------------------------------------------------------------------
+    // Conventional missiles 0 against flying, 90 against city, 80 against buildings/ships
+    // -------------------------------------------------------------------------
+    if( attackerType == WorldObject::TypeCBM || attackerClass == WorldObject::ClassTypeCruiseMissile )
+    {
+        if( defenderArchetype == WorldObject::ArchetypeBallisticMissile || defenderArchetype == WorldObject::ArchetypeAircraft )
+            return 0;
+        if( defenderClass == WorldObject::ClassTypeCity )
+            return 90;
+        return 80;
+    }
+
+    // -------------------------------------------------------------------------
+    // Compact table: direct-fire + missiles [DEFENDER_ROW][ATTACKER_COL]
+    // 7 rows: Sub, Carrier, BattleShip, Bomber, Fighter, LACM/LANM, Nuke/CBM
+    // 8 cols: SAM, Sub, Ship, Carrier, Bomber, Fighter, Cruise missile, Ballistic missile
+    // -------------------------------------------------------------------------
+    static const int s_attackOdds[7][8] =
+    {
+    /*       SAM   SUB   SHP   CRR   BMR   FTR   CM    BM     DEFENDER */
+        {    0,   10,   20,   20,   25,    3,   0,   0   },  // Sub
+        {    0,   20,   20,    0,   25,   10,   0,   0   },  // Carrier
+        {    0,   20,   10,    0,   25,   10,   0,   0   },  // BattleShip
+        {   30,    0,   20,    0,    0,   30,   0,   0   },  // Bomber
+        {   30,    0,   30,    0,    0,   10,   0,   0   },  // Fighter
+        {    0,   40,   40,    0,    0,    0,   0,   0   },  // LACM, LANM
+        {   40,   25,    0,    0,    0,    0,   0,   0   },  // Nuke, CBM
+    };
+
+    int defenderRow = -1;
+    switch( defenderClass )
+    {
+        case WorldObject::ClassTypeSub:             defenderRow = 0; break;
+        case WorldObject::ClassTypeCarrier:          defenderRow = 1; break;
+        case WorldObject::ClassTypeBattleShip:       defenderRow = 2; break;
+        case WorldObject::ClassTypeBomber:           defenderRow = 3; break;
+        case WorldObject::ClassTypeFighter:          defenderRow = 4; break;
+        case WorldObject::ClassTypeCruiseMissile:   defenderRow = 5; break;  // LACM, LANM
+        case WorldObject::ClassTypeBallisticMissile: defenderRow = 6; break;  // Nuke, CBM
+        default:                                    return 0;
+    }
+
+    int attackerCol = -1;
+    switch( attackerClass )
+    {
+        case WorldObject::ClassTypeSAM:             attackerCol = 0; break;
+        case WorldObject::ClassTypeSub:             attackerCol = 1; break;
+        case WorldObject::ClassTypeBattleShip:      attackerCol = 2; break;
+        case WorldObject::ClassTypeCarrier:         attackerCol = 3; break;
+        case WorldObject::ClassTypeBomber:          attackerCol = 4; break;
+        case WorldObject::ClassTypeFighter:         attackerCol = 5; break;
+        case WorldObject::ClassTypeCruiseMissile:   attackerCol = 6; break;
+        case WorldObject::ClassTypeBallisticMissile: attackerCol = 7; break;
+        default:                                    return 0;
+    }
+
+    return s_attackOdds[ defenderRow ][ attackerCol ];
 }
 
 void World::WriteNodeCoverageFile()

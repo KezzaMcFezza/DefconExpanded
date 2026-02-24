@@ -93,6 +93,9 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeFighter], "graphics/fighter.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
     sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeLACM], "graphics/lacm.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCBM], "graphics/lacm.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeLANM], "graphics/lacm.bmp");
 }
 
 void WorldRenderer::Reset()

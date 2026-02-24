@@ -548,6 +548,8 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/fleet.cpp
     ${ROOT_PATH}/source/world/nuke.cpp
     ${ROOT_PATH}/source/world/lacm.cpp
+    ${ROOT_PATH}/source/world/cbm.cpp
+    ${ROOT_PATH}/source/world/lanm.cpp
     ${ROOT_PATH}/source/world/node.cpp
     ${ROOT_PATH}/source/world/depthcharge.cpp
     ${ROOT_PATH}/source/world/bomber.cpp

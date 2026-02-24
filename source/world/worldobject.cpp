@@ -34,6 +34,8 @@
 #include "world/city.h"
 #include "world/nuke.h"
 #include "world/lacm.h"
+#include "world/cbm.h"
+#include "world/lanm.h"
 #include "world/tornado.h"
 #include "world/fleet.h"
 
@@ -712,6 +714,8 @@ const char *WorldObject::GetName (int _type)
 		case TypeTornado:       return LANGUAGEPHRASE("unit_tornado");
         case TypeSaucer:        return LANGUAGEPHRASE("unit_saucer");
         case TypeLACM:         return LANGUAGEPHRASE("unit_lacm");
+        case TypeCBM:          return LANGUAGEPHRASE("unit_cbm");
+        case TypeLANM:         return LANGUAGEPHRASE("unit_lanm");
     }
 
     return "?";
@@ -751,6 +755,8 @@ const char *WorldObject::GetTypeName (int _type)
 		case TypeTornado:       return "tornado";
         case TypeSaucer:        return "saucer";
         case TypeLACM:         return "lacm";
+        case TypeCBM:          return "cbm";
+        case TypeLANM:         return "lanm";
     }
 
     return "?";
@@ -1006,6 +1012,8 @@ WorldObject *WorldObject::CreateObject( int _type )
 		case TypeRadarStation:          return new RadarStation();
         case TypeNuke:                  return new Nuke();
         case TypeLACM:                  return new LACM();
+        case TypeCBM:                   return new CBM();
+        case TypeLANM:                  return new LANM();
         case TypeExplosion:             return new Explosion();
 		case TypeSub:                   return new Sub();
 		case TypeBattleShip:            return new BattleShip();
@@ -1385,9 +1393,11 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
         case TypeFighter:
         case TypeBomber:
         case TypeLACM:
+        case TypeLANM:
             return ArchetypeAircraft;
 
         case TypeNuke:
+        case TypeCBM:
             return ArchetypeBallisticMissile;
 
         default:
@@ -1415,6 +1425,8 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
 
         case TypeNuke:          return ClassTypeBallisticMissile;
         case TypeLACM:          return ClassTypeCruiseMissile;
+        case TypeCBM:           return ClassTypeBallisticMissile;
+        case TypeLANM:           return ClassTypeCruiseMissile;
 
         default:
             return ClassTypeInvalid;

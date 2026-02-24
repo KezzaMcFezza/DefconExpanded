@@ -2227,7 +2227,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 									   targetObject->m_vel.y.DoubleValue() * g_predictionTime * 
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
-            Colour actionCursorCol = wobj->UsingNukes() ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, conventional
+            Colour actionCursorCol = ( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
 
@@ -2386,8 +2386,8 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     Colour lineCol;
                     if( isStandbyQueue )
                         lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: standby queue
-                    else if( wobj->UsingNukes() )
-                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic (and future nuclear cruise)
+                    else if( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() )
+                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic
                     else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
                         lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue (launch to location)
                     else

@@ -178,7 +178,7 @@ bool LACM::Update()
                     m_missTime -= timePerUpdate;
                     if( m_missTime <= 0 )
                     {
-                        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 30 );
+                        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
 #ifdef TOGGLE_SOUND
                         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif
@@ -203,7 +203,7 @@ bool LACM::Update()
                     m_missTime -= timePerUpdate;
                     if( m_missTime <= 0 )
                     {
-                        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 30 );
+                        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
 #ifdef TOGGLE_SOUND
                         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif
@@ -221,7 +221,7 @@ bool LACM::Update()
             {
                 // Impact on ship
                 int randomChance = syncfrand(100).IntValue();
-                Fixed attackOdds = g_app->GetWorld()->GetAttackOdds( TypeLACM, targetObj->m_type, m_origin );
+                Fixed attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObj->m_type, m_origin );
                 if( Fixed(randomChance) < attackOdds )
                 {
                     targetObj->m_life--;
@@ -237,12 +237,12 @@ bool LACM::Update()
                         }
                     }
                 }
-                g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 30, targetObj->m_teamId );
+                g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), targetObj->m_teamId, IsNuclearExplosion() );
                 targetObj->Retaliate( m_origin );
             }
             else
             {
-                g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 30 );
+                g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
             }
 #ifdef TOGGLE_SOUND
             g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
@@ -319,7 +319,7 @@ bool LACM::Update()
         m_targetLongitude = 0;
         m_targetLatitude = 0;
         m_vel.Zero();
-        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 30 );
+        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
 #ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif

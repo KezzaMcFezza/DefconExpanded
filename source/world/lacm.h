@@ -45,6 +45,10 @@ protected:
 
     bool    MoveToWaypointAntiShip();
     void    CalculateNewPositionAntiShip( Fixed *newLongitude, Fixed *newLatitude, Fixed *newDistance );
+
+    /** Override in subclasses (e.g. LANM) for nuclear impact. */
+    virtual int  GetExplosionIntensity() const { return 30; }
+    virtual bool IsNuclearExplosion() const { return false; }
 };
 
 

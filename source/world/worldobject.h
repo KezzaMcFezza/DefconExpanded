@@ -31,6 +31,8 @@ public:
         TypeTornado,
         TypeSaucer,
         TypeLACM,
+        TypeCBM,            // Conventional ballistic missile (Nuke trajectory, cruise explosion)
+        TypeLANM,           // Land-attack nuclear missile (LACM trajectory, nuclear explosion)
         NumObjectTypes
     };
 
@@ -206,6 +208,8 @@ public:
     void                BurstFireAccelerateCountdowns( Fixed amount );
 
     virtual bool        UsingNukes      ();
+    /** True when unit is in a state that launches conventional ballistic (CBM); order lines use orange instead of red. */
+    virtual bool        UsesConventionalBallistic () { return false; }
     virtual bool        UsingGuns       ();
     virtual void        NukeStrike      ();
 
