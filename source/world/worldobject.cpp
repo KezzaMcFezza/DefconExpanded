@@ -24,6 +24,7 @@
 
 #include "world/radarstation.h"
 #include "world/silo.h"
+#include "world/sam.h"
 #include "world/sub.h"
 #include "world/battleship.h"
 #include "world/airbase.h"
@@ -32,6 +33,7 @@
 #include "world/fighter.h"
 #include "world/city.h"
 #include "world/nuke.h"
+#include "world/lacm.h"
 #include "world/tornado.h"
 #include "world/fleet.h"
 
@@ -70,6 +72,8 @@ WorldObject::WorldObject()
     m_aiSpeed(5),
     m_numNukesInFlight(0),
     m_numNukesInQueue(0),
+    m_numLACMInFlight(0),
+    m_numLACMInQueue(0),
     m_nukeCountTimer(0),
     m_forceAction(false),
     m_maxFighters(0),
@@ -388,6 +392,7 @@ bool WorldObject::Update()
         if( realTimeNow > m_nukeCountTimer )
         {
             g_app->GetWorld()->GetNumNukers( m_objectId, &m_numNukesInFlight, &m_numNukesInQueue );
+            g_app->GetWorld()->GetNumLACMs( m_objectId, &m_numLACMInFlight, &m_numLACMInQueue );
             m_nukeCountTimer = realTimeNow + 2.0f;
         }
     }
@@ -645,7 +650,7 @@ Fixed WorldObject::GetSize3D()
 
     Fixed size = Fixed::FromDouble(0.5f);
 
-    if( IsAircraft() || IsNuke() )
+    if( IsAircraft() || IsBallisticMissileClass() || IsCruiseMissileClass() )
     {
         size *= Fixed::FromDouble(0.05f);
     }
@@ -693,6 +698,7 @@ const char *WorldObject::GetName (int _type)
     switch( _type )
     {
         case TypeSilo:          return LANGUAGEPHRASE("unit_silo");
+        case TypeSAM:           return LANGUAGEPHRASE("unit_sam");
         case TypeNuke:          return LANGUAGEPHRASE("unit_nuke");
         case TypeCity:          return LANGUAGEPHRASE("unit_city");
         case TypeExplosion:     return LANGUAGEPHRASE("unit_explosion");
@@ -705,6 +711,7 @@ const char *WorldObject::GetName (int _type)
         case TypeCarrier:       return LANGUAGEPHRASE("unit_carrier");
 		case TypeTornado:       return LANGUAGEPHRASE("unit_tornado");
         case TypeSaucer:        return LANGUAGEPHRASE("unit_saucer");
+        case TypeLACM:         return LANGUAGEPHRASE("unit_lacm");
     }
 
     return "?";
@@ -730,6 +737,7 @@ const char *WorldObject::GetTypeName (int _type)
     switch( _type )
     {
         case TypeSilo:          return "silo";
+        case TypeSAM:           return "sam";
         case TypeNuke:          return "nuke";
         case TypeCity:          return "city";
         case TypeExplosion:     return "explosion";
@@ -742,6 +750,7 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeCarrier:       return "carrier";
 		case TypeTornado:       return "tornado";
         case TypeSaucer:        return "saucer";
+        case TypeLACM:         return "lacm";
     }
 
     return "?";
@@ -825,7 +834,7 @@ Image *WorldObject::GetBmpImage( int state )
 
 bool WorldObject::IsMovingObject()
 {
-    return IsNavy() || IsAircraft() || IsNuke();
+    return IsNavy() || IsAircraft() || IsBallisticMissileClass() || IsCruiseMissileClass();
 }
 
 void WorldObject::RequestAction( ActionOrder *_action )
@@ -992,9 +1001,11 @@ WorldObject *WorldObject::CreateObject( int _type )
     switch( _type )
 	{
         case TypeCity:                  return new City( "City" );
-		case TypeSilo:                  return new Silo();			
+		case TypeSilo:                  return new Silo();
+		case TypeSAM:                   return new SAM();
 		case TypeRadarStation:          return new RadarStation();
         case TypeNuke:                  return new Nuke();
+        case TypeLACM:                  return new LACM();
         case TypeExplosion:             return new Explosion();
 		case TypeSub:                   return new Sub();
 		case TypeBattleShip:            return new BattleShip();
@@ -1149,6 +1160,8 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
 
 int WorldObject::IsValidCombatTarget( int _objectId )
 {
+    if( _objectId == m_objectId ) return TargetTypeInvalid;
+
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
@@ -1358,6 +1371,7 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
     switch( type )
     {
         case TypeSilo:
+        case TypeSAM:
         case TypeRadarStation:
         case TypeAirBase:
         case TypeCity:
@@ -1370,10 +1384,11 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
 
         case TypeFighter:
         case TypeBomber:
+        case TypeLACM:
             return ArchetypeAircraft;
 
         case TypeNuke:
-            return ArchetypeNuke;
+            return ArchetypeBallisticMissile;
 
         default:
             return ArchetypeInvalid;
@@ -1386,6 +1401,7 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
     switch( type )
     {
         case TypeSilo:          return ClassTypeSilo;
+        case TypeSAM:           return ClassTypeSAM;
         case TypeRadarStation:  return ClassTypeRadar;
         case TypeAirBase:       return ClassTypeAirbase;
         case TypeCity:          return ClassTypeCity;
@@ -1398,6 +1414,7 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
         case TypeBomber:        return ClassTypeBomber;
 
         case TypeNuke:          return ClassTypeBallisticMissile;
+        case TypeLACM:          return ClassTypeCruiseMissile;
 
         default:
             return ClassTypeInvalid;
@@ -1423,12 +1440,6 @@ bool WorldObject::IsAircraft() const
 }
 
 
-bool WorldObject::IsMissileClass() const
-{
-    return m_classType == ClassTypeCruiseMissile;
-}
-
-
 bool WorldObject::IsSubmarine() const
 {
     return m_classType == ClassTypeSub;
@@ -1449,7 +1460,19 @@ bool WorldObject::IsAircraftLauncher() const
 
 bool WorldObject::IsNuke() const
 {
+    return m_type == TypeNuke;
+}
+
+
+bool WorldObject::IsBallisticMissileClass() const
+{
     return m_classType == ClassTypeBallisticMissile;
+}
+
+
+bool WorldObject::IsCruiseMissileClass() const
+{
+    return m_classType == ClassTypeCruiseMissile;
 }
 
 

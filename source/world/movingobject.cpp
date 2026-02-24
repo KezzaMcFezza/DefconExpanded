@@ -79,7 +79,7 @@ bool MovingObject::Update()
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
         {
-            if( IsNuke() )
+            if( IsBallisticMissileClass() )
             {
                 m_historyTimer = 1;
             }
@@ -531,9 +531,9 @@ void MovingObject::CrossSeam()
         m_targetLongitude += 360;
     }
 
-    if( !IsNuke() )
+    if( !IsBallisticMissileClass() )
     {
-        // nukes have their own seperate calculation for this kind of thing
+        // ballistic missiles have their own separate calculation for this
         Fixed seamDistanceSqd =  g_app->GetWorld()->GetDistanceAcrossSeamSqd( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
         Fixed directDistanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude, true );
 
@@ -614,7 +614,7 @@ void MovingObject::Render2D()
 
 void MovingObject::Render3D()
 {
-    if( IsNuke() && g_app->IsGlobeMode() )
+    if( IsBallisticMissileClass() && g_app->IsGlobeMode() )
     {
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
@@ -770,7 +770,7 @@ void MovingObject::RenderHistory2D()
 
 void MovingObject::RenderHistory3D()
 {
-    if (IsNuke() && g_app->IsGlobeMode()) {
+    if (IsBallisticMissileClass() && g_app->IsGlobeMode()) {
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if (globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories()) {
             return;
@@ -1566,7 +1566,7 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
     if( target->IsMovingObject() )
     {
         MovingObject *movingTarget = (MovingObject *)target;
-        bool useCurvedVelocity = target->IsNuke();
+        bool useCurvedVelocity = target->IsBallisticMissileClass();
         if( !useCurvedVelocity && ( movingTarget->m_targetLatitude != 0 || movingTarget->m_targetLongitude != 0 ) )
         {
             Fixed targetTargetLongitude = movingTarget->m_targetLongitude;
@@ -1625,9 +1625,9 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
     if( timeLeft > timeLimit ) timeLeft = timeLimit;
     if( timeLeft < 0 ) timeLeft = 0;
 
-    if( target->IsNuke() )
+    if( target->IsBallisticMissileClass() )
     {
-        // Nukes follow curved paths over the map; linear extrapolation over-predicts. Clamp lead
+        // Ballistic missiles follow curved paths; linear extrapolation over-predicts. Clamp lead
         // so we aim closer to current position and meet the curve instead of overshooting.
         Fixed closeDist = Fixed(2);
         Fixed farDist   = Fixed(20);
@@ -1636,6 +1636,32 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
         if( distFactor < 0 ) distFactor = 0;
         if( distFactor > 1 ) distFactor = 1;
         Fixed leadFactor = Fixed::Hundredths(72) + distFactor * Fixed::Hundredths(18);
+        timeLeft = timeLeft * leadFactor;
+    }
+    else if( m_type == WorldObject::TypeLACM &&
+             ( target->IsCarrierClass() || target->IsBattleShipClass() ||
+               ( target->IsSubmarine() && !target->IsHiddenFrom() ) ) )
+    {
+        // LACM anti-ship: missile is slower than gunfire and has slower turn rate. Ships have
+        // low linear speed but can change course quickly - use conservative lead narrowing
+        // so we don't overshoot when the ship dodges.
+        Fixed distNear = Fixed(5);
+        Fixed distFar  = Fixed(50);   // LACM engagements span longer range
+        Fixed distRange = distFar - distNear;
+        Fixed distFactor = ( distanceMag - distNear ) / distRange;
+        if( distFactor < 0 ) distFactor = 0;
+        if( distFactor > 1 ) distFactor = 1;
+        Fixed turnDelayFactor = Fixed(1) + distFactor * Fixed::Hundredths(30);  // up to 30% extra lead when far
+        timeLeft = timeLeft * turnDelayFactor;
+
+        // Ships can dodge by turning quickly; aim closer to current position (88-96% lead).
+        Fixed closeDist = Fixed(2);
+        Fixed farDist   = Fixed(50);
+        Fixed leadRange = farDist - closeDist;
+        Fixed distLeadFactor = ( distanceMag - closeDist ) / leadRange;
+        if( distLeadFactor < 0 ) distLeadFactor = 0;
+        if( distLeadFactor > 1 ) distLeadFactor = 1;
+        Fixed leadFactor = Fixed::Hundredths(88) + distLeadFactor * Fixed::Hundredths(8);
         timeLeft = timeLeft * leadFactor;
     }
     else

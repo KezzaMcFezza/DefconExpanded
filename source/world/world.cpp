@@ -25,6 +25,7 @@
 #include "world/silo.h"
 #include "world/team.h"
 #include "world/nuke.h"
+#include "world/lacm.h"
 #include "world/city.h"
 #include "world/sub.h"
 #include "world/radarstation.h"
@@ -412,6 +413,10 @@ void World::AssignCities()
                 {
                     m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale).IntValue();
                 }
+                else if( i == WorldObject::TypeSAM )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
                 else if(i == WorldObject::TypeBattleShip ||
                         i == WorldObject::TypeCarrier ||
                         i == WorldObject::TypeSub )
@@ -438,6 +443,7 @@ void World::AssignCities()
             m_teams[j]->m_unitsAvailable[WorldObject::TypeAirBase] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeRadarStation] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeSilo] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSAM] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeBattleShip] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeCarrier] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeSub] = VARIABLE_UNITS_PER_TYPE;
@@ -1313,6 +1319,24 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
     }
 }
 
+void World::LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId )
+{
+    WorldObject *from = GetWorldObject(objId);
+    AppDebugAssert( from );
+
+    LACM *cm = new LACM();
+    cm->m_teamId = teamId;
+    cm->m_longitude = from->m_longitude;
+    cm->m_latitude = from->m_latitude;
+    cm->SetOrigin( objId );
+    cm->SetWaypoint( longitude, latitude );
+    cm->LockTarget();
+    cm->m_range = range;
+    cm->SetTargetObjectId( targetObjectId );
+
+    AddWorldObject( cm );
+}
+
 int World::GetNearestObject( int teamId, Fixed longitude, Fixed latitude, int objectType, bool enemyTeam, const LList<int> *excludeIds )
 {
     int result = -1;
@@ -1500,7 +1524,7 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
             {
                 WorldObject *wobj = m_objects[i];
 
-                if( !wobj->IsNuke() &&
+                if( !wobj->IsBallisticMissileClass() &&
                     wobj->m_type != WorldObject::TypeExplosion &&
                     wobj->m_life > 0 &&
                     GetDistance( longitude, latitude, wobj->m_longitude, wobj->m_latitude) <= intensity/50 )
@@ -1513,11 +1537,13 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
                     }
                     else
                     {
-                        int damageDone = 10;
+                        // Only nuclear explosions (intensity > 50) do nuke-strike damage; conventional/LACM do less
+                        int damageDone = ( intensity > 50 ) ? 10 : 1;
                         wobj->m_life -= damageDone;
                         wobj->m_life = max( wobj->m_life, 0 );
 						wobj->m_lastHitByTeamId = teamId;
-                        wobj->NukeStrike();
+                        if( intensity > 50 )
+                            wobj->NukeStrike();
                     }
 
                     if( !wobj->IsMovingObject() &&
@@ -3218,6 +3244,67 @@ int World::GetTerritoryOwner( int territoryId )
 }
 
 
+void World::GetNumLACMs( int objectId, int *inFlight, int *queued )
+{
+    *inFlight = 0;
+    *queued = 0;
+
+    WorldObject *wobj = GetWorldObject(objectId);
+    if( !wobj ) return;
+
+    Fixed tgtLong = wobj->m_longitude;
+    if( tgtLong > 180 ) tgtLong -= 360;
+    else if( tgtLong < -180 ) tgtLong += 360;
+
+    for( int i = 0; i < m_objects.Size(); ++i )
+    {
+        if( !m_objects.ValidIndex(i) ) continue;
+        WorldObject *obj = m_objects[i];
+        if( obj->m_teamId == m_myTeamId )
+        {
+            // Queued: battleship LACM (state 1), future conventional ballistic
+            if( obj->IsBattleShipClass() && obj->m_currentState == 1 )
+            {
+                for( int j = 0; j < obj->m_actionQueue.Size(); ++j )
+                {
+                    ActionOrder *action = obj->m_actionQueue[j];
+                    Fixed longitude = action->m_longitude;
+                    Fixed latitude = action->m_latitude;
+                    if( action->m_targetObjectId == objectId )
+                    {
+                        (*queued)++;
+                    }
+                    else
+                    {
+                        if( longitude > 180 ) longitude -= 360;
+                        else if( longitude < -180 ) longitude += 360;
+                        if( longitude == tgtLong && latitude == wobj->m_latitude )
+                            (*queued)++;
+                    }
+                }
+            }
+
+            // In flight: LACM, future conventional ballistic
+            if( obj->m_type == WorldObject::TypeLACM )
+            {
+                if( obj->m_targetObjectId == objectId )
+                {
+                    (*inFlight)++;
+                }
+                else
+                {
+                    MovingObject *mov = (MovingObject *)obj;
+                    Fixed longitude = mov->m_targetLongitude;
+                    if( longitude > 180 ) longitude -= 360;
+                    else if( longitude < -180 ) longitude += 360;
+                    if( longitude == tgtLong && mov->m_targetLatitude == wobj->m_latitude )
+                        (*inFlight)++;
+                }
+            }
+        }
+    }
+}
+
 void World::GetNumNukers( int objectId, int *inFlight, int *queued )
 {
     *inFlight = 0;
@@ -3233,6 +3320,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
             WorldObject *obj = m_objects[i];
             if( obj->m_teamId == m_myTeamId )
             {
+                // Queued: only nuclear (nuke ballistic + future nuke cruise)
                 if( obj->UsingNukes() )
                 {
                     int nbQueued = 0;
@@ -3267,6 +3355,7 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                     }
                 }
 
+                // In flight: nuke ballistic + future nuke cruise
                 if( obj->IsNuke() )
                 {
                     MovingObject *nuke = (MovingObject *)obj;
@@ -3484,7 +3573,8 @@ int World::GetUnitValue( int _type )
             case WorldObject::TypeCarrier:
             case WorldObject::TypeBattleShip:   return 2;
             case WorldObject::TypeSub:
-            case WorldObject::TypeSilo:     return 3;
+            case WorldObject::TypeSilo:
+            case WorldObject::TypeSAM:      return 3;
             default : return 2;
         }
     }
@@ -3675,23 +3765,25 @@ int World::GetAttackOdds( int attackerType, int defenderType )
 
                                                 /* ATTACKER */
 
-                                    /* INV CTY SIL RDR NUK EXP SUB SHP AIR FTR BMR CRR TOR SAU*/
+                                    /* INV CTY SIL SAM RDR NUK EXP SUB SHP AIR FTR BMR CRR TOR SAU  CM */
 
                                     {   
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Invalid
-                                        0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // City
-                                        0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50,  // Silo
-                                        0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50,  // Radar
-                                        0,  0, 25,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Nuke            DEFENDER
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Explosion
-                                        0,  0,  0,  0, 99,  0, id, 30,  0,  3, 25, 30,  0, 50,  // Sub
-                                        0,  0,  0,  0, 99,  0, 20, id,  0, 10, 25,  0,  0, 50,  // BattleShip
-                                        0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50,  // Airbase
-                                        0,  0, 10,  0,  0,  0,  0, 30,  0, id,  0,  0,  0, 50,  // Fighter
-                                        0,  0, 10,  0,  0,  0,  0, 20,  0, 30,  0,  0,  0, 50,  // Bomber
-                                        0,  0,  0,  0, 99,  0, 20, 20,  0, 10, 25,  0,  0, 50,  // Carrier
-                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Tornado
-                                        0,  0, 10,  0,  0,  0,  0, 10,  0, 10,  0,  0,  0,  0,  // Saucer
+                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Invalid
+                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // City
+                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0, 50, 50, 50,  // Silo
+                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10, 30,  0,  0,  0,  0,  // SAM
+                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // Radar
+                                        0,  0, 25, 40,  0,  0,  0,  0, 25,  0,  0,  0,  0,  0,  0,  0,  // Nuke            DEFENDER
+                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Explosion
+                                        0,  0,  0,  0,  0, 99,  0, id, 30,  0,  3, 25, 30,  0, 50, 30,  // Sub
+                                        0,  0,  0,  0,  0, 99,  0, 20, id,  0, 10, 25,  0,  0, 50, 30,  // BattleShip
+                                        0,  0,  0,  0,  0, 99,  0,  0,  0,  0,  0,  0,  0,  0, 50, 50,  // Airbase
+                                        0,  0, 10, 30,  0,  0,  0,  0, 30,  0, id,  0,  0,  0, 50,  0,  // Fighter
+                                        0,  0, 10, 30,  0,  0,  0,  0, 20,  0, 30,  0,  0,  0, 50,  0,  // Bomber
+                                        0,  0,  0,  0,  0, 99,  0, 20, 20,  0, 10, 25,  0,  0, 50, 30,  // Carrier
+                                        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // Tornado
+                                        0,  0, 10,  0,  0,  0,  0,  0, 10,  0, 10,  0,  0,  0,  0,  0,  // Saucer
+                                        0,  0,  0, 40,  0,  0,  0,  0, 40,  0,  0,  0,  0,  0,  0,  0,  // LACM
                                     };
 
 

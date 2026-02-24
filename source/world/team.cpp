@@ -219,6 +219,11 @@ int Team::GetPlacementPriority()
         m_unitsInPlay[WorldObject::TypeSilo] < numSilos )
         return WorldObject::TypeSilo;
 
+    int numSams = (6 * territoriesPerTeam * gameScale).IntValue();
+    if( m_unitsAvailable[WorldObject::TypeSAM] > 0 &&
+        m_unitsInPlay[WorldObject::TypeSAM] < numSams )
+        return WorldObject::TypeSAM;
+
     int numAirbases = (4 * territoriesPerTeam * gameScale).IntValue();
     if( m_unitsAvailable[WorldObject::TypeAirBase] > 0 &&
         m_unitsInPlay[WorldObject::TypeAirBase] < numAirbases )
@@ -244,6 +249,9 @@ int Team::GetPlacementPriority()
 
         if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeRadarStation) )
             return WorldObject::TypeRadarStation;
+
+        if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeSAM) )
+            return WorldObject::TypeSAM;
     }
 
     return -1;
@@ -431,6 +439,7 @@ void Team::PlacementAI()
         {            
             case WorldObject::TypeRadarStation : minDistance = 20;   break;
             case WorldObject::TypeSilo         : minDistance = 10;   break;
+            case WorldObject::TypeSAM          : minDistance = 10;   break;
             case WorldObject::TypeAirBase      : minDistance = 10;   break;
 
             default: 
@@ -553,6 +562,35 @@ void Team::PlacementAI()
                         if( x >= 1000 )
                         {
                             randomPlacement = true;
+                        }
+                        Fixed newLong = longitude + syncsfrand(10);
+                        Fixed newLat = latitude + syncsfrand(10);
+                        if( g_app->GetWorld()->IsValidPlacement( m_teamId, newLong, newLat, objectPriority ) &&
+                            IsSafeLocation( newLong, newLat) )
+                        {
+                            g_app->GetWorld()->ObjectPlacement( m_teamId, objectPriority, newLong, newLat, 255 );
+                            break;
+                        }
+                    }
+                }
+            }
+            else if( objectPriority == WorldObject::TypeSAM )
+            {
+                // SAM: use same city-coverage logic as silo (defensive placement), fallback to random
+                if( CheckCityCoverage( objectPriority, &longitude, &latitude ) )
+                {
+                    randomPlacement = true;
+                }
+                else
+                {
+                    int x = 0;
+                    while (x<1000)
+                    {
+                        x++;
+                        if( x >= 1000 )
+                        {
+                            randomPlacement = true;
+                            break;
                         }
                         Fixed newLong = longitude + syncsfrand(10);
                         Fixed newLat = latitude + syncsfrand(10);

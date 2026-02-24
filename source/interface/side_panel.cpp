@@ -36,7 +36,7 @@ SidePanel::SidePanel( const char *name )
 	m_fontsize(13.0f)
 {
     //SetMovable(false);
-    SetSize( 100, 400 );
+    SetSize( 250, 475 );  // Thundy dimensions for future subunits
 	if( g_windowManager->WindowH() > 480 )
 	{
 		SetPosition( 0, 100 );
@@ -79,20 +79,25 @@ void SidePanel::Create()
 
 	m_fontsize = 48 / 1.2f / 4.0f;
 
+    // 2x2 grid, 75px spacing (Thundy layout for future subunits)
     UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
     radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
     RegisterButton( radar );
 
     UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-    silo->SetProperties( "Silo", x, y+75, 48, 48, "", "tooltip_place_silo", false, true );
+    silo->SetProperties( "Silo", x+75, y, 48, 48, "", "tooltip_place_silo", false, true );
     RegisterButton( silo );
 
+    UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
+    sam->SetProperties( "SAM", x, y+75, 48, 48, "", "tooltip_place_sam", false, true );
+    RegisterButton( sam );
+
     UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-    airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
+    airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
     RegisterButton( airbase );
 
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-    fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+    fmb->SetProperties( "FleetMode", x, y+375, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
 
     RegisterButton( fmb );
@@ -156,18 +161,15 @@ void SidePanel::Render( bool hasFocus )
         }
     }
 
-    int w = m_w;
-    m_w = 100;
     FadingWindow::Render( hasFocus, true );    
-    m_w = w;
-        
+
     char text[128];
     switch(m_mode)
     {
         case ModeUnitPlacement:     strcpy(text, LANGUAGEPHRASE("dialog_placeunit"));   break;
         case ModeFleetPlacement:    strcpy(text, LANGUAGEPHRASE("dialog_createfleet"));  break;
     }
-    g_renderer2d->TextCentreSimple(m_x+50, m_y+10, White, m_fontsize, text );
+    g_renderer2d->TextCentreSimple(m_x+m_w/2, m_y+10, White, m_fontsize, text );
 
     if( m_mode == ModeFleetPlacement )
     {
@@ -277,10 +279,10 @@ void SidePanel::Render( bool hasFocus )
             char msg[128];
             strcpy( msg, LANGUAGEPHRASE("dialog_credits_1") );
             LPREPLACEINTEGERFLAG( 'C', myTeam->m_unitCredits, msg );
-            g_renderer2d->TextCentreSimple( m_x+50, m_y+m_h-28, col, m_fontsize, msg );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-28, col, m_fontsize, msg );
 
             strcpy( msg, LANGUAGEPHRASE("dialog_credits_2"));
-            g_renderer2d->TextCentreSimple( m_x+50, m_y+m_h-15, col, m_fontsize, msg );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-15, col, m_fontsize, msg );
         }
 
         int totalUnits = 0;
@@ -308,7 +310,7 @@ void SidePanel::ChangeMode( int mode )
 
     int x = 26;
     int y = 50;
-    m_w = 100;
+    m_w = 250;
 
     int currentTeamId = g_app->GetWorld()->m_myTeamId;
 
@@ -332,16 +334,21 @@ void SidePanel::ChangeMode( int mode )
 
     if( m_mode == ModeUnitPlacement )
     {
+        // 2x2 grid, 75px spacing (Thundy layout for future subunits)
         UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
         radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
         RegisterButton( radar );
 
         UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-        silo->SetProperties( "Silo", x, y+75, 48, 48, "", "tooltip_place_silo", false, true );
+        silo->SetProperties( "Silo", x+75, y, 48, 48, "", "tooltip_place_silo", false, true );
         RegisterButton( silo );
 
+        UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
+        sam->SetProperties( "SAM", x, y+75, 48, 48, "", "tooltip_place_sam", false, true );
+        RegisterButton( sam );
+
         UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-        airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
+        airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
         RegisterButton( airbase );
 
         Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
@@ -354,7 +361,7 @@ void SidePanel::ChangeMode( int mode )
         }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-        fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+        fmb->SetProperties( "FleetMode", x, y+375, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
         if( shipsRemaining == 0 )
         {
@@ -514,6 +521,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     switch( m_unitType )
     {
         case WorldObject::TypeSilo          : sprintf( languageString, "unit_silo" );       break;
+        case WorldObject::TypeSAM           : sprintf( languageString, "unit_sam" );        break;
         case WorldObject::TypeAirBase       : sprintf( languageString, "unit_airbase" );    break;
         case WorldObject::TypeRadarStation  : sprintf( languageString, "unit_radar" );       break;
     }

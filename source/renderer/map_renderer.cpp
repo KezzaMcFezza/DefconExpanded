@@ -1859,7 +1859,7 @@ void MapRenderer::RenderMouse()
                 }
             }
 
-            if( !lmbDone && !highlight->IsNuke() )
+            if( !lmbDone && !highlight->IsBallisticMissileClass() )
             {
                 tooltip->PutData( LANGUAGEPHRASE("tooltip_selectobject") );
             }
@@ -2118,7 +2118,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
     if( wobj->m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
-        wobj->IsNuke() )
+        wobj->IsBallisticMissileClass() )
     {
         float predictedLongitude = wobj->m_longitude.DoubleValue() +
 								   wobj->m_vel.x.DoubleValue() * g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
@@ -2184,7 +2184,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
         
         
         //
-        // Render action line to our combat target (pink = nuke attack orders, orange = conventional attack)
+        // Render action line to our combat target (red = nuke, orange = LACM/conventional)
 
         int targetObjectId = wobj->GetTargetObjectId();
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( targetObjectId );
@@ -2197,7 +2197,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 									   targetObject->m_vel.y.DoubleValue() * g_predictionTime * 
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
-            Colour actionCursorCol = wobj->UsingNukes() ? Colour( 255, 0, 255, 150 ) : Colour( 255, 127, 0, 150 );  // Pink / Orange
+            Colour actionCursorCol = wobj->UsingNukes() ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, conventional
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
 
@@ -2242,7 +2242,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             }
             if( actionCursorLongitude != 0.0f || actionCursorLatitude != 0.0f )
             {
-                if( mobj->IsNuke() &&
+                if( mobj->IsBallisticMissileClass() &&
                     wobj->m_teamId != g_app->GetWorld()->m_myTeamId &&
                     g_app->GetWorld()->m_myTeamId != -1 )
                 {
@@ -2256,9 +2256,9 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 float actionCursorSize = 2.0f;
                 float actionCursorAngle = 0;
 
-                if( mobj->IsNuke() )
+                if( mobj->IsBallisticMissileClass() )
                 {
-                    actionCursorCol.Set( 255, 0, 0, 150 );   // Red: nuke in flight movement order line
+                    actionCursorCol.Set( 255, mobj->IsNuke() ? 0 : 165, 0, 150 );   // Red: nuke ballistic / Orange: non-nuke ballistic (future)
                 }
                 else if( mobj->IsAircraft() && mobj->m_isLanding != -1 )
                 {
@@ -2290,7 +2290,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
 
         //
-        // Render our action queue (with distinction: active target vs queued targets; pink/salmon = nuke, gray = silo standby, blue = waypoint, yellow = conventional)
+        // Render our action queue (red = nuke ballistic, orange = LACM/non-nuke ballistic, gray = standby, blue = waypoint)
 
         if( wobj->m_actionQueue.Size() )
         {
@@ -2311,6 +2311,10 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
                 case WorldObject::ClassTypeSub:
                     if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
+
+                case WorldObject::ClassTypeBattleShip:
+                    if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/lacm.bmp" );
                     break;
 
                 case WorldObject::ClassTypeBomber:
@@ -2353,11 +2357,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( isStandbyQueue )
                         lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: standby queue
                     else if( wobj->UsingNukes() )
-                        lineCol = isActiveTarget ? Colour( 255, 0, 255, 180 ) : Colour( 255, 102, 140, 180 );   // Pink / Salmon (nuke firing / queued)
+                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic (and future nuclear cruise)
                     else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
                         lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue (launch to location)
                     else
-                        lineCol = isActiveTarget ? Colour( 255, 255, 0, 180 ) : Colour( 255, 211, 102, 180 );   // Yellow / Lemon (conventional attack)
+                        lineCol = isActiveTarget ? Colour( 255, 165, 0, 180 ) : Colour( 255, 200, 80, 180 );    // Orange/yellow: LACM, non-nuke ballistic
 
                     g_renderer2d->RotatingSprite( img, targetLongitude, targetLatitude,
                                                   size, size, iconCol, angle );
@@ -2636,7 +2640,7 @@ void MapRenderer::RenderObjects()
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
 
             bool onScreen = IsOnScreen( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() );
-            if( onScreen || wobj->IsNuke() )
+            if( onScreen || wobj->IsBallisticMissileClass() )
             {
                 if( myTeamId == -1 ||
                     wobj->m_teamId == myTeamId ||
@@ -2662,39 +2666,68 @@ void MapRenderer::RenderObjects()
 
 
             //
-            // Render num nukes on the way
+            // Render num nukes / LACM on the way
 
             if( onScreen )
             {
+                float yPos = wobj->m_latitude.DoubleValue() + 1.6f;
+                float textSize = 0.75f;
+
                 if( wobj->m_numNukesInFlight || wobj->m_numNukesInQueue )
                 {
                     Colour col(255,0,0,255);
                     if( !wobj->m_numNukesInFlight ) col.m_a = 100;
                     float iconSize = 2.0f;
-                    float textSize = 0.75f;
-
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
                     g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
-                    float yPos = wobj->m_latitude.DoubleValue()+1.6f;
                     if( wobj->m_numNukesInQueue )
                     {
                         col.m_a = 100;
-						char caption[128];
+                        char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
-						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInQueue, caption );
+                        LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInQueue, caption );
                         g_renderer2d->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                         yPos += 0.5f;
                     }
-
                     if( wobj->m_numNukesInFlight )
                     {
                         col.m_a = 255;
-						char caption[128];
+                        char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
-						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInFlight, caption );
+                        LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInFlight, caption );
+                        g_renderer2d->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        yPos += 0.5f;
+                    }
+                }
+
+                if( wobj->m_numLACMInFlight || wobj->m_numLACMInQueue )
+                {
+                    Colour col(255,165,0,255);
+                    if( !wobj->m_numLACMInFlight ) col.m_a = 100;
+                    float iconSize = 2.0f;
+                    if( wobj->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
+
+                    Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
+                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+
+                    if( wobj->m_numLACMInQueue )
+                    {
+                        col.m_a = 100;
+                        char caption[128];
+                        strcpy( caption, LANGUAGEPHRASE("dialog_mapr_lacm_in_queue") );
+                        LPREPLACEINTEGERFLAG( 'N', wobj->m_numLACMInQueue, caption );
+                        g_renderer2d->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        yPos += 0.5f;
+                    }
+                    if( wobj->m_numLACMInFlight )
+                    {
+                        col.m_a = 255;
+                        char caption[128];
+                        strcpy( caption, LANGUAGEPHRASE("dialog_mapr_lacm_in_flight") );
+                        LPREPLACEINTEGERFLAG( 'N', wobj->m_numLACMInFlight, caption );
                         g_renderer2d->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
                 }
@@ -2831,38 +2864,67 @@ void MapRenderer::RenderCities()
 
             
                 //
-                // Nuke icons
+                // Nuke / LACM inbound icons
+
+                float yPos = city->m_latitude.DoubleValue() + 1.6f;
+                float inboundTextSize = 0.75f;
 
                 if( city->m_numNukesInFlight || city->m_numNukesInQueue )
                 {
                     Colour col(255,0,0,255);
                     if( !city->m_numNukesInFlight ) col.m_a = 100;
                     float iconSize = 2.0f;
-                    float textSize = 0.75f;
-
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
                     g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
 
-                    float yPos = city->m_latitude.DoubleValue()+1.6f;
                     if( city->m_numNukesInQueue )
                     {
                         col.m_a = 100;
-						char caption[128];
+                        char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
-						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInQueue, caption );
-                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInQueue, caption );
+                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, inboundTextSize, caption );
                         yPos += 0.5f;
                     }
-
                     if( city->m_numNukesInFlight )
                     {
                         col.m_a = 255;
-						char caption[128];
-						strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
-						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInFlight, caption );
-                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        char caption[128];
+                        strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
+                        LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInFlight, caption );
+                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, inboundTextSize, caption );
+                        yPos += 0.5f;
+                    }
+                }
+
+                if( city->m_numLACMInFlight || city->m_numLACMInQueue )
+                {
+                    Colour col(255,165,0,255);
+                    if( !city->m_numLACMInFlight ) col.m_a = 100;
+                    float iconSize = 2.0f;
+                    if( city->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
+
+                    Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
+                    g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
+
+                    if( city->m_numLACMInQueue )
+                    {
+                        col.m_a = 100;
+                        char caption[128];
+                        strcpy( caption, LANGUAGEPHRASE("dialog_mapr_lacm_in_queue") );
+                        LPREPLACEINTEGERFLAG( 'N', city->m_numLACMInQueue, caption );
+                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, inboundTextSize, caption );
+                        yPos += 0.5f;
+                    }
+                    if( city->m_numLACMInFlight )
+                    {
+                        col.m_a = 255;
+                        char caption[128];
+                        strcpy( caption, LANGUAGEPHRASE("dialog_mapr_lacm_in_flight") );
+                        LPREPLACEINTEGERFLAG( 'N', city->m_numLACMInFlight, caption );
+                        g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, inboundTextSize, caption );
                     }
                 }
             }            
@@ -3404,7 +3466,7 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
         bool selectable = undermouse->IsActionable() ||
                           undermouse->IsMovingObject();
 
-        if( selectable && !undermouse->IsNuke() )
+        if( selectable && !undermouse->IsBallisticMissileClass() )
         {
             if( g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT] )
             {
@@ -3422,7 +3484,7 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
                     if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
                     if( !obj || obj->m_teamId != myTeam || obj->m_type != unitType ) continue;
-                    if( obj->IsNuke() ) continue;
+                    if( obj->IsBallisticMissileClass() ) continue;
                     if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
                     if( !IsOnScreen( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue() ) ) continue;
                     g_app->GetWorldRenderer()->AddToSelection( obj->m_objectId );
@@ -4049,7 +4111,7 @@ void MapRenderer::Update()
                         if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
                         WorldObject *obj = g_app->GetWorld()->m_objects[i];
                         if( !obj || obj->m_teamId != myTeam ) continue;
-                        if( obj->IsNuke() ) continue;
+                        if( obj->IsBallisticMissileClass() ) continue;
                         if( !obj->IsActionable() && !obj->IsMovingObject() ) continue;
 
                         Fixed lon = obj->m_longitude;

@@ -50,6 +50,7 @@ bool City::Update()
     if( realTimeNow > m_nukeCountTimer )
     {
         g_app->GetWorld()->GetNumNukers( m_objectId, &m_numNukesInFlight, &m_numNukesInQueue );
+        g_app->GetWorld()->GetNumLACMs( m_objectId, &m_numLACMInFlight, &m_numLACMInQueue );
         m_nukeCountTimer = realTimeNow + 2;
     }
 

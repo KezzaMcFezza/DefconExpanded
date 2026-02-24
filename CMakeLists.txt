@@ -531,6 +531,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/fighter.cpp
     ${ROOT_PATH}/source/world/battleship.cpp
     ${ROOT_PATH}/source/world/silo.cpp
+    ${ROOT_PATH}/source/world/sam.cpp
     ${ROOT_PATH}/source/world/gunfire.cpp
     ${ROOT_PATH}/source/world/saucer.cpp
     ${ROOT_PATH}/source/world/whiteboard.cpp
@@ -546,6 +547,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/carrier.cpp
     ${ROOT_PATH}/source/world/fleet.cpp
     ${ROOT_PATH}/source/world/nuke.cpp
+    ${ROOT_PATH}/source/world/lacm.cpp
     ${ROOT_PATH}/source/world/node.cpp
     ${ROOT_PATH}/source/world/depthcharge.cpp
     ${ROOT_PATH}/source/world/bomber.cpp

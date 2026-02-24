@@ -532,7 +532,7 @@ void Bomber::RequestAction( ActionOrder *_action )
     if( m_currentState == 0 || m_currentState == 1 )
     {
         WorldObject *target = g_app->GetWorld()->GetWorldObject( _action->m_targetObjectId );
-        if( target && ( target->IsAircraft() || target->IsMissileClass() ) )
+        if( target && ( target->IsAircraft() || target->IsCruiseMissileClass() || target->IsBallisticMissileClass() ) )
         {
             delete _action;
             return;

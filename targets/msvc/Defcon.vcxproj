@@ -261,8 +261,10 @@
     <ClCompile Include="..\..\source\world\movingobject.cpp" />
     <ClCompile Include="..\..\source\world\node.cpp" />
     <ClCompile Include="..\..\source\world\nuke.cpp" />
+    <ClCompile Include="..\..\source\world\lacm.cpp" />
     <ClCompile Include="..\..\source\world\radargrid.cpp" />
     <ClCompile Include="..\..\source\world\radarstation.cpp" />
+    <ClCompile Include="..\..\source\world\sam.cpp" />
     <ClCompile Include="..\..\source\world\saucer.cpp" />
     <ClCompile Include="..\..\source\world\silo.cpp" />
     <ClCompile Include="..\..\source\world\sub.cpp" />
@@ -353,8 +355,10 @@
     <ClInclude Include="..\..\source\world\movingobject.h" />
     <ClInclude Include="..\..\source\world\node.h" />
     <ClInclude Include="..\..\source\world\nuke.h" />
+    <ClInclude Include="..\..\source\world\lacm.h" />
     <ClInclude Include="..\..\source\world\radargrid.h" />
     <ClInclude Include="..\..\source\world\radarstation.h" />
+    <ClInclude Include="..\..\source\world\sam.h" />
     <ClInclude Include="..\..\source\world\saucer.h" />
     <ClInclude Include="..\..\source\world\silo.h" />
     <ClInclude Include="..\..\source\world\sub.h" />

@@ -84,6 +84,7 @@ void WorldRenderer::Init()
     m_bmpTravelNodes = g_resource->GetImage( "earth/travel_nodes.bmp" );
 
     sprintf(m_imageFiles[WorldObject::TypeSilo], "graphics/silo.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSAM], "graphics/sam.bmp");
     sprintf(m_imageFiles[WorldObject::TypeRadarStation], "graphics/radarstation.bmp");
     sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/sub.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAirBase], "graphics/airbase.bmp");

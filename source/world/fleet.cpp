@@ -1196,6 +1196,19 @@ bool Fleet::IsInFleet( int objectType )
     return false;
 }
 
+bool Fleet::IsInFleetClass( int classType )
+{
+    for( int i = 0; i < m_fleetMembers.Size(); ++i )
+    {
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_fleetMembers[i] );
+        if( obj && obj->m_classType == classType )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int Fleet::GetFleetMemberId( int objectId )
 {
     for( int i = 0; i < m_fleetMembers.Size(); ++i )

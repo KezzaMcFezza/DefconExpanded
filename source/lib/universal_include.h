@@ -13,7 +13,7 @@
 
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
-#define APP_BUILD_NUMBER "1.34.2"
+#define APP_BUILD_NUMBER "2.3.1"
 
 #define REAL_VERSION    APP_BUILD_NUMBER"_defcon_full"
 

@@ -100,13 +100,27 @@ Raitos Goals:
   instead of smallnuke graphic                            - DONE
 - nuke impact zone                                        - DONE
 - launch render improvments                               - DONE
+- multi-tier radar system                                 - DONE
+- expansion of unit system
+  missiles - nuke, ballistic, lacm, lanm
+  gunfire - aa, torpedo, depthcharge, abm
+  silos - icbm, mrbm, tel, tel ballistic, tel cruise
+  SAMs - abm, sam
+  airbase - 1,2,3
+  radar - radar, ew
+  ships - cruiser, destroyer, frigate
+  carriers - nuclear, escort
+  subs - ssbn, ssg, ssn, ssk
+  bombers - normal, stealth, fast
+  fighters - naval, stealth naval, light, stealth
+  AEW - AWACS
+
 
 TODO:
-- multi-tier radar system
-- expansion of unit system
 - territory unique units
-- asm batteries
 - unit stats rebalance
 - unit outlines
+- ammunition revamp
+- refueler
 - performance efficiancy increase
 - ballistic anti ship missiles

@@ -119,6 +119,7 @@ public:
     bool IsFleetIdle();
     bool IsInCombat();
     bool IsInFleet( int objectType );
+    bool IsInFleetClass( int classType );
     bool IsOnSameSideOfSeam(); // checks to make sure all ships are on the same side of the seam
     int  CountNukesInFleet();
     bool IsInNukeRange();

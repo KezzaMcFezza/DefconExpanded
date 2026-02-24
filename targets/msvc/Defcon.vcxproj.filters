@@ -129,10 +129,16 @@
     <ClCompile Include="..\..\source\world\nuke.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\world\lacm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\world\radargrid.cpp">
       <Filter>world</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\world\radarstation.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\sam.cpp">
       <Filter>world</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\world\saucer.cpp">
@@ -402,10 +408,16 @@
     <ClInclude Include="..\..\source\world\nuke.h">
       <Filter>world</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\world\lacm.h">
+      <Filter>world</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\source\world\radargrid.h">
       <Filter>world</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\world\radarstation.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\world\sam.h">
       <Filter>world</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\world\saucer.h">

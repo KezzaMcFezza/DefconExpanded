@@ -29,19 +29,18 @@ Silo::Silo()
 {
     SetType( TypeSilo );
 
-    strcpy( bmpImageFilename, "graphics/sam.bmp" );
+    strcpy( bmpImageFilename, "graphics/silo.bmp" );
 
     m_radarRange = 20;
     m_selectable = true;
 
-    m_currentState = 2;
+    m_currentState = 0;
     m_life = 25;
 
     m_nukeSupply = 10;
 
     AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 10, Fixed::MAX, true, 10, 5 );
-    AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );  
-    AddState( LANGUAGEPHRASE("state_airdefense"), 340, 20, 10, 30, true );
+    AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );
 
     m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
@@ -52,19 +51,6 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
     if( !CheckCurrentState() )
     {
-        return;
-    }
-
-    if( m_currentState == 2 )
-    {
-        WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( targetObject &&
-            targetObject->m_visible[m_teamId] &&
-            g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
-            g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
-        {
-            m_targetObjectId = targetObjectId;
-        }
         return;
     }
 
@@ -100,14 +86,7 @@ void Silo::SetState( int state )
         if( !preserveQueue )
             m_actionQueue.EmptyAndDelete();
 
-        if( m_currentState == 0 || m_currentState == 1 )
-        {
-            strcpy( bmpImageFilename, "graphics/silo.bmp" );
-        }
-        else
-        {
-            strcpy( bmpImageFilename, "graphics/sam.bmp" );
-        }
+        strcpy( bmpImageFilename, "graphics/silo.bmp" );   // silo always uses silo.bmp (no air defense state)
     }
 }
         
@@ -128,58 +107,11 @@ bool Silo::Update()
     //}
 //#endif
 
-    if( m_currentState == 2 && m_stateTimer <= 0 )
-    {
-        if( m_retargetTimer <= 0 )
-        {
-            m_retargetTimer = 10;
-            AirDefense();
-        }
-        if( m_targetObjectId != -1  )
-        {
-            WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
-            if( targetObject )
-            {
-                if( targetObject->m_visible[m_teamId] &&                     
-                    g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
-                    g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
-                {
-                    FireGun( GetActionRange() );
-                    m_stateTimer = m_states[2]->m_timeToReload;
-                    if( BurstFireOnFired( m_targetObjectId ) )
-                    {
-                        int previousId = m_targetObjectId;
-                        m_targetObjectId = -1;
-                        m_retargetTimer = 0;
-                        AirDefense();
-                        if( m_targetObjectId == -1 )
-                        {
-                            BurstFireAccelerateCountdowns( Fixed(10) );
-                            BurstFireRemoveTarget( previousId );
-                            m_targetObjectId = previousId;
-                        }
-                        BurstFireResetShotCount();
-                    }
-                }
-                else
-                {
-                    m_targetObjectId = -1;
-                    BurstFireResetShotCount();
-                }
-            }
-            else
-            {
-                m_targetObjectId = -1;
-                BurstFireResetShotCount();
-            }
-        }
-    }
-
     if( m_currentState == 1 &&
         m_states[1]->m_numTimesPermitted == 0 )
     {
         m_states[0]->m_numTimesPermitted = 0;
-        SetState(2);
+        SetState(0);   // return to standby when nukes run out (no air defense state)
     }
 
     return WorldObject::Update();
@@ -333,7 +265,7 @@ bool Silo::ShouldProcessActionQueue()
 
 bool Silo::UsingGuns()
 {
-    return ( m_currentState == 2 );
+    return false;   // silo has no air defense; SAM handles that
 }
 
 bool Silo::UsingNukes()
@@ -343,15 +275,7 @@ bool Silo::UsingNukes()
 
 void Silo::AcquireTargetFromAction( ActionOrder *action )
 {
-    if( m_currentState != 2 || action->m_targetObjectId == -1 ) return;
-    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-    if( targetObject &&
-        targetObject->m_visible[m_teamId] &&
-        g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type ) > 0 &&
-        g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude) <= GetActionRange() )
-    {
-        m_targetObjectId = action->m_targetObjectId;
-    }
+    (void)action;   // silo has no air defense; SAM handles that
 }
 
 void Silo::NukeStrike()
@@ -364,51 +288,7 @@ void Silo::NukeStrike()
 
 void Silo::AirDefense()
 {
-    if( g_app->GetWorld()->GetDefcon() > 3 )
-    {
-        return;
-    }
-    if( m_currentState == 2 )
-    {
-        Fixed actionRangeSqd = GetActionRangeSqd();
-        LList<int> excluded;
-        BurstFireGetExcludedIds( excluded );
-        const LList<int> *excludePtr = excluded.Size() > 0 ? &excluded : nullptr;
-
-        int nukeId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeNuke, true, excludePtr );
-        WorldObject *nuke = g_app->GetWorld()->GetWorldObject( nukeId );
-        if( nuke )
-        {
-            if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, nuke->m_longitude, nuke->m_latitude ) <= actionRangeSqd )
-            {
-                Action( nuke->m_objectId, -1, -1 );
-                return;
-            }
-        }
-        
-        int bomberId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeBomber, true, excludePtr );
-        WorldObject *bomber = g_app->GetWorld()->GetWorldObject( bomberId );
-        if( bomber )
-        {
-            if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, bomber->m_longitude, bomber->m_latitude ) <= actionRangeSqd )
-            {
-                Action( bomber->m_objectId, -1, -1 );
-                return;
-            }
-        }
-        
-        
-        int fighterId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeFighter, true, excludePtr );
-        WorldObject *fighter = g_app->GetWorld()->GetWorldObject( fighterId );
-        if( fighter )
-        {
-            if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, fighter->m_longitude, fighter->m_latitude ) <= actionRangeSqd )
-            {
-                Action( fighter->m_objectId, -1, -1 );
-                return;
-            }
-        }
-    }
+    (void)0;   // silo has no air defense; SAM handles that
 }
 
 
@@ -419,12 +299,6 @@ int Silo::GetAttackOdds( int _defenderType )
     {
         return g_app->GetWorld()->GetAttackOdds( TypeNuke, _defenderType );
     }
-
-    if( m_currentState == 2 )
-    {
-        return WorldObject::GetAttackOdds( _defenderType );
-    }
-
     return 0;
 }
 
@@ -446,16 +320,6 @@ int Silo::IsValidCombatTarget( int _objectId )
         return TargetTypeLaunchNuke;
     }
 
-    if( !isFriend )
-    {
-        attackOdds = g_app->GetWorld()->GetAttackOdds( TypeSilo, obj->m_type );
-        if( m_currentState == 2 &&
-            attackOdds > 0 )
-        {
-            return TargetTypeValid;
-        }
-    }
-
     return TargetTypeInvalid;
 }
 
@@ -474,14 +338,8 @@ int Silo::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 
 Image *Silo::GetBmpImage( int state )
 {
-    if( state == 0 || state == 1 )
-    {
-        return g_resource->GetImage( "graphics/silo.bmp" );
-    }
-    else
-    {
-        return g_resource->GetImage( "graphics/sam.bmp" );
-    }
+    (void)state;
+    return g_resource->GetImage( "graphics/silo.bmp" );
 }
 
 

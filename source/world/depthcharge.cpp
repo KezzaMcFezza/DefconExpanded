@@ -36,6 +36,23 @@ DepthCharge::DepthCharge( Fixed range )
 
 bool DepthCharge::Update()
 {
+    // Homing mode (battleship): trail pursuit toward target when m_targetObjectId is set
+    if( m_targetObjectId != -1 )
+    {
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
+        if( !obj )
+        {
+            return true;   // target destroyed: detonate immediately
+        }
+        if( m_speed == 0 )
+        {
+            m_speed = Fixed::Hundredths(6);
+            m_speed /= g_app->GetWorld()->GetUnitScaleFactor();
+        }
+        SetWaypoint( obj->m_longitude, obj->m_latitude );
+        MoveToWaypoint();
+    }
+
     m_timer -= g_app->GetWorld()->GetTimeScaleFactor() * SERVER_ADVANCE_PERIOD;
     if( m_timer < 0 ) m_timer = 0;
 

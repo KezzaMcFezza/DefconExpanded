@@ -18,6 +18,7 @@ public:
         TypeInvalid,
         TypeCity,
         TypeSilo,
+        TypeSAM,
         TypeRadarStation,        
         TypeNuke,
         TypeExplosion,
@@ -27,8 +28,9 @@ public:
         TypeFighter,
         TypeBomber,
         TypeCarrier,
-		TypeTornado,
+        TypeTornado,
         TypeSaucer,
+        TypeLACM,
         NumObjectTypes
     };
 
@@ -50,8 +52,8 @@ public:
         ArchetypeInvalid,      // invalid, tornado, saucer, explosion
         ArchetypeBuilding,     // silo, radar, airbase
         ArchetypeNavy,         // battleship, carrier, sub
-        ArchetypeAircraft,     // fighter, bomber, cruise missile (ClassTypeCruiseMissileissile)
-        ArchetypeNuke          // nuke (ICBM)
+        ArchetypeAircraft,     // fighter, bomber, LACM (ClassTypeCruiseMissile)
+        ArchetypeBallisticMissile          // nuke (ICBM)
     };
 
     enum ClassType
@@ -71,8 +73,8 @@ public:
         ClassTypeFighter,
         ClassTypeBomber,
         // Missiles
-        ClassTypeBallisticMissile,
-        ClassTypeCruiseMissile       // for future cruise missiles
+        ClassTypeBallisticMissile,   // nuke (TypeNuke) and future non-nuke ballistic missiles
+        ClassTypeCruiseMissile       // LACM etc
     };
 
     int     m_type;
@@ -120,6 +122,8 @@ public:
 
     int     m_numNukesInFlight;
     int     m_numNukesInQueue;
+    int     m_numLACMInFlight;
+    int     m_numLACMInQueue;
     double  m_nukeCountTimer;
 
     static const int BURST_FIRE_SHOTS;
@@ -241,11 +245,12 @@ public:
     bool                IsBuilding       () const;
     bool                IsNavy           () const;
     bool                IsAircraft       () const;
-    bool                IsMissileClass   () const;   // ClassTypeCruiseMissileissile (cruise missiles - future)
     bool                IsSubmarine      () const;   // subclass
     bool                IsSam            () const;   // siloclass (SAM/ABM - for future units)
     bool                IsAircraftLauncher() const;  // carrierclass, airbaseclass
-    bool                IsNuke           () const;   // nukeclass
+    bool                IsNuke           () const;   // TypeNuke only - nuclear warheads; use for nuke counts
+    bool                IsBallisticMissileClass () const;  // all ballistic missiles (nuke + future conventional)
+    bool                IsCruiseMissileClass () const;
     bool                IsCityClass      () const;
     bool                IsSiloClass      () const;
     bool                IsRadarClass     () const;
