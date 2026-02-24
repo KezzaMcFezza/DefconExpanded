@@ -205,7 +205,7 @@ public:
     int  GetNearestObject   ( int teamId, Fixed longitude, Fixed latitude, int objectType=-1, bool enemyTeam = false, const LList<int> *excludeIds = nullptr );
     void LaunchNuke         ( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range );
     void LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId = -1 );
-    void CreateExplosion    ( int teamId, Fixed longitude, Fixed latitude, Fixed intensity, int targetTeamId=-1 );
+    void CreateExplosion    ( int teamId, Fixed longitude, Fixed latitude, Fixed intensity, int targetTeamId=-1, bool isNuclear=false );
 
     bool IsVisible          ( Fixed longitude, Fixed latitude, int teamId );
     bool IsVisible          ( int stealthType, Fixed longitude, Fixed latitude, int teamId );

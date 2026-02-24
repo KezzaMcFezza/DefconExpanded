@@ -2605,6 +2605,8 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
         
         //
         // Render action line to our combat target (red = nuke, orange = LACM/conventional)
+        // Unit/cursor icons use additive blend so only the white parts show (no black background)
+        g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
         int targetObjectId = wobj->GetTargetObjectId();
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( targetObjectId );
@@ -2775,6 +2777,8 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                 }
             }
         }
+
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     }
 #endif
 }

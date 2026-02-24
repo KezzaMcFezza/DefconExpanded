@@ -11,6 +11,7 @@ public:
     Fixed m_initialIntensity;
     Fixed m_intensity;
     bool  m_underWater;
+    bool  m_nuclear;       // true only for nuke impacts; used for impact symbol and damage
     int   m_targetTeamId;
 
 public:

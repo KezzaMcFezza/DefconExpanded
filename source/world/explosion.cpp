@@ -19,6 +19,7 @@ Explosion::Explosion()
     m_intensity(0),
     m_initialIntensity(-1),
     m_underWater(false),
+    m_nuclear(false),
     m_targetTeamId(-1)
 {
     SetType( TypeExplosion );
@@ -76,9 +77,7 @@ void Explosion::Render2D()
         float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
 								   g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float size = predictedIntensity / 20.0f;
-        float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
-        if( gameScale > 0.01f )
-            size /= (float)sqrt(gameScale);
+        size /= g_app->GetWorld()->GetGameScale().DoubleValue();
 
         float predictedLongitude = m_longitude.DoubleValue();
         float predictedLatitude = m_latitude.DoubleValue();
@@ -91,17 +90,14 @@ void Explosion::Render2D()
 void Explosion::RenderImpactSymbol()
 {
     // Nuclear explosions only: impactsymbol in red, rendered in separate overlay pass after all explosions
-    Fixed initIntensity = ( m_initialIntensity > Fixed::FromDouble(-0.5f) ) ? m_initialIntensity : m_intensity;
-    if( initIntensity <= 90 ) return;
+    if( !m_nuclear ) return;
 
     float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
         g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
     if( predictedIntensity <= 0 ) return;
 
     float size = predictedIntensity / 20.0f;
-    float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
-    if( gameScale > 0.01f )
-        size /= (float)sqrt(gameScale);
+    size /= g_app->GetWorld()->GetGameScale().DoubleValue();
 
     float predictedLongitude = m_longitude.DoubleValue();
     float predictedLatitude = m_latitude.DoubleValue();
@@ -141,9 +137,7 @@ void Explosion::Render3D()
         float predictedIntensity = m_intensity.DoubleValue() - 0.2f *
 								   g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float size = predictedIntensity / 20.0f;
-        float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
-        if( gameScale > 0.01f )
-            size /= (float)sqrt(gameScale);
+        size /= g_app->GetWorld()->GetGameScale().DoubleValue();
 
         float predictedLongitude = m_longitude.DoubleValue();
         float predictedLatitude = m_latitude.DoubleValue();

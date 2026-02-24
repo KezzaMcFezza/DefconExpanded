@@ -1501,12 +1501,13 @@ void World::Shutdown()
     m_messages.EmptyAndDelete();
 }
 
-void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed intensity, int targetTeamId )
+void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed intensity, int targetTeamId, bool isNuclear )
 {
     Explosion *explosion = new Explosion();
     explosion->SetTeamId( teamId );
     explosion->SetPosition( longitude, latitude );
     explosion->m_intensity = intensity;
+    explosion->m_nuclear = isNuclear;
     explosion->m_targetTeamId = targetTeamId;
 
     int expId = m_explosions.PutData( explosion );
@@ -1514,9 +1515,9 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
     
 
     //
-    // Destroy any military objects
-
-    if( intensity > 10 )
+    // Only nuclear explosions damage other units (match Thundy: intensity > 90).
+    // Unit-death explosions (gunfire, LACM, depth charge visual) must not cause cascade damage.
+    if( intensity > 90 )
     {
         for( int i = 0; i < m_objects.Size(); ++i )
         {
@@ -1527,23 +1528,26 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
                 if( !wobj->IsBallisticMissileClass() &&
                     wobj->m_type != WorldObject::TypeExplosion &&
                     wobj->m_life > 0 &&
-                    GetDistance( longitude, latitude, wobj->m_longitude, wobj->m_latitude) <= intensity/50 )
+                    GetDistance( longitude, latitude, wobj->m_longitude, wobj->m_latitude) <= intensity/100 )
                 {
-                    if( wobj->IsMovingObject() ) 
+                    if( wobj->IsMovingObject() )
                     {
-                        wobj->m_life = 0;
-
-						wobj->m_lastHitByTeamId = teamId;
+                        int damageDone = 1;
+                        if( wobj->IsSubmarine() && (wobj->m_currentState == 0 || wobj->m_currentState == 1) )
+                            damageDone = 0;  // submerged subs take no nuke splash damage
+                        if( damageDone > 0 )
+                        {
+                            wobj->m_life = 0;
+                            wobj->m_lastHitByTeamId = teamId;
+                        }
                     }
                     else
                     {
-                        // Only nuclear explosions (intensity > 50) do nuke-strike damage; conventional/LACM do less
-                        int damageDone = ( intensity > 50 ) ? 10 : 1;
+                        int damageDone = 10;
                         wobj->m_life -= damageDone;
                         wobj->m_life = max( wobj->m_life, 0 );
-						wobj->m_lastHitByTeamId = teamId;
-                        if( intensity > 50 )
-                            wobj->NukeStrike();
+                        wobj->m_lastHitByTeamId = teamId;
+                        wobj->NukeStrike();
                     }
 
                     if( !wobj->IsMovingObject() &&
@@ -1573,7 +1577,7 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
             City *city = m_cities[i];
             Fixed range = GetDistance( longitude, latitude, city->m_longitude, city->m_latitude);
         
-            if( range <= intensity/50 )
+            if( range <= intensity/100 )
             {
                 bool directHit = city->NuclearStrike( teamId, intensity, range, directHitPossible );
                 if( directHit ) directHitPossible = false;
