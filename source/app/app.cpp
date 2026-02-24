@@ -1811,10 +1811,7 @@ void App::StartGame()
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
     {
         Team *team = g_app->GetWorld()->m_teams[i];
-        if( team->m_type != Team::TypeAI )
-        {
-            team->m_desiredGameSpeed = max( team->m_desiredGameSpeed, minSpeed );
-        }
+        team->m_desiredGameSpeed = max( team->m_desiredGameSpeed, minSpeed );
     }
 
 	m_gameRunning = true;

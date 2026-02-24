@@ -1946,17 +1946,31 @@ void World::Update()
     int speedDesired = 999;
 
     int speedOption = g_app->GetGame()->GetOptionValue("GameSpeed");
+    int minSpeedSetting = g_app->GetGame()->GetOptionValue("SlowestSpeed");
+    int minSpeedFloor = ( minSpeedSetting == 0 ? GAMESPEED_PAUSED :
+                         minSpeedSetting == 1 ? GAMESPEED_REALTIME :
+                         minSpeedSetting == 2 ? GAMESPEED_SLOW :
+                         minSpeedSetting == 3 ? GAMESPEED_MEDIUM :
+                         minSpeedSetting == 4 ? GAMESPEED_FAST :
+                         minSpeedSetting == 5 ? GAMESPEED_VERYFAST : GAMESPEED_VERYFAST );
 
     switch( speedOption )
     {
         case 0:
             for( int i = 0; i < m_teams.Size(); ++i )
             {
-                if( m_teams[i]->m_type != Team::TypeAI &&
-                    m_teams[i]->m_desiredGameSpeed < speedDesired )
+                if( m_teams[i]->m_desiredGameSpeed < speedDesired )
                 {
                     speedDesired = m_teams[i]->m_desiredGameSpeed;
                 }
+            }
+            if( speedDesired == 999 )
+            {
+                speedDesired = minSpeedFloor;
+            }
+            else
+            {
+                speedDesired = max( speedDesired, minSpeedFloor );
             }
             break;
     
@@ -1969,7 +1983,7 @@ void World::Update()
         
     if( speedDesired == 999 )
     {
-        speedDesired = GAMESPEED_MEDIUM;
+        speedDesired = max( GAMESPEED_MEDIUM, minSpeedFloor );
     }
 
 
