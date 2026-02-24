@@ -2777,8 +2777,8 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                 }
             }
         }
-
-        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+        // Do not set BlendModeNormal here: caller uses additive for the whole object loop (unit sprites + orders).
+        // Restoring normal would make subsequent units (silo, airbase, carrier) draw with normal blend and show black.
     }
 #endif
 }

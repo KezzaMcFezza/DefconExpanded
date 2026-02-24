@@ -958,11 +958,12 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     int numFighters = -1;
     int numBombers = -1;
     int numNukes = -1;
+    int numLACMs = -1;
 
     switch( wobj->m_type )
     {
         case WorldObject::TypeSilo:
-            //numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            numNukes = wobj->m_nukeSupply;
             break;
 
         case WorldObject::TypeAirBase:
@@ -979,11 +980,19 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
         case WorldObject::TypeSub:
             numNukes = wobj->m_states[3]->m_numTimesPermitted;
             break;
+
+        case WorldObject::TypeBattleShip:
+            if( wobj->m_currentState == 1 )
+            {
+                int lacmRemaining = wobj->m_states[1]->m_numTimesPermitted - wobj->m_actionQueue.Size();
+                numLACMs = ( lacmRemaining > 0 ) ? lacmRemaining : 0;
+            }
+            break;
     }
 
 
     float totalBoxH = 1 * -(*boxH);
-    if( numFighters != -1 || numBombers != -1 || numNukes != -1 )
+    if( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 )
     {
         totalBoxH += 0.9f * -(*boxH);
     }
@@ -1051,6 +1060,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     if( numFighters != -1 ) totalSize += gap * numFighters + gap * 0.5f;
     if( numBombers != -1 ) totalSize += gap * numBombers + gap * 0.5f;
     if( numNukes != -1 ) totalSize += gap * numNukes * 0.5f + gap * 0.25f;
+    if( numLACMs != -1 ) totalSize += gap * numLACMs * 0.5f + gap * 0.25f;
 
     float maxSize = *boxW;
     if( totalSize > maxSize )
@@ -1060,7 +1070,9 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 
 
-    if( numFighters == 0 && numBombers == 0 && numNukes == 0 )
+    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 );
+    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 );
+    if( anyAmmo && allZero )
     {
         col.m_a = 150;
         g_renderer2d->TextSimple( xPos + gap/2, yPos - gap/2, col, textSize, LANGUAGEPHRASE("dialog_mapr_empty") );
@@ -1111,6 +1123,19 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             if( numBombers != -1 ) numNukes -= numBombers;
             Image *img = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numNukes; ++i )
+            {
+                g_renderer2d->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
+            }
+        }
+
+
+        //
+        // LACMs (battleship ammunition)
+
+        if( numLACMs != -1 )
+        {
+            Image *img = g_resource->GetImage( "graphics/lacm.bmp" );
+            for( int i = 0; i < numLACMs; ++i )
             {
                 g_renderer2d->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
             }
@@ -1781,6 +1806,7 @@ void MapRenderer::RenderMouse()
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         RenderWorldObjectTargets(selection);
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         bool animateActionLine = !fleet || fleetValidMovement || validCombatTarget >= WorldObject::TargetTypeValid;
 
@@ -1805,6 +1831,7 @@ void MapRenderer::RenderMouse()
                     RenderWorldObjectTargets( obj, false );
                 }
             }
+            g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         }
 
 
@@ -1840,6 +1867,7 @@ void MapRenderer::RenderMouse()
         g_renderer2d->Circle( predictedLongitude, predictedLatitude, size, 30, Colour(255,255,255,100), 1.5f );
 
         RenderWorldObjectTargets(highlight);
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         RenderWorldObjectDetails(highlight);
 
 
@@ -2379,8 +2407,8 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 }
             }
         }
-
-        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+        // Do not set BlendModeNormal here: caller uses additive for the whole object loop (unit sprites + orders).
+        // Restoring normal would make subsequent units (silo, airbase, carrier) draw with normal blend and show black.
     }
 #endif
 }

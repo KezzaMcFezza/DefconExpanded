@@ -763,6 +763,9 @@ int Sub::IsValidCombatTarget( int _objectId )
 
     if( m_currentState == 0 || m_currentState == 1 )
     {
+        // Submarines cannot set combat targets until defcon 3 (when they can fire); same as other units
+        if( g_app->GetWorld()->GetDefcon() > 3 )
+            return TargetTypeDefconRequired;
         if( obj->IsMovingObject() )
         {
             MovingObject *mobj = (MovingObject *) obj;
