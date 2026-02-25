@@ -27,9 +27,9 @@ GunFire::GunFire( Fixed range )
 {
     m_stealthType = 100;  // normal
     m_range = range;
-    m_speed = Fixed::Hundredths(50);
+    m_speed = Fixed::Hundredths(60);
 
-    m_turnRate = Fixed::Hundredths(80);
+    m_turnRate = Fixed::Hundredths(60);
     m_maxHistorySize = -1;
     m_movementType = MovementTypeAir;
     

@@ -138,6 +138,21 @@
     <ClCompile Include="..\..\source\world\lanm.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\world\abm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\silomed.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\silomobile.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\silomobilecon.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\ascm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\world\radargrid.cpp">
       <Filter>world</Filter>
     </ClCompile>

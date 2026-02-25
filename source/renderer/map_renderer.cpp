@@ -959,11 +959,36 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     int numBombers = -1;
     int numNukes = -1;
     int numLACMs = -1;
+    int numCBMs = -1;
 
     switch( wobj->m_type )
     {
         case WorldObject::TypeSilo:
             numNukes = wobj->m_nukeSupply;
+            break;
+
+        case WorldObject::TypeSiloMed:
+            numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            break;
+
+        case WorldObject::TypeSiloMobile:
+            numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            break;
+
+        case WorldObject::TypeSiloMobileCon:
+            if( wobj->m_states.Size() > 1 )
+            {
+                int cbmRemaining = wobj->m_states[1]->m_numTimesPermitted - wobj->m_actionQueue.Size();
+                numCBMs = ( cbmRemaining > 0 ) ? cbmRemaining : 0;
+            }
+            break;
+
+        case WorldObject::TypeASCM:
+            if( wobj->m_states.Size() > 0 )
+            {
+                int lacmRemaining = wobj->m_states[0]->m_numTimesPermitted - wobj->m_actionQueue.Size();
+                numLACMs = ( lacmRemaining > 0 ) ? lacmRemaining : 0;
+            }
             break;
 
         case WorldObject::TypeAirBase:
@@ -992,7 +1017,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
 
     float totalBoxH = 1 * -(*boxH);
-    if( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 )
+    if( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
     {
         totalBoxH += 0.9f * -(*boxH);
     }
@@ -1061,6 +1086,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     if( numBombers != -1 ) totalSize += gap * numBombers + gap * 0.5f;
     if( numNukes != -1 ) totalSize += gap * numNukes * 0.5f + gap * 0.25f;
     if( numLACMs != -1 ) totalSize += gap * numLACMs * 0.5f + gap * 0.25f;
+    if( numCBMs != -1 ) totalSize += gap * numCBMs * 0.5f + gap * 0.25f;
 
     float maxSize = *boxW;
     if( totalSize > maxSize )
@@ -1070,8 +1096,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 
 
-    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 );
-    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 );
+    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
+    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
     if( anyAmmo && allZero )
     {
         col.m_a = 150;
@@ -1130,12 +1156,25 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
 
         //
-        // LACMs (battleship ammunition)
+        // LACMs (battleship, ASCM)
 
         if( numLACMs != -1 )
         {
             Image *img = g_resource->GetImage( "graphics/lacm.bmp" );
             for( int i = 0; i < numLACMs; ++i )
+            {
+                g_renderer2d->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
+            }
+        }
+
+
+        //
+        // CBMs (SiloMobileCon)
+
+        if( numCBMs != -1 )
+        {
+            Image *img = g_resource->GetImage( "graphics/nuke.bmp" );
+            for( int i = 0; i < numCBMs; ++i )
             {
                 g_renderer2d->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
             }
@@ -1728,9 +1767,19 @@ void MapRenderer::RenderMouse()
                     tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber") );
                     break;
                                                                 
-                case WorldObject::TargetTypeLaunchNuke:         
-                    img = g_resource->GetImage( "graphics/nuke.bmp" );          
+                case WorldObject::TargetTypeLaunchNuke:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
                     tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnnuke") );
+                    break;
+
+                case WorldObject::TargetTypeLaunchLACM:
+                    img = g_resource->GetImage( "graphics/lacm.bmp" );
+                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnlacm") );
+                    break;
+
+                case WorldObject::TargetTypeLaunchCBM:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawncbm") );
                     break;
             }
             
@@ -2336,7 +2385,13 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     break;
 
                 case WorldObject::ClassTypeSilo:
-                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 )
+                    {
+                        if( wobj->m_type == WorldObject::TypeASCM )
+                            img = g_resource->GetImage( "graphics/lacm.bmp" );
+                        else
+                            img = g_resource->GetImage( "graphics/nuke.bmp" );  // Silo, SiloMed, SiloMobile, SiloMobileCon
+                    }
                     break;
 
                 case WorldObject::ClassTypeSub:
@@ -2378,7 +2433,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( lineY < 0.0f ) angle += M_PI;
                 
                     bool isActiveTarget = ( i == 0 );
-                    bool isStandbyQueue = ( wobj->IsActionQueueable() && !wobj->UsingNukes() );
+                    // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
+                    // ASCM has no standby mode - always launch, so never grey.
+                    // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
+                    bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
+                        ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
                     if( isStandbyQueue )
                         iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );
@@ -2486,7 +2545,8 @@ void MapRenderer::RenderNukeUnits()
                     switch( obj->m_classType )
                     {
                         case WorldObject::ClassTypeSilo:
-                            nukeCount = obj->m_states[1]->m_numTimesPermitted;
+                            if( obj->UsingNukes() && obj->m_states.Size() > 1 )
+                                nukeCount = obj->m_states[1]->m_numTimesPermitted;
                             break;
 
                         case WorldObject::ClassTypeSub:
@@ -3686,6 +3746,19 @@ static bool SelectionHasNukingUnit()
 }
 
 
+static bool SelectionHasCBMLaunchUnit()
+{
+    int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+    for( int s = 0; s < selCount; ++s )
+    {
+        int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+        if( obj && obj->UsesConventionalBallistic() )
+            return true;
+    }
+    return false;
+}
+
 static bool SelectionHasLaunchableUnit()
 {
     int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
@@ -3812,7 +3885,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                 Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( obj->m_longitude, obj->m_latitude, targetLong, targetLat );
                 canAction = ( distSqd < obj->GetActionRangeSqd() );
             }
-            else if( obj->UsingNukes() )
+            else if( obj->UsingNukes() || obj->UsesConventionalBallistic() )
             {
                 int moveResult = obj->IsValidMovementTarget( targetLong, targetLat );
                 canAction = ( moveResult > WorldObject::TargetTypeInvalid ||
@@ -4194,10 +4267,13 @@ void MapRenderer::Update()
                     }
                     if( hasValidCombatTarget )
                     {
-                        if( (SelectionHasNukingUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
+                        if( (SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
                         {
-                            int resolvedId = ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
-                            HandleObjectAction( longitude, latitude, resolvedId );
+                            // CBM can track moving ships - pass ship id. Nukes target static only - resolve to city/building.
+                            int targetId = SelectionHasCBMLaunchUnit()
+                                ? underMouseId
+                                : ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+                            HandleObjectAction( longitude, latitude, targetId );
                         }
                         else
                         {
@@ -4218,7 +4294,7 @@ void MapRenderer::Update()
                 {
                     if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                     {
-                        if( SelectionHasNukingUnit() || SelectionHasLaunchableUnit() || SelectionHasStandbyNukeUnit() )
+                        if( SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasLaunchableUnit() || SelectionHasStandbyNukeUnit() )
                             HandleObjectAction(longitude, latitude, -1);
                         else
                             HandleSetWaypoint( longitude, latitude, false );

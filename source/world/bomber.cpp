@@ -101,7 +101,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 m_actionQueue.RemoveData( 0 );
             }
             MovingObject::Action( targetObjectId, longitude, latitude );
-            g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, nukeRange );
+            g_app->GetWorld()->LaunchLANM( m_teamId, m_objectId, longitude, latitude, nukeRange, targetObjectId );
             m_bombingRun = true;
             m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 

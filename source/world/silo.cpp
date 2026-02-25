@@ -58,7 +58,7 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     {
         if( m_currentState == 1 )
         {
-            g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, 360 );
+            g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, GetNukeLaunchRange() );
             m_numNukesLaunched++;
             for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
             {

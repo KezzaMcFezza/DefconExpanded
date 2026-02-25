@@ -33,6 +33,11 @@ public:
         TypeLACM,
         TypeCBM,            // Conventional ballistic missile (Nuke trajectory, cruise explosion)
         TypeLANM,           // Land-attack nuclear missile (LACM trajectory, nuclear explosion)
+        TypeABM,            // Anti-ballistic missile (inherits SAM, targets ballistic only)
+        TypeSiloMed,        // Silo with intermediate nuke range
+        TypeSiloMobile,     // Mobile silo: less health, radar, stealth
+        TypeSiloMobileCon,  // Mobile silo that launches CBM
+        TypeASCM,           // Anti-Ship Cruise Missile battery (launches LACM at ships only)
         NumObjectTypes
     };
 
@@ -44,6 +49,8 @@ public:
         TargetTypeInvalid=0,
         TargetTypeValid,
         TargetTypeLaunchNuke,
+        TargetTypeLaunchLACM,
+        TargetTypeLaunchCBM,
         TargetTypeLaunchFighter,
         TargetTypeLaunchBomber,
         TargetTypeLand
@@ -66,7 +73,8 @@ public:
         ClassTypeRadar,
         ClassTypeAirbase,
         ClassTypeCity,
-        ClassTypeSAM,          // for future SAM units
+        ClassTypeSAM,          // SAM: targets Aircraft only
+        ClassTypeABM,          // ABM: targets BallisticMissile only
         // Navy
         ClassTypeBattleShip,
         ClassTypeCarrier,

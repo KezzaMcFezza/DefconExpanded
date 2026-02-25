@@ -127,61 +127,48 @@ bool SAM::UsingGuns()
 void SAM::AirDefense()
 {
     if( g_app->GetWorld()->GetDefcon() > 3 )
-    {
         return;
-    }
 
+    // SAM targets Aircraft archetype only (LACM, LANM, Bomber, Fighter); ABM handles ballistic.
     LList<int> excluded;
     BurstFireGetExcludedIds( excluded );
     const LList<int> *excludePtr = excluded.Size() > 0 ? &excluded : nullptr;
     Fixed actionRangeSqd = GetActionRangeSqd();
 
-    // Priority 1: Nukes (closest in range)
-    int nukeId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeNuke, true, excludePtr );
-    WorldObject *nuke = g_app->GetWorld()->GetWorldObject( nukeId );
-    if( nuke )
-    {
-        if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, nuke->m_longitude, nuke->m_latitude ) <= actionRangeSqd )
-        {
-            Action( nuke->m_objectId, -1, -1 );
-            return;
-        }
-    }
-
-    // Priority 2: LACM (cruise missiles)
+    // Priority 1: LACM (cruise missiles)
     int lacmId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeLACM, true, excludePtr );
     WorldObject *lacm = g_app->GetWorld()->GetWorldObject( lacmId );
-    if( lacm )
+    if( lacm && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lacm->m_longitude, lacm->m_latitude ) <= actionRangeSqd )
     {
-        if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lacm->m_longitude, lacm->m_latitude ) <= actionRangeSqd )
-        {
-            Action( lacm->m_objectId, -1, -1 );
-            return;
-        }
+        Action( lacm->m_objectId, -1, -1 );
+        return;
+    }
+
+    // Priority 2: LANM
+    int lanmId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeLANM, true, excludePtr );
+    WorldObject *lanm = g_app->GetWorld()->GetWorldObject( lanmId );
+    if( lanm && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lanm->m_longitude, lanm->m_latitude ) <= actionRangeSqd )
+    {
+        Action( lanm->m_objectId, -1, -1 );
+        return;
     }
 
     // Priority 3: Bombers
     int bomberId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeBomber, true, excludePtr );
     WorldObject *bomber = g_app->GetWorld()->GetWorldObject( bomberId );
-    if( bomber )
+    if( bomber && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, bomber->m_longitude, bomber->m_latitude ) <= actionRangeSqd )
     {
-        if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, bomber->m_longitude, bomber->m_latitude ) <= actionRangeSqd )
-        {
-            Action( bomber->m_objectId, -1, -1 );
-            return;
-        }
+        Action( bomber->m_objectId, -1, -1 );
+        return;
     }
 
     // Priority 4: Fighters
     int fighterId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeFighter, true, excludePtr );
     WorldObject *fighter = g_app->GetWorld()->GetWorldObject( fighterId );
-    if( fighter )
+    if( fighter && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, fighter->m_longitude, fighter->m_latitude ) <= actionRangeSqd )
     {
-        if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, fighter->m_longitude, fighter->m_latitude ) <= actionRangeSqd )
-        {
-            Action( fighter->m_objectId, -1, -1 );
-            return;
-        }
+        Action( fighter->m_objectId, -1, -1 );
+        return;
     }
 }
 
@@ -198,15 +185,15 @@ int SAM::IsValidCombatTarget( int _objectId )
     int basicResult = WorldObject::IsValidCombatTarget( _objectId );
     if( basicResult < TargetTypeInvalid ) return basicResult;
 
-    bool isFriend = g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId );
-    if( !isFriend )
-    {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeSAM, obj->m_type );
-        if( attackOdds > 0 )
-        {
-            return TargetTypeValid;
-        }
-    }
+    // SAM targets Aircraft archetype only (Fighter, Bomber, LACM, LANM)
+    if( WorldObject::GetArchetypeForType( obj->m_type ) != WorldObject::ArchetypeAircraft )
+        return TargetTypeInvalid;
+
+    // Allow manual targeting of friendlies (e.g. to shoot down stray missiles)
+    // AirDefense() auto-targeting still excludes friendlies via GetNearestObject.
+
+    if( g_app->GetWorld()->GetAttackOdds( TypeSAM, obj->m_type ) > 0 )
+        return TargetTypeValid;
 
     return TargetTypeInvalid;
 }

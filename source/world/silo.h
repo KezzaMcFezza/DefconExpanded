@@ -27,7 +27,7 @@ public:
     bool    UsingNukes      ();
     void    NukeStrike      ();
     void    AirDefense      ();
-    void    SetState        ( int state );
+    virtual void SetState   ( int state );
     Image   *GetBmpImage    ( int state );
 
     int     GetAttackOdds       ( int _defenderType );
@@ -35,6 +35,10 @@ public:
     int     IsValidMovementTarget( Fixed longitude, Fixed latitude );                                      // returns TargetType...
 
     void    CeaseFire       ( int teamId );
+
+    /** Launch range (degrees). Override in SiloMed for intermediate range. */
+    virtual Fixed GetNukeLaunchRange() const { return Fixed( 360 ); }
+
 
 };
 

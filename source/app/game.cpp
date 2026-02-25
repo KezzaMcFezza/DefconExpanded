@@ -300,6 +300,8 @@ void Game::CountNukes()
 
         m_nukeCount[team->m_teamId] = 0;
         m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSilo] * 10;
+        m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSiloMed] * 6;
+        m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSiloMobile] * 2;
         m_nukeCount[team->m_teamId] += team->m_unitsAvailable[WorldObject::TypeSub] * 5;
     }
 
@@ -315,7 +317,9 @@ void Game::CountNukes()
                     break;
 
                 case WorldObject::TypeSilo:
-                    m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted;           
+                case WorldObject::TypeSiloMed:
+                case WorldObject::TypeSiloMobile:
+                    m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted;
                     break;
 
                 case WorldObject::TypeSub:          

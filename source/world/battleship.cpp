@@ -75,18 +75,17 @@ void BattleShip::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_currentState == 1 )
     {
-        // LACM mode: launch LACM (building or ship target)
-        WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( targetObjectId );
-        if( !targetObj || targetObj->m_life <= 0 )
-        {
-            return;
-        }
+        // LACM mode: launch LACM (building, ship, or map position)
         if( m_stateTimer <= 0 )
         {
-            bool isShipTarget = (
-                targetObj->IsCarrierClass() || targetObj->IsBattleShipClass() ||
-                ( targetObj->IsSubmarine() && !targetObj->IsHiddenFrom() )
-            );
+            WorldObject *targetObj = ( targetObjectId != -1 ) ? g_app->GetWorld()->GetWorldObject( targetObjectId ) : nullptr;
+            if( targetObj && targetObj->m_life <= 0 )
+            {
+                return;
+            }
+            bool isShipTarget = ( targetObj &&
+                ( targetObj->IsCarrierClass() || targetObj->IsBattleShipClass() ||
+                  ( targetObj->IsSubmarine() && !targetObj->IsHiddenFrom() ) ) );
             if( isShipTarget )
             {
                 g_app->GetWorld()->LaunchCruiseMissile( m_teamId, m_objectId, longitude, latitude, Fixed(90), targetObjectId );
@@ -785,7 +784,7 @@ int BattleShip::IsValidCombatTarget( int _objectId )
         if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
             return WorldObject::TargetTypeValid;
         if( !obj->IsMovingObject() )
-            return WorldObject::TargetTypeLaunchNuke;
+            return WorldObject::TargetTypeLaunchLACM;
         return WorldObject::TargetTypeInvalid;
     }
     if( m_currentState == 2 )
@@ -805,4 +804,22 @@ int BattleShip::IsValidCombatTarget( int _objectId )
         return WorldObject::TargetTypeValid;
     }
     return WorldObject::TargetTypeInvalid;
+}
+
+
+int BattleShip::IsValidMovementTarget( Fixed longitude, Fixed latitude )
+{
+    if( m_currentState == 1 )
+    {
+        bool haveLacmAmmo = ( m_states[1]->m_numTimesPermitted - m_actionQueue.Size() > 0 );
+        if( haveLacmAmmo && latitude <= 100 && latitude >= -100 )
+        {
+            Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude );
+            if( distanceSqd <= GetActionRangeSqd() )
+            {
+                return WorldObject::TargetTypeLaunchLACM;
+            }
+        }
+    }
+    return MovingObject::IsValidMovementTarget( longitude, latitude );
 }

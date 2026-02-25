@@ -1991,7 +1991,8 @@ void GlobeRenderer::RenderNukeUnits()
                     switch( obj->m_classType )
                     {
                         case WorldObject::ClassTypeSilo:
-                            nukeCount = obj->m_states[1]->m_numTimesPermitted;
+                            if( obj->UsingNukes() && obj->m_states.Size() > 1 )
+                                nukeCount = obj->m_states[1]->m_numTimesPermitted;
                             break;
 
                         case WorldObject::ClassTypeSub:
@@ -2709,7 +2710,13 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     break;
 
                 case WorldObject::ClassTypeSilo:
-                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 )
+                    {
+                        if( wobj->m_type == WorldObject::TypeASCM )
+                            img = g_resource->GetImage( "graphics/lacm.bmp" );
+                        else
+                            img = g_resource->GetImage( "graphics/nuke.bmp" );  // Silo, SiloMed, SiloMobile, SiloMobileCon
+                    }
                     break;
 
                 case WorldObject::ClassTypeSub:
@@ -2754,7 +2761,11 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     if( lineY < 0.0f ) angle += M_PI;
                 
                     bool isActiveTarget = ( i == 0 );
-                    bool isStandbyQueue = ( wobj->IsActionQueueable() && !wobj->UsingNukes() );
+                    // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
+                    // ASCM has no standby mode - always launch, so never grey.
+                    // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
+                    bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
+                        ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
                     if( isStandbyQueue )
                         iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );

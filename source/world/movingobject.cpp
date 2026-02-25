@@ -1694,5 +1694,6 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
 
     *interceptLongitude = targetLongitude + timeLeft * targetVel.x;
     *interceptLatitude  = target->m_latitude + timeLeft * targetVel.y;
+    World::SanitiseTargetLongitude( m_longitude, *interceptLongitude );
 }
 

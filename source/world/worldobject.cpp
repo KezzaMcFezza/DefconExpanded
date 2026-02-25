@@ -36,6 +36,11 @@
 #include "world/lacm.h"
 #include "world/cbm.h"
 #include "world/lanm.h"
+#include "world/abm.h"
+#include "world/silomed.h"
+#include "world/silomobile.h"
+#include "world/silomobilecon.h"
+#include "world/ascm.h"
 #include "world/tornado.h"
 #include "world/fleet.h"
 
@@ -345,15 +350,18 @@ bool WorldObject::Update()
             }
             else if( action->m_pursueTarget )
             {
-                Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
-                if( fleet )
+                // Ships (battleship, carrier, sub) do not pursue targets - they can attack/launch from position.
+                // Subs must remain stationary to stay surfaced; other ships can move but shouldn't auto-chase.
+                if( !IsBattleShipClass() && !IsCarrierClass() && !IsSubmarine() )
                 {
-                    MovingObject *obj = (MovingObject *)g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-                    if( obj &&
-                        obj->IsMovingObject() )
+                    Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
+                    if( fleet )
                     {
-                        if( obj->m_movementType == MovingObject::MovementTypeSea )
-                        {                        
+                        MovingObject *obj = (MovingObject *)g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
+                        if( obj &&
+                            obj->IsMovingObject() &&
+                            obj->m_movementType == MovingObject::MovementTypeSea )
+                        {
                             fleet->m_pursueTarget = true;
                             fleet->m_targetFleet = obj->m_fleetId;
                             fleet->m_targetTeam = obj->m_teamId;
@@ -716,6 +724,11 @@ const char *WorldObject::GetName (int _type)
         case TypeLACM:         return LANGUAGEPHRASE("unit_lacm");
         case TypeCBM:          return LANGUAGEPHRASE("unit_cbm");
         case TypeLANM:         return LANGUAGEPHRASE("unit_lanm");
+        case TypeABM:          return LANGUAGEPHRASE("unit_abm");
+        case TypeSiloMed:      return LANGUAGEPHRASE("unit_silomed");
+        case TypeSiloMobile:   return LANGUAGEPHRASE("unit_silomobile");
+        case TypeSiloMobileCon: return LANGUAGEPHRASE("unit_silomobilecon");
+        case TypeASCM:         return LANGUAGEPHRASE("unit_ascm");
     }
 
     return "?";
@@ -757,6 +770,11 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeLACM:         return "lacm";
         case TypeCBM:          return "cbm";
         case TypeLANM:         return "lanm";
+        case TypeABM:          return "abm";
+        case TypeSiloMed:      return "silomed";
+        case TypeSiloMobile:   return "silomobile";
+        case TypeSiloMobileCon: return "silomobilecon";
+        case TypeASCM:         return "ascm";
     }
 
     return "?";
@@ -1014,6 +1032,11 @@ WorldObject *WorldObject::CreateObject( int _type )
         case TypeLACM:                  return new LACM();
         case TypeCBM:                   return new CBM();
         case TypeLANM:                  return new LANM();
+        case TypeABM:                   return new ABM();
+        case TypeSiloMed:               return new SiloMed();
+        case TypeSiloMobile:            return new SiloMobile();
+        case TypeSiloMobileCon:         return new SiloMobileCon();
+        case TypeASCM:                  return new ASCM();
         case TypeExplosion:             return new Explosion();
 		case TypeSub:                   return new Sub();
 		case TypeBattleShip:            return new BattleShip();
@@ -1379,7 +1402,12 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
     switch( type )
     {
         case TypeSilo:
+        case TypeSiloMed:
+        case TypeSiloMobile:
+        case TypeSiloMobileCon:
+        case TypeASCM:
         case TypeSAM:
+        case TypeABM:
         case TypeRadarStation:
         case TypeAirBase:
         case TypeCity:
@@ -1410,9 +1438,14 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
 {
     switch( type )
     {
-        case TypeSilo:          return ClassTypeSilo;
-        case TypeSAM:           return ClassTypeSAM;
-        case TypeRadarStation:  return ClassTypeRadar;
+        case TypeSilo:           return ClassTypeSilo;
+        case TypeSiloMed:        return ClassTypeSilo;
+        case TypeSiloMobile:     return ClassTypeSilo;
+        case TypeSiloMobileCon:  return ClassTypeSilo;
+        case TypeASCM:           return ClassTypeSilo;
+        case TypeSAM:            return ClassTypeSAM;
+        case TypeABM:            return ClassTypeABM;
+        case TypeRadarStation:   return ClassTypeRadar;
         case TypeAirBase:       return ClassTypeAirbase;
         case TypeCity:          return ClassTypeCity;
 

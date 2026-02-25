@@ -9,9 +9,11 @@
  *  Can track a non-flying moving target (ship) and recalculate impact point. */
 class CBM : public Nuke
 {
+    int m_origin;  // Launcher object ID for Retaliate / GetAttackOdds
 public:
     CBM();
 
+    void    SetOrigin( int origin ) { m_origin = origin; }
     void    OnImpact() override;
     bool    Update() override;
 };

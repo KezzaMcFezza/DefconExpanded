@@ -532,6 +532,11 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/battleship.cpp
     ${ROOT_PATH}/source/world/silo.cpp
     ${ROOT_PATH}/source/world/sam.cpp
+    ${ROOT_PATH}/source/world/abm.cpp
+    ${ROOT_PATH}/source/world/silomed.cpp
+    ${ROOT_PATH}/source/world/silomobile.cpp
+    ${ROOT_PATH}/source/world/silomobilecon.cpp
+    ${ROOT_PATH}/source/world/ascm.cpp
     ${ROOT_PATH}/source/world/gunfire.cpp
     ${ROOT_PATH}/source/world/saucer.cpp
     ${ROOT_PATH}/source/world/whiteboard.cpp

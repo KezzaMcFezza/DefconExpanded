@@ -409,15 +409,35 @@ void World::AssignCities()
                 }
                 else if( i == WorldObject::TypeRadarStation )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (7 * territoriesPerTeam * worldScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSilo )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSAM )
                 {
                     m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
+                else if( i == WorldObject::TypeABM )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
+                else if( i == WorldObject::TypeSiloMed )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
+                else if( i == WorldObject::TypeASCM )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
+                else if( i == WorldObject::TypeSiloMobile )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                }
+                else if( i == WorldObject::TypeSiloMobileCon )
+                {
+                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
                 }
                 else if(i == WorldObject::TypeBattleShip ||
                         i == WorldObject::TypeCarrier ||
@@ -446,6 +466,11 @@ void World::AssignCities()
             m_teams[j]->m_unitsAvailable[WorldObject::TypeRadarStation] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeSilo] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeSAM] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeABM] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSiloMed] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSiloMobile] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeSiloMobileCon] = VARIABLE_UNITS_PER_TYPE;
+            m_teams[j]->m_unitsAvailable[WorldObject::TypeASCM] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeBattleShip] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeCarrier] = VARIABLE_UNITS_PER_TYPE;
             m_teams[j]->m_unitsAvailable[WorldObject::TypeSub] = VARIABLE_UNITS_PER_TYPE;
@@ -458,6 +483,8 @@ void World::AssignCities()
     Team *team = m_teams[0];
     m_numNukesGivenToEachTeam = 0;
     m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSilo] * 10;
+    m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSiloMed] * 6;
+    m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSiloMobile] * 2;
     m_numNukesGivenToEachTeam += team->m_unitsAvailable[WorldObject::TypeSub] * 5;
 
     AppDebugOut( "Num nukes given to each team on start : %d\n", m_numNukesGivenToEachTeam );
@@ -1330,6 +1357,7 @@ void World::LaunchCBM( int teamId, int objId, Fixed longitude, Fixed latitude, F
     cbm->m_teamId = teamId;
     cbm->m_longitude = from->m_longitude;
     cbm->m_latitude = from->m_latitude;
+    cbm->SetOrigin( objId );
     cbm->SetWaypoint( longitude, latitude );
     if( targetObjectId == -1 )
         cbm->LockTarget();
@@ -3631,7 +3659,12 @@ int World::GetUnitValue( int _type )
             case WorldObject::TypeBattleShip:   return 2;
             case WorldObject::TypeSub:
             case WorldObject::TypeSilo:
-            case WorldObject::TypeSAM:      return 3;
+            case WorldObject::TypeSAM:
+            case WorldObject::TypeABM:
+            case WorldObject::TypeSiloMed:
+            case WorldObject::TypeSiloMobile:
+            case WorldObject::TypeSiloMobileCon:
+            case WorldObject::TypeASCM: return 3;
             default : return 2;
         }
     }
@@ -3831,15 +3864,18 @@ int World::GetAttackOdds( int attackerType, int defenderType )
     }
 
     // -------------------------------------------------------------------------
-    // Buildings (except SAM) do not deal direct attack odds; they launch.
+    // Buildings (except SAM, ABM) do not deal direct attack odds; they launch.
     // -------------------------------------------------------------------------
-    if( attackerArchetype == WorldObject::ArchetypeBuilding && attackerClass != WorldObject::ClassTypeSAM )
+    if( attackerArchetype == WorldObject::ArchetypeBuilding )
     {
-        return 0;
-    }
-
-    if( attackerClass == WorldObject::ClassTypeCarrier){
-        return 0;
+        if( attackerType == WorldObject::TypeABM )
+        {
+            if( defenderClass == WorldObject::ClassTypeBallisticMissile )
+                return 30;
+            else return 0;
+        }
+        else if(attackerClass != WorldObject::ClassTypeSAM)
+            return 0;
     }
 
     // -------------------------------------------------------------------------
@@ -3863,23 +3899,31 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         if( defenderClass == WorldObject::ClassTypeCity )
             return 90;
         return 80;
+    }   
+
+    if( attackerClass == WorldObject::ClassTypeCarrier){
+        return 0;
+    }
+
+    if( defenderClass == WorldObject::ClassTypeBallisticMissile ){
+        if (attackerClass == WorldObject::ClassTypeBattleShip) return 30;
+        return 0;
     }
 
     // -------------------------------------------------------------------------
-    // Compact table: direct-fire + missiles [DEFENDER_ROW][ATTACKER_COL]
-    // 7 rows: Sub, Carrier, BattleShip, Bomber, Fighter, LACM/LANM, Nuke/CBM
-    // 8 cols: SAM, Sub, Ship, Carrier, Bomber, Fighter, Cruise missile, Ballistic missile
+    // Compact table: direct-fire only [DEFENDER_ROW][ATTACKER_COL]
+    // 7 rows: Sub, Carrier, BattleShip, Bomber, Fighter, LACM/LANM, BallisticMissile
+    // 6 cols: SAM, Sub, Ship, Carrier, Bomber, Fighter
     // -------------------------------------------------------------------------
-    static const int s_attackOdds[7][8] =
+    static const int s_attackOdds[6][5] =
     {
-    /*       SAM   SUB   SHP   CRR   BMR   FTR   CM    BM     DEFENDER */
-        {    0,   10,   20,   20,   25,    3,   0,   0   },  // Sub
-        {    0,   20,   20,    0,   25,   10,   0,   0   },  // Carrier
-        {    0,   20,   10,    0,   25,   10,   0,   0   },  // BattleShip
-        {   30,    0,   20,    0,    0,   30,   0,   0   },  // Bomber
-        {   30,    0,   30,    0,    0,   10,   0,   0   },  // Fighter
-        {    0,   40,   40,    0,    0,    0,   0,   0   },  // LACM, LANM
-        {   40,   25,    0,    0,    0,    0,   0,   0   },  // Nuke, CBM
+    /*           SAM     SUB     SHP     BMR     FTR       DEFENDER */
+        {  0, 10, 20, 25,  3   },  // Sub
+        {  0, 20, 20, 25, 10   },  // Carrier
+        {  0, 20, 10, 25, 10   },  // BattleShip
+        { 30, 0,  20,  0, 30   },  // Bomber
+        { 30, 0,  30,  0, 10   },  // Fighter
+        {  0, 0,  40,  0,  0    },  // LACM, LANM
     };
 
     int defenderRow = -1;
@@ -3891,7 +3935,6 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         case WorldObject::ClassTypeBomber:           defenderRow = 3; break;
         case WorldObject::ClassTypeFighter:          defenderRow = 4; break;
         case WorldObject::ClassTypeCruiseMissile:   defenderRow = 5; break;  // LACM, LANM
-        case WorldObject::ClassTypeBallisticMissile: defenderRow = 6; break;  // Nuke, CBM
         default:                                    return 0;
     }
 
@@ -3901,11 +3944,8 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         case WorldObject::ClassTypeSAM:             attackerCol = 0; break;
         case WorldObject::ClassTypeSub:             attackerCol = 1; break;
         case WorldObject::ClassTypeBattleShip:      attackerCol = 2; break;
-        case WorldObject::ClassTypeCarrier:         attackerCol = 3; break;
-        case WorldObject::ClassTypeBomber:          attackerCol = 4; break;
-        case WorldObject::ClassTypeFighter:         attackerCol = 5; break;
-        case WorldObject::ClassTypeCruiseMissile:   attackerCol = 6; break;
-        case WorldObject::ClassTypeBallisticMissile: attackerCol = 7; break;
+        case WorldObject::ClassTypeBomber:          attackerCol = 3; break;
+        case WorldObject::ClassTypeFighter:         attackerCol = 4; break;
         default:                                    return 0;
     }
 

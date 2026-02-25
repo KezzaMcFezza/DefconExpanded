@@ -10,9 +10,9 @@ class Nuke : public MovingObject
 protected:
     Fixed   m_curveLatitude;    // 1 or -1: curve toward N or S pole (great circle)
     Fixed   m_prevDistanceToTarget;
-    
-    Fixed   m_newLongitude;             // Used to slowly turn towards new target
-    Fixed   m_newLatitude;
+    Fixed   m_distanceTraveled; // Accumulated path length (for CBM great-circle curve when waypoint shifts)
+    Fixed   m_directionLeadLon; // CBM: steer toward waypoint + lead (interception) instead of pure waypoint
+    Fixed   m_directionLeadLat;
 
     bool    m_targetLocked;
 
@@ -36,6 +36,10 @@ public:
     void    Render3D        ();
 
     void    SetWaypoint     ( Fixed longitude, Fixed latitude );
+    /** Update only target position and curve (no ClearWaypoints). For CBM tracking moving targets. */
+    void    UpdateWaypoint  ( Fixed longitude, Fixed latitude );
+    /** Bias direction toward (waypoint + lead). CBM sets lead for interception; impact remains at waypoint. */
+    void    SetDirectionLead( Fixed leadLon, Fixed leadLat );
     
     static void FindTarget  ( int team, int targetTeam, int launchedBy, Fixed range, Fixed *longitude, Fixed *latitude );
     static void FindTarget  ( int team, int targetTeam, int launchedBy, Fixed range, Fixed *longitude, Fixed *latitude, int *objectId );

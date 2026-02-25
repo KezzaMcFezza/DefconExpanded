@@ -31,6 +31,7 @@ public:
     int     GetAttackOdds   ( int _defenderType );
     bool    IsActionQueueable();
     int     IsValidCombatTarget( int _objectId );
+    int     IsValidMovementTarget( Fixed longitude, Fixed latitude ) override;
     bool    IsPinging       ();
 };
 

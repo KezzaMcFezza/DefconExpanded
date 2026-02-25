@@ -101,11 +101,11 @@ Raitos Goals:
 - nuke impact zone                                        - DONE
 - launch render improvments                               - DONE
 - multi-tier radar system                                 - DONE
-- expansion of unit system
-  missiles - nuke, ballistic, lacm, lanm
+- expansion of unit system                                - INPROGRESS
+  missiles - nuke, ballistic, lacm,                - DONE
   gunfire - aa, torpedo, depthcharge, abm
-  silos - icbm, mrbm, tel, tel ballistic, tel cruise
-  SAMs - abm, sam
+  silos - icbm, mrbm, tel-n, tel-c, ascm           - DONE
+  SAMs - abm, sam                                  - DONE
   airbase - 1,2,3
   radar - radar, ew
   ships - cruiser, destroyer, frigate

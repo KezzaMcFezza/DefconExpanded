@@ -1046,8 +1046,10 @@ tooltip_radarshare_enable                   Your Radar Coverage will be sent to 
 tooltip_radarshare_disable                  You will stop sending Radar Coverage to this team.  They will no longer be able to see what you can see.
 
 tooltip_place_silo                          Place ICBM Silo
-tooltip_place_silomed                          Place MRBM Silo
-tooltip_place_silo_mob                          Place TEL
+tooltip_place_silomed                       Place MRBM Silo
+tooltip_place_silomobile                    Place NBM TEL
+tooltip_place_silomobilecon                 Place CBM TEL
+tooltip_place_ascm                          Place ASCM Battery
 tooltip_place_sam                           Place SAM
 tooltip_place_abm                           Place ABM
 tooltip_place_radar                         Place Radar Station
@@ -1149,6 +1151,7 @@ tooltip_spawnstealthbomber          [LMB] LAUNCH STEALTH BOMBER HERE
 tooltip_spawnaew                    [LMB] LAUNCH AWACS HERE
 tooltip_spawnnuke                   [LMB] LAUNCH NUCLEAR WARHEAD HERE
 tooltip_spawnlacm                   [LMB] LAUNCH CRUISE MISSILE HERE
+tooltip_spawncbm                    [LMB] LAUNCH CBM HERE
 tooltip_spacetodeselect             SPACE TO DESELECT UNIT
 tooltip_landobject                  [LMB] LAND AIRCRAFT HERE
 
@@ -1293,7 +1296,9 @@ style_FontPopup                     Font Popup
 
 unit_silo                           ICBM SILO
 unit_silomed                        MRBM SILO
-unit_silomob                        TEL
+unit_silomobile                     NBM TEL
+unit_silomobilecon                  CBM TEL
+unit_ascm                           ASCM
 unit_sam                            SAM
 unit_abm                            ABM
 unit_nuke                           WARHEAD
@@ -1430,6 +1435,7 @@ state_subnuke                       MRBM LAUNCH
 state_sublacm                       SLCM LAUNCH
 state_subrecharge                   FUEL RECHARGE
 state_navaldefense                  NAVAL GUN
+state_ascmlaunch                    ASCM LAUNCH
 
 
 # =============================================================================
@@ -1705,7 +1711,9 @@ unitinfo_fighter_f14                    The F-14AM is an older U.S.-designed int
 unitinfo_aew                          The AWACS is an airborne early warning aircraft providing radar coverage, target tracking, and battle management to allied forces.\n+  Extends radar and command range\n+  Critical for coordinating air assets\n-  Unarmed and slow\n-  Vulnerable without fighter escort
 unitinfo_silo                  A fixed field of hardened ICBM silos, each loaded with a single long-range nuclear warhead.\n+  Large supply of Long Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
 unitinfo_silomed                    A cluster of fixed MRBM silos used for regional nuclear strike capability.\n+  Moderate supply of Medium Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
-unitinfo_silo_mob                  A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_silomobile                  A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_silomobilecon                 A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_ascm                      Anti-Ship Cruise Missile battery. Fixed silo that launches LACM at ships only.\n+  Auto-targets enemy ships in range\n+  Ammo regenerates 1 per 15 minutes\n+  Available at Defcon 3\n-  Ships only, no land targets\n-  Launch reveals location
 unitinfo_sam                        A fixed air defense site for intercepting aircraft and cruise missiles\n+  Strong Anti-Aircraft and Anti-Missile coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
 unitinfo_abm                        A fixed air defense site for intercepting ballistic missiles.\n+  Strong Anti-Ballistic coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
 unitinfo_radar                      A ground-based radar station providing long-range surveillance coverage.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles

@@ -96,8 +96,28 @@ void SidePanel::Create()
     airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
     RegisterButton( airbase );
 
+    UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
+    abm->SetProperties( "ABM", x, y+150, 48, 48, "", "tooltip_place_abm", false, true );
+    RegisterButton( abm );
+
+    UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
+    silomed->SetProperties( "SiloMed", x+75, y+150, 48, 48, "", "tooltip_place_silomed", false, true );
+    RegisterButton( silomed );
+
+    UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
+    silomobile->SetProperties( "SiloMobile", x, y+225, 48, 48, "", "tooltip_place_silomobile", false, true );
+    RegisterButton( silomobile );
+
+    UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
+    silomobilecon->SetProperties( "SiloMobileCon", x+75, y+225, 48, 48, "", "tooltip_place_silomobilecon", false, true );
+    RegisterButton( silomobilecon );
+
+    UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
+    ascm->SetProperties( "ASCM", x+150, y+150, 48, 48, "", "tooltip_place_ascm", false, true );
+    RegisterButton( ascm );
+
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-    fmb->SetProperties( "FleetMode", x, y+375, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+    fmb->SetProperties( "FleetMode", x, y+300, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
 
     RegisterButton( fmb );
@@ -351,6 +371,26 @@ void SidePanel::ChangeMode( int mode )
         airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
         RegisterButton( airbase );
 
+        UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
+        abm->SetProperties( "ABM", x, y+150, 48, 48, "", "tooltip_place_abm", false, true );
+        RegisterButton( abm );
+
+        UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
+        silomed->SetProperties( "SiloMed", x+75, y+150, 48, 48, "", "tooltip_place_silomed", false, true );
+        RegisterButton( silomed );
+
+        UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
+        silomobile->SetProperties( "SiloMobile", x, y+225, 48, 48, "", "tooltip_place_silomobile", false, true );
+        RegisterButton( silomobile );
+
+        UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
+        silomobilecon->SetProperties( "SiloMobileCon", x+75, y+225, 48, 48, "", "tooltip_place_silomobilecon", false, true );
+        RegisterButton( silomobilecon );
+
+        UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
+        ascm->SetProperties( "ASCM", x+150, y+150, 48, 48, "", "tooltip_place_ascm", false, true );
+        RegisterButton( ascm );
+
         Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
         int shipsRemaining = 0;
         if( myTeam )
@@ -361,7 +401,7 @@ void SidePanel::ChangeMode( int mode )
         }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-        fmb->SetProperties( "FleetMode", x, y+375, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+        fmb->SetProperties( "FleetMode", x, y+300, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
         if( shipsRemaining == 0 )
         {
@@ -520,10 +560,15 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     char languageString[64];
     switch( m_unitType )
     {
-        case WorldObject::TypeSilo          : sprintf( languageString, "unit_silo" );       break;
-        case WorldObject::TypeSAM           : sprintf( languageString, "unit_sam" );        break;
-        case WorldObject::TypeAirBase       : sprintf( languageString, "unit_airbase" );    break;
-        case WorldObject::TypeRadarStation  : sprintf( languageString, "unit_radar" );       break;
+        case WorldObject::TypeSilo          : sprintf( languageString, "unit_silo" );           break;
+        case WorldObject::TypeSAM           : sprintf( languageString, "unit_sam" );            break;
+        case WorldObject::TypeABM           : sprintf( languageString, "unit_abm" );            break;
+        case WorldObject::TypeSiloMed       : sprintf( languageString, "unit_silomed" );         break;
+        case WorldObject::TypeSiloMobile    : sprintf( languageString, "unit_silomobile" );    break;
+        case WorldObject::TypeSiloMobileCon: sprintf( languageString, "unit_silomobilecon" ); break;
+        case WorldObject::TypeASCM:         sprintf( languageString, "unit_ascm" );         break;
+        case WorldObject::TypeAirBase       : sprintf( languageString, "unit_airbase" );       break;
+        case WorldObject::TypeRadarStation  : sprintf( languageString, "unit_radar" );         break;
     }
 
 	char caption[256];

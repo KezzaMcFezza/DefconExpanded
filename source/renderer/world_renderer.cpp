@@ -94,8 +94,13 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
     sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
     sprintf(m_imageFiles[WorldObject::TypeLACM], "graphics/lacm.bmp");
-    sprintf(m_imageFiles[WorldObject::TypeCBM], "graphics/lacm.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCBM], "graphics/nuke.bmp");
     sprintf(m_imageFiles[WorldObject::TypeLANM], "graphics/lacm.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeABM], "graphics/abm.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSiloMed], "graphics/silo.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSiloMobile], "graphics/silomob.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSiloMobileCon], "graphics/silomob.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeASCM], "graphics/ascmbattery.bmp");
 }
 
 void WorldRenderer::Reset()

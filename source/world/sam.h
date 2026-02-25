@@ -13,10 +13,10 @@ public:
     bool    Update          ();
     int     GetTargetObjectId();
     bool    UsingGuns       ();
-    void    AirDefense      ();
+    virtual void AirDefense      ();
 
-    int     GetAttackOdds       ( int _defenderType );
-    int     IsValidCombatTarget ( int _objectId );
+    virtual int  GetAttackOdds       ( int _defenderType );
+    virtual int  IsValidCombatTarget ( int _objectId );
 
     virtual Image   *GetBmpImage    ( int state );
 };

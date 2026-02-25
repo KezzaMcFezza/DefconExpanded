@@ -77,6 +77,8 @@ void ActionMarker::Render2D()
                 case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
                 case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
                 case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
+                case WorldObject::TargetTypeLaunchLACM:         img = g_resource->GetImage( "graphics/lacm.bmp" );    break;
+                case WorldObject::TargetTypeLaunchCBM:          img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
             }
 
             if( img )
@@ -125,7 +127,9 @@ void ActionMarker::Render3D()
             {
                 case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
                 case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
-                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nukesymbol.bmp" );    break;
+                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
+                case WorldObject::TargetTypeLaunchLACM:         img = g_resource->GetImage( "graphics/lacm.bmp" );    break;
+                case WorldObject::TargetTypeLaunchCBM:          img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
             }
 
             if( img )

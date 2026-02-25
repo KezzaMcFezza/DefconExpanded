@@ -264,6 +264,11 @@
     <ClCompile Include="..\..\source\world\lacm.cpp" />
     <ClCompile Include="..\..\source\world\cbm.cpp" />
     <ClCompile Include="..\..\source\world\lanm.cpp" />
+    <ClCompile Include="..\..\source\world\abm.cpp" />
+    <ClCompile Include="..\..\source\world\silomed.cpp" />
+    <ClCompile Include="..\..\source\world\silomobile.cpp" />
+    <ClCompile Include="..\..\source\world\silomobilecon.cpp" />
+    <ClCompile Include="..\..\source\world\ascm.cpp" />
     <ClCompile Include="..\..\source\world\radargrid.cpp" />
     <ClCompile Include="..\..\source\world\radarstation.cpp" />
     <ClCompile Include="..\..\source\world\sam.cpp" />
