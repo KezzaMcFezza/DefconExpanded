@@ -1059,8 +1059,8 @@ tooltip_place_airbase                       Place Airbase
 tooltip_place_airbase2                      Place Airbase
 tooltip_place_airbase3                      Place Airbase
 tooltip_place_battleship                    Add Guided Missile Cruiser to Fleet
-tooltip_place_battleship2                   Add Guided Missile Destroyer to Fleet
-tooltip_place_battleship3                   Add Guided Missile Frigate to Fleet
+tooltip_place_battleship_ddg                Add Guided Missile Destroyer to Fleet
+tooltip_place_battleship_fg                 Add Guided Missile Frigate to Fleet
 tooltip_place_ddg_arleigh                   Add Guided Missile Destroyer to Fleet
 tooltip_place_ddg_horizon                   Add Guided Missile Destroyer to Fleet
 tooltip_place_ddg_sov                       Add Guided Missile Destroyer to Fleet
@@ -1071,7 +1071,8 @@ tooltip_place_subg                          Add Guided Missile Sub to Fleet
 tooltip_place_subc                          Add Nuclear Fast Attack Sub to Fleet
 tooltip_place_subk                          Add Diesel Fast Attack Sub to Fleet
 tooltip_place_carrier                       Add Super Carrier to Fleet
-tooltip_place_carrier2                      Add Light Carrier to Fleet
+tooltip_place_carrier_light                 Add Light Carrier to Fleet
+tooltip_place_carrierlight                  Add Light Carrier to Fleet
 tooltip_place_carrier_nimitz                Add  Nimitz-class to Fleet
 tooltip_place_carrier_wasp                  Add  Wasp-class to Fleet
 tooltip_place_carrier_gaulle                Add  DeGaulle-class to Fleet
@@ -1145,11 +1146,12 @@ tooltip_moveobject                  [RMB] MOVE UNIT HERE
 tooltip_movefleet                   [RMB] MOVE FLEET HERE
 tooltip_cantmovehere                CANT MOVE HERE
 tooltip_spawnfighter                [LMB] LAUNCH FIGHTER HERE
-tooltip_spawnfighterlight           [LMB] LAUNCH LIGHT FIGHTER HERE
-tooltip_spawnstealthfighter         [LMB] LAUNCH STEALTH FIGHTER HERE
+tooltip_spawnfighter_light          [LMB] LAUNCH LIGHT FIGHTER HERE
+tooltip_spawnfighter_stealth        [LMB] LAUNCH STEALTH FIGHTER HERE
+tooltip_spawnfighter_navy_stealth   [LMB] LAUNCH NAVY STEALTH FIGHTER HERE
 tooltip_spawnbomber                 [LMB] LAUNCH BOMBER HERE
-tooltip_spawnbomberfast             [LMB] LAUNCH FAST BOMBER HERE
-tooltip_spawnstealthbomber          [LMB] LAUNCH STEALTH BOMBER HERE
+tooltip_spawnbomber_fast            [LMB] LAUNCH FAST BOMBER HERE
+tooltip_spawnbomber_stealth         [LMB] LAUNCH STEALTH BOMBER HERE
 tooltip_spawnaew                    [LMB] LAUNCH AWACS HERE
 tooltip_spawnnuke                   [LMB] LAUNCH NUCLEAR WARHEAD HERE
 tooltip_spawnlacm                   [LMB] LAUNCH CRUISE MISSILE HERE
@@ -1317,8 +1319,8 @@ unit_subg                           SSGN
 unit_radar                          RADAR STATION
 unit_radar_ew                       EARLY WARNING RADAR
 unit_battleship                     CG
-unit_battleship2                    DDG
-unit_battleship3                    FFG
+unit_battleship_ddg                 DDG
+unit_battleship_fg                  FFG
 unit_ddg_arleigh                    DDG ARLEIGH BURKE
 unit_ddg_horizon                    DDG HORIZON
 unit_ddg_sov                        DDG SOVREMENNY
@@ -1358,8 +1360,10 @@ unit_fighter_su57                        SU-57 FELON
 unit_fighter_j20                        J-20 FAGIN
 unit_fighter_stealth                 STEALTH FIGHTER
 unit_fighter_light                   LIGHT FIGHTER
+unit_fighter_navy_stealth           CARRER STEALTH FIGHTer
 unit_awacs                          AEW
 unit_bomber                         BOMBER
+unit_aew                            AEW
 unit_bomber_stealth                 STEALTH BOMBER
 unit_bomber_fast                    FAST BOMBER
 unit_bobomber                         BOMBER
@@ -1369,7 +1373,7 @@ unit_bomber_tu95                         TU-95 BEAR
 unit_bomber_tu22                         TU-22M BACKFIRE
 unit_bomber_h6                         H-6
 unit_carrier                        CVN
-unit_carrier2                       CV
+unit_carrier_light                  CV
 unit_carrier_nimitz                 CVN NIMITZ
 unit_carrier_wasp                   LHD WASP
 unit_carrier_izumo                  DDH IZUMO
@@ -1391,21 +1395,23 @@ state_preparing                     PREPARING FOR
 state_prepare                       PREPARE FOR
 state_ready                         READY FOR
 state_fighterlaunch                 CAP LAUNCH
-state_fighterlightlaunch            LIGHT CAP LAUNCH
-state_strikefighterlightlaunch      LIGHT STRIKE LAUNCH
+state_fighter_lightlaunch           LIGHT CAP LAUNCH
+state_strikefighter_lightlaunch     LIGHT STRIKE LAUNCH
 state_stealthfighterlaunch          STEALTH FIGHTER LAUNCH
 state_strikefighterlaunch           STRIKE LAUNCH
 state_heavyfighterlaunch            HEAVY CAP LAUNCH
 state_heavystrikefighterlaunch      HEAVY STRIKE LAUNCH
 state_navyfighterlaunch             NAVAL CAP LAUNCH
+state_navystealthfighterlaunch      NAVAL STEALTH CAP LAUNCH
+state_navystealthstrikefighterlaunch NAVAL STEALTH STRIKE LAUNCH
 state_navystrikefighterlaunch       NAVAL STRIKE LAUNCH
 state_stealthfighterlaunch          STEALTH CAP LAUNCH
 state_stealthstrikefighterlaunch    STEALTH STRIKE LAUNCH
 state_aewlaunch                     AWACS LAUNCH
 state_bomberlaunch                  BOMBER LAUNCH (NUKE)
 state_cruisebomberlaunch            BOMBER LAUNCH (ALCM)
-state_bomberfastlaunch              FAST BOMBER LAUNCH (NUKE)
-state_cruisebomberfastlaunch        FAST BOMBER LAUNCH (ALCM)
+state_bomber_fastlaunch             FAST BOMBER LAUNCH (NUKE)
+state_cruisebomber_fastlaunch       FAST BOMBER LAUNCH (ALCM)
 state_stealthbomberlaunch           STEALTH BOMBER LAUNCH
 state_emptylaunch                   BOMBER LAUNCH (EMPTY)
 state_fastbomberlaunch              FAST BOMBER LAUNCH (NUKE)
@@ -1433,6 +1439,8 @@ state_standby                       STANDBY
 state_airdefense                    AIR DEFENSE INTERCEPT
 state_passivesonar                  PASSIVE SONAR
 state_activesonar                   ACTIVE SONAR
+state_sublacm                       SLCM LAUNCH
+state_subrecharge                   RECHARGE BATTERIES
 state_subnuke                       MRBM LAUNCH
 state_sublacm                       SLCM LAUNCH
 state_subrecharge                   FUEL RECHARGE
@@ -1701,7 +1709,9 @@ unitinfo_title                      UNIT INFO
 unitinfo_title2                     (no unit selected)
 
 unitinfo_fighter                    Fast, short range combat aircraft.\n+  Effective against Bombers\n+  Good at scouting\n-  Easily destroyed by battleships or SAMs
-unitinfo_fighter_stealth                Fifth-generation stealth fighter, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
+unitinfo_fighter_light                 Light fighter for Combat Air Patrol (CAP) and Strike missions.
+unitinfo_fighter_stealth               Fifth-generation stealth fighter, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.
+unitinfo_fighter_navy_stealth          Carrier-based stealth fighter for CAP and Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
 unitinfo_fighter_f18                    The F/A-18E/F is a carrier-capable multirole fighter used for fleet air defense and strike escort missions.\n+  Excellent carrier-based flexibility\n+  Reliable in interception and patrol roles\n-  Outclassed by modern stealth fighters\n-  Limited range without tanker support
 unitinfo_fighter_f35                    The F-35B/C is a fifth-generation stealth fighter with advanced sensors, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Stealthy and networked for scouting\n+  Can perform Strike missions with cruise missiles against land or naval targets\n-  High maintenance requirements\n-  Outranged by heavier fighters
 unitinfo_fighter_rafale                 The Rafale is a French multirole fighter designed for Combat Air Patrol (CAP) and precision Strike using stand-off weapons.\n+  Agile in dogfights and effective in CAP missions\n+  Can conduct Strike missions against land or sea targets\n-  Lacks stealth compared to 5th-gen aircraft\n-  Moderate range
@@ -1720,15 +1730,17 @@ unitinfo_sam                        A fixed air defense site for intercepting ai
 unitinfo_abm                        A fixed air defense site for intercepting ballistic missiles.\n+  Strong Anti-Ballistic coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
 unitinfo_radar                      A ground-based radar station providing long-range surveillance coverage.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
 unitinfo_radar_ew                    An early warning radar for detecting high-altitude ballistic missile threats.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
-unitinfo_bomber                     Versatile, long range aircraft.\n+  Carries a single Short Range nuke\n+  Nuke launch does not show up on enemy radar\n+  Effective against Ships\n-  Easily shot down by Fighters\n-  Slow moving
+unitinfo_bomber_fast                   Fast bomber with nuclear and conventional strike capability.
+unitinfo_bomber_stealth                Stealth bomber for penetrating air defenses.
+unitinfo_bomber                       Versatile, long range aircraft.\n+  Carries a single Short Range nuke\n+  Nuke launch does not show up on enemy radar\n+  Effective against Ships\n-  Easily shot down by Fighters\n-  Slow moving
 unitinfo_bomber_b2                     The B-2A is a U.S. stealth strategic bomber designed for penetrating dense air defenses and delivering precision-guided nuclear or conventional munitions.\n+  Carries a single short-range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down if detected\n-  Limited payload per sortie
 unitinfo_bomber_b52                    The B-52H is a U.S. long-range, subsonic strategic bomber capable of launching cruise missiles and nuclear ordnance against both naval and land targets.\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow moving
 unitinfo_bomber_tu95                  The Tu-95 is a Russian turboprop-powered strategic bomber used to deliver cruise missiles and nuclear weapons against ground and naval targets.\nNATO CALLSIGN: "Bear"\n+  Carries a single Short Range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow and noisy
 unitinfo_bomber_tu22                   The Tu-22M is a Russian supersonic bomber designed for maritime strike and strategic attack, equipped to carry both nuclear and conventional cruise missiles.\nNATO CALLSIGN: "Backfire"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Shorter range than other strategic bombers\n-  Vulnerable to advanced SAM systems
 unitinfo_bomber_h6                     The H-6 is a Chinese strategic bomber based on the Soviet Tu-16, capable of launching both nuclear and conventional cruise missiles against sea or land targets.\nNATO CALLSIGN: "Badger"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters or air defenses\n-  Slow moving
 unitinfo_battleship                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_battleship2                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_battleship3                 Versatile anti-ship, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship_ddg              Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship_fg               Versatile anti-ship, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
 unitinfo_ddg_arleigh                The Arleigh Burke-class is a U.S. guided missile destroyer designed for multi-domain warfare, including air defense, anti-submarine, and ballistic missile defense.\n+  Strong air and missile defense\n+  Capable of anti-sub and anti-ship warfare\n-  Can be overwhelmed by saturation attacks\n-  Vulnerable to stealthy subs if unsupported
 unitinfo_ddg_horizon                The Horizon-class is a European air-defense destroyer primarily built for fleet protection with secondary anti-ship and ASW capabilities.\n+  Strong air defense with Aster missiles\n+  Moderate anti-sub capability\n-  Limited offensive missile load\n-  Vulnerable to submarine ambush
 unitinfo_ddg_sov                    The Sovremenny-class is a Russian destroyer optimized for surface strike missions using powerful anti-ship missiles and point defense systems.\n+  Powerful anti-ship missile battery\n+  Good close-range anti-air\n+  Can drop Depth Charges against Subs\n-  Weak missile defense vs modern threats\n-  Limited sub detection
@@ -1740,7 +1752,7 @@ unitinfo_subg                        Strategic nuclear-powered guided missile su
 unitinfo_subc                       Nuclear-powered attack submarine (SSN) designed for stealth and strike missions.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
 unitinfo_subk                       Diesel-electric attack submarine (SSK) optimized for coastal defense and stealthy cruise missile strikes.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
 unitinfo_carrier                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
-unitinfo_carrier2                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier_light               Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
 unitinfo_carrier_nimitz             The Nimitz-class is a U.S. nuclear-powered aircraft carrier capable of launching and recovering fighters and airborne early warning (AEW) aircraft.\n+  Supports Fighters and AEW aircraft\n-  Cannot launch Bombers\n-  Cannot directly defend itself
 unitinfo_carrier_wasp               The Wasp-class is a U.S. amphibious assault ship that can operate STOVL aircraft and helicopters for expeditionary support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
 unitinfo_carrier_gaulle             Charles de Gaulle a French nuclear-powered aircraft carrier capable of launching and recovering fighters and AEW aircraft.\n+  Supports Fighters and AEW aircraft\n+  Can drop Depth Charges against Subs\n-  Cannot launch Bombers\n-  Cannot directly defend itself

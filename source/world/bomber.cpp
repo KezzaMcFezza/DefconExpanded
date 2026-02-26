@@ -31,7 +31,7 @@ Bomber::Bomber()
 {
     SetType( TypeBomber );
 
-    m_stealthType = 150;  // early1 - visible at longer range
+    m_stealthType = 130;  // early1 - visible at longer range
     strcpy( bmpImageFilename, "graphics/bomber.bmp" );
 
     m_radarRange = 5;

@@ -165,7 +165,7 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
     for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
     {
         int unitType = team->m_fleets[m_fleetId]->m_memberType[i];
-        bmpImage = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(unitType) );
+        bmpImage = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(unitType, team->m_teamId) );
         float size = 32.0f;
 
         Fixed exactX = 0;

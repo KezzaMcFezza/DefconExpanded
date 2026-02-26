@@ -13,10 +13,10 @@ RadarStation::RadarStation()
     
     strcpy( bmpImageFilename, "graphics/radarstation.bmp" );
 
-    m_radarRange = 30;
+    m_radarRange = 20;
     m_selectable = false;  
     
-    m_life = 1;
+    m_life = 2;
     
     AddState( LANGUAGEPHRASE("state_radar"), 0, 0, 20, 0, false );
 

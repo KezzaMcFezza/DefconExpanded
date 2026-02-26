@@ -19,15 +19,32 @@ public:
         TypeCity,
         TypeSilo,
         TypeSAM,
-        TypeRadarStation,        
+        TypeRadarStation,
+        TypeRadarEW,        
         TypeNuke,
         TypeExplosion,
         TypeSub,
+        TypeSubG,
+        TypeSubC,
+        TypeSubK,
         TypeBattleShip,
+        TypeBattleShip2,
+        TypeBattleShip3,
         TypeAirBase,
+        TypeAirBase2,
+        TypeAirBase3,
         TypeFighter,
+        TypeFighterLight,
+        TypeFighterStealth,
+        TypeFighterNavyStealth,
         TypeBomber,
+        TypeBomberFast,
+        TypeBomberStealth,
+        TypeAEW,
         TypeCarrier,
+        TypeCarrierLight,
+        TypeCarrierSuper,
+        TypeCarrierLHD,
         TypeTornado,
         TypeSaucer,
         TypeLACM,
@@ -52,7 +69,12 @@ public:
         TargetTypeLaunchLACM,
         TargetTypeLaunchCBM,
         TargetTypeLaunchFighter,
+        TargetTypeLaunchFighterLight,
+        TargetTypeLaunchStealthFighter,
         TargetTypeLaunchBomber,
+        TargetTypeLaunchBomberFast,
+        TargetTypeLaunchStealthBomber,
+        TargetTypeLaunchAEW,
         TargetTypeLand
     };
 
@@ -82,6 +104,7 @@ public:
         // Aircraft
         ClassTypeFighter,
         ClassTypeBomber,
+        ClassTypeAEW,
         // Missiles
         ClassTypeBallisticMissile,   // nuke (TypeNuke) and future non-nuke ballistic missiles
         ClassTypeCruiseMissile       // LACM etc
@@ -144,6 +167,7 @@ public:
 
     int     m_maxFighters;
     int     m_maxBombers;               // max number of aircraft this unit can hold
+    int     m_maxAEW;                   // max AEW aircraft (0 = none)
 
 
 protected:
@@ -161,7 +185,7 @@ public:
     virtual void        InitialiseTimers();
 
     void                SetType         ( int type );
-    void                SetTeamId       ( int teamId );
+    virtual void        SetTeamId       ( int teamId );
     void                SetPosition     ( Fixed longitude, Fixed latitude );
     
     void                SetRadarRange   ( Fixed radarRange );
@@ -226,6 +250,9 @@ public:
     void                SetTargetObjectId ( int targetObjectId );
     int                 GetTargetObjectId ();
 
+    /** Returns territory-specific graphic path when unit has a team with primary territory; otherwise bmpImageFilename. */
+    const char *        GetResolvedBmpImageFilename ();
+
     virtual bool        IsPinging();
 
     virtual int         GetAttackOdds   ( int _defenderType );
@@ -239,9 +266,21 @@ public:
     virtual int         IsValidMovementTarget   ( Fixed longitude, Fixed latitude );                    //
 
     virtual bool        CanLaunchFighter();
-    virtual bool        CanLaunchBomber ();
+    virtual bool        CanLaunchFighterLight();
+    virtual bool        CanLaunchStealthFighter();
+    virtual bool        CanLaunchNavyStealthFighter();
+    virtual bool        CanLaunchBomber();
+    virtual bool        CanLaunchBomberFast();
+    virtual bool        CanLaunchStealthBomber();
+    virtual bool        CanLaunchAEW();
     bool                LaunchBomber    ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );  // -1=auto, 1=NUKE, 2=LACM
-    bool                LaunchFighter   ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 1 );  // 1=CAP (6 air/0 LACM), 2=Strike (2 air/2 LACM)
+    bool                LaunchBomberFast( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );
+    bool                LaunchStealthBomber( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );
+    bool                LaunchFighter   ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 1 );  // 1=CAP, 2=Strike
+    bool                LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 0 );  // 0=CAP, 1=Strike
+    bool                LaunchStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 0 );
+    bool                LaunchNavyStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 0 );
+    bool                LaunchAEW       ( int targetObjectId, Fixed longitude, Fixed latitude );
     virtual bool        SetWaypointOnAction();
 
     virtual void        CeaseFire       ( int teamId );
@@ -252,6 +291,13 @@ public:
     virtual Image       *GetBmpImage     ( int state );
 
     char                *GetBmpBlurFilename();
+
+    virtual int         GetFighterCount();   // total fighters (all types) available
+    virtual int         GetBomberCount();    // total bombers (all types) available
+    virtual int         GetAEWCount();       // AEW available
+    virtual void        OnFighterLanded( int aircraftType );  // called when fighter lands
+    virtual void        OnBomberLanded( int aircraftType );   // called when bomber lands
+    virtual void        OnAEWLanded();                        // called when AEW lands
 
     // Archetype and ClassType query helpers
     bool                IsBuilding       () const;
@@ -271,6 +317,7 @@ public:
     bool                IsBattleShipClass() const;
     bool                IsFighterClass   () const;
     bool                IsBomberClass    () const;
+    bool                IsAEWClass       () const;
 
     static Archetype    GetArchetypeForType( int type );
     static ClassType    GetClassTypeForType( int type );

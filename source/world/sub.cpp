@@ -32,7 +32,7 @@ Sub::Sub()
 {
     SetType( TypeSub );
 
-    m_stealthType = 33;  // stealth1 - only in shortest-range coverage
+    m_stealthType = 50;  // stealth1 - only in shortest-range coverage
     strcpy( bmpImageFilename, "graphics/sub.bmp" );
 
     m_radarRange = 0;
@@ -47,10 +47,10 @@ Sub::Sub()
     
     m_ghostFadeTime = 150;
     
-    AddState( LANGUAGEPHRASE("state_passivesonar"), 240, 20, 0, 5, true, -1, 3 );
-    AddState( LANGUAGEPHRASE("state_activesonar"), 240, 20, 0, 5, false, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_passivesonar"), 60, 30, 0, 5, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_activesonar"), 60, 30, 0, 5, false, -1, 3 );
     AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 0, 45, true, 5, 3 );
-    AddState( LANGUAGEPHRASE("state_subnuke"), 120, 120, 3, 45, true, 5, 1 );
+    AddState( LANGUAGEPHRASE("state_subnuke"), 120, 10, 3, 45, true, 5, 1 );
 
     m_states[2]->m_numTimesPermitted = m_states[3]->m_numTimesPermitted;
 

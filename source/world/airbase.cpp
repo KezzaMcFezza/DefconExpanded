@@ -18,6 +18,15 @@
 
 #include "world/world.h"
 #include "world/airbase.h"
+#include "world/aircraft_loads.h"
+#include "world/team.h"
+#include "world/bomber.h"
+#include "world/bomber_fast.h"
+#include "world/bomber_stealth.h"
+#include "world/fighter.h"
+#include "world/fighter_light.h"
+#include "world/fighter_stealth.h"
+#include "world/fighter_navystealth.h"
 #include "world/nuke.h"
 
 
@@ -34,21 +43,49 @@ AirBase::AirBase()
     m_selectable = false;  
 
     m_life = 15;
-    m_nukeSupply = -1;  // Infinite resupply - bombers that land get full nukes on relaunch
+    m_nukeSupply = -1;
 
     m_maxFighters = 10;
     m_maxBombers = 10;
+    m_maxAEW = 4;
 
-    AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 10, 45, true, 5, 3 );   // 0: CAP
-    AddState( LANGUAGEPHRASE("state_strikefighterlaunch"), 120, 120, 10, 45, true, 5, 3 );  // 1: Strike
-    AddState( LANGUAGEPHRASE("state_bomberlaunch"), 120, 120, 10, 140, true, 5, 3 );  // 2: Nuke
-    AddState( LANGUAGEPHRASE("state_cruisebomberlaunch"), 120, 120, 10, 140, true, 5, 3 );  // 3: LACM
+    AddState( LANGUAGEPHRASE("state_fighter_lightlaunch"), 60, 30, 10, 25, true, 2, 3 );   // 0: FighterLight CAP
+    AddState( LANGUAGEPHRASE("state_strikefighter_lightlaunch"), 60, 30, 10, 25, true, 2, 3 );  // 1: FighterLight Strike
+    AddState( LANGUAGEPHRASE("state_navyfighterlaunch"), 60, 30, 10, 45, true, 3, 3 );   // 2: Fighter CAP
+    AddState( LANGUAGEPHRASE("state_navystrikefighterlaunch"), 60, 30, 10, 45, true, 3, 3 );  // 3: Fighter Strike
+    AddState( LANGUAGEPHRASE("state_navystealthfighterlaunch"), 60, 30, 10, 45, true, 0, 3 );   // 4: NavyStealth CAP
+    AddState( LANGUAGEPHRASE("state_navystealthstrikefighterlaunch"), 60, 30, 10, 45, true, 0, 3 );   // 5: NavyStealth Strike
+    AddState( LANGUAGEPHRASE("state_stealthfighterlaunch"), 60, 30, 10, 45, true, 0, 3 );   // 6: Stealth Fighter CAP
+    AddState( LANGUAGEPHRASE("state_stealthstrikefighterlaunch"), 60, 30, 10, 45, true, 0, 3 );  // 7: Stealth Fighter Strike
+    AddState( LANGUAGEPHRASE("state_bomberlaunch"), 60, 30, 10, 140, true, 5, 3 );   // 8: Bomber NUKE
+    AddState( LANGUAGEPHRASE("state_cruisebomberlaunch"), 60, 30, 10, 140, true, 5, 3 );  // 9: Bomber ALCM
+    AddState( LANGUAGEPHRASE("state_bomber_fastlaunch"), 60, 30, 10, 90, true, 0, 3 );   // 10: BomberFast NUKE
+    AddState( LANGUAGEPHRASE("state_cruisebomber_fastlaunch"), 60, 30, 10, 90, true, 0, 3 );  // 11: BomberFast ALCM
+    AddState( LANGUAGEPHRASE("state_stealthbomberlaunch"), 60, 30, 10, 140, true, 0, 3 );   // 12: Stealth Bomber NUKE
+    AddState( LANGUAGEPHRASE("state_stealthcruisebomberlaunch"), 60, 30, 10, 140, true, 0, 3 );  // 13: Stealth Bomber ALCM
+    AddState( LANGUAGEPHRASE("state_aewlaunch"), 60, 30, 10, 140, true, 2, 3 );   // 14: AEW
 
+    m_states[1]->m_numTimesPermitted = m_states[0]->m_numTimesPermitted;
     m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
+    m_states[5]->m_numTimesPermitted = m_states[4]->m_numTimesPermitted;
+    m_states[7]->m_numTimesPermitted = m_states[6]->m_numTimesPermitted;
+    m_states[9]->m_numTimesPermitted = m_states[8]->m_numTimesPermitted;
+    m_states[11]->m_numTimesPermitted = m_states[10]->m_numTimesPermitted;
+    m_states[13]->m_numTimesPermitted = m_states[12]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
 
+void AirBase::SetTeamId( int teamId )
+{
+    WorldObject::SetTeamId( teamId );
+    if ( teamId >= 0 )
+    {
+        Team *team = g_app->GetWorld()->GetTeam( teamId );
+        if ( team && team->m_territories.Size() > 0 )
+            ApplyTerritoryAircraftLoads( this, team->m_territories[0] );
+    }
+}
 
 void AirBase::RequestAction(ActionOrder *_action)
 {
@@ -73,37 +110,30 @@ void AirBase::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_stateTimer <= 0 )
     {
-        if( m_currentState == 0 || m_currentState == 1 )
-        {
-            int fighterMode = ( m_currentState == 0 ) ? 1 : 2;  // 1=CAP, 2=Strike
-            if(!LaunchFighter( targetObjectId, longitude, latitude, fighterMode ))
-            {
-                return;
-            }
-        }
-        else if( m_currentState == 2 )
-        {
-            if(!LaunchBomber( targetObjectId, longitude, latitude, 1 ))
-            {
-                return;
-            }
-        }
-        else if( m_currentState == 3 )
-        {
-            if(!LaunchBomber( targetObjectId, longitude, latitude, 2 ))
-            {
-                return;
-            }
-        }
+        if( m_currentState == 0 ) { if(!LaunchFighterLight( targetObjectId, longitude, latitude, 0 )) return; }
+        else if( m_currentState == 1 ) { if(!LaunchFighterLight( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 2 ) { if(!LaunchFighter( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 3 ) { if(!LaunchFighter( targetObjectId, longitude, latitude, 2 )) return; }
+        else if( m_currentState == 4 ) { if(!LaunchNavyStealthFighter( targetObjectId, longitude, latitude, 0 )) return; }
+        else if( m_currentState == 5 ) { if(!LaunchNavyStealthFighter( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 6 ) { if(!LaunchStealthFighter( targetObjectId, longitude, latitude, 0 )) return; }
+        else if( m_currentState == 7 ) { if(!LaunchStealthFighter( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 8 ) { if(!LaunchBomber( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 9 ) { if(!LaunchBomber( targetObjectId, longitude, latitude, 2 )) return; }
+        else if( m_currentState == 10 ) { if(!LaunchBomberFast( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 11 ) { if(!LaunchBomberFast( targetObjectId, longitude, latitude, 2 )) return; }
+        else if( m_currentState == 12 ) { if(!LaunchStealthBomber( targetObjectId, longitude, latitude, 1 )) return; }
+        else if( m_currentState == 13 ) { if(!LaunchStealthBomber( targetObjectId, longitude, latitude, 2 )) return; }
+        else if( m_currentState == 14 ) { if(!LaunchAEW( targetObjectId, longitude, latitude )) return; }
         WorldObject::Action( targetObjectId, longitude, latitude );
-        if( m_currentState == 2 || m_currentState == 3 )
-            m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
-        if( m_currentState == 0 || m_currentState == 1 )
-        {
-            int c = m_states[0]->m_numTimesPermitted;
-            if( (int)m_states[1]->m_numTimesPermitted < c ) c = m_states[1]->m_numTimesPermitted;
-            m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted = c;
-        }
+        if( m_currentState <= 7 && ( m_currentState & 1 ) == 0 )
+            m_states[m_currentState+1]->m_numTimesPermitted = m_states[m_currentState]->m_numTimesPermitted;
+        else if( m_currentState >= 8 && m_currentState <= 13 && ( m_currentState & 1 ) == 0 )
+            m_states[m_currentState+1]->m_numTimesPermitted = m_states[m_currentState]->m_numTimesPermitted;
+        else if( m_currentState <= 7 && ( m_currentState & 1 ) == 1 )
+            m_states[m_currentState-1]->m_numTimesPermitted = m_states[m_currentState]->m_numTimesPermitted;
+        else if( m_currentState >= 8 && m_currentState <= 13 && ( m_currentState & 1 ) == 1 )
+            m_states[m_currentState-1]->m_numTimesPermitted = m_states[m_currentState]->m_numTimesPermitted;
     }
 }
 
@@ -130,12 +160,12 @@ void AirBase::RunAI()
             
             Team *team = g_app->GetWorld()->GetTeam( m_teamId );
             if( g_app->GetWorld()->GetDefcon() > 1 &&
-                m_states[0]->m_numTimesPermitted > 2 &&
+                GetFighterCount() > 2 &&
                 team->m_currentState == Team::StateScouting)
             {
-                if( m_currentState != 0 )
+                if( m_currentState > 7 )
                 {
-                    SetState(0);
+                    SetState( ( m_states[0]->m_numTimesPermitted > 0 ) ? 0 : ( ( m_states[2]->m_numTimesPermitted > 0 ) ? 2 : ( ( m_states[4]->m_numTimesPermitted > 0 ) ? 4 : 6 ) ) );
                 }
                 for( int i = 0; i < World::NumTerritories; ++i )
                 {
@@ -197,7 +227,7 @@ void AirBase::RunAI()
                         {
                             if( obj->IsAircraft() )
                             {
-                                if( m_states[0]->m_numTimesPermitted > 0 )
+                                if( GetFighterCount() > 0 )
                                 {
                                     if( m_currentState != 0 )
                                     {
@@ -211,9 +241,9 @@ void AirBase::RunAI()
                             }
                             else if( obj->IsSubmarine() )
                             {
-                                if( m_states[2]->m_numTimesPermitted > 0 )
+                                if( GetBomberCount() > 0 )
                                 {
-                                    SetState(2);
+                                    SetState(8);
                                 }
                             }
                             else
@@ -312,11 +342,11 @@ void AirBase::RunAI()
                         if( team->m_subState >= Team::SubStateLaunchBombers ||
                             team->m_currentState == Team::StatePanic )
                         {
-                            if( m_currentState != 2 )
+                            if( m_currentState != 8 && m_currentState != 9 )
                             {
-                                SetState(2);
+                                SetState(8);
                             }
-                            if( m_currentState == 2 )
+                            if( m_currentState == 8 || m_currentState == 9 )
                             {
                                 // launch bombers!
                                 Fixed longitude = 0;
@@ -358,35 +388,46 @@ bool AirBase::UsingNukes()
 
 void AirBase::NukeStrike()
 {
-    // Reduce remaining aircraft
-
     float fighterLossFactor = 0.5f;
     float bomberLossFactor = 0.5f;
-
-    m_states[0]->m_numTimesPermitted *= fighterLossFactor;
-    m_states[1]->m_numTimesPermitted *= fighterLossFactor;
-    m_states[2]->m_numTimesPermitted *= bomberLossFactor;
-    m_states[3]->m_numTimesPermitted *= bomberLossFactor;
-    // No m_nukeSupply - airbases don't store nukes
+    for( int i = 0; i <= 7; ++i )
+        m_states[i]->m_numTimesPermitted = (int)( m_states[i]->m_numTimesPermitted * fighterLossFactor );
+    for( int i = 8; i <= 13; ++i )
+        m_states[i]->m_numTimesPermitted = (int)( m_states[i]->m_numTimesPermitted * bomberLossFactor );
 }
 
 bool AirBase::Update()
 {
-    m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
     m_states[1]->m_numTimesPermitted = m_states[0]->m_numTimesPermitted;
-    int altState = ( m_currentState < 2 ) ? 2 : 0;
-    if( m_states[m_currentState]->m_numTimesPermitted == 0 &&
-        m_states[altState]->m_numTimesPermitted > 0 )
+    m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
+    m_states[5]->m_numTimesPermitted = m_states[4]->m_numTimesPermitted;
+    m_states[7]->m_numTimesPermitted = m_states[6]->m_numTimesPermitted;
+    m_states[9]->m_numTimesPermitted = m_states[8]->m_numTimesPermitted;
+    m_states[11]->m_numTimesPermitted = m_states[10]->m_numTimesPermitted;
+    m_states[13]->m_numTimesPermitted = m_states[12]->m_numTimesPermitted;
+
+    if( m_states[m_currentState]->m_numTimesPermitted == 0 )
     {
-        SetState( altState );
+        for( int i = 0; i < 15; ++i )
+        {
+            if( m_states[i]->m_numTimesPermitted > 0 )
+            {
+                SetState( i );
+                break;
+            }
+        }
     }
 
-    if( m_states[0]->m_numTimesPermitted < 5 )
+    if( GetFighterCount() < 5 )
     {
         m_fighterRegenTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
         if( m_fighterRegenTimer <= 0 )
         {
-            m_states[0]->m_numTimesPermitted ++;
+            if( m_states[2]->m_numTimesPermitted < m_maxFighters )
+            {
+                m_states[2]->m_numTimesPermitted++;
+                m_states[3]->m_numTimesPermitted++;
+            }
             m_fighterRegenTimer = 1024;
         }
     }
@@ -400,39 +441,74 @@ bool AirBase::Update()
 
 bool AirBase::CanLaunchBomber()
 {
-    if( ( m_currentState == 2 || m_currentState == 3 ) &&
-        m_states[m_currentState]->m_numTimesPermitted > 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState >= 8 && m_currentState <= 13 &&
+             m_states[m_currentState]->m_numTimesPermitted > 0 );
 }
 
 bool AirBase::CanLaunchFighter()
 {
-    if( ( m_currentState == 0 || m_currentState == 1 ) &&
-        m_states[m_currentState]->m_numTimesPermitted > 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( m_currentState <= 7 && m_states[m_currentState]->m_numTimesPermitted > 0 );
 }
 
+bool AirBase::CanLaunchFighterLight() { return ( ( m_currentState == 0 || m_currentState == 1 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchStealthFighter() { return ( ( m_currentState == 6 || m_currentState == 7 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchNavyStealthFighter() { return ( ( m_currentState == 4 || m_currentState == 5 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchBomberFast() { return ( ( m_currentState == 10 || m_currentState == 11 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchStealthBomber() { return ( ( m_currentState == 12 || m_currentState == 13 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchAEW() { return ( m_currentState == 14 && m_states[14]->m_numTimesPermitted > 0 ); }
+
+int AirBase::GetFighterCount()
+{
+    return m_states[0]->m_numTimesPermitted + m_states[2]->m_numTimesPermitted + m_states[4]->m_numTimesPermitted + m_states[6]->m_numTimesPermitted;
+}
+
+int AirBase::GetBomberCount()
+{
+    return m_states[8]->m_numTimesPermitted + m_states[10]->m_numTimesPermitted + m_states[12]->m_numTimesPermitted;
+}
+
+int AirBase::GetAEWCount()
+{
+    return m_states.Size() > 14 ? m_states[14]->m_numTimesPermitted : 0;
+}
+
+void AirBase::OnFighterLanded( int aircraftType )
+{
+    if( aircraftType == TypeFighterLight && m_states[0]->m_numTimesPermitted < m_maxFighters )
+        { m_states[0]->m_numTimesPermitted++; m_states[1]->m_numTimesPermitted++; }
+    else if( aircraftType == TypeFighter && m_states[2]->m_numTimesPermitted < m_maxFighters )
+        { m_states[2]->m_numTimesPermitted++; m_states[3]->m_numTimesPermitted++; }
+    else if( aircraftType == TypeFighterNavyStealth && m_states[4]->m_numTimesPermitted < m_maxFighters )
+        { m_states[4]->m_numTimesPermitted++; m_states[5]->m_numTimesPermitted++; }
+    else if( aircraftType == TypeFighterStealth && m_states[6]->m_numTimesPermitted < m_maxFighters )
+        { m_states[6]->m_numTimesPermitted++; m_states[7]->m_numTimesPermitted++; }
+}
+
+void AirBase::OnBomberLanded( int aircraftType )
+{
+    if( aircraftType == TypeBomber && m_states[8]->m_numTimesPermitted < m_maxBombers )
+        { m_states[8]->m_numTimesPermitted++; m_states[9]->m_numTimesPermitted++; }
+    else if( aircraftType == TypeBomberFast && m_states[10]->m_numTimesPermitted < m_maxBombers )
+        { m_states[10]->m_numTimesPermitted++; m_states[11]->m_numTimesPermitted++; }
+    else if( aircraftType == TypeBomberStealth && m_states[12]->m_numTimesPermitted < m_maxBombers )
+        { m_states[12]->m_numTimesPermitted++; m_states[13]->m_numTimesPermitted++; }
+}
+
+void AirBase::OnAEWLanded()
+{
+    if( m_states.Size() > 14 )
+        m_states[14]->m_numTimesPermitted++;
+}
 
 int AirBase::GetAttackOdds( int _defenderType )
 {
     if( CanLaunchFighter() )
     {
         WorldObject::Archetype defenderArchetype = WorldObject::GetArchetypeForType( _defenderType );
+        int fighterType = ( m_currentState <= 1 ) ? TypeFighterLight : ( ( m_currentState <= 3 ) ? TypeFighter : ( ( m_currentState <= 5 ) ? TypeFighterNavyStealth : TypeFighterStealth ) );
         if( defenderArchetype == WorldObject::ArchetypeAircraft )
-            return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
-        if( m_currentState == 1 )  // Strike mode
+            return g_app->GetWorld()->GetAttackOdds( fighterType, _defenderType );
+        if( m_currentState == 1 || m_currentState == 3 || m_currentState == 5 || m_currentState == 7 )
         {
             if( defenderArchetype == WorldObject::ArchetypeBuilding )
                 return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
@@ -446,17 +522,13 @@ int AirBase::GetAttackOdds( int _defenderType )
 
     if( CanLaunchBomber() )
     {
+        int bomberType = ( m_currentState <= 9 ) ? TypeBomber : ( ( m_currentState <= 11 ) ? TypeBomberFast : TypeBomberStealth );
         if( _defenderType == TypeCity ||
             _defenderType == TypeSilo ||
             _defenderType == TypeAirBase ||
             _defenderType == TypeRadarStation )
-        {
             return g_app->GetWorld()->GetAttackOdds( TypeNuke, _defenderType );
-        }
-        else
-        {
-            return g_app->GetWorld()->GetAttackOdds( TypeBomber, _defenderType );
-        }
+        return g_app->GetWorld()->GetAttackOdds( bomberType, _defenderType );
     }
 
     return WorldObject::GetAttackOdds( _defenderType );
@@ -471,34 +543,32 @@ int AirBase::IsValidCombatTarget( int _objectId )
     int basicCheck = WorldObject::IsValidCombatTarget( _objectId );
     if( basicCheck < TargetTypeInvalid ) return basicCheck;
 
-    // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target. Allow allies.
-    if( m_currentState == 0 )  // CAP
+    if( m_currentState == 14 )
+    {
+        if( obj->IsAircraftLauncher() && obj->m_teamId == m_teamId )
+            return TargetTypeLaunchAEW;
+        return TargetTypeLaunchAEW;
+    }
+
+    if( m_currentState <= 7 )
     {
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
         {
-            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-            if( attackOdds > 0 )
+            int fighterType = ( m_currentState <= 1 ) ? TypeFighterLight : ( ( m_currentState <= 3 ) ? TypeFighter : ( ( m_currentState <= 5 ) ? TypeFighterNavyStealth : TypeFighterStealth ) );
+            if( g_app->GetWorld()->GetAttackOdds( fighterType, obj->m_type ) > 0 )
                 return TargetTypeLaunchFighter;
+        }
+        if( m_currentState == 1 || m_currentState == 3 || m_currentState == 5 || m_currentState == 7 )
+        {
+            if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+                return TargetTypeLaunchLACM;
+            if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+                return TargetTypeLaunchLACM;
         }
         return TargetTypeInvalid;
     }
 
-    if( m_currentState == 1 )  // Strike
-    {
-        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
-        {
-            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-            if( attackOdds > 0 )
-                return TargetTypeLaunchFighter;
-        }
-        else if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
-            return TargetTypeLaunchLACM;
-        else if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
-            return TargetTypeLaunchLACM;
-        return TargetTypeInvalid;
-    }
-
-    if( m_currentState == 2 )  // Bomber Nuke
+    if( m_currentState >= 8 && m_currentState <= 13 )
     {
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
             return TargetTypeInvalid;
@@ -506,15 +576,8 @@ int AirBase::IsValidCombatTarget( int _objectId )
             return TargetTypeLaunchBomber;
         if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
             return TargetTypeLaunchBomber;
-    }
-
-    if( m_currentState == 3 )  // Bomber LACM
-    {
-        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
-            return TargetTypeInvalid;
-        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
-            return TargetTypeLaunchBomber;
-        if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+        if( ( m_currentState == 9 || m_currentState == 11 || m_currentState == 13 ) &&
+             !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
             return TargetTypeLaunchBomber;
     }
 

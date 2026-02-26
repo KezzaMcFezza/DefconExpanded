@@ -111,11 +111,14 @@ bool MovingObject::Update()
             {
                 Land( GetClosestLandingPad() );
             }
-            else if(( IsFighterClass() &&
-                home->m_states[0]->m_numTimesPermitted >= home->m_maxFighters ) ||
+            else if( ( IsFighterClass() &&
+                home->GetFighterCount() >= home->m_maxFighters ) ||
                 ( IsBomberClass() &&
                 home->m_maxBombers > 0 &&
-                home->m_states[1]->m_numTimesPermitted >= home->m_maxBombers ))
+                home->GetBomberCount() >= home->m_maxBombers ) ||
+                ( IsAEWClass() &&
+                home->m_maxAEW > 0 &&
+                home->GetAEWCount() >= home->m_maxAEW ))
             {
                 Land( GetClosestLandingPad() );
             }            
@@ -126,20 +129,27 @@ bool MovingObject::Update()
                     bool landed = false;
                     if( IsFighterClass() )
                     {
-                        if( home->m_states[0]->m_numTimesPermitted < home->m_maxFighters )
+                        if( home->GetFighterCount() < home->m_maxFighters )
                         {
-                            home->m_states[0]->m_numTimesPermitted++;
+                            home->OnFighterLanded( m_type );
                             landed = true;
                         }
                     }
-                    else
+                    else if( IsBomberClass() )
                     {
-                        if( home->m_maxBombers > 0 &&
-                            home->m_states[1]->m_numTimesPermitted < home->m_maxBombers )
+                        if( home->m_maxBombers > 0 && home->GetBomberCount() < home->m_maxBombers )
                         {
-                            home->m_states[1]->m_numTimesPermitted++;
+                            home->OnBomberLanded( m_type );
                             if( home->m_nukeSupply >= 0 )
                                 home->m_nukeSupply += m_states[1]->m_numTimesPermitted;
+                            landed = true;
+                        }
+                    }
+                    else if( IsAEWClass() )
+                    {
+                        if( home->m_maxAEW > 0 && home->GetAEWCount() < home->m_maxAEW )
+                        {
+                            home->OnAEWLanded();
                             landed = true;
                         }
                     }
@@ -579,7 +589,7 @@ void MovingObject::Render2D()
         Colour colour = team->GetTeamColour();
         colour.m_a = 255;
         
-        Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+        Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
 
         g_renderer2d->RotatingSprite( bmpImage,
                           predictedLongitude,
@@ -648,7 +658,7 @@ void MovingObject::Render3D()
         Colour colour = team->GetTeamColour();
         colour.m_a = 255;
         
-        Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+        Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
 
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         
@@ -939,7 +949,7 @@ void MovingObject::RenderGhost2D( int teamId )
                 }       
             }
 
-            Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+            Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
             g_renderer2d->RotatingSprite( bmpImage, predictedLongitude, predictedLatitude, thisSize, size, col, angle);
         }
         else
@@ -983,7 +993,7 @@ void MovingObject::RenderGhost3D( int teamId )
                     size *= 0.5f;
                 }
 
-                Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+                Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
                 float spriteSize = size * 2.0f;
 
                 if( m_movementType == MovementTypeAir )
@@ -1101,13 +1111,20 @@ int MovingObject::GetClosestLandingPad()
                 if( obj->IsAircraftLauncher() )
                 {
                     int roomInside = 0;
-                    if( IsFighterClass() ) roomInside = obj->m_maxFighters - obj->m_states[0]->m_numTimesPermitted;
+                    if( IsFighterClass() ) roomInside = obj->m_maxFighters - obj->GetFighterCount();
                     if( IsBomberClass() )
                     {
                         if( obj->m_maxBombers <= 0 )
                             roomInside = 0;
                         else
-                            roomInside = obj->m_maxBombers - obj->m_states[1]->m_numTimesPermitted;
+                            roomInside = obj->m_maxBombers - obj->GetBomberCount();
+                    }
+                    if( IsAEWClass() )
+                    {
+                        if( obj->m_maxAEW <= 0 )
+                            roomInside = 0;
+                        else
+                            roomInside = obj->m_maxAEW - obj->GetAEWCount();
                     }
 
                     if( roomInside > 0 )
@@ -1132,34 +1149,18 @@ int MovingObject::GetClosestLandingPad()
         }
     }
 
-    //
-    // Fighter - go for nearest landing pad
-
-    if( IsFighterClass() && 
-        nearestId != -1 )
-    {
+    if( IsFighterClass() && nearestId != -1 )
         return nearestId;
-    }
 
-    //
-    // Bomber - go for nearest with nukes if in range
+    if( IsAEWClass() && nearestId != -1 )
+        return nearestId;
 
-    if( m_type == TypeBomber && 
-        nearestWithNukesId != -1 &&
+    if( IsBomberClass() && nearestWithNukesId != -1 &&
         nearestWithNukesSqd < m_range * m_range )
-    {
         return nearestWithNukesId;
-    }
 
-    //
-    // Bomber - no nukes within range, so go for nearest
-
-    if( m_type == TypeBomber &&
-        nearestId != -1 )
-    {
+    if( IsBomberClass() && nearestId != -1 )
         return nearestId;
-    }
-
 
     return -1;
 }

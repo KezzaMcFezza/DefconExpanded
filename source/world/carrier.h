@@ -14,6 +14,7 @@ public:
 
     Carrier();
 
+    void    SetTeamId           ( int teamId ) override;
     void    Render2D            ();
     void    Render3D            ();
 
@@ -33,7 +34,19 @@ public:
     int     GetAttackOdds   ( int _defenderType );
     
     bool    CanLaunchFighter();
+    bool    CanLaunchFighterLight();
+    bool    CanLaunchStealthFighter();
+    bool    CanLaunchNavyStealthFighter();
     bool    CanLaunchBomber();
+    bool    CanLaunchBomberFast();
+    bool    CanLaunchStealthBomber();
+    bool    CanLaunchAEW();
+    int     GetFighterCount() override;
+    int     GetBomberCount() override;
+    int     GetAEWCount() override;
+    void    OnFighterLanded( int aircraftType ) override;
+    void    OnBomberLanded( int aircraftType ) override;
+    void    OnAEWLanded() override;
 
     int     CountIncomingFighters();
 

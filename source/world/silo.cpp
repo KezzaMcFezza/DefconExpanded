@@ -40,7 +40,7 @@ Silo::Silo()
     m_nukeSupply = 10;
 
     AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 10, Fixed::MAX, true, 10, 5 );
-    AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );
+    AddState( LANGUAGEPHRASE("state_silonuke"), 30, 0, 10, Fixed::MAX, true, 10, 1 );
 
     m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 

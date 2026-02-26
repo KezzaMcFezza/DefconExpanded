@@ -18,7 +18,7 @@ SiloMobile::SiloMobile()
     SetType( TypeSiloMobile );
     strcpy( bmpImageFilename, "graphics/silomob.bmp" );
 
-    m_stealthType = 1;
+    m_stealthType = 50;
     m_life = 1;
     m_nukeSupply = 2;
     m_states[0]->m_numTimesPermitted = 2;

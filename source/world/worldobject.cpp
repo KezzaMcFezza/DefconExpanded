@@ -23,14 +23,31 @@
 #include "lib/render3d/renderer_3d.h"
 
 #include "world/radarstation.h"
+#include "world/radar_ew.h"
 #include "world/silo.h"
 #include "world/sam.h"
 #include "world/sub.h"
+#include "world/subc.h"
+#include "world/subg.h"
+#include "world/subk.h"
 #include "world/battleship.h"
+#include "world/battleship2.h"
+#include "world/battleship3.h"
 #include "world/airbase.h"
+#include "world/airbase2.h"
+#include "world/airbase3.h"
 #include "world/carrier.h"
+#include "world/carrier_light.h"
+#include "world/carrier_super.h"
+#include "world/carrier_lhd.h"
 #include "world/bomber.h"
+#include "world/bomber_fast.h"
+#include "world/bomber_stealth.h"
 #include "world/fighter.h"
+#include "world/fighter_light.h"
+#include "world/fighter_stealth.h"
+#include "world/fighter_navystealth.h"
+#include "world/aew.h"
 #include "world/city.h"
 #include "world/nuke.h"
 #include "world/lacm.h"
@@ -43,6 +60,9 @@
 #include "world/ascm.h"
 #include "world/tornado.h"
 #include "world/fleet.h"
+#include "world/unit_graphics.h"
+
+static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode );
 
 const int    WorldObject::BURST_FIRE_SHOTS = 3;
 const Fixed  WorldObject::BURST_FIRE_COOLDOWN_SECONDS = Fixed(30);
@@ -85,6 +105,7 @@ WorldObject::WorldObject()
     m_forceAction(false),
     m_maxFighters(0),
     m_maxBombers(0),
+    m_maxAEW(0),
     m_retargetTimer(0),
     m_burstFireShotCount(0)
 {
@@ -430,6 +451,15 @@ bool WorldObject::Update()
 }
 
 
+const char *WorldObject::GetResolvedBmpImageFilename()
+{
+    if ( m_teamId < 0 ) return bmpImageFilename;
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+    if ( !team || team->m_territories.Size() == 0 ) return bmpImageFilename;
+    int primaryTerritory = team->m_territories[0];
+    return GetUnitGraphicForTerritory( primaryTerritory, m_type, bmpImageFilename );
+}
+
 char *WorldObject::GetBmpBlurFilename()
 {
     static char blurFilename[256];
@@ -450,7 +480,7 @@ void WorldObject::Render2D()
     Colour colour = team->GetTeamColour();            
     colour.m_a = 255;
 
-    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+    Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
 
     float size = GetSize().DoubleValue();
 
@@ -524,7 +554,7 @@ void WorldObject::Render3D()
     Colour colour = team->GetTeamColour();            
     colour.m_a = 255;
 
-    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+    Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
 
     GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
     if( globeRenderer && bmpImage )
@@ -713,12 +743,29 @@ const char *WorldObject::GetName (int _type)
         case TypeCity:          return LANGUAGEPHRASE("unit_city");
         case TypeExplosion:     return LANGUAGEPHRASE("unit_explosion");
         case TypeSub:           return LANGUAGEPHRASE("unit_sub");
+        case TypeSubG:          return LANGUAGEPHRASE("unit_subg");
+        case TypeSubC:          return LANGUAGEPHRASE("unit_subc");
+        case TypeSubK:          return LANGUAGEPHRASE("unit_subk");
         case TypeRadarStation:  return LANGUAGEPHRASE("unit_radar");
+        case TypeRadarEW:       return LANGUAGEPHRASE("unit_radar_ew");
         case TypeBattleShip:    return LANGUAGEPHRASE("unit_battleship");
+        case TypeBattleShip2:   return LANGUAGEPHRASE("unit_battleship_ddg");
+        case TypeBattleShip3:   return LANGUAGEPHRASE("unit_battleship_fg");
         case TypeAirBase:       return LANGUAGEPHRASE("unit_airbase");
+        case TypeAirBase2:      return LANGUAGEPHRASE("unit_airbase2");
+        case TypeAirBase3:      return LANGUAGEPHRASE("unit_airbase3");
         case TypeFighter:       return LANGUAGEPHRASE("unit_fighter");
+        case TypeFighterLight:  return LANGUAGEPHRASE("unit_fighter_light");
+        case TypeFighterStealth: return LANGUAGEPHRASE("unit_fighter_stealth");
+        case TypeFighterNavyStealth: return LANGUAGEPHRASE("unit_fighter_navy_stealth");
         case TypeBomber:        return LANGUAGEPHRASE("unit_bomber");
+        case TypeBomberFast:    return LANGUAGEPHRASE("unit_bomber_fast");
+        case TypeBomberStealth: return LANGUAGEPHRASE("unit_bomber_stealth");
+        case TypeAEW:           return LANGUAGEPHRASE("unit_aew");
         case TypeCarrier:       return LANGUAGEPHRASE("unit_carrier");
+        case TypeCarrierLight:  return LANGUAGEPHRASE("unit_carrier_light");
+        case TypeCarrierSuper:  return LANGUAGEPHRASE("unit_carrier_super");
+        case TypeCarrierLHD:    return LANGUAGEPHRASE("unit_carrier_lhd");
 		case TypeTornado:       return LANGUAGEPHRASE("unit_tornado");
         case TypeSaucer:        return LANGUAGEPHRASE("unit_saucer");
         case TypeLACM:         return LANGUAGEPHRASE("unit_lacm");
@@ -759,12 +806,29 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeCity:          return "city";
         case TypeExplosion:     return "explosion";
         case TypeSub:           return "sub";
+        case TypeSubG:          return "subg";
+        case TypeSubC:          return "subc";
+        case TypeSubK:          return "subk";
         case TypeRadarStation:  return "radar";
+        case TypeRadarEW:       return "radarew";
         case TypeBattleShip:    return "battleship";
+        case TypeBattleShip2:   return "battleship_ddg";
+        case TypeBattleShip3:   return "battleship_fg";
         case TypeAirBase:       return "airbase";
+        case TypeAirBase2:      return "airbase2";
+        case TypeAirBase3:      return "airbase3";
         case TypeFighter:       return "fighter";
+        case TypeFighterLight:  return "fighter_light";
+        case TypeFighterStealth: return "fighter_stealth";
+        case TypeFighterNavyStealth: return "fighter_navy_stealth";
         case TypeBomber:        return "bomber";
+        case TypeBomberFast:    return "bomber_fast";
+        case TypeBomberStealth: return "bomber_stealth";
+        case TypeAEW:           return "aew";
         case TypeCarrier:       return "carrier";
+        case TypeCarrierLight:  return "carrierlight";
+        case TypeCarrierSuper:  return "carriersuper";
+        case TypeCarrierLHD:    return "carrierlhd";
 		case TypeTornado:       return "tornado";
         case TypeSaucer:        return "saucer";
         case TypeLACM:         return "lacm";
@@ -1039,11 +1103,27 @@ WorldObject *WorldObject::CreateObject( int _type )
         case TypeASCM:                  return new ASCM();
         case TypeExplosion:             return new Explosion();
 		case TypeSub:                   return new Sub();
+		case TypeSubG:                  return new SubG();
+		case TypeSubC:                  return new SubC();
+		case TypeSubK:                  return new SubK();
 		case TypeBattleShip:            return new BattleShip();
+		case TypeBattleShip2:           return new BattleShip2();
+		case TypeBattleShip3:           return new BattleShip3();
 		case TypeAirBase:               return new AirBase();
+		case TypeAirBase2:              return new AirBase2();
+		case TypeAirBase3:              return new AirBase3();
         case TypeFighter:               return new Fighter();
+        case TypeFighterLight:          return new FighterLight();
+        case TypeFighterStealth:        return new FighterStealth();
+        case TypeFighterNavyStealth:    return new FighterNavyStealth();
         case TypeBomber:                return new Bomber();
+        case TypeBomberFast:            return new BomberFast();
+        case TypeBomberStealth:         return new BomberStealth();
+        case TypeAEW:                   return new AEW();
 		case TypeCarrier:               return new Carrier();
+		case TypeCarrierLight:          return new CarrierLight();
+		case TypeCarrierSuper:          return new CarrierSuper();
+		case TypeCarrierLHD:            return new CarrierLHD();
         case TypeTornado:               return new Tornado();
         //case TypeSaucer:                return new Saucer();
 	}
@@ -1087,111 +1167,7 @@ void WorldObject::FleetAction( int targetObjectId )
 bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
     Bomber *bomber = new Bomber();
-    bomber->SetTeamId( m_teamId );
-    bomber->SetPosition( m_longitude, m_latitude );
-    bomber->SetWaypoint( longitude, latitude );
-
-    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-    if( aircraftMode == 1 )
-    {
-        bomber->m_lacmLoadout = false;
-        bomber->m_states[1]->m_numTimesPermitted = 2;
-        bomber->m_states[2]->m_numTimesPermitted = 0;
-        bomber->m_states[0]->m_numTimesPermitted = 2;
-        // Buildings (ballistic nuke) or navy ships (LANM)
-        bool validNukeTarget = target && ( !target->IsMovingObject() ||
-            target->IsCarrierClass() || target->IsBattleShipClass() || ( target->IsSubmarine() && !target->IsHiddenFrom() ) );
-        if( validNukeTarget )
-        {
-            bomber->SetState(1);
-            ActionOrder *order = new ActionOrder();
-            order->m_targetObjectId = targetObjectId;
-            order->m_longitude = longitude;
-            order->m_latitude = latitude;
-            bomber->RequestAction( order );
-            bomber->m_bombingRun = true;
-        }
-    }
-    else if( aircraftMode == 2 )
-    {
-        bomber->m_lacmLoadout = true;
-        bomber->m_states[1]->m_numTimesPermitted = 0;
-        bomber->m_states[2]->m_numTimesPermitted = 6;
-        bomber->m_states[0]->m_numTimesPermitted = 6;
-        if( target && !target->IsMovingObject() && WorldObject::GetArchetypeForType(target->m_type) == WorldObject::ArchetypeBuilding )
-        {
-            bomber->SetState(2);
-            ActionOrder *order = new ActionOrder();
-            order->m_targetObjectId = targetObjectId;
-            order->m_longitude = longitude;
-            order->m_latitude = latitude;
-            bomber->RequestAction( order );
-            bomber->m_bombingRun = true;
-        }
-    }
-    else
-    {
-        bomber->m_lacmLoadout = false;
-        bomber->m_states[1]->m_numTimesPermitted = 2;
-        bomber->m_states[2]->m_numTimesPermitted = 0;
-        bomber->m_states[0]->m_numTimesPermitted = 2;
-        if( target )
-        {
-            if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, target->m_type ) > 0 )
-            {
-                bomber->SetState(0);
-                bomber->m_targetObjectId = target->m_objectId;
-            }
-            else if( !target->IsMovingObject() )
-            {
-                bomber->SetState(1);
-                ActionOrder *order = new ActionOrder();
-                order->m_targetObjectId = targetObjectId;
-                order->m_longitude = longitude;
-                order->m_latitude = latitude;
-                bomber->RequestAction( order );
-                bomber->m_bombingRun = true;
-            }
-        }
-        else if( targetObjectId != -1 )
-        {
-            bomber->SetState(0);
-        }
-
-        if( bomber->m_currentState == 0 )
-        {
-            for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
-            {
-                if( g_app->GetWorld()->m_cities.ValidIndex(i) )
-                {
-                    City *city = g_app->GetWorld()->m_cities[i];
-                    if( city->m_longitude == longitude &&
-                        city->m_latitude == latitude )
-                    {
-                        bomber->SetState(1);
-                        ActionOrder *order = new ActionOrder();
-                        order->m_targetObjectId = city->m_objectId;
-                        order->m_longitude = longitude;
-                        order->m_latitude = latitude;
-                        bomber->RequestAction( order );
-                        bomber->m_bombingRun = true;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    g_app->GetWorld()->AddWorldObject( bomber );
-
-    if( m_nukeSupply == 0 )
-    {
-        bomber->ClearActionQueue();
-        bomber->m_bombingRun = false;
-        bomber->m_states[1]->m_numTimesPermitted = 0;
-    }
-
-    return true;
+    return LaunchBomberFrom( this, bomber, targetObjectId, longitude, latitude, aircraftMode );
 }
 
 bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
@@ -1286,6 +1262,241 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
     }
 }
 
+bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    if( targetObjectId >= OBJECTID_CITYS )
+    {
+        targetObjectId = -1;
+    }
+
+    FighterLight *fighter = new FighterLight();
+    if( fighter->IsValidPosition( longitude, latitude ) )
+    {
+        fighter->SetTeamId( m_teamId );
+        fighter->SetPosition( m_longitude, m_latitude );
+        if( aircraftMode == 1 )
+            fighter->SetState( 1 );  // Strike (LACM) mode
+        WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
+        if( target && target->IsMovingObject() )
+        {
+            fighter->SetTargetObjectId(targetObjectId);
+            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+        }
+        else
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            fighter->m_playerSetWaypoint = true;
+        }
+        g_app->GetWorld()->AddWorldObject( fighter );
+        return true;
+    }
+    else
+    {
+        delete fighter;
+        return false;
+    }
+}
+
+bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    if( targetObjectId >= OBJECTID_CITYS )
+    {
+        targetObjectId = -1;
+    }
+
+    FighterNavyStealth *fighter = new FighterNavyStealth();
+    if( fighter->IsValidPosition( longitude, latitude ) )
+    {
+        fighter->SetTeamId( m_teamId );
+        fighter->SetPosition( m_longitude, m_latitude );
+        if( aircraftMode == 1 )
+            fighter->SetState( 1 );
+        WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
+        if( target && target->IsMovingObject() )
+        {
+            fighter->SetTargetObjectId(targetObjectId);
+            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+        }
+        else
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            fighter->m_playerSetWaypoint = true;
+        }
+        g_app->GetWorld()->AddWorldObject( fighter );
+        return true;
+    }
+    else
+    {
+        delete fighter;
+        return false;
+    }
+}
+
+bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    if( targetObjectId >= OBJECTID_CITYS )
+    {
+        targetObjectId = -1;
+    }
+
+    FighterStealth *fighter = new FighterStealth();
+    if( fighter->IsValidPosition( longitude, latitude ) )
+    {
+        fighter->SetTeamId( m_teamId );
+        fighter->SetPosition( m_longitude, m_latitude );
+        if( aircraftMode == 1 )
+            fighter->SetState( 1 );  // Strike (LACM) mode
+        WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
+        if( target && target->IsMovingObject() )
+        {
+            fighter->SetTargetObjectId(targetObjectId);
+            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+        }
+        else
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            fighter->m_playerSetWaypoint = true;
+        }
+        g_app->GetWorld()->AddWorldObject( fighter );
+        return true;
+    }
+    else
+    {
+        delete fighter;
+        return false;
+    }
+}
+
+static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    bomber->SetTeamId( wo->m_teamId );
+    bomber->SetPosition( wo->m_longitude, wo->m_latitude );
+    bomber->SetWaypoint( longitude, latitude );
+
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( aircraftMode == 1 )
+    {
+        bomber->m_lacmLoadout = false;
+        bomber->m_states[1]->m_numTimesPermitted = 2;
+        bomber->m_states[2]->m_numTimesPermitted = 0;
+        bomber->m_states[0]->m_numTimesPermitted = 2;
+        bool validNukeTarget = target && ( !target->IsMovingObject() ||
+            target->IsCarrierClass() || target->IsBattleShipClass() || ( target->IsSubmarine() && !target->IsHiddenFrom() ) );
+        if( validNukeTarget )
+        {
+            bomber->SetState(1);
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            bomber->RequestAction( order );
+            bomber->m_bombingRun = true;
+        }
+    }
+    else if( aircraftMode == 2 )
+    {
+        bomber->m_lacmLoadout = true;
+        bomber->m_states[1]->m_numTimesPermitted = 0;
+        bomber->m_states[2]->m_numTimesPermitted = 6;
+        bomber->m_states[0]->m_numTimesPermitted = 6;
+        if( target && !target->IsMovingObject() && WorldObject::GetArchetypeForType(target->m_type) == WorldObject::ArchetypeBuilding )
+        {
+            bomber->SetState(2);
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            bomber->RequestAction( order );
+            bomber->m_bombingRun = true;
+        }
+    }
+    else
+    {
+        bomber->m_lacmLoadout = false;
+        bomber->m_states[1]->m_numTimesPermitted = 2;
+        bomber->m_states[2]->m_numTimesPermitted = 0;
+        bomber->m_states[0]->m_numTimesPermitted = 2;
+        if( target )
+        {
+            if( g_app->GetWorld()->GetAttackOdds( bomber->m_type, target->m_type ) > 0 )
+            {
+                bomber->SetState(0);
+                bomber->m_targetObjectId = target->m_objectId;
+            }
+            else if( !target->IsMovingObject() )
+            {
+                bomber->SetState(1);
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = longitude;
+                order->m_latitude = latitude;
+                bomber->RequestAction( order );
+                bomber->m_bombingRun = true;
+            }
+        }
+        else if( targetObjectId != -1 )
+        {
+            bomber->SetState(0);
+        }
+        if( bomber->m_currentState == 0 )
+        {
+            for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
+            {
+                if( g_app->GetWorld()->m_cities.ValidIndex(i) )
+                {
+                    City *city = g_app->GetWorld()->m_cities[i];
+                    if( city->m_longitude == longitude && city->m_latitude == latitude )
+                    {
+                        bomber->SetState(1);
+                        ActionOrder *order = new ActionOrder();
+                        order->m_targetObjectId = city->m_objectId;
+                        order->m_longitude = longitude;
+                        order->m_latitude = latitude;
+                        bomber->RequestAction( order );
+                        bomber->m_bombingRun = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    g_app->GetWorld()->AddWorldObject( bomber );
+    if( wo->m_nukeSupply == 0 )
+    {
+        bomber->ClearActionQueue();
+        bomber->m_bombingRun = false;
+        bomber->m_states[1]->m_numTimesPermitted = 0;
+    }
+    return true;
+}
+
+bool WorldObject::LaunchBomberFast( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    BomberFast *bomber = new BomberFast();
+    return LaunchBomberFrom( this, bomber, targetObjectId, longitude, latitude, aircraftMode );
+}
+
+bool WorldObject::LaunchStealthBomber( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
+{
+    BomberStealth *bomber = new BomberStealth();
+    return LaunchBomberFrom( this, bomber, targetObjectId, longitude, latitude, aircraftMode );
+}
+
+bool WorldObject::LaunchAEW( int targetObjectId, Fixed longitude, Fixed latitude )
+{
+    AEW *aew = new AEW();
+    if( !aew->IsValidPosition( longitude, latitude ) )
+    {
+        delete aew;
+        return false;
+    }
+    aew->SetTeamId( m_teamId );
+    aew->SetPosition( m_longitude, m_latitude );
+    aew->SetWaypoint( longitude, latitude );
+    g_app->GetWorld()->AddWorldObject( aew );
+    return true;
+}
+
 
 int WorldObject::IsValidCombatTarget( int _objectId )
 {
@@ -1373,7 +1584,37 @@ bool WorldObject::CanLaunchBomber()
     return false;
 }
 
+bool WorldObject::CanLaunchBomberFast()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchStealthBomber()
+{
+    return false;
+}
+
 bool WorldObject::CanLaunchFighter()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchFighterLight()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchStealthFighter()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchNavyStealthFighter()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchAEW()
 {
     return false;
 }
@@ -1507,17 +1748,34 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
         case TypeSAM:
         case TypeABM:
         case TypeRadarStation:
+        case TypeRadarEW:
         case TypeAirBase:
+        case TypeAirBase2:
+        case TypeAirBase3:
         case TypeCity:
             return ArchetypeBuilding;
 
         case TypeSub:
+        case TypeSubG:
+        case TypeSubC:
+        case TypeSubK:
         case TypeBattleShip:
+        case TypeBattleShip2:
+        case TypeBattleShip3:
         case TypeCarrier:
+        case TypeCarrierLight:
+        case TypeCarrierSuper:
+        case TypeCarrierLHD:
             return ArchetypeNavy;
 
         case TypeFighter:
+        case TypeFighterLight:
+        case TypeFighterStealth:
+        case TypeFighterNavyStealth:
         case TypeBomber:
+        case TypeBomberFast:
+        case TypeBomberStealth:
+        case TypeAEW:
         case TypeLACM:
         case TypeLANM:
             return ArchetypeAircraft;
@@ -1544,15 +1802,32 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
         case TypeSAM:            return ClassTypeSAM;
         case TypeABM:            return ClassTypeABM;
         case TypeRadarStation:   return ClassTypeRadar;
+        case TypeRadarEW:        return ClassTypeRadar;
         case TypeAirBase:       return ClassTypeAirbase;
+        case TypeAirBase2:      return ClassTypeAirbase;
+        case TypeAirBase3:      return ClassTypeAirbase;
         case TypeCity:          return ClassTypeCity;
 
         case TypeBattleShip:    return ClassTypeBattleShip;
+        case TypeBattleShip2:   return ClassTypeBattleShip;
+        case TypeBattleShip3:   return ClassTypeBattleShip;
         case TypeCarrier:       return ClassTypeCarrier;
+        case TypeCarrierLight:
+        case TypeCarrierSuper:
+        case TypeCarrierLHD:    return ClassTypeCarrier;
         case TypeSub:           return ClassTypeSub;
+        case TypeSubG:          return ClassTypeSub;
+        case TypeSubC:          return ClassTypeSub;
+        case TypeSubK:          return ClassTypeSub;
 
         case TypeFighter:       return ClassTypeFighter;
+        case TypeFighterLight:  return ClassTypeFighter;
+        case TypeFighterStealth:
+        case TypeFighterNavyStealth: return ClassTypeFighter;
         case TypeBomber:        return ClassTypeBomber;
+        case TypeBomberFast:    return ClassTypeBomber;
+        case TypeBomberStealth: return ClassTypeBomber;
+        case TypeAEW:           return ClassTypeAEW;
 
         case TypeNuke:          return ClassTypeBallisticMissile;
         case TypeLACM:          return ClassTypeCruiseMissile;
@@ -1664,6 +1939,40 @@ bool WorldObject::IsFighterClass() const
 bool WorldObject::IsBomberClass() const
 {
     return m_classType == ClassTypeBomber;
+}
+
+
+bool WorldObject::IsAEWClass() const
+{
+    return m_classType == ClassTypeAEW;
+}
+
+
+int WorldObject::GetFighterCount()
+{
+    return 0;
+}
+
+int WorldObject::GetBomberCount()
+{
+    return 0;
+}
+
+int WorldObject::GetAEWCount()
+{
+    return 0;
+}
+
+void WorldObject::OnFighterLanded( int aircraftType )
+{
+}
+
+void WorldObject::OnBomberLanded( int aircraftType )
+{
+}
+
+void WorldObject::OnAEWLanded()
+{
 }
 
 

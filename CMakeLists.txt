@@ -524,12 +524,20 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/renderer/animated_icon.cpp
     ${ROOT_PATH}/source/renderer/lobby_renderer.cpp
     ${ROOT_PATH}/source/world/radarstation.cpp
+    ${ROOT_PATH}/source/world/unit_graphics.cpp
+    ${ROOT_PATH}/source/world/territory_roster.cpp
+    ${ROOT_PATH}/source/world/aircraft_loads.cpp
     ${ROOT_PATH}/source/world/movingobject.cpp
     ${ROOT_PATH}/source/world/team.cpp
     ${ROOT_PATH}/source/world/date.cpp
     ${ROOT_PATH}/source/world/explosion.cpp
     ${ROOT_PATH}/source/world/fighter.cpp
+    ${ROOT_PATH}/source/world/fighter_light.cpp
+    ${ROOT_PATH}/source/world/fighter_stealth.cpp
+    ${ROOT_PATH}/source/world/fighter_navystealth.cpp
     ${ROOT_PATH}/source/world/battleship.cpp
+    ${ROOT_PATH}/source/world/battleship2.cpp
+    ${ROOT_PATH}/source/world/battleship3.cpp
     ${ROOT_PATH}/source/world/silo.cpp
     ${ROOT_PATH}/source/world/sam.cpp
     ${ROOT_PATH}/source/world/abm.cpp
@@ -544,12 +552,20 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/worldobject.cpp
     ${ROOT_PATH}/source/world/blip.cpp
     ${ROOT_PATH}/source/world/sub.cpp
+    ${ROOT_PATH}/source/world/subc.cpp
+    ${ROOT_PATH}/source/world/subg.cpp
+    ${ROOT_PATH}/source/world/subk.cpp
     ${ROOT_PATH}/source/world/earthdata.cpp
     ${ROOT_PATH}/source/world/radargrid.cpp
     ${ROOT_PATH}/source/world/airbase.cpp
+    ${ROOT_PATH}/source/world/airbase2.cpp
+    ${ROOT_PATH}/source/world/airbase3.cpp
     ${ROOT_PATH}/source/world/votingsystem.cpp
     ${ROOT_PATH}/source/world/city.cpp
     ${ROOT_PATH}/source/world/carrier.cpp
+    ${ROOT_PATH}/source/world/carrier_light.cpp
+    ${ROOT_PATH}/source/world/carrier_super.cpp
+    ${ROOT_PATH}/source/world/carrier_lhd.cpp
     ${ROOT_PATH}/source/world/fleet.cpp
     ${ROOT_PATH}/source/world/nuke.cpp
     ${ROOT_PATH}/source/world/lacm.cpp
@@ -559,7 +575,10 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/depthcharge.cpp
     ${ROOT_PATH}/source/world/torpedo.cpp
     ${ROOT_PATH}/source/world/antibm.cpp
+    ${ROOT_PATH}/source/world/aew.cpp
     ${ROOT_PATH}/source/world/bomber.cpp
+    ${ROOT_PATH}/source/world/bomber_fast.cpp
+    ${ROOT_PATH}/source/world/bomber_stealth.cpp
     ${ROOT_PATH}/source/world/tornado.cpp
     ${ROOT_PATH}/source/network/ClientToServer.cpp
     ${ROOT_PATH}/source/network/Server.cpp

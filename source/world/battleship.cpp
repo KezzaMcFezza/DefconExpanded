@@ -26,7 +26,7 @@ BattleShip::BattleShip()
 {
     SetType( TypeBattleShip );
 
-    strcpy( bmpImageFilename, "graphics/battleship.bmp" );
+    strcpy( bmpImageFilename, "graphics/tico.bmp" );
 
     m_stealthType = 100;
     m_radarRange = 10;
@@ -45,9 +45,9 @@ BattleShip::BattleShip()
     // 1: LACM Launch (LACM vs buildings, LACM anti-ship vs surface ships)
     AddState( LANGUAGEPHRASE("state_sublacm"), 60, 6, 10, 45, true, 40, 3 );
     // 2: Anti-Sub (depth charges)
-    AddState( LANGUAGEPHRASE("state_antisub"), 240, 60, 10, 5, false, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_antisub"), 120, 30, 10, 5, false, -1, 3 );
     // 3: Naval Gun (vs surface ships only)
-    AddState( LANGUAGEPHRASE("state_navaldefense"), 60, 10, 10, 10, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_navaldefense"), 60, 20, 10, 10, true, -1, 3 );
 
     InitialiseTimers();
 }

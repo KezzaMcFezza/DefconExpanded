@@ -106,18 +106,20 @@ Raitos Goals:
   gunfire - gunfire (antiair), torpedo, depthcharge, abm     - DONE
   silos - icbm, mrbm, tel-n, tel-c, ascm                     - DONE
   SAMs - abm, sam                                            - DONE
-  airbase - 1,2,3                                            -
-  radar - radar, radarEW                                     -
-  ships - cruiser, destroyer, frigate                        -
-  carriers - carrier, carriersuper, carrierlight, carrierLHD -
-  subs - ssbn, ssg, ssn, ssk                                 -
-  bombers - normal, stealth, fast                            -
-  fighters - naval, stealth naval, light, stealth            -
-  AEW - AWACS                                                -
+  airbase - 1,2,3                                            - DONE
+  radar - radar, radarEW                                     - DONE
+  ships - cruiser, destroyer, frigate                        - DONE
+  carriers - carrier, carriersuper, carrierlight, carrierLHD - DONE
+  subs - ssbn, ssg, ssn, ssk                                 - DONE
+  bombers - normal, stealth, fast                            - DONE
+  fighters - naval, stealth naval, light, stealth            - DONE
+  AEW - AWACS                                                - DONE
 
+- territory unique units                                  - DONE
 
 TODO:
-- territory unique units
+- fix lacm range
+- sub speed
 - unit stats rebalance
 - unit outlines
 - refine burstfire

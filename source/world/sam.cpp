@@ -19,12 +19,12 @@ SAM::SAM()
 
     strcpy( bmpImageFilename, "graphics/sam.bmp" );
 
-    m_stealthType = 110;
+    m_stealthType = 100;
     m_radarRange = 20;
     m_selectable = true;
 
     m_currentState = 0;
-    m_life = 25;
+    m_life = 5;
 
     AddState( LANGUAGEPHRASE("state_airdefense"), 60, 20, 10, 30, true, -1, 3 );
 

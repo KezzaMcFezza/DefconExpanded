@@ -96,6 +96,15 @@
     <ClCompile Include="..\..\source\world\carrier.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\world\carrier_light.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\carrier_super.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\carrier_lhd.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\world\city.cpp">
       <Filter>world</Filter>
     </ClCompile>
@@ -118,6 +127,9 @@
       <Filter>world</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\world\fighter.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\fighter_navystealth.cpp">
       <Filter>world</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\world\fleet.cpp">

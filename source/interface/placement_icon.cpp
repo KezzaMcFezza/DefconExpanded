@@ -58,8 +58,8 @@ PlacementIconButton::PlacementIconButton( int unitType )
 
 void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool clicked )
 { 
-	bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
     Team *team          = g_app->GetWorld()->GetTeam(g_app->GetWorld()->m_myTeamId);
+	bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType, team->m_teamId) );
 	Colour colour       = team->GetTeamColour();
 
     float longitude = 0.0f;

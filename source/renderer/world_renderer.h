@@ -116,7 +116,7 @@ public:
     bool    IsCoastline          ( Fixed longitude, Fixed latitude );
     Image   *GetTerritoryImage   ( int territoryId );
     Image   *GetTravelNodesImage ();
-    const char *GetImageFile     ( int objectType );
+    const char *GetImageFile     ( int objectType, int teamId = -1 );
 
     int     GetCurrentSelectionId();
     void    SetCurrentSelectionId( int id );

@@ -23,6 +23,7 @@
 #include "world/world.h"
 #include "world/team.h"
 #include "world/fleet.h"
+#include "world/territory_roster.h"
 
 
 SidePanel::SidePanel( const char *name )
@@ -72,8 +73,6 @@ SidePanel::~SidePanel()
 
 void SidePanel::Create()
 {
-    //InterfaceWindow::Create();
-    //CreateExpandButton();
     int x = 26;
     int y = 50;
     int colGap = 75;
@@ -81,47 +80,33 @@ void SidePanel::Create()
 
 	m_fontsize = 48 / 1.2f / 4.0f;
 
-    // 2 columns x 6 rows for buildings (12 slots)
-    UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
-    radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
-    RegisterButton( radar );
+    // Territory roster: use first territory (or USA fallback if none)
+    Team *myTeam = g_app->GetWorld()->GetMyTeam();
+    int primaryTerritory = World::TerritoryUSA;
+    if( myTeam && myTeam->m_territories.Size() > 0 )
+        primaryTerritory = myTeam->m_territories[0];
 
-    UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-    silo->SetProperties( "Silo", x+colGap, y, 48, 48, "", "tooltip_place_silo", false, true );
-    RegisterButton( silo );
+    TerritoryRosterSlot buildingSlots[6][2];
+    int rowsUsed = GetTerritoryBuildingRoster( primaryTerritory, buildingSlots );
 
-    UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
-    sam->SetProperties( "SAM", x, y+rowGap, 48, 48, "", "tooltip_place_sam", false, true );
-    RegisterButton( sam );
+    for( int r = 0; r < rowsUsed && r < 6; ++r )
+    {
+        for( int c = 0; c < 2; ++c )
+        {
+            int unitType = buildingSlots[r][c].unitType;
+            if( unitType < 0 ) continue;
 
-    UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-    airbase->SetProperties( "AirBase", x+colGap, y+rowGap, 48, 48, "", "tooltip_place_airbase", false, true );
-    RegisterButton( airbase );
-
-    UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
-    abm->SetProperties( "ABM", x, y+rowGap*2, 48, 48, "", "tooltip_place_abm", false, true );
-    RegisterButton( abm );
-
-    UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
-    silomed->SetProperties( "SiloMed", x+colGap, y+rowGap*2, 48, 48, "", "tooltip_place_silomed", false, true );
-    RegisterButton( silomed );
-
-    UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
-    silomobile->SetProperties( "SiloMobile", x, y+rowGap*3, 48, 48, "", "tooltip_place_silomobile", false, true );
-    RegisterButton( silomobile );
-
-    UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
-    silomobilecon->SetProperties( "SiloMobileCon", x+colGap, y+rowGap*3, 48, 48, "", "tooltip_place_silomobilecon", false, true );
-    RegisterButton( silomobilecon );
-
-    UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
-    ascm->SetProperties( "ASCM", x, y+rowGap*4, 48, 48, "", "tooltip_place_ascm", false, true );
-    RegisterButton( ascm );
+            char name[64];
+            snprintf( name, sizeof(name), "Build_%d_%d", r, c );
+            UnitPlacementButton *btn = new UnitPlacementButton( unitType );
+            btn->SetProperties( name, x + c * colGap, y + r * rowGap, 48, 48, "", "tooltip_place_unit", false, true );
+            RegisterButton( btn );
+        }
+    }
 
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
     fmb->SetProperties( "FleetMode", x, m_h - 58, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
-
     RegisterButton( fmb );
 }
 
@@ -157,8 +142,14 @@ void SidePanel::Render( bool hasFocus )
             if( myTeam )
             {
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip2];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubK];
 
                 bool unplacedFleets = false;
                 bool outOfCredits = myTeam->m_unitCredits <= 0;
@@ -274,7 +265,7 @@ void SidePanel::Render( bool hasFocus )
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
                     int sx = m_x + fleetSlotX + 2;
                     int sy = m_y + slotY + i * (slotH + slotGap) + 2;
-                    Image *bmpImage	= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(type) );
+                    Image *bmpImage	= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(type, myTeam->m_teamId) );
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                     g_renderer2d->StaticSprite( bmpImage, sx, sy, 36, 36, myTeam->GetTeamColour() );
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -347,49 +338,42 @@ void SidePanel::ChangeMode( int mode )
         if( m_mode == ModeUnitPlacement )
         {
         int colGap = 75, rowGap = 75;
-        UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
-        radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
-        RegisterButton( radar );
-
-        UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-        silo->SetProperties( "Silo", x+colGap, y, 48, 48, "", "tooltip_place_silo", false, true );
-        RegisterButton( silo );
-
-        UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
-        sam->SetProperties( "SAM", x, y+rowGap, 48, 48, "", "tooltip_place_sam", false, true );
-        RegisterButton( sam );
-
-        UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-        airbase->SetProperties( "AirBase", x+colGap, y+rowGap, 48, 48, "", "tooltip_place_airbase", false, true );
-        RegisterButton( airbase );
-
-        UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
-        abm->SetProperties( "ABM", x, y+rowGap*2, 48, 48, "", "tooltip_place_abm", false, true );
-        RegisterButton( abm );
-
-        UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
-        silomed->SetProperties( "SiloMed", x+colGap, y+rowGap*2, 48, 48, "", "tooltip_place_silomed", false, true );
-        RegisterButton( silomed );
-
-        UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
-        silomobile->SetProperties( "SiloMobile", x, y+rowGap*3, 48, 48, "", "tooltip_place_silomobile", false, true );
-        RegisterButton( silomobile );
-
-        UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
-        silomobilecon->SetProperties( "SiloMobileCon", x+colGap, y+rowGap*3, 48, 48, "", "tooltip_place_silomobilecon", false, true );
-        RegisterButton( silomobilecon );
-
-        UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
-        ascm->SetProperties( "ASCM", x, y+rowGap*4, 48, 48, "", "tooltip_place_ascm", false, true );
-        RegisterButton( ascm );
 
         Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
+        int primaryTerritory = World::TerritoryUSA;
+        if( myTeam && myTeam->m_territories.Size() > 0 )
+            primaryTerritory = myTeam->m_territories[0];
+
+        TerritoryRosterSlot buildingSlots[6][2];
+        int rowsUsed = GetTerritoryBuildingRoster( primaryTerritory, buildingSlots );
+
+        for( int r = 0; r < rowsUsed && r < 6; ++r )
+        {
+            for( int c = 0; c < 2; ++c )
+            {
+                int unitType = buildingSlots[r][c].unitType;
+                if( unitType < 0 ) continue;
+
+                char name[64];
+                snprintf( name, sizeof(name), "Build_%d_%d", r, c );
+                UnitPlacementButton *btn = new UnitPlacementButton( unitType );
+                btn->SetProperties( name, x + c * colGap, y + r * rowGap, 48, 48, "", "tooltip_place_unit", false, true );
+                RegisterButton( btn );
+            }
+        }
+
         int shipsRemaining = 0;
         if( myTeam )
         {
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip2];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubK];
         }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
@@ -407,20 +391,28 @@ void SidePanel::ChangeMode( int mode )
         m_w = 250;
         int colGap = 75, rowGap = 75;
 
-        // 2x6 grid for ship types (up to 12), matching buildings page layout
-        AddToFleetButton *sub = new AddToFleetButton(WorldObject::TypeSub);
-        sub->SetProperties( "Sub", x, y, 48, 48, "", "tooltip_place_sub", false, true );
-        RegisterButton( sub );
+        Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
+        int primaryTerritory = World::TerritoryUSA;
+        if( myTeam && myTeam->m_territories.Size() > 0 )
+            primaryTerritory = myTeam->m_territories[0];
 
-        AddToFleetButton *battleship = new AddToFleetButton(WorldObject::TypeBattleShip);
-        battleship->SetProperties( "BattleShip", x+colGap, y, 48, 48, "", "tooltip_place_battleship", false, true );
-        RegisterButton( battleship );
+        TerritoryRosterSlot navySlots[6][2];
+        int navyRows = GetTerritoryNavyRoster( primaryTerritory, navySlots );
 
-        AddToFleetButton *carrier = new AddToFleetButton(WorldObject::TypeCarrier);
-        carrier->SetProperties( "Carrier", x, y+rowGap, 48, 48, "", "tooltip_place_carrier", false, true );
-        RegisterButton( carrier );
+        for( int r = 0; r < navyRows && r < 6; ++r )
+        {
+            for( int c = 0; c < 2; ++c )
+            {
+                int unitType = navySlots[r][c].unitType;
+                if( unitType < 0 ) continue;
 
-        // Slot (1,1) reserved for future ship type
+                char name[64];
+                snprintf( name, sizeof(name), "Navy_%d_%d", r, c );
+                AddToFleetButton *btn = new AddToFleetButton( unitType );
+                btn->SetProperties( name, x + c * colGap, y + r * rowGap, 48, 48, "", "tooltip_place_ship", false, true );
+                RegisterButton( btn );
+            }
+        }
         PanelModeButton *umb = new PanelModeButton( ModeUnitPlacement, true );
         umb->SetProperties( "UnitMode", x, m_h - 58, 48, 48, "dialog_units", "", true, false );
         strcpy( umb->bmpImageFilename, "graphics/units.bmp" );
@@ -449,7 +441,6 @@ void SidePanel::ChangeMode( int mode )
         fpb->SetProperties( "PlaceFleet", fleetSlotX, slotY + 6*(slotH+slotGap), 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
         RegisterButton( fpb );
 
-        Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
         if( myTeam )
         {
             bool needNewFleet = ( m_currentFleetId == -1 ||
@@ -459,8 +450,14 @@ void SidePanel::ChangeMode( int mode )
             {
                 int shipsRemaining = 0;
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip2];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubK];
                 if( shipsRemaining > 0 )
                 {
                     m_currentFleetId = myTeam->m_fleets.Size();
@@ -508,7 +505,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         m_disabled = false;
     }
 
-	Image *bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
+	Image *bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType, team->m_teamId) );
     g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
     Colour col(30,30,30,0);
     for( int x = -1; x <= 1; ++x )
@@ -558,22 +555,10 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 
-    char languageString[64];
-    switch( m_unitType )
-    {
-        case WorldObject::TypeSilo          : sprintf( languageString, "unit_silo" );           break;
-        case WorldObject::TypeSAM           : sprintf( languageString, "unit_sam" );            break;
-        case WorldObject::TypeABM           : sprintf( languageString, "unit_abm" );            break;
-        case WorldObject::TypeSiloMed       : sprintf( languageString, "unit_silomed" );         break;
-        case WorldObject::TypeSiloMobile    : sprintf( languageString, "unit_silomobile" );    break;
-        case WorldObject::TypeSiloMobileCon: sprintf( languageString, "unit_silomobilecon" ); break;
-        case WorldObject::TypeASCM:         sprintf( languageString, "unit_ascm" );         break;
-        case WorldObject::TypeAirBase       : sprintf( languageString, "unit_airbase" );       break;
-        case WorldObject::TypeRadarStation  : sprintf( languageString, "unit_radar" );         break;
-    }
+    const char *unitName = WorldObject::GetName( m_unitType );
 
 	char caption[256];
-	sprintf(caption, "%s(%u)", LANGUAGEPHRASE(languageString), team->m_unitsAvailable[m_unitType]);
+	sprintf(caption, "%s(%u)", unitName, team->m_unitsAvailable[m_unitType]);
     
     Colour textCol = White;
     if( m_disabled )
@@ -622,7 +607,7 @@ void UnitPlacementButton::MouseUp()
 			EclRegisterWindow( icon, m_parent );
 
 			g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = true;
-            if( m_unitType == WorldObject::TypeRadarStation )
+            if( m_unitType == WorldObject::TypeRadarStation || m_unitType == WorldObject::TypeRadarEW )
             {
                 g_app->GetWorldRenderer()->m_showRadar = true;
             }
@@ -760,7 +745,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
     if( parent->m_mode == SidePanel::ModeFleetPlacement )
     {
 	    m_disabled = false;
-	    Image *bmpImage		= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
+	    Image *bmpImage		= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType, team->m_teamId) );
         g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
         Colour col(30,30,30,0);
         for( int x = -1; x <= 1; ++x )
@@ -809,16 +794,10 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
 
-        char languageString[64];
-        switch( m_unitType )
-        {
-            case WorldObject::TypeBattleShip    : sprintf( languageString, "unit_battleship" ); break;
-            case WorldObject::TypeCarrier       : sprintf( languageString, "unit_carrier" );    break;
-            case WorldObject::TypeSub           : sprintf( languageString, "unit_sub" );        break;
-        }
+        const char *unitName = WorldObject::GetName( m_unitType );
 
         char caption[256];
-	    sprintf(caption, "%s(%u)", LANGUAGEPHRASE(languageString), team->m_unitsAvailable[m_unitType]);
+	    sprintf(caption, "%s(%u)", unitName, team->m_unitsAvailable[m_unitType]);
 
         Colour textCol = White;
         if( m_disabled )

@@ -14,6 +14,8 @@
 
 #include "world/world.h"
 #include "world/worldobject.h"
+#include "world/team.h"
+#include "world/unit_graphics.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/animated_icon.h"
@@ -88,10 +90,15 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeRadarStation], "graphics/radarstation.bmp");
     sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/sub.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAirBase], "graphics/airbase.bmp");
-    sprintf(m_imageFiles[WorldObject::TypeCarrier], "graphics/carrier.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrier], "graphics/wasp.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBattleShip], "graphics/battleship.bmp");
     sprintf(m_imageFiles[WorldObject::TypeFighter], "graphics/fighter.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeFighterLight], "graphics/f16.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeFighterStealth], "graphics/f22.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBomberFast], "graphics/b1b.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBomberStealth], "graphics/stealthbomber.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeAEW], "graphics/aew.bmp");
     sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
     sprintf(m_imageFiles[WorldObject::TypeLACM], "graphics/lacm.bmp");
     sprintf(m_imageFiles[WorldObject::TypeCBM], "graphics/nuke.bmp");
@@ -101,6 +108,17 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeSiloMobile], "graphics/silomob.bmp");
     sprintf(m_imageFiles[WorldObject::TypeSiloMobileCon], "graphics/silomob.bmp");
     sprintf(m_imageFiles[WorldObject::TypeASCM], "graphics/ascmbattery.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeRadarEW], "graphics/pavepaws.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSubG], "graphics/subg.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSubC], "graphics/subc.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSubK], "graphics/subk.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBattleShip2], "graphics/battleship.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBattleShip3], "graphics/lcs.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeAirBase2], "graphics/airbase.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeAirBase3], "graphics/airbase.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrierLight], "graphics/carrier.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrierLHD], "graphics/type075.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrierSuper], "graphics/carrier.bmp");
 }
 
 void WorldRenderer::Reset()
@@ -506,7 +524,12 @@ Image *WorldRenderer::GetTravelNodesImage()
     return m_bmpTravelNodes;
 }
 
-const char *WorldRenderer::GetImageFile( int objectType )
+const char *WorldRenderer::GetImageFile( int objectType, int teamId )
 {
-    return m_imageFiles[objectType];
+    const char *defaultPath = m_imageFiles[objectType];
+    if ( teamId < 0 ) return defaultPath;
+    Team *team = g_app->GetWorld()->GetTeam( teamId );
+    if ( !team || team->m_territories.Size() == 0 ) return defaultPath;
+    int primaryTerritory = team->m_territories[0];
+    return GetUnitGraphicForTerritory( primaryTerritory, objectType, defaultPath );
 }

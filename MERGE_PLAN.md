@@ -3,6 +3,142 @@
 **Source**: `c:\Users\miles\DEFCONPROJECT\THUNDYv2`  
 **Target**: `C:\DefconExpanded` (all edits here only)
 
+**Unit stats reference** (goatcon): [Google Sheets](https://docs.google.com/spreadsheets/d/1-H62mTA2QfVusg6o__63ntxi6qa7lSKGxBhz7t7S-lM/edit?gid=1935469833#gid=1935469833) — Life Points, Stealth Type, Speed, Turn Rate, Prepare/Reload Time, Action/Fuel Range, Nuke/LACM supply, Max Fighters, per-airbase launch options
+
+Territory-specific aircraft launcher loads
+
+Generic
+  Airbase: fighter_light 2, fighter 2
+  Carrier: fighter 2
+
+USA:
+  Airbase: fighter_light 5, fighter_navy_stealth 2, AEW 2
+  Airbase2: fighter_stealth 2, bomber_fast 2, bomber_stealth 2, bomber 5, AEW 2
+  Airbase3: fighter 2, fighter_navy_stealth 2, AEW 2
+  Carrier_super: fighter 4, fighter_navy_stealth 2, AEW 2
+  Carrier: fighter_navy_stealth 2
+
+NATO
+  Airbase: fighter 5, AEW 2
+  Airbase2: fighter_light 2, fighter_navy_stealth 2, AEW 2
+  Carrier: fighter 3, AEW 1
+  Carrier_light: fighter_navy_stealth 3
+
+Japan:
+  Airbase: fighter_light 2, fighter_navy_stealth 2, AEW 2
+  Carrier: fighter_navy_stealth 2
+
+Korea:
+  Airbase: fighter_light 2, fighter_navy_stealth 2, AEW 2
+
+Taiwan:
+  Airbase: fighter_light 5, AEW
+
+Ukraine:
+  Airbase: fighter_light 5, fighter 2
+
+Australia:
+  Airbase: fighter 5, fighter_navy_stealth 2, AEW 2
+  Carrier: fighter_navy_stealth 2
+
+Russia:
+  Airbase: fighter_light 2, bomber_fast 3, bomber 2, AEW 2
+  Airbase2: fighter 5, fighter_stealth 2, AEW 2
+  Carrier: fighter 3
+
+China:
+  Airbase: fighter 5, fighter_stealth 2, bomber 5, AEW 2
+  Airbase2: fighter_light 5, fighter 5, fighter_navy_stealth 2
+  Carrier_super: fighter 3, fighter_navy_stealth 2, AEW 2
+  carrier: fighter 3
+  carrier_light: fighter 3
+
+India:
+  Airbase: fighter_light 5, fighter 2, AEW 2
+  Carrier: fighter 3
+
+Egypt:
+  Airbase: fighter_light 5, fighter 2, AEW 2
+
+Saudi:
+  Airbase: fighter 3, AEW 2
+
+Israel:
+  Airbase: fighter_light 5, figher_navy_stealth 2, AEW 2
+
+NorthKorea:
+Indonesia:
+Pakistan:
+Iran:
+  Airbase: fighter_light 2, fighter 2
+
+Terrutory-based unit graphics list:
+
+generic
+use the given bmp in the unit constructor
+
+USA: uses generic
+China:
+  fighter_light: j10
+  fighter: flanker
+  fighter_navy_stealth: j35
+  fighter_stealth: j20
+  bomber: h6
+  battleship: Type55
+  battleship_ddg: Type52D
+  battleship_fg: Type54A
+  carrier_super: Fujian
+  carrier: Kuznetsov
+  carrier_light: Kuznetsov
+  carrier_lhd: Type075
+Russia:
+  fighter_light: mig29
+  fighter: flanker
+  fighter_stealth: su57
+  bomber: tu95
+  bomber_fast: tu22m
+  battleship: slava
+  battleship_ddg: udaloy
+  battleship_fg: admiralgrigorovich
+  carrier: Kuznetsov
+  carrier_light: Kuznetsov
+NATO:
+  fighter: rafale
+  battleship_ddg: horizon
+  battleship_fg: fremm
+  carrier: degaulle
+  carrier_light: queen
+India:
+  fighter: rafale
+  fighter_light: flanker
+  carrier: Kuznetsov
+Pakistan:
+  fighter_light: j10
+JAPAN:
+  carrier: Izumo
+Ukraine:
+  fighter_light: mig29
+  fighter: flanker
+Indonesia:
+  fighter: flanker
+NorthKorea:
+  fighter_light: mig29
+  fighter: flanker
+Iran:
+  fighter_light: mig29
+  fighter: f14
+Saudi:
+  fighter: rafale
+Egypt
+  fighter: rafale
+Vietnam:
+  fighter: flanker
+Neutrals
+  fighter: flanker
+
+
+
+
 expansion of unit system                                - INPROGRESS
   missiles - nuke, ballistic, lacm                          - DONE
   gunfire - gunfire (antiair), torpedo, depthcharge, antibm - DONE
