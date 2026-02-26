@@ -33,7 +33,7 @@ Fighter::Fighter()
     m_opportunityFireOnly = false;
 
     AddState( LANGUAGEPHRASE("state_attack"), 60, 20, 5, 10, true, 6 );   // Gun: state 0 ammo (6 CAP / 2 Strike)
-    AddState( LANGUAGEPHRASE("state_fighterlacm"), 240, 120, 5, 10, true, 0 );  // LACM: state 1 ammo (0 CAP / 2 Strike)
+    AddState( LANGUAGEPHRASE("state_fighterlacm"), 60, 30, 5, 10, true, 0 );  // LACM: state 1 ammo (0 CAP / 2 Strike)
 
     m_states[1]->m_numTimesPermitted = 0;
 
@@ -539,7 +539,13 @@ int Fighter::IsValidCombatTarget( int _objectId )
         return TargetTypeInvalid;
     }
 
-    if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+    if( obj->IsTargetableSurfaceNavy() )
+    {
+        if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+            return TargetTypeLaunchLACM;
+        return TargetTypeInvalid;
+    }
+    if( obj->IsCityClass() )
     {
         if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
             return TargetTypeLaunchLACM;

@@ -26,7 +26,7 @@ namespace
         { World::TerritoryChina, WorldObject::TypeBomber,            "graphics/h6.bmp" },
         { World::TerritoryChina, WorldObject::TypeBattleShip,        "graphics/type55.bmp" },
         { World::TerritoryChina, WorldObject::TypeBattleShip2,       "graphics/type52d.bmp" },
-        { World::TerritoryChina, WorldObject::TypeBattleShip3,       "graphics/type54a.bmp" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip3,       "graphics/type054a.bmp" },
         { World::TerritoryChina, WorldObject::TypeCarrierSuper,      "graphics/fujian.bmp" },
         { World::TerritoryChina, WorldObject::TypeCarrier,           "graphics/kuznetsov.bmp" },
         { World::TerritoryChina, WorldObject::TypeCarrierLight,      "graphics/kuznetsov.bmp" },

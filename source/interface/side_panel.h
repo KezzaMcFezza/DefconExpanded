@@ -16,7 +16,8 @@ public:
     int m_mode;
     int m_currentFleetId;
     int m_fleetTeamId;
-    
+    int m_lastMyTeamId;
+
     int m_previousUnitCount;
 
 	float m_fontsize;

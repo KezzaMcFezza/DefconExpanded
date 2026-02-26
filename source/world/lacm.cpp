@@ -154,8 +154,7 @@ bool LACM::Update()
     }
 
     WorldObject *targetObj = ( m_targetObjectId != -1 ) ? g_app->GetWorld()->GetWorldObject( m_targetObjectId ) : 0;
-    bool isShipTarget = targetObj && ( targetObj->IsCarrierClass() || targetObj->IsBattleShipClass() ||
-                                       ( targetObj->IsSubmarine() && !targetObj->IsHiddenFrom() ) );
+    bool isShipTarget = targetObj && targetObj->IsTargetableSurfaceNavy();
     bool shipPursuit = isShipTarget || m_targetIsShip;
 
     if( shipPursuit )
@@ -226,6 +225,8 @@ bool LACM::Update()
                 {
                     targetObj->m_life--;
                     targetObj->m_life = (targetObj->m_life > 0) ? targetObj->m_life : 0;
+                    if( targetObj->IsAircraftLauncher() )
+                        targetObj->MaybeRemoveRandomStoredAircraft();
                     if( targetObj->m_life == 0 && m_origin != -1 )
                     {
                         WorldObject *origin = g_app->GetWorld()->GetWorldObject( m_origin );
@@ -331,6 +332,8 @@ bool LACM::Update()
             {
                 targetObj->m_life--;
                 targetObj->m_life = ( targetObj->m_life > 0 ) ? targetObj->m_life : 0;
+                if( targetObj->IsAircraftLauncher() )
+                    targetObj->MaybeRemoveRandomStoredAircraft();
                 if( targetObj->m_life == 0 && m_origin != -1 )
                 {
                     WorldObject *origin = g_app->GetWorld()->GetWorldObject( m_origin );
@@ -352,13 +355,6 @@ bool LACM::Update()
     }
     else
     {
-        m_range -= ( m_vel * Fixed(timePerUpdate) ).Mag();
-        if( m_range <= 0 )
-        {
-            m_life = 0;
-            m_lastHitByTeamId = -1;
-            g_app->GetWorld()->AddOutOfFueldMessage( m_objectId );
-        }
         m_longitude = newLongitude;
         m_latitude = newLatitude;
     }
@@ -388,13 +384,6 @@ bool LACM::MoveToWaypointAntiShip()
         return true;
     }
 
-    m_range -= Vector3<Fixed>( m_vel.x * Fixed(timePerUpdate), m_vel.y * Fixed(timePerUpdate), 0 ).Mag();
-    if( m_range <= 0 )
-    {
-        m_life = 0;
-        m_lastHitByTeamId = -1;
-        g_app->GetWorld()->AddOutOfFueldMessage( m_objectId );
-    }
     m_longitude = newLongitude;
     m_latitude = newLatitude;
     return false;

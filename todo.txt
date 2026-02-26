@@ -101,7 +101,7 @@ Raitos Goals:
 - nuke impact zone                                        - DONE
 - launch render improvments                               - DONE
 - multi-tier radar system                                 - DONE
-- expansion of unit system                                - INPROGRESS
+- expansion of unit system                                - DONE
   missiles - nuke, ballistic, lacm                           - DONE
   gunfire - gunfire (antiair), torpedo, depthcharge, abm     - DONE
   silos - icbm, mrbm, tel-n, tel-c, ascm                     - DONE
@@ -114,18 +114,17 @@ Raitos Goals:
   bombers - normal, stealth, fast                            - DONE
   fighters - naval, stealth naval, light, stealth            - DONE
   AEW - AWACS                                                - DONE
-
 - territory unique units                                  - DONE
+- unit outlines                                           - DONE
+- ballistic anti ship missiles                            - DONE
+- sub speed                                               - DONE
+- fix lacm range                                          - DONE
+- fleet size fix                                          - DONE
 
 TODO:
-- fix lacm range
-- sub speed
 - unit stats rebalance
-- unit outlines
 - refine burstfire
 - ammunition revamp
-- lacm strike on airbase/carrier bug
+- lacm can't launch on friendly airbase/carrier bug
 - refueler
-- fix friendly targeting
 - performance efficiancy increase
-- ballistic anti ship missiles

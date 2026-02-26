@@ -9,7 +9,8 @@ class Image;
 class WorldObject;
 class AnimatedIcon;
 
-#define    CLEARQUEUE_STATEID  255
+#define    CLEARQUEUE_STATEID      255
+#define    EMPTY_STATE_PLACEHOLDER 254
 
 #define    PREFS_GRAPHICS_COASTLINE_THICKNESS         "RenderCoastlineThickness"
 #define    PREFS_GRAPHICS_BORDER_THICKNESS            "RenderBorderThickness"
@@ -19,6 +20,7 @@ class AnimatedIcon;
 #define    PREFS_GRAPHICS_COUNTRYNAMES                "RenderCountryNames"
 #define    PREFS_GRAPHICS_WATER                       "RenderWater"
 #define    PREFS_GRAPHICS_TRAILS                      "RenderObjectTrails"
+#define    PREFS_GRAPHICS_OUTLINES                    "RenderObjectOutlines"
 
 #define    STYLE_WORLD_COASTLINES                     "WorldCoastlines"
 #define    STYLE_WORLD_BORDERS                        "WorldBorders"
@@ -178,6 +180,9 @@ public:
     void    RenderWorldObjectTargets   ( WorldObject *wobj, bool maxRanges=true );
     void    RenderWorldObjectDetails   ( WorldObject *wobj );
     void    GetWorldObjectStatePosition( WorldObject *wobj, int state,
+                                         float *screenX, float *screenY, float *screenW, float *screenH,
+                                         int numDisplaySlotsOverride = -1 );
+    void    GetWorldObjectStatePositionByDisplaySlot( WorldObject *wobj, int displaySlot,
                                          float *screenX, float *screenY, float *screenW, float *screenH );
     void    GetStatePositionSizes     ( float *titleSize, float *textSize, float *gapSize );
 	

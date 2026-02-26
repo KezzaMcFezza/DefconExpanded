@@ -84,7 +84,7 @@ void BattleShip::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 return;
             }
             bool isShipTarget = ( targetObj &&
-                targetObj->IsNavy() && ( !targetObj->IsSubmarine() || !targetObj->IsHiddenFrom() ) );
+                targetObj->IsTargetableSurfaceNavy() );
             if( isShipTarget )
             {
                 g_app->GetWorld()->LaunchCruiseMissile( m_teamId, m_objectId, longitude, latitude, Fixed(90), targetObjectId );
@@ -118,7 +118,7 @@ void BattleShip::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         // Naval gun: set target only
         WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
         if( target && target->m_visible[m_teamId] &&
-            target->IsNavy() && ( !target->IsSubmarine() || !target->IsHiddenFrom() ) &&
+            target->IsTargetableSurfaceNavy() &&
             g_app->GetWorld()->GetAttackOdds( m_type, target->m_type, m_objectId ) > 0 )
         {
             m_targetObjectId = targetObjectId;
@@ -154,7 +154,7 @@ void BattleShip::AcquireTargetFromAction( ActionOrder *action )
     {
         WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
         if( target && target->m_visible[m_teamId] &&
-            target->IsNavy() && ( !target->IsSubmarine() || !target->IsHiddenFrom() ) &&
+            target->IsTargetableSurfaceNavy() &&
             g_app->GetWorld()->GetAttackOdds( m_type, target->m_type, m_objectId ) > 0 )
         {
             m_targetObjectId = action->m_targetObjectId;
@@ -272,7 +272,7 @@ bool BattleShip::Update()
             {
                 WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
                 if( targetObject && targetObject->m_visible[m_teamId] &&
-                    targetObject->IsNavy() && ( !targetObject->IsSubmarine() || !targetObject->IsHiddenFrom() ) )
+                    targetObject->IsTargetableSurfaceNavy() )
                 {
                     Fixed distance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude );
                     if( distance <= GetActionRange() )
@@ -387,7 +387,7 @@ void BattleShip::RunAI()
                     if( g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) ) continue;
                     if( team->m_ceaseFire[obj->m_teamId] ) continue;
                     if( !obj->m_seen[m_teamId] ) continue;
-                    bool isShipTarget = obj->IsNavy() && ( !obj->IsSubmarine() || !obj->IsHiddenFrom() );
+                    bool isShipTarget = obj->IsTargetableSurfaceNavy();
                     if( !isShipTarget ) continue;
                     Fixed dSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
                     if( dSqd >= maxRangeSqd ) continue;
@@ -624,7 +624,7 @@ int BattleShip::GetTarget( Fixed range, const LList<int> *excludeIds )
         }
         else if( m_currentState == 3 )
         {
-            if( !obj->IsNavy() || ( obj->IsSubmarine() && obj->IsHiddenFrom() ) ) continue;
+            if( !obj->IsTargetableSurfaceNavy() ) continue;
         }
         else
         {
@@ -654,7 +654,7 @@ void BattleShip::FleetAction( int targetObjectId )
     if( !obj || !obj->m_visible[ m_teamId ] ) return;
     if( g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type, m_objectId ) <= 0 ) return;
     if( m_currentState == 2 && !obj->IsSubmarine() ) return;
-    if( m_currentState == 3 && ( !obj->IsNavy() || ( obj->IsSubmarine() && obj->IsHiddenFrom() ) ) ) return;
+    if( m_currentState == 3 && ( !obj->IsTargetableSurfaceNavy() ) ) return;
     m_targetObjectId = targetObjectId;
 }
 
@@ -765,7 +765,7 @@ int BattleShip::IsValidCombatTarget( int _objectId )
         if( obj->IsAircraft() || obj->IsBallisticMissileClass() ) return WorldObject::TargetTypeInvalid;
         Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( distanceSqd >= GetActionRangeSqd() ) return WorldObject::TargetTypeOutOfRange;
-        if( obj->IsNavy() && ( !obj->IsSubmarine() || !obj->IsHiddenFrom() ) )
+        if( obj->IsTargetableSurfaceNavy() )
             return WorldObject::TargetTypeValid;
         if( !obj->IsMovingObject() )
             return WorldObject::TargetTypeLaunchLACM;
@@ -780,7 +780,7 @@ int BattleShip::IsValidCombatTarget( int _objectId )
     }
     if( m_currentState == 3 )
     {
-        if( !obj->IsNavy() || ( obj->IsSubmarine() && obj->IsHiddenFrom() ) ) return WorldObject::TargetTypeInvalid;
+        if( !obj->IsTargetableSurfaceNavy() ) return WorldObject::TargetTypeInvalid;
         Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( distanceSqd > GetActionRangeSqd() ) return WorldObject::TargetTypeOutOfRange;
         if( g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type, m_objectId ) <= 0 ) return WorldObject::TargetTypeInvalid;

@@ -959,87 +959,94 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
     int numFighters = -1;
     int numBombers = -1;
+    int numNavyStealthFighters = -1;
+    int numAEWCarrier = -1;
     int numNukes = -1;
     int numLACMs = -1;
     int numCBMs = -1;
 
-    switch( wobj->m_type )
+    WorldObject::ClassType ctype = WorldObject::GetClassTypeForType( wobj->m_type );
+    int objType = wobj->m_type;
+
+    switch( ctype )
     {
-        case WorldObject::TypeSilo:
-            numNukes = wobj->m_nukeSupply;
-            break;
-
-        case WorldObject::TypeSiloMed:
-            numNukes = wobj->m_states[1]->m_numTimesPermitted;
-            break;
-
-        case WorldObject::TypeSiloMobile:
-            numNukes = wobj->m_states[1]->m_numTimesPermitted;
-            break;
-
-        case WorldObject::TypeSiloMobileCon:
-            if( wobj->m_states.Size() > 1 )
+        case WorldObject::ClassTypeSilo:
+            if( objType == WorldObject::TypeSilo )
+                numNukes = wobj->m_nukeSupply;
+            else if( objType == WorldObject::TypeSiloMed || objType == WorldObject::TypeSiloMobile )
+                numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            else if( objType == WorldObject::TypeSiloMobileCon && wobj->m_states.Size() > 1 )
             {
                 int cbmRemaining = wobj->m_states[1]->m_numTimesPermitted - wobj->m_actionQueue.Size();
                 numCBMs = ( cbmRemaining > 0 ) ? cbmRemaining : 0;
             }
-            break;
-
-        case WorldObject::TypeASCM:
-            if( wobj->m_states.Size() > 0 )
+            else if( objType == WorldObject::TypeASCM && wobj->m_states.Size() > 0 )
             {
                 int lacmRemaining = wobj->m_states[0]->m_numTimesPermitted - wobj->m_actionQueue.Size();
                 numLACMs = ( lacmRemaining > 0 ) ? lacmRemaining : 0;
             }
             break;
 
-        case WorldObject::TypeAirBase:
-            numFighters = wobj->m_states[0]->m_numTimesPermitted;
-            numBombers = wobj->m_states[2]->m_numTimesPermitted;
-            break;
-        case WorldObject::TypeCarrier:
-            numFighters = wobj->m_states[0]->m_numTimesPermitted;
+        case WorldObject::ClassTypeAirbase:
+            numFighters = wobj->GetFighterCount();
+            numBombers = wobj->GetBomberCount();
+            numAEWCarrier = wobj->GetAEWCount();
+            if( numAEWCarrier <= 0 ) numAEWCarrier = -1;
             break;
 
-        case WorldObject::TypeFighter:
+        case WorldObject::ClassTypeCarrier:
+            if( wobj->m_states.Size() >= 5 )
             {
-                Fighter *fighter = static_cast<Fighter *>(wobj);
                 numFighters = wobj->m_states[0]->m_numTimesPermitted;
-                if( fighter->m_lacmLoadout )
-                    numLACMs = wobj->m_states[1]->m_numTimesPermitted;
+                numNavyStealthFighters = wobj->m_states[2]->m_numTimesPermitted;
+                numAEWCarrier = wobj->m_states[4]->m_numTimesPermitted;
             }
             break;
 
-        case WorldObject::TypeBomber:
-            {
-                Bomber *bomber = static_cast<Bomber *>(wobj);
-                if( bomber->m_lacmLoadout )
-                {
-                    numLACMs = wobj->m_states[2]->m_numTimesPermitted;
-                }
-                else
-                {
-                    numNukes = wobj->m_states[1]->m_numTimesPermitted;
-                }
-            }
-            break;
-
-        case WorldObject::TypeSub:
-            numNukes = wobj->m_states[3]->m_numTimesPermitted;
-            break;
-
-        case WorldObject::TypeBattleShip:
-            if( wobj->m_currentState == 1 )
+        case WorldObject::ClassTypeBattleShip:
+            if( wobj->m_currentState == 1 && wobj->m_states.Size() > 1 )
             {
                 int lacmRemaining = wobj->m_states[1]->m_numTimesPermitted - wobj->m_actionQueue.Size();
                 numLACMs = ( lacmRemaining > 0 ) ? lacmRemaining : 0;
             }
             break;
+
+        case WorldObject::ClassTypeSub:
+            if( objType == WorldObject::TypeSub && wobj->m_states.Size() > 3 )
+                numNukes = wobj->m_states[3]->m_numTimesPermitted;
+            else if( ( objType == WorldObject::TypeSubG || objType == WorldObject::TypeSubC ) && wobj->m_states.Size() > 3 )
+            {
+                int lacmRemaining = wobj->m_states[3]->m_numTimesPermitted - wobj->m_actionQueue.Size();
+                numLACMs = ( lacmRemaining > 0 ) ? lacmRemaining : 0;
+            }
+            break;
+
+        case WorldObject::ClassTypeFighter:
+            {
+                Fighter *fighter = static_cast<Fighter *>(wobj);
+                numFighters = wobj->m_states[0]->m_numTimesPermitted;
+                if( fighter->m_lacmLoadout && wobj->m_states.Size() > 1 )
+                    numLACMs = wobj->m_states[1]->m_numTimesPermitted;
+            }
+            break;
+
+        case WorldObject::ClassTypeBomber:
+            {
+                Bomber *bomber = static_cast<Bomber *>(wobj);
+                if( bomber->m_lacmLoadout && wobj->m_states.Size() > 2 )
+                    numLACMs = wobj->m_states[2]->m_numTimesPermitted;
+                else if( wobj->m_states.Size() > 1 )
+                    numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            }
+            break;
+
+        default:
+            break;
     }
 
 
     float totalBoxH = 1 * -(*boxH);
-    if( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
+    if( numFighters != -1 || numBombers != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
     {
         totalBoxH += 0.9f * -(*boxH);
     }
@@ -1105,6 +1112,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
     float totalSize = 0;
     if( numFighters != -1 ) totalSize += gap * numFighters + gap * 0.5f;
+    if( numNavyStealthFighters != -1 ) totalSize += gap * numNavyStealthFighters + gap * 0.5f;
+    if( numAEWCarrier != -1 ) totalSize += gap * numAEWCarrier + gap * 0.5f;
     if( numBombers != -1 ) totalSize += gap * numBombers + gap * 0.5f;
     if( numNukes != -1 ) totalSize += gap * numNukes * 0.5f + gap * 0.25f;
     if( numLACMs != -1 ) totalSize += gap * numLACMs * 0.5f + gap * 0.25f;
@@ -1118,8 +1127,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 
 
-    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
-    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
+    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
+    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNavyStealthFighters <= 0 ) && ( numAEWCarrier <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
     if( anyAmmo && allZero )
     {
         col.m_a = 150;
@@ -1143,6 +1152,25 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             if( numFighters > 0 ) xPos += gap*0.5f;
         }
 
+        if( numNavyStealthFighters != -1 )
+        {
+            Image *img = g_resource->GetImage( "graphics/f35c.bmp" );
+            for( int i = 0; i < numNavyStealthFighters; ++i )
+            {
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+            }
+            if( numNavyStealthFighters > 0 ) xPos += gap*0.5f;
+        }
+
+        if( numAEWCarrier != -1 )
+        {
+            Image *img = g_resource->GetImage( "graphics/aew.bmp" );
+            for( int i = 0; i < numAEWCarrier; ++i )
+            {
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+            }
+            if( numAEWCarrier > 0 ) xPos += gap*0.5f;
+        }
 
         //
         // Bombers
@@ -1204,6 +1232,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 }
 
+static int GetVisibleStateIndices( WorldObject *wobj, int *out, int maxOut );
 
 void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, float *boxY, float *boxW, float *boxH, float *boxSep )
 {
@@ -1212,7 +1241,8 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
     return;
 #endif
 
-	int numStates = wobj->m_states.Size();
+    int visibleIndices[64];
+    int numVisible = GetVisibleStateIndices( wobj, visibleIndices, 64 );
     float originalAlpha = g_renderer2d->m_alpha * (1.0f - ( m_highlightTime / 1.0f ));
     int alpha = originalAlpha * 255;
 
@@ -1227,7 +1257,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
 
 
 	*boxY += *boxH;
-    float totalBoxH = numStates * -(*boxH);
+    float totalBoxH = numVisible * -(*boxH);
 
     float inset = 0.3f * m_drawScale;
 
@@ -1277,7 +1307,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
     if( actionQueue )
     {
         float stateX, stateY, stateW, stateH;
-        GetWorldObjectStatePosition( wobj, -1, &stateX, &stateY, &stateW, &stateH );
+        GetWorldObjectStatePosition( wobj, -1, &stateX, &stateY, &stateW, &stateH, numVisible );
 
         if( m_currentStateId == CLEARQUEUE_STATEID )
         {
@@ -1297,15 +1327,23 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
 
     //
     // Render our state buttons
-    for( int i = 0; i < numStates; ++i )
+    for( int disp = 0; disp < numVisible; ++disp )
     {
-        WorldObjectState *state = wobj->m_states[i];
+        int i = visibleIndices[disp];
+        bool isEmptyPlaceholder = ( i == EMPTY_STATE_PLACEHOLDER );
+        WorldObjectState *state = isEmptyPlaceholder ? NULL : wobj->m_states[i];
         float stateX, stateY, stateW, stateH;
-        GetWorldObjectStatePosition( wobj, i, &stateX, &stateY, &stateW, &stateH );
+        GetWorldObjectStatePositionByDisplaySlot( wobj, disp, &stateX, &stateY, &stateW, &stateH );
             
-        char *caption = NULL;
+        char captionBuf[256];
         float timeTodo = 0.0f;
 
+        if( isEmptyPlaceholder )
+        {
+            strcpy( captionBuf, LANGUAGEPHRASE("dialog_mapr_empty") );
+        }
+        else
+        {
 		if( i == m_currentStateId &&
             state->m_numTimesPermitted != 0 &&
             state->m_defconPermitted >= g_app->GetWorld()->GetDefcon())
@@ -1337,23 +1375,25 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
                         
         if( i == wobj->m_currentState && wobj->m_stateTimer <= 0 )
         {
-            caption = state->GetStateName();
+            strcpy( captionBuf, state->GetStateName() );
             timeTodo = 0.0f;
         }
         else if( i == wobj->m_currentState && wobj->m_stateTimer > 0 )
         {
-            caption = state->GetPreparingName();
+            strcpy( captionBuf, state->GetPreparingName() );
             timeTodo = wobj->m_stateTimer.DoubleValue();
         }
         else
         {
-            caption = state->GetPrepareName();
+            strcpy( captionBuf, state->GetPrepareName() );
             timeTodo = state->m_timeToPrepare.DoubleValue();
         }    
-        
+    
         if( state->m_numTimesPermitted != -1 )
         {
-            sprintf(caption, "%s (%u)", caption, state->m_numTimesPermitted );
+            char tmp[256];
+            sprintf(tmp, "%s (%u)", captionBuf, state->m_numTimesPermitted);
+            strcpy(captionBuf, tmp);
         }       
 
         Colour textCol;
@@ -1368,7 +1408,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
         }
 
         float textYPos = stateY + (stateH - textSize)/2;
-        g_renderer2d->TextSimple( stateX + *boxSep, textYPos, textCol, textSize, caption );
+        g_renderer2d->TextSimple( stateX + *boxSep, textYPos, textCol, textSize, captionBuf );
 
         if( state->m_defconPermitted < g_app->GetWorld()->GetDefcon() )
         {
@@ -1395,21 +1435,55 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
             if( state->m_numTimesPermitted == 0 )
             {
                 g_renderer2d->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
-                strcpy( caption, LANGUAGEPHRASE("dialog_mapr_empty") );
-                g_renderer2d->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
+                strcpy( captionBuf, LANGUAGEPHRASE("dialog_mapr_empty") );
+                g_renderer2d->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, captionBuf );
             }
             else if( state->m_defconPermitted < g_app->GetWorld()->GetDefcon())
             {                
                 g_renderer2d->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
-                strcpy( caption, LANGUAGEPHRASE("dialog_mapr_not_before_defcon_x") );
-				LPREPLACEINTEGERFLAG( 'D', state->m_defconPermitted, caption );
-                g_renderer2d->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
+                strcpy( captionBuf, LANGUAGEPHRASE("dialog_mapr_not_before_defcon_x") );
+				LPREPLACEINTEGERFLAG( 'D', state->m_defconPermitted, captionBuf );
+                g_renderer2d->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, captionBuf );
             }
+        }
+        }
+
+        if( isEmptyPlaceholder )
+        {
+            if( m_currentStateId == EMPTY_STATE_PLACEHOLDER )
+            {
+                g_renderer2d->RectFill( stateX+inset, stateY+inset, stateW-inset*2, stateH-inset*2,
+                                      highlightSecondary, highlightPrimary, highlightOrientation );
+            }
+            Colour textCol( 100, 100, 100, alpha*0.5f );
+            float textYPos = stateY + (stateH - textSize)/2;
+            g_renderer2d->TextSimple( stateX + *boxSep, textYPos, textCol, textSize, captionBuf );
         }
     }
 }
 
-void MapRenderer::GetWorldObjectStatePosition( WorldObject *wobj, int state, float *screenX, float *screenY, float *screenW, float *screenH )
+static int GetVisibleStateIndices( WorldObject *wobj, int *out, int maxOut )
+{
+    int n = 0;
+    if( wobj->IsAircraftLauncher() )
+    {
+        for( int i = 0; i < wobj->m_states.Size() && n < maxOut; ++i )
+        {
+            if( wobj->m_states[i]->m_numTimesPermitted != 0 )
+                out[n++] = i;
+        }
+        if( n == 0 )
+            out[n++] = EMPTY_STATE_PLACEHOLDER;
+    }
+    else
+    {
+        for( int i = 0; i < wobj->m_states.Size() && n < maxOut; ++i )
+            out[n++] = i;
+    }
+    return n;
+}
+
+void MapRenderer::GetWorldObjectStatePosition( WorldObject *wobj, int state, float *screenX, float *screenY, float *screenW, float *screenH, int numDisplaySlotsOverride )
 {
     float titleSize, textSize, gapSize;
     GetStatePositionSizes( &titleSize, &textSize, &gapSize );
@@ -1429,10 +1503,11 @@ void MapRenderer::GetWorldObjectStatePosition( WorldObject *wobj, int state, flo
         *screenW = 34.0f;
     }
 
+    int numStates = ( numDisplaySlotsOverride >= 0 ) ? numDisplaySlotsOverride : wobj->m_states.Size();
+
     if( state == -1 )
     {
         // Clear Queue state
-        int numStates = wobj->m_states.Size();
         *screenY = predictedLatitude - titleSize - (numStates+1) * (*screenH);
     }
     else if( state == -2 )
@@ -1443,11 +1518,16 @@ void MapRenderer::GetWorldObjectStatePosition( WorldObject *wobj, int state, flo
     }
     else
     {
-        // Ordinary state
-        *screenY = predictedLatitude - titleSize - ( state +1 ) * (*screenH);
+        // Ordinary state (or display slot when using filtered menu)
+        *screenY = predictedLatitude - titleSize - ( state + 1 ) * (*screenH);
     }
 
     *screenW = *screenW * m_drawScale;
+}
+
+void MapRenderer::GetWorldObjectStatePositionByDisplaySlot( WorldObject *wobj, int displaySlot, float *screenX, float *screenY, float *screenW, float *screenH )
+{
+    GetWorldObjectStatePosition( wobj, displaySlot, screenX, screenY, screenW, screenH );
 }
 
 
@@ -3661,6 +3741,9 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
 
 void MapRenderer::HandleClickStateMenu()
 {
+    if( m_currentStateId == EMPTY_STATE_PLACEHOLDER )
+        return;
+
     WorldObject *highlight = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentHighlightId());
     if( highlight )
     {
@@ -4538,16 +4621,16 @@ void MapRenderer::Update()
         WorldObject *wobj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
         if( wobj )
         {
-            for( int i = 0; i < wobj->m_states.Size(); ++i )
+            int visibleIndices[64];
+            int numVisible = GetVisibleStateIndices( wobj, visibleIndices, 64 );
+            for( int disp = 0; disp < numVisible; ++disp )
             {
                 float screenX, screenY, screenW, screenH;
-                GetWorldObjectStatePosition( wobj, i, &screenX, &screenY, &screenW, &screenH );
-                //if( screenX < -180 ) screenX += 360.0f;
-                //if( screenX > 180 ) screenX -= 360.0f;
+                GetWorldObjectStatePositionByDisplaySlot( wobj, disp, &screenX, &screenY, &screenW, &screenH );
                 if( longitude >= screenX && longitude <= screenX + screenW &&
                     latitude >= screenY && latitude <= screenY + screenH )
                 {
-                    m_currentStateId = i;
+                    m_currentStateId = visibleIndices[disp];
                     break;
                 }
             }
@@ -4557,7 +4640,7 @@ void MapRenderer::Update()
                     wobj->m_actionQueue.Size() > 0 )
                 {
                     float screenX, screenY, screenW, screenH;
-                    GetWorldObjectStatePosition( wobj, -1, &screenX, &screenY, &screenW, &screenH );
+                    GetWorldObjectStatePosition( wobj, -1, &screenX, &screenY, &screenW, &screenH, numVisible );
                     if( longitude >= screenX && longitude <= screenX + screenW &&
                         latitude >= screenY && latitude <= screenY + screenH )
                     {

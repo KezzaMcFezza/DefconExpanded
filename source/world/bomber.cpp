@@ -624,7 +624,7 @@ int Bomber::IsValidCombatTarget( int _objectId )
     {
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
             return TargetTypeInvalid;
-        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+        if( obj->IsTargetableSurfaceNavy() )
             return TargetTypeLaunchLACM;
         if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
             return TargetTypeLaunchLACM;
@@ -634,7 +634,7 @@ int Bomber::IsValidCombatTarget( int _objectId )
         // Buildings: ballistic nuke. Ships: LANM (nuclear cruise missile)
         if( !obj->IsMovingObject() )
             return TargetTypeLaunchNuke;
-        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+        if( obj->IsTargetableSurfaceNavy() )
             return TargetTypeLaunchNuke;
     }
 

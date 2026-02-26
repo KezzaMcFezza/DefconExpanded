@@ -370,6 +370,27 @@ void Carrier::OnAEWLanded()
         m_states[4]->m_numTimesPermitted++;
 }
 
+void Carrier::MaybeRemoveRandomStoredAircraft()
+{
+    if( syncfrand(100) >= 50 )
+        return;
+    // Pick random category with stock: (0,1) Fighter, (2,3) NavyStealth, (4) AEW
+    int primaryStates[] = { 0, 2, 4 };
+    int numCategories = ( m_states.Size() > 4 ) ? 3 : 2;
+    int available[3], numAvailable = 0;
+    for( int i = 0; i < numCategories; ++i )
+    {
+        int idx = primaryStates[i];
+        if( idx < m_states.Size() && m_states[idx]->m_numTimesPermitted > 0 )
+            available[numAvailable++] = idx;
+    }
+    if( numAvailable == 0 )
+        return;
+    int pick = available[ syncrand() % numAvailable ];
+    m_states[pick]->m_numTimesPermitted--;
+    if( pick == 0 || pick == 2 )
+        m_states[pick + 1]->m_numTimesPermitted--;
+}
 
 int Carrier::GetAttackOdds( int _defenderType )
 {
@@ -419,7 +440,7 @@ int Carrier::IsValidCombatTarget( int _objectId )
         }
         if( m_currentState == 1 || m_currentState == 3 )
         {
-            if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            if( obj->IsTargetableSurfaceNavy() )
                 return TargetTypeLaunchLACM;
             if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
                 return TargetTypeLaunchLACM;

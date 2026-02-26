@@ -591,6 +591,17 @@ void MovingObject::Render2D()
         
         Image *bmpImage = g_resource->GetImage( GetResolvedBmpImageFilename() );
 
+        Image *outlineImage = GetOutlineImage();
+        if( outlineImage )
+        {
+            Colour white( 255, 255, 255, 255 );
+            float outlineX = predictedLongitude - size;
+            float outlineY = predictedLatitude + size;
+            float outlineW = size * 2.0f;
+            float outlineH = size * -2.0f;
+            g_renderer2d->StaticSprite( outlineImage, outlineX, outlineY, outlineW, outlineH, white );
+        }
+
         g_renderer2d->RotatingSprite( bmpImage,
                           predictedLongitude,
                           predictedLatitude,
@@ -666,6 +677,14 @@ void MovingObject::Render3D()
         Vector3<float> normal = spritePos;
         normal.Normalise();
         spritePos += normal * GLOBE_ELEVATION;
+
+        Image *outlineImage3d = GetOutlineImage();
+        if( outlineImage3d )
+        {
+            Colour white( 255, 255, 255, 255 );
+            g_renderer3d->StaticSprite3D( outlineImage3d, spritePos.x, spritePos.y, spritePos.z,
+                                          size, size, white, BILLBOARD_SURFACE_ALIGNED );
+        }
         
         g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
                                         size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
@@ -1003,10 +1022,8 @@ void MovingObject::RenderGhost3D( int teamId )
                 }
                 else
                 {
-                    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
-                    bool flipped = (team->m_territories[0] >= 3);
                     g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
-                                                   flipped ? -spriteSize : spriteSize, spriteSize, col, BILLBOARD_SURFACE_ALIGNED );
+                                                   spriteSize, spriteSize, col, BILLBOARD_SURFACE_ALIGNED );
                 }
             }
             else
@@ -1651,8 +1668,7 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
         timeLeft = timeLeft * leadFactor;
     }
     else if( m_type == WorldObject::TypeLACM &&
-             ( target->IsCarrierClass() || target->IsBattleShipClass() ||
-               ( target->IsSubmarine() && !target->IsHiddenFrom() ) ) )
+             target->IsTargetableSurfaceNavy() )
     {
         // LACM anti-ship: missile is slower than gunfire and has slower turn rate. Ships have
         // low linear speed but can change course quickly - use conservative lead narrowing

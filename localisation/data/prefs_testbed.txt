@@ -25,6 +25,7 @@ RenderCountryNames = 0
 RenderWater = 2
 RenderLowDetailWorld = 0
 RenderObjectTrails = 1
+RenderObjectOutlines = 1
 RenderLobbyEffects = 0
  
 NetworkMetaServerPort = 5009

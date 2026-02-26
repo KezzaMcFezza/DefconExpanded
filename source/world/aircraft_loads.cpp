@@ -151,7 +151,7 @@ void ApplyTerritoryAircraftLoads( WorldObject *obj, int primaryTerritory )
         {
             if ( type == WorldObject::TypeCarrierSuper )
                 SetCarrierLoad( obj, 4, 2, 2 );
-            else if ( type == WorldObject::TypeCarrier )
+            else if ( type == WorldObject::TypeCarrier || type == WorldObject::TypeCarrierLight )
                 SetCarrierLoad( obj, 0, 2, 0 );
         }
         else if ( t == World::TerritoryNATO )

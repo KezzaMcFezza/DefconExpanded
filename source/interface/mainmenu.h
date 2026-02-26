@@ -45,6 +45,7 @@ public:
     int     m_water;
     int     m_lowResWorld;
     int     m_trails;
+    int     m_outlines;
     int     m_lobbyEffects;
     
 public:

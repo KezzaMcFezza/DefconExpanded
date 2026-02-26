@@ -33,7 +33,7 @@ Sub::Sub()
     SetType( TypeSub );
 
     m_stealthType = 50;  // stealth1 - only in shortest-range coverage
-    strcpy( bmpImageFilename, "graphics/sub.bmp" );
+    strcpy( bmpImageFilename, "graphics/subn.bmp" );
 
     m_radarRange = 0;
     m_speed = Fixed::Hundredths(2);
@@ -149,15 +149,24 @@ bool Sub::IsHiddenFrom()
 }
 
 bool Sub::Update()
-{        
-    if( m_currentState == 3 )
+{
+    // Allies see type-specific (subn); non-allies see generic sub (Thundy behavior)
+    bool isEnemy = ( g_app->GetWorld()->m_myTeamId >= 0 &&
+                     !g_app->GetWorld()->IsFriend( m_teamId, g_app->GetWorld()->m_myTeamId ) );
+    bool surfaced = ( m_currentState >= 2 );
+    if( isEnemy )
     {
-        strcpy( bmpImageFilename, "graphics/sub_surfaced.bmp" );
+        strcpy( bmpImageFilename, surfaced ? "graphics/sub_surfaced.bmp" : "graphics/sub.bmp" );
     }
     else
     {
-        strcpy( bmpImageFilename, "graphics/sub.bmp" );
+        strcpy( bmpImageFilename, surfaced ? "graphics/subn_surfaced.bmp" : "graphics/subn.bmp" );
     }
+
+    if( m_currentState == 0 || m_currentState >= 2 )
+        m_speed = Fixed::Hundredths(2);
+    else if( m_currentState == 1 )
+        m_speed = Fixed::Hundredths(3);
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
     if( fleet && ( m_currentState == 0 || m_currentState == 1 ) )

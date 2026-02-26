@@ -32,6 +32,7 @@ public:
     Fixed GetSize();
     bool Update();
     void SetWaypoint( Fixed longitude, Fixed latitude );
+    bool IsBlip() const override { return true; }
 }; 
 
 #endif

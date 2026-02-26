@@ -458,32 +458,21 @@ void Team::PlacementAI()
             bool defensive = false;
             LList<int> fleetTypeList;
             
-            //if( CanAssembleFleet(Fleet::FleetTypeBattleships)) fleetTypeList.PutData( Fleet::FleetTypeBattleships );
+            // AI: same-type fleets only, max 3 ships each (no mixed fleets)
+            if( CanAssembleFleet(Fleet::FleetTypeBattleships)) fleetTypeList.PutData( Fleet::FleetTypeBattleships );
             if( CanAssembleFleet(Fleet::FleetTypeScout)) fleetTypeList.PutData( Fleet::FleetTypeScout );
             if( CanAssembleFleet(Fleet::FleetTypeNuke)) fleetTypeList.PutData( Fleet::FleetTypeNuke );
             if( CanAssembleFleet(Fleet::FleetTypeSubs)) fleetTypeList.PutData( Fleet::FleetTypeSubs );
-            if( CanAssembleFleet(Fleet::FleetTypeMixed)) fleetTypeList.PutData( Fleet::FleetTypeMixed );
-
-            if( m_unitsAvailable[WorldObject::TypeBattleShip] +
-                m_unitsAvailable[WorldObject::TypeSub] +
-                m_unitsAvailable[WorldObject::TypeCarrier] <= 6 )
+            if( CanAssembleFleet(Fleet::FleetTypeAntiSub)) fleetTypeList.PutData( Fleet::FleetTypeAntiSub );
+            if( CanAssembleFleet(Fleet::FleetTypeDefender)) fleetTypeList.PutData( Fleet::FleetTypeDefender );
+            if( CanAssembleFleet(Fleet::FleetTypeDefender2)) fleetTypeList.PutData( Fleet::FleetTypeDefender2 );
+            if( fleetTypeList.Size() > 0 )
             {
-                fleetType = Fleet::FleetTypeMixed;
-            }
-            else
-            {
-                if( fleetTypeList.Size() > 0 )
-                {
-                    int r = syncrand() % fleetTypeList.Size();
-                    fleetType = fleetTypeList[r];
-                }
-                else
-                {
-                    fleetType = Fleet::FleetTypeRandom;
-                }
+                int r = syncrand() % fleetTypeList.Size();
+                fleetType = fleetTypeList[r];
             }
 
-            if(AssembleFleet( fleetType ))
+            if( fleetType >= 0 && AssembleFleet( fleetType ) )
             {
                 int id = m_fleets.Size() -1;
                 switch( fleetType )
@@ -1049,13 +1038,13 @@ bool Team::AssembleFleet( int fleetType )
         ( fleetType == Fleet::FleetTypeMixed &&
           m_unitsAvailable[WorldObject::TypeBattleShip] +
           m_unitsAvailable[WorldObject::TypeSub] +
-          m_unitsAvailable[WorldObject::TypeCarrier] <= 6 ) ||
+          m_unitsAvailable[WorldObject::TypeCarrier] <= Fleet::MaxFleetSize ) ||
           fleetType == Fleet::FleetTypeRandom )
     {
         CreateFleet();
         if( (m_unitsAvailable[WorldObject::TypeBattleShip] +
             m_unitsAvailable[WorldObject::TypeSub] +
-            m_unitsAvailable[WorldObject::TypeCarrier] <= 6 &&
+            m_unitsAvailable[WorldObject::TypeCarrier] <= Fleet::MaxFleetSize &&
             fleetType == Fleet::FleetTypeMixed ) ||
             !CanAssembleFleet())
         {
@@ -1074,7 +1063,7 @@ bool Team::AssembleFleet( int fleetType )
             if( g_app->GetGame()->GetOptionValue("VariableUnitCounts") == 0 ) credits = 9999999;
 
             bool outOfResources = false;
-            while( ships + subs + carriers < 6 &&
+            while( ships + subs + carriers < Fleet::MaxFleetSize &&
                    !outOfResources)
             {                
                 int r = syncfrand(3).IntValue();

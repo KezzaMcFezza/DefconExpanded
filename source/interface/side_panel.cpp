@@ -33,11 +33,12 @@ SidePanel::SidePanel( const char *name )
     m_mode(ModeUnitPlacement),
     m_currentFleetId(-1),
     m_fleetTeamId(-1),
+    m_lastMyTeamId(-999),
     m_previousUnitCount(0),
 	m_fontsize(13.0f)
 {
     //SetMovable(false);
-    SetSize( 250, 550 );  // 2x6 buildings, 6 fleet slots (single column)
+    SetSize( 250, 615 );  // 7 fleet slots: 50 + 7*75 + 58 for mode button
 	if( g_windowManager->WindowH() > 480 )
 	{
 		SetPosition( 0, 100 );
@@ -113,6 +114,16 @@ void SidePanel::Create()
 
 void SidePanel::Render( bool hasFocus )
 {
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    if( m_lastMyTeamId != -999 && m_lastMyTeamId != myTeamId )
+    {
+        EclRemoveWindow( "Placement" );
+        m_currentFleetId = -1;
+        m_fleetTeamId = -1;
+        ChangeMode( ModeUnitPlacement );
+    }
+    m_lastMyTeamId = myTeamId;
+
     int currentSelectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
     if( currentSelectionId == -1 )
     {
@@ -242,9 +253,9 @@ void SidePanel::Render( bool hasFocus )
                 
                 if( m_mode == ModeFleetPlacement )
                 {
-                    // 6 fleet slots in single column, like original Defcon
+                    // Fleet slots in single column
                     int fleetSlotX = 160, slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
-                    for( int i = 0; i < 6; ++i )
+                    for( int i = 0; i < Fleet::MaxFleetSize; ++i )
                     {
                         int sx = m_x + fleetSlotX;
                         int sy = m_y + slotY + i * (slotH + slotGap);
@@ -423,9 +434,9 @@ void SidePanel::ChangeMode( int mode )
         cfb->SetProperties( "ClearFleet", fleetSlotX, 20, 88, 28, "dialog_clear_fleet", "tooltip_clear_fleet", false, true );
         RegisterButton( cfb );
 
-        // 6 fleet slots in single column, like original Defcon
+        // Fleet slots in single column
         int slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
-        for( int i = 0; i < 6; ++i )
+        for( int i = 0; i < Fleet::MaxFleetSize; ++i )
         {
             char name[128];
             sprintf( name, "Remove Unit %d", i );
@@ -438,7 +449,7 @@ void SidePanel::ChangeMode( int mode )
         }
 
         FleetPlacementButton *fpb = new FleetPlacementButton();
-        fpb->SetProperties( "PlaceFleet", fleetSlotX, slotY + 6*(slotH+slotGap), 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
+        fpb->SetProperties( "PlaceFleet", fleetSlotX, slotY + Fleet::MaxFleetSize*(slotH+slotGap), 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
         RegisterButton( fpb );
 
         if( myTeam )
@@ -454,6 +465,8 @@ void SidePanel::ChangeMode( int mode )
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierSuper];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLHD];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];
@@ -773,7 +786,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
 	    if( team->m_unitsAvailable[m_unitType] <= 0 ||
             team->m_unitCredits < g_app->GetWorld()->GetUnitValue(m_unitType) ||
             ( parent->m_currentFleetId != -1 && team->m_fleets.ValidIndex( parent->m_currentFleetId ) &&
-              team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() >= 6 ) )
+              team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() >= Fleet::MaxFleetSize ) )
 	    {
 		    m_disabled = true;
 	    }
@@ -846,12 +859,12 @@ void AddToFleetButton::MouseUp()
         if( parent->m_currentFleetId != -1 &&
             team->m_fleets.ValidIndex( parent->m_currentFleetId ) )
         {
-            if( team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() < 6 )
+            if( team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() < Fleet::MaxFleetSize )
             {
                 Fleet *fleet = team->m_fleets[ parent->m_currentFleetId ];
                 if( g_keys[KEY_SHIFT] )
                 {
-                    for( int i = team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size(); i < 6; ++i )
+                    for( int i = team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size(); i < Fleet::MaxFleetSize; ++i )
                     {
                         if( team->m_unitsAvailable[m_unitType] > 0 &&
                             team->m_unitCredits >= g_app->GetWorld()->GetUnitValue( m_unitType ) )
@@ -874,7 +887,7 @@ void AddToFleetButton::MouseUp()
                     fleet->m_memberType.PutData( m_unitType );
                 }
 
-                if( fleet->m_memberType.Size() == 6 )
+                if( fleet->m_memberType.Size() == Fleet::MaxFleetSize )
                 {
                     FleetPlacementButton *button = (FleetPlacementButton *)parent->GetButton("PlaceFleet");
                     button->m_disabled = false;                    

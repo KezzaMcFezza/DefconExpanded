@@ -9,6 +9,7 @@ class SubG : public SubC
 public:
 
     SubG();
+    bool Update() override;
 
     int GetAttackOdds( int _defenderType );
 };

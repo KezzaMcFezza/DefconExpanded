@@ -47,6 +47,7 @@ public:
     void    OnFighterLanded( int aircraftType ) override;
     void    OnBomberLanded( int aircraftType ) override;
     void    OnAEWLanded() override;
+    void    MaybeRemoveRandomStoredAircraft() override;
 
     int     CountIncomingFighters();
 

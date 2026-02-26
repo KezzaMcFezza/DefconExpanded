@@ -500,6 +500,29 @@ void AirBase::OnAEWLanded()
         m_states[14]->m_numTimesPermitted++;
 }
 
+void AirBase::MaybeRemoveRandomStoredAircraft()
+{
+    if( syncfrand(100) >= 50 )
+        return;
+    // Pick random category with stock: (0,1) FighterLight, (2,3) Fighter, (4,5) NavyStealth, (6,7) Stealth,
+    // (8,9) Bomber, (10,11) BomberFast, (12,13) Stealth Bomber, (14) AEW
+    int primaryStates[] = { 0, 2, 4, 6, 8, 10, 12, 14 };
+    int numCategories = ( m_states.Size() > 14 ) ? 8 : 7;
+    int available[8], numAvailable = 0;
+    for( int i = 0; i < numCategories; ++i )
+    {
+        int idx = primaryStates[i];
+        if( idx < m_states.Size() && m_states[idx]->m_numTimesPermitted > 0 )
+            available[numAvailable++] = idx;
+    }
+    if( numAvailable == 0 )
+        return;
+    int pick = available[ syncrand() % numAvailable ];
+    m_states[pick]->m_numTimesPermitted--;
+    if( pick == 0 || pick == 2 || pick == 4 || pick == 6 || pick == 8 || pick == 10 || pick == 12 )
+        m_states[pick + 1]->m_numTimesPermitted--;
+}
+
 int AirBase::GetAttackOdds( int _defenderType )
 {
     if( CanLaunchFighter() )
@@ -560,7 +583,7 @@ int AirBase::IsValidCombatTarget( int _objectId )
         }
         if( m_currentState == 1 || m_currentState == 3 || m_currentState == 5 || m_currentState == 7 )
         {
-            if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            if( obj->IsTargetableSurfaceNavy() )
                 return TargetTypeLaunchLACM;
             if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
                 return TargetTypeLaunchLACM;
@@ -574,7 +597,7 @@ int AirBase::IsValidCombatTarget( int _objectId )
             return TargetTypeInvalid;
         if( !obj->IsMovingObject() )
             return TargetTypeLaunchBomber;
-        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+        if( obj->IsTargetableSurfaceNavy() )
             return TargetTypeLaunchBomber;
         if( ( m_currentState == 9 || m_currentState == 11 || m_currentState == 13 ) &&
              !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
@@ -620,6 +643,7 @@ void AirBase::Render2D()
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
     {   
+        if( !m_states.ValidIndex( m_currentState ) ) return;
         int numInStore = m_states[m_currentState]->m_numTimesPermitted;
         int numInQueue = m_actionQueue.Size();
 
@@ -628,7 +652,7 @@ void AirBase::Render2D()
         colour.m_a = 150;
 
         Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 || m_currentState == 1 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        if( m_currentState >= 0 && m_currentState <= 7 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
 
         if( bmpImage )
         {
@@ -666,6 +690,7 @@ void AirBase::Render3D()
         g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetGame()->m_winner != -1 )
     {   
+        if( !m_states.ValidIndex( m_currentState ) ) return;
         int numInStore = m_states[m_currentState]->m_numTimesPermitted;
         int numInQueue = m_actionQueue.Size();
 
@@ -674,7 +699,7 @@ void AirBase::Render3D()
         colour.m_a = 150;
 
         Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 || m_currentState == 1 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        if( m_currentState >= 0 && m_currentState <= 7 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
 
         if( bmpImage )
         {

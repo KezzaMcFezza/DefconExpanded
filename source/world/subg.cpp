@@ -41,6 +41,23 @@ SubG::SubG()
     InitialiseTimers();
 }
 
+bool SubG::Update()
+{
+    bool result = SubC::Update();
+    bool isEnemy = ( g_app->GetWorld()->m_myTeamId >= 0 &&
+                     !g_app->GetWorld()->IsFriend( m_teamId, g_app->GetWorld()->m_myTeamId ) );
+    bool surfaced = ( m_currentState == 3 );
+    if( isEnemy )
+    {
+        strcpy( bmpImageFilename, surfaced ? "graphics/sub_surfaced.bmp" : "graphics/sub.bmp" );
+    }
+    else
+    {
+        strcpy( bmpImageFilename, surfaced ? "graphics/subg_surfaced.bmp" : "graphics/subg.bmp" );
+    }
+    return result;
+}
+
 int SubG::GetAttackOdds( int _defenderType )
 {
     // SubG uses same attack odds as Sub (SSBN)

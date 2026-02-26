@@ -1182,6 +1182,7 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_COUNTRYNAMES, gow->m_countryNames );
         g_preferences->SetInt( PREFS_GRAPHICS_WATER, gow->m_water );
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
+        g_preferences->SetInt( PREFS_GRAPHICS_OUTLINES, gow->m_outlines );
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
         g_app->GetEarthData()->LoadCoastlines();
@@ -1199,9 +1200,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 390, 410 );
+    SetSize( 390, 440 );
 #else
-    SetSize( 390, 370 );
+    SetSize( 390, 400 );
 #endif
 
     Centralise();
@@ -1218,6 +1219,7 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_countryNames       = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
     m_water              = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
     m_trails             = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
+    m_outlines           = g_preferences->GetInt( PREFS_GRAPHICS_OUTLINES );
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
 }
 
@@ -1288,6 +1290,13 @@ void GraphicsOptionsWindow::Create()
     RegisterButton(dropDown);
 
     dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Show Unit Outlines", x, y+=h, w, 20, "dialog_objectoutlines", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_outlines );
+    RegisterButton(dropDown);
+
+    dropDown = new DropDownMenu();
     dropDown->SetProperties( "Lobby Effects", x, y+=h, w, 20, "dialog_lobbyeffects", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
     dropDown->AddOption( "dialog_disabled", 0, true );
@@ -1326,6 +1335,7 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objectoutlines") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
 }
 

@@ -88,13 +88,14 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeSilo], "graphics/silo.bmp");
     sprintf(m_imageFiles[WorldObject::TypeSAM], "graphics/sam.bmp");
     sprintf(m_imageFiles[WorldObject::TypeRadarStation], "graphics/radarstation.bmp");
-    sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/sub.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/subn.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAirBase], "graphics/airbase.bmp");
     sprintf(m_imageFiles[WorldObject::TypeCarrier], "graphics/wasp.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBattleShip], "graphics/battleship.bmp");
     sprintf(m_imageFiles[WorldObject::TypeFighter], "graphics/fighter.bmp");
     sprintf(m_imageFiles[WorldObject::TypeFighterLight], "graphics/f16.bmp");
     sprintf(m_imageFiles[WorldObject::TypeFighterStealth], "graphics/f22.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeFighterNavyStealth], "graphics/f35c.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomberFast], "graphics/b1b.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomberStealth], "graphics/stealthbomber.bmp");

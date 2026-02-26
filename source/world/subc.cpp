@@ -92,13 +92,16 @@ void SubC::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
 bool SubC::Update()
 {
-    if( m_currentState == 3 )
+    bool isEnemy = ( g_app->GetWorld()->m_myTeamId >= 0 &&
+                     !g_app->GetWorld()->IsFriend( m_teamId, g_app->GetWorld()->m_myTeamId ) );
+    bool surfaced = ( m_currentState == 3 );
+    if( isEnemy )
     {
-        strcpy( bmpImageFilename, "graphics/subc_surfaced.bmp" );
+        strcpy( bmpImageFilename, surfaced ? "graphics/sub_surfaced.bmp" : "graphics/sub.bmp" );
     }
     else
     {
-        strcpy( bmpImageFilename, "graphics/subc.bmp" );
+        strcpy( bmpImageFilename, surfaced ? "graphics/subc_surfaced.bmp" : "graphics/subc.bmp" );
     }
 
     if( m_currentState == 0 )
@@ -346,9 +349,7 @@ int SubC::IsValidCombatTarget( int _objectId )
             Fixed actionRangeSqd = m_states[3]->m_actionRange * m_states[3]->m_actionRange;
             if( distanceSqd >= actionRangeSqd )
                 return TargetTypeOutOfRange;
-            if( obj->IsCarrierClass() || obj->IsBattleShipClass() )
-                return TargetTypeLaunchLACM;
-            if( obj->IsSubmarine() && !obj->IsHiddenFrom() )
+            if( obj->IsTargetableSurfaceNavy() )
                 return TargetTypeLaunchLACM;
             if( !obj->IsMovingObject() )
                 return TargetTypeLaunchLACM;

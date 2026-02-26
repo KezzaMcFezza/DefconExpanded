@@ -286,40 +286,55 @@ void Fleet::GetFormationPosition( int memberCount, int memberId, Fixed *longitud
         }
         case 4:
         {
+            // Center + triangle around; center first, then clockwise from north
             switch(memberId)
             {
-                case 0  :   *longitude -= offset*4;                         break;
-                case 1  :                           *latitude += offset*3;  break;
-                case 2  :   *longitude += offset*4;                         break;
-                case 3  :                           *latitude -= offset*3;  break;
+                case 0  :   /* center */                                break;
+                case 1  :                           *latitude += offset*6;  break;  // north
+                case 2  :   *longitude += offset*5; *latitude -= offset*3;  break;  // bottom-right (cw)
+                case 3  :   *longitude -= offset*5; *latitude -= offset*3;  break;  // bottom-left (cw)
             }
             break;
         }
-
         case 5:
         {
+            // Center + diamond around; center first, then clockwise from north
             switch(memberId)
             {
-                case 0  :                           *latitude += offset*6;  break;
-                case 1  :   *longitude -= offset*4; *latitude -= offset*3;  break;
-                case 2  :   *longitude += offset*4; *latitude -= offset*3;  break;
-                case 3  :   *longitude -= offset*6; *latitude += offset*3;  break;
-                case 4  :   *longitude += offset*6; *latitude += offset*3;  break;
+                case 0  :   /* center */                                break;
+                case 1  :                           *latitude += offset*6;  break;
+                case 2  :   *longitude += offset*6;                      break;
+                case 3  :                           *latitude -= offset*6;  break;
+                case 4  :   *longitude -= offset*6;                      break;
             }
             break;
         }
-
-
         case 6:
         {
+            // Center + pentagon around; center first, then clockwise from north
             switch(memberId)
             {
-                case 0  :                           *latitude += offset*6;  break;
-                case 1  :                           *latitude -= offset*6;  break;
-                case 2  :   *longitude += offset*6; *latitude -= offset*3;  break;
-                case 3  :   *longitude -= offset*6; *latitude -= offset*3;  break;
-                case 4  :   *longitude += offset*6; *latitude += offset*3;  break;
-                case 5  :   *longitude -= offset*6; *latitude += offset*3;  break;
+                case 0  :   /* center */                                break;
+                case 1  :                           *latitude += offset*6;  break;
+                case 2  :   *longitude += offset*5; *latitude += offset*3;  break;
+                case 3  :   *longitude += offset*5; *latitude -= offset*3;  break;
+                case 4  :   *longitude -= offset*5; *latitude -= offset*3;  break;
+                case 5  :   *longitude -= offset*5; *latitude += offset*3;  break;
+            }
+            break;
+        }
+        case 7:
+        {
+            // Center + hexagon around; center first, then clockwise from north
+            switch(memberId)
+            {
+                case 0  :   /* center */                                break;
+                case 1  :                           *latitude += offset*6;  break;  // north
+                case 2  :   *longitude += offset*6; *latitude += offset*3;  break;  // upper-right (cw)
+                case 3  :   *longitude += offset*6; *latitude -= offset*3;  break;  // lower-right (cw)
+                case 4  :                           *latitude -= offset*6;  break;  // south (cw)
+                case 5  :   *longitude -= offset*6; *latitude -= offset*3;  break;  // lower-left (cw)
+                case 6  :   *longitude -= offset*6; *latitude += offset*3;  break;  // upper-left (cw)
             }
             break;
         }
@@ -1073,22 +1088,18 @@ void Fleet::RunAIIntercepting()
 
 void Fleet::GetFleetMembers( int fleetType, int *ships, int *subs, int *carriers )
 {
-    int ship = WorldObject::TypeBattleShip;
-    int sub = WorldObject::TypeSub;
-    int carrier = WorldObject::TypeCarrier;
-
-    int fleetMembers[ NumFleetTypes ] [ 3 ] =     
-
-        {   
+    // AI fleet compositions: max 3 ships, same-type only (no mixed fleets)
+    int fleetMembers[ NumFleetTypes ] [ 3 ] =
+        {
             //ships     //subs      // carriers
-            6,          0,          0,          // FleetTypeBattleShips
-            3,          0,          3,          // FleetTypeScout
-            0,          3,          3,          // FleetTypeNuke
-            0,          6,          0,          // FleetTypeSub
-            2,          2,          2,          // FleetTypeMixed
-            2,          0,          4,          // FleetTypeAntiSub
-            5,          0,          1,          // FleetTypeDefender
-            0,          2,          4,          // FleetTypeDefender2
+            3,          0,          0,          // FleetTypeBattleShips
+            0,          0,          3,          // FleetTypeScout (carriers only)
+            0,          3,          0,          // FleetTypeNuke (subs only)
+            0,          3,          0,          // FleetTypeSubs
+            2,          2,          2,          // FleetTypeMixed (human only, fallback when few units)
+            3,          0,          0,          // FleetTypeAntiSub (ships only)
+            3,          0,          0,          // FleetTypeDefender (ships only)
+            0,          0,          3,          // FleetTypeDefender2 (carriers only)
         };
 
     *ships      = fleetMembers[fleetType][0];

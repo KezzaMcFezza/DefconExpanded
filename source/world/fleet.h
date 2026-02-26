@@ -10,7 +10,8 @@
 class Fleet
 {
 public:
-    
+    static const int MaxFleetSize = 7;
+
     int         m_fleetId;
     int         m_teamId;
     //int         m_fleetLeader;

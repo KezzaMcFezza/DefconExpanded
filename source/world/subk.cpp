@@ -88,10 +88,17 @@ bool SubK::Update()
             fleet->StopFleet();
     }
 
-    if( m_currentState == 2 )
-        strcpy( bmpImageFilename, "graphics/subk_surfaced.bmp" );
+    bool isEnemy = ( g_app->GetWorld()->m_myTeamId >= 0 &&
+                     !g_app->GetWorld()->IsFriend( m_teamId, g_app->GetWorld()->m_myTeamId ) );
+    bool surfaced = ( m_currentState == 2 );
+    if( isEnemy )
+    {
+        strcpy( bmpImageFilename, surfaced ? "graphics/sub_surfaced.bmp" : "graphics/sub.bmp" );
+    }
     else
-        strcpy( bmpImageFilename, "graphics/subk.bmp" );
+    {
+        strcpy( bmpImageFilename, surfaced ? "graphics/subk_surfaced.bmp" : "graphics/subk.bmp" );
+    }
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
     if( fleet )

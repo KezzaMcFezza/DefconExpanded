@@ -30,7 +30,7 @@ ASCM::ASCM()
     m_states.EmptyAndDelete();
     Fixed gameScale = World::GetUnitScaleFactor();
     Fixed range45 = Fixed( 45 ) / gameScale;
-    AddState( LANGUAGEPHRASE("state_ascmlaunch"), 60, 6, 10, range45, true, 60, 3 );
+    AddState( LANGUAGEPHRASE("state_ascmlaunch"), 60, 3, 10, range45, true, 60, 3 );
 
     m_currentState = 0;
     m_nukeSupply = -1;   // LACM, not nukes - do not use m_nukeSupply
@@ -110,8 +110,7 @@ void ASCM::RunAI()
         if( g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) ) continue;
         if( team->m_ceaseFire[obj->m_teamId] ) continue;
         if( !obj->m_seen[m_teamId] ) continue;
-        bool isShip = ( obj->IsCarrierClass() || obj->IsBattleShipClass() ||
-                       ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) );
+        bool isShip = obj->IsTargetableSurfaceNavy();
         if( !isShip ) continue;
         Fixed dSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( dSqd >= maxRangeSqd ) continue;
@@ -157,8 +156,7 @@ int ASCM::IsValidCombatTarget( int _objectId )
     int basicResult = WorldObject::IsValidCombatTarget( _objectId );
     if( basicResult < TargetTypeInvalid ) return basicResult;
 
-    bool isShip = ( obj->IsCarrierClass() || obj->IsBattleShipClass() ||
-                   ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) );
+    bool isShip = obj->IsTargetableSurfaceNavy();
     if( !isShip ) return TargetTypeInvalid;
 
     int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeLACM, obj->m_type );
@@ -180,67 +178,14 @@ int ASCM::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 void ASCM::Render2D()
 {
     WorldObject::Render2D();
-    if( m_teamId != g_app->GetWorld()->m_myTeamId &&
-        g_app->GetWorld()->m_myTeamId != -1 &&
-        g_app->GetGame()->m_winner == -1 )
-        return;
-    int numInStore = m_states[0]->m_numTimesPermitted;
-    int numInQueue = m_actionQueue.Size();
-    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
-    if( !team ) return;
-    Colour colour = team->GetTeamColour();
-    colour.m_a = 150;
-    Image *bmpImage = g_resource->GetImage("graphics/lacm.bmp", 0.0625f, 0.10f);
-    if( !bmpImage ) return;
-    float x = m_longitude.DoubleValue();
-    float y = m_latitude.DoubleValue() - GetSize().DoubleValue() * 0.9f;
-    float nukeSize = GetSize().DoubleValue() * 0.35f;
-    x -= GetSize().DoubleValue() * 0.95f;
-    for( int i = 0; i < numInStore && i < 20; ++i )
-    {
-        if( i >= (numInStore - numInQueue) )
-            colour.Set( 128, 128, 128, 100 );
-        g_renderer2d->StaticSprite( bmpImage, x + i * nukeSize * 0.5f, y, nukeSize, -nukeSize, colour );
-    }
+    // Ammunition shown in mouse-over tooltip instead of on-sprite LACM icons
 }
 
 
 void ASCM::Render3D()
 {
     WorldObject::Render3D();
-    if( m_teamId != g_app->GetWorld()->m_myTeamId &&
-        g_app->GetWorld()->m_myTeamId != -1 &&
-        g_app->GetGame()->m_winner == -1 )
-        return;
-    int numInStore = m_states[0]->m_numTimesPermitted;
-    int numInQueue = m_actionQueue.Size();
-    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
-    if( !team ) return;
-    Colour colour = team->GetTeamColour();
-    colour.m_a = 150;
-    Image *bmpImage = g_resource->GetImage("graphics/lacm.bmp", 0.0625f, 0.10f);
-    if( !bmpImage ) return;
-    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
-    if( !globeRenderer ) return;
-    float baseSize = GetSize3D().DoubleValue();
-    float nukeSize = baseSize * GLOBE_UNIT_ICON_SIZE;
-    Vector3<float> basePos = globeRenderer->ConvertLongLatTo3DPosition(m_longitude.DoubleValue(), m_latitude.DoubleValue());
-    Vector3<float> normal = basePos.Normalized();
-    basePos = globeRenderer->GetElevatedPosition(basePos);
-    Vector3<float> tangent1, tangent2;
-    globeRenderer->GetSurfaceTangents(normal, tangent1, tangent2);
-    float size3D = GetSize3D().DoubleValue();
-    float iconSpacing = size3D * GLOBE_UNIT_ICON_SIZE * 0.5f;
-    float nukeSizeHalf = nukeSize * 0.5f;
-    Vector3<float> offset = -tangent1 * size3D * 0.95f - tangent2 * size3D * 0.9f;
-    offset += tangent1 * nukeSizeHalf - tangent2 * nukeSizeHalf;
-    for( int i = 0; i < numInStore && i < 20; ++i )
-    {
-        if( i >= (numInStore - numInQueue) )
-            colour.Set( 128, 128, 128, 100 );
-        Vector3<float> iconPos = basePos + offset + tangent1 * (i * iconSpacing);
-        g_renderer3d->StaticSprite3D( bmpImage, iconPos.x, iconPos.y, iconPos.z, nukeSize, nukeSize, colour, BILLBOARD_SURFACE_ALIGNED );
-    }
+    // Ammunition shown in mouse-over tooltip instead of on-sprite LACM icons
 }
 
 

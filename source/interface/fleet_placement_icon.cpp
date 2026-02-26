@@ -316,8 +316,16 @@ void FleetPlacementIconButton::MouseUp()
 
         int shipsRemaining = 0;
         shipsRemaining += team->m_unitsAvailable[WorldObject::TypeBattleShip];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeBattleShip2];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeBattleShip3];
         shipsRemaining += team->m_unitsAvailable[WorldObject::TypeCarrier];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeCarrierLight];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeCarrierSuper];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeCarrierLHD];
         shipsRemaining += team->m_unitsAvailable[WorldObject::TypeSub];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeSubG];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeSubC];
+        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeSubK];
         
         if( shipsRemaining <= 0 )
         {

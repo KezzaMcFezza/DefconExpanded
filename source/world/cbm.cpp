@@ -30,8 +30,7 @@ void CBM::OnImpact()
     {
         WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
         if( targetObj && targetObj->m_life > 0 &&
-            ( targetObj->IsCarrierClass() || targetObj->IsBattleShipClass() ||
-              ( targetObj->IsSubmarine() && !targetObj->IsHiddenFrom() ) ) )
+              targetObj->IsTargetableSurfaceNavy() )
         {
             int randomChance = syncfrand(100).IntValue();
             Fixed attackOdds = g_app->GetWorld()->GetAttackOdds( TypeCBM, targetObj->m_type, m_origin );
@@ -39,6 +38,8 @@ void CBM::OnImpact()
             {
                 targetObj->m_life -= 3;
                 targetObj->m_life = (targetObj->m_life > 0) ? targetObj->m_life : 0;
+                if( targetObj->IsAircraftLauncher() )
+                    targetObj->MaybeRemoveRandomStoredAircraft();
                 if( targetObj->m_life == 0 && m_origin != -1 )
                 {
                     WorldObject *origin = g_app->GetWorld()->GetWorldObject( m_origin );
@@ -68,8 +69,7 @@ bool CBM::Update()
     {
         WorldObject *target = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
         if( target &&
-            ( target->IsCarrierClass() || target->IsBattleShipClass() ||
-              ( target->IsSubmarine() && !target->IsHiddenFrom() ) ) )
+            target->IsTargetableSurfaceNavy() )
         {
             Fixed waypointLon = target->m_longitude;
             Fixed waypointLat = target->m_latitude;

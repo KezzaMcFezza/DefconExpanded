@@ -269,6 +269,7 @@ public:
     virtual bool        CanLaunchFighterLight();
     virtual bool        CanLaunchStealthFighter();
     virtual bool        CanLaunchNavyStealthFighter();
+    virtual bool        IsBlip() const { return false; }
     virtual bool        CanLaunchBomber();
     virtual bool        CanLaunchBomberFast();
     virtual bool        CanLaunchStealthBomber();
@@ -291,6 +292,7 @@ public:
     virtual Image       *GetBmpImage     ( int state );
 
     char                *GetBmpBlurFilename();
+    Image               *GetOutlineImage();
 
     virtual int         GetFighterCount();   // total fighters (all types) available
     virtual int         GetBomberCount();    // total bombers (all types) available
@@ -298,6 +300,8 @@ public:
     virtual void        OnFighterLanded( int aircraftType );  // called when fighter lands
     virtual void        OnBomberLanded( int aircraftType );   // called when bomber lands
     virtual void        OnAEWLanded();                        // called when AEW lands
+    /** Called when damaged by LACM/CBM; 50% chance to remove 1 random stored aircraft. No-op for non-launchers. */
+    virtual void        MaybeRemoveRandomStoredAircraft();
 
     // Archetype and ClassType query helpers
     bool                IsBuilding       () const;
@@ -315,6 +319,8 @@ public:
     bool                IsAirbaseClass   () const;
     bool                IsCarrierClass   () const;
     bool                IsBattleShipClass() const;
+    /** Carrier, battleship, or surfaced (non-hidden) submarine - targetable by anti-ship weapons */
+    bool                IsTargetableSurfaceNavy();
     bool                IsFighterClass   () const;
     bool                IsBomberClass    () const;
     bool                IsAEWClass       () const;

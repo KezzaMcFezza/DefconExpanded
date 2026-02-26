@@ -1485,7 +1485,6 @@ void World::LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed l
     cm->SetOrigin( objId );
     cm->SetWaypoint( longitude, latitude );
     cm->LockTarget();
-    cm->m_range = range;
     cm->SetTargetObjectId( targetObjectId );
 
     AddWorldObject( cm );
@@ -2549,21 +2548,21 @@ void World::ProcessSpeedAndTeamKeys()
             if( m_myTeamId != -1 && ( m_myTeamId < 0 || m_myTeamId >= teamsSize ) )
                 m_myTeamId = 0;
 
-            static bool s_prevSlashDown = false;
+            static bool s_prevSlashPadDown = false;
             static bool s_prevAsteriskDown = false;
-            bool slashDown = ( g_keys[KEY_SLASH] != 0 );
+            bool slashPadDown = ( g_keys[KEY_SLASH_PAD] != 0 );
             bool asteriskDown = ( g_keys[KEY_ASTERISK] != 0 );
             if( asteriskDown && !s_prevAsteriskDown )
             {
                 int next = ( m_myTeamId < 0 ? 0 : m_myTeamId + 1 );
                 m_myTeamId = ( next >= teamsSize ? 0 : next );
             }
-            if( slashDown && !s_prevSlashDown )
+            if( slashPadDown && !s_prevSlashPadDown )
             {
                 int prev = ( m_myTeamId <= 0 ? teamsSize - 1 : m_myTeamId - 1 );
                 m_myTeamId = prev;
             }
-            s_prevSlashDown = slashDown;
+            s_prevSlashPadDown = slashPadDown;
             s_prevAsteriskDown = asteriskDown;
 
             if( g_keyDeltas[KEY_8] )
@@ -4020,31 +4019,37 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         return 0;
     }
 
-    if( defenderClass == WorldObject::ClassTypeBallisticMissile ){
-        if (attackerClass == WorldObject::ClassTypeBattleShip) return 30;
+    if( defenderArchetype == WorldObject::ArchetypeBallisticMissile ){
+        if(attackerType == WorldObject::TypeBattleShip || attackerType == WorldObject::TypeBattleShip2){
+            return 30;
+        }
         return 0;
+        //if (attackerClass == WorldObject::ClassTypeBattleShip) return 30;
+        //return 0;
     }
 
     // -------------------------------------------------------------------------
     // Compact table: [DEFENDER_ROW][ATTACKER_COL]
-    // Cols: SAM, BattleShip, Sub/SubG, SubC, SubK, Fighter, FighterStealth
-    // Rows: Carrier, BattleShip, Sub/SubG, SubC, SubK, Bomber, BomberStealth, Fighter, FighterStealth, AEW, Nuke, LACM
+    // Cols: SAM, BattleShip, BattleShipDDG, BattleShipFG, Sub/SubG, SubC, SubK, Fighter (incl FighterStealth)
+    // Rows: Carrier, BattleShip, BattleShipDDG, BattleShipFG, Sub/SubG, SubC, SubK, Bomber, BomberStealth, Fighter, FighterStealth, AEW, LACM
+    // Nuke (ballistic) handled by earlier logic check
     // -------------------------------------------------------------------------
-    static const int s_attackOdds[12][7] =
+    static const int s_attackOdds[13][8] =
     {
-    /*           SAM   BBS       SubC    SubK     FTR   FTRst  DEFENDER */
-        {  0,  40, 40, 30, 60, 35, 0  },  // Carrier
-        {  0,  40, 40, 30, 60, 35, 0  },  // BattleShip
-        {  0,  50, 50, 15, 30, 20, 0  },  // Sub, SubG
-        {  0,  50, 50, 30, 25, 28, 0  },  // SubC
-        {  0,  50, 50, 15, 30, 20, 0  },  // SubK
-        {  25, 25, 25, 0,  0,  0,  60 },  // Bomber, BomberFast
-        {  20, 20, 20, 0,  0,  0,  50 },  // BomberStealth (harder to hit)
-        {  30, 40, 40, 0,  0,  0,  40 },  // Fighter, FighterLight
-        {  20, 30, 30, 0,  0,  0,  30 },  // FighterStealth, FighterNavyStealth (harder to hit)
-        {  10, 60, 60, 0,  0,  0,  60 },  // AEW
-        { 0,  30, 0,  0,  0,  0,  0  },  // Nuke
-        { 25, 50, 50, 0,  0,  0,  50 },  // LACM, LANM
+    /*          SAM     CG    DDG     FG   SubN   SubC   SubK    FTR    DEFENDER */
+        { 0,40,40,40,30,60,35, 0 }, // Carrier
+        { 0,40,40,40,30,60,35, 0 }, // BattleShip
+        { 0,40,40,40,30,60,35, 0 }, // BattleShipDDG
+        { 0,40,40,40,30,60,35, 0 }, // BattleShipFG
+        { 0,50,50,50,15,30,20, 0 }, // Sub, SubG
+        { 0,50,50,50,15,25,25, 0 }, // SubC
+        { 0,50,50,50,15,30,30, 0 }, // SubK
+        {60,60,60,60, 0, 0, 0,60 }, // Bomber, BomberFast
+        {50,50,50,50, 0, 0, 0,50 }, // BomberStealth (harder to hit)
+        {40,40,40,40, 0, 0, 0,40 }, // Fighter, FighterLight
+       {30,30,30,30, 0, 0, 0,30 }, // FighterStealth, FighterNavyStealth (harder to hit)
+       {60,60,60,60, 0, 0, 0,60 }, // AEW        
+       {50,50,50,50, 0, 0, 0,50 }, // LACM, LANM
     };
 
     int defenderRow = -1;
@@ -4054,24 +4059,23 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         case WorldObject::TypeCarrierLight:
         case WorldObject::TypeCarrierSuper:
         case WorldObject::TypeCarrierLHD:   defenderRow = 0; break;
-        case WorldObject::TypeBattleShip:
-        case WorldObject::TypeBattleShip2:
-        case WorldObject::TypeBattleShip3:  defenderRow = 1; break;
+        case WorldObject::TypeBattleShip:   defenderRow = 1; break;
+        case WorldObject::TypeBattleShip2:  defenderRow = 2; break;
+        case WorldObject::TypeBattleShip3:  defenderRow = 3; break;
         case WorldObject::TypeSub:
-        case WorldObject::TypeSubG:         defenderRow = 2; break;
-        case WorldObject::TypeSubC:         defenderRow = 3; break;
-        case WorldObject::TypeSubK:         defenderRow = 4; break;
+        case WorldObject::TypeSubG:         defenderRow = 4; break;
+        case WorldObject::TypeSubC:         defenderRow = 5; break;
+        case WorldObject::TypeSubK:         defenderRow = 6; break;
         case WorldObject::TypeBomber:
-        case WorldObject::TypeBomberFast:   defenderRow = 5; break;
-        case WorldObject::TypeBomberStealth: defenderRow = 6; break;
+        case WorldObject::TypeBomberFast:   defenderRow = 7; break;
+        case WorldObject::TypeBomberStealth: defenderRow = 8; break;
         case WorldObject::TypeFighter:
-        case WorldObject::TypeFighterLight: defenderRow = 7; break;
+        case WorldObject::TypeFighterLight: defenderRow = 9; break;
         case WorldObject::TypeFighterStealth:
-        case WorldObject::TypeFighterNavyStealth: defenderRow = 8; break;
-        case WorldObject::TypeAEW:          defenderRow = 9; break;
-        case WorldObject::TypeNuke:         defenderRow = 10; break;
+        case WorldObject::TypeFighterNavyStealth: defenderRow = 10; break;
+        case WorldObject::TypeAEW:          defenderRow = 11; break;
         case WorldObject::TypeLACM:
-        case WorldObject::TypeLANM:         defenderRow = 11; break;
+        case WorldObject::TypeLANM:         defenderRow = 12; break;
         default:                            return 0;
     }
 
@@ -4080,17 +4084,18 @@ int World::GetAttackOdds( int attackerType, int defenderType )
     {
         case WorldObject::ClassTypeSAM:
         case WorldObject::ClassTypeABM:     attackerCol = 0; break;
-        case WorldObject::ClassTypeBattleShip: attackerCol = 1; break;
+        case WorldObject::ClassTypeBattleShip:
+            if( attackerType == WorldObject::TypeBattleShip2 ) attackerCol = 2;
+            else if( attackerType == WorldObject::TypeBattleShip3 ) attackerCol = 3;
+            else attackerCol = 1;
+            break;
         case WorldObject::ClassTypeSub:
-            if( attackerType == WorldObject::TypeSubC ) attackerCol = 3;
-            else if( attackerType == WorldObject::TypeSubK ) attackerCol = 4;
-            else attackerCol = 2;  // Sub, SubG
+            if( attackerType == WorldObject::TypeSubC ) attackerCol = 5;
+            else if( attackerType == WorldObject::TypeSubK ) attackerCol = 6;
+            else attackerCol = 4;  // Sub, SubG
             break;
         case WorldObject::ClassTypeFighter:
-            if( attackerType == WorldObject::TypeFighterStealth || attackerType == WorldObject::TypeFighterNavyStealth )
-                attackerCol = 6;
-            else
-                attackerCol = 5;  // Fighter, FighterLight
+            attackerCol = 7;  // Fighter, FighterLight, FighterStealth, FighterNavyStealth (same attack)
             break;
         default:                            return 0;
     }

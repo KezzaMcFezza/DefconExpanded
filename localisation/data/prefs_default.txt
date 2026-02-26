@@ -50,6 +50,7 @@ RenderCountryNames = 0
 RenderWater = 2
 RenderLowDetailWorld = 0
 RenderObjectTrails = 1
+RenderObjectOutlines = 1
 RenderLobbyEffects = 1
 GlobeCoastThickness = 1.5
 GlobeBorderThickness = 1.0
