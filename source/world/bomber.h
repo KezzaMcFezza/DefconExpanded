@@ -9,6 +9,7 @@ class Bomber : public MovingObject
 {
 public:
     bool    m_bombingRun;   // set to true if the bomber is launched to nuke a ground target, in which case it will land after firing
+    bool    m_lacmLoadout;  // true = LACM only (6 ammo), false = nuke only (2 ammo); exclusive loadout set at launch
 
     Fixed   GetNukeTargetLongitude();
     Fixed   GetNukeTargetLatitude();
@@ -33,6 +34,7 @@ public:
 
     int     GetAttackOdds       ( int _defenderType );
     int     IsValidCombatTarget ( int _objectId );
+    int     IsValidMovementTarget ( Fixed longitude, Fixed latitude );
 
     bool    IsActionQueueable       ();
     bool    ShouldProcessNextQueuedAction();

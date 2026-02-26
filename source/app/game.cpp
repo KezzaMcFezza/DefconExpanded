@@ -327,9 +327,11 @@ void Game::CountNukes()
                     break;
 
                 case WorldObject::TypeAirBase:      
-                case WorldObject::TypeCarrier:
-                    // count bombers in base/carrier with nukes (each bomber carries 2 nukes)
+                    // count bombers in base with nukes (each bomber carries 2 nukes)
                     m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted * 2;
+                    break;
+                case WorldObject::TypeCarrier:
+                    // Carrier: fighters only, no bombers
                     break;
 					
                 case WorldObject::TypeBomber:       

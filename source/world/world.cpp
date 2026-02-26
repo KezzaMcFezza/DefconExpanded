@@ -3977,7 +3977,7 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         return 80;
     }   
 
-    if( attackerClass == WorldObject::ClassTypeCarrier){
+    if( attackerClass == WorldObject::ClassTypeCarrier || attackerClass == WorldObject::ClassTypeBomber){
         return 0;
     }
 
@@ -3991,15 +3991,15 @@ int World::GetAttackOdds( int attackerType, int defenderType )
     // 7 rows: Sub, Carrier, BattleShip, Bomber, Fighter, LACM/LANM, BallisticMissile
     // 6 cols: SAM, Sub, Ship, Carrier, Bomber, Fighter
     // -------------------------------------------------------------------------
-    static const int s_attackOdds[6][5] =
+    static const int s_attackOdds[6][4] =
     {
-    /*           SAM     SUB     SHP     BMR     FTR       DEFENDER */
-        {  0, 15, 30, 0,  0   },  // Sub
-        {  0, 30, 40, 0, 0   },  // Carrier
-        {  0, 30, 40, 0, 0   },  // BattleShip
-        { 40, 0,  40,  0, 60   },  // Bomber
-        { 30, 0,  30,  0, 40   },  // Fighter
-        {  25, 0,  50,  0,  50    },  // LACM, LANM
+    /*           SAM     SUB     SHP       FTR       DEFENDER */
+        {  0, 15, 30,  0   },  // Sub
+        {  0, 30, 40, 0   },  // Carrier
+        {  0, 30, 40,  0   },  // BattleShip
+        { 40, 0,  40,   60   },  // Bomber
+        { 30, 0,  30,   40   },  // Fighter
+        {  25, 0,  50,    50    },  // LACM, LANM
     };
 
     int defenderRow = -1;
@@ -4020,8 +4020,7 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         case WorldObject::ClassTypeSAM:             attackerCol = 0; break;
         case WorldObject::ClassTypeSub:             attackerCol = 1; break;
         case WorldObject::ClassTypeBattleShip:      attackerCol = 2; break;
-        case WorldObject::ClassTypeBomber:          attackerCol = 3; break;
-        case WorldObject::ClassTypeFighter:         attackerCol = 4; break;
+        case WorldObject::ClassTypeFighter:          attackerCol = 3; break;
         default:                                    return 0;
     }
 

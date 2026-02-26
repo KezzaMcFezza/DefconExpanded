@@ -1337,7 +1337,7 @@ int Fleet::CountNukesInFleet()
             }
             else if( obj->IsCarrierClass() )
             {
-                nukesInFleet += obj->m_states[1]->m_numTimesPermitted;
+                // Carrier: fighters only, no bombers
             }
         }
     }

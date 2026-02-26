@@ -16,8 +16,6 @@
 
 #include "world/world.h"
 #include "world/carrier.h"
-#include "world/nuke.h"
-#include "world/depthcharge.h"
 #include "world/fleet.h"
 
 
@@ -29,7 +27,6 @@ Carrier::Carrier()
     
     strcpy( bmpImageFilename, "graphics/carrier.bmp" );
     strcpy( bmpFighterMarkerFilename, "graphics/fighter.bmp" );
-    strcpy( bmpBomberMarkerFilename, "graphics/bomber.bmp" );
 
     m_radarRange = 15;
     m_selectable = false;  
@@ -40,16 +37,11 @@ Carrier::Carrier()
     m_range = Fixed::MAX;
     m_life = 3;
     
-    m_nukeSupply = -1;  // Infinite resupply - bombers that land get full nukes on relaunch
-
     m_maxFighters = 5;
-    m_maxBombers = 2;
     
     m_ghostFadeTime = 150;
     
     AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 15, 45, true, 5, 3 );
-    AddState( LANGUAGEPHRASE("state_bomberlaunch"), 120, 120, 15, 140, true, 2, 3 );
-    AddState( LANGUAGEPHRASE("state_antisub"), 240, 60, 15, 5, false, -1, 3 );
 
     InitialiseTimers();
 }
@@ -57,16 +49,7 @@ Carrier::Carrier()
 
 void Carrier::RequestAction(ActionOrder *_action)
 {
-    // Accept all launch orders regardless of range. Range = fuel indicator for aircraft.
-    // Carrier stays put; never AlterWaypoints/fleet move for attack orders.
-    if( m_currentState < 2 )
-    {
-        WorldObject::RequestAction(_action);
-    }
-    else
-    {
-        WorldObject::RequestAction(_action);
-    }
+    WorldObject::RequestAction(_action);
 }
 
 
@@ -93,13 +76,6 @@ void Carrier::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 return;
             }
         }
-        else if( m_currentState == 1 )
-        {
-            if(!LaunchBomber( targetObjectId, longitude, latitude ))
-            {
-                return;
-            }
-        }
         MovingObject::Action( targetObjectId, longitude, latitude );
     }
 }
@@ -108,59 +84,6 @@ bool Carrier::Update()
 {
     AppDebugAssert( m_type == WorldObject::TypeCarrier );
     MoveToWaypoint(); 
-    Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
-    if( fleet )
-    {
-        bool attackPossible = false;
-
-        if( m_stateTimer <= 0 && m_currentState == 2 )
-        {
-            Ping();
-            m_stateTimer = m_states[2]->m_timeToReload;
-            attackPossible = true;
-        }
-
-        if( attackPossible && fleet->m_currentState != Fleet::FleetStatePassive )
-        {
-            if( m_targetObjectId != -1 && m_currentState == 2 )
-            {
-                WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
-                if( targetObject )
-                {
-                    if( targetObject->m_visible[m_teamId] ||
-                        targetObject->m_seen[m_teamId] )
-                    {
-                        Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude);
-                        if( distanceSqd <= GetActionRangeSqd() )
-                        {
-                            FireGun( GetActionRange() );
-                        }
-                    }
-                }
-                else
-                {
-                    m_targetObjectId = -1;
-                }
-            }
-        }
-    }
-
-    if( m_currentState != 2 )
-    {
-        int altState = (m_currentState == 0 ? 1 : 0);
-        if( m_states[m_currentState]->m_numTimesPermitted == 0 &&
-            m_states[altState]->m_numTimesPermitted > 0 )
-        {
-            SetState( altState );
-        }
-        if( m_states[0]->m_numTimesPermitted == 0 &&
-            m_states[1]->m_numTimesPermitted == 0 &&
-            m_currentState != 2 )
-        {
-            SetState(2);
-        }
-    }
-
     return MovingObject::Update();
 }
 
@@ -174,71 +97,15 @@ void Carrier::RunAI()
             m_aiTimer = m_aiSpeed;
             Team *team = g_app->GetWorld()->GetTeam( m_teamId );
             Fleet *fleet = team->GetFleet( m_fleetId );
-            if( m_states[m_currentState]->m_numTimesPermitted - m_actionQueue.Size() <= 0 &&
-                m_currentState != 2 )
+            if( m_states[m_currentState]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
             {
                 return;
-            }
-        
-            if( m_currentState == 2 )
-            {
-                if( fleet->m_currentState != Fleet::AIStateIntercepting &&
-                    m_targetObjectId == -1 )
-                {
-                    for( int i = 0; i < fleet->m_fleetMembers.Size(); ++i )
-                    {
-                        WorldObject *obj = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
-                        if( obj )
-                        {
-                            if( obj->IsCarrierClass() && 
-                                obj->m_currentState == 2 && 
-                                obj->m_objectId != m_objectId )
-                            {
-                                if( m_states[0]->m_numTimesPermitted > 0 )
-                                {
-                                    SetState(0);
-                                }
-                                else if( m_states[1]->m_numTimesPermitted > 0 )
-                                {
-                                    SetState(1);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
             }
 
             if( team->m_targetsVisible >= 4 ||
                 team->m_currentState >= Team::StateAssault )
             {
-                if( m_states[1]->m_numTimesPermitted > 0 &&
-                    g_app->GetWorld()->GetDefcon() == 1 )
-                {
-                    if( m_currentState != 1 )
-                    {
-                        SetState(1);
-                    }
-                    Fixed longitude = 0;
-                    Fixed latitude = 0;
-                    int objectId = -1;
-                    Fixed maxDistance = 90;
-
-                    Nuke::FindTarget( m_teamId, team->m_targetTeam, m_objectId, maxDistance, &longitude, &latitude, &objectId );
-                    if( ( longitude != 0 && latitude != 0 ) &&
-                        ( objectId != -1 || team->m_currentState >= Team::StateAssault ) )
-                    {
-                        ActionOrder *action = new ActionOrder();
-                        action->m_longitude = longitude;
-                        action->m_latitude = latitude;
-                        action->m_targetObjectId = objectId;
-                        RequestAction( action );
-                    }
-                }
-                else
-                {
-                    LaunchScout();
-                }
+                LaunchScout();
             }
             else
             {
@@ -250,7 +117,6 @@ void Carrier::RunAI()
                     {
                         WorldObject *obj = g_app->GetWorld()->m_objects[i];
                         bool visible = obj->m_visible[m_teamId];
-                        if( obj->IsSubmarine() && m_currentState == 1 ) visible = true;                // TODO CHRIS : This looks like a bug to me.  surely current state should be 2?
 
                         if( !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId) &&                            
                             visible &&
@@ -271,49 +137,9 @@ void Carrier::RunAI()
                 WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetIndex );
                 if( obj )
                 {                
-                    if( obj->IsAircraft() )
+                    if( obj->IsAircraft() && m_stateTimer <= 0 )
                     {
-                        if( m_stateTimer <= 0 ) 
-                        {
-                            SetState(0);
-
-                        }
-                        ActionOrder *action = new ActionOrder();
-                        action->m_targetObjectId = obj->m_objectId;
-                        action->m_longitude = obj->m_longitude;
-                        action->m_latitude = obj->m_latitude;
-                        RequestAction(action);
-                    }
-                    else if( obj->IsSubmarine() )
-                    {
-                        if( m_stateTimer <= 0 ) 
-                        {
-                            if( obj->m_currentState != 2 )
-                            {
-                                SetState(2);
-                                Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
-                                if( fleet )
-                                {
-                                    fleet->AlterWaypoints( obj->m_longitude, obj->m_latitude, true );
-                                }
-                            }
-                            else
-                            {
-                                SetState(1);
-                                ActionOrder *action = new ActionOrder();
-                                action->m_targetObjectId = obj->m_objectId;
-                                action->m_longitude = obj->m_longitude;
-                                action->m_latitude = obj->m_latitude;
-                                RequestAction(action);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if( m_stateTimer <= 0 ) 
-                        {
-                            SetState(1);
-                        }
+                        SetState(0);
                         ActionOrder *action = new ActionOrder();
                         action->m_targetObjectId = obj->m_objectId;
                         action->m_longitude = obj->m_longitude;
@@ -323,48 +149,8 @@ void Carrier::RunAI()
                 }
                 else
                 {
-                    bool redirectingBombers = false;
-                    if( m_nukeSupply == 0 &&
-                        m_states[1]->m_numTimesPermitted > 0 )
-                    {
-                        for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
-                        {
-                            if( g_app->GetWorld()->m_objects.ValidIndex(i) )
-                            {
-                                WorldObject *obj = g_app->GetWorld()->m_objects[i];
-                                if( obj->m_teamId == m_teamId &&
-                                    obj->IsAircraftLauncher() )
-                                {
-                                    if( obj->m_nukeSupply - obj->m_states[1]->m_numTimesPermitted > 0 )
-                                    {
-                                        if( m_currentState != 1 )
-                                        {
-                                            SetState(1);
-                                        }
-
-                                        int nukesSpare = obj->m_nukeSupply - obj->m_states[1]->m_numTimesPermitted;
-                                        for( int j = 0; j < nukesSpare; ++j )
-                                        {
-                                            if( m_states[1]->m_numTimesPermitted - m_actionQueue.Size() > 0 )
-                                            {
-                                                ActionOrder *action = new ActionOrder();
-                                                action->m_targetObjectId = obj->m_objectId;
-                                                action->m_longitude = obj->m_longitude;
-                                                action->m_latitude = obj->m_latitude;
-                                                RequestAction(action);
-                                            }
-                                        }
-                                        redirectingBombers = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if( m_states[0]->m_numTimesPermitted > 2 &&
-                        !redirectingBombers )
-                    {
+                    if( m_states[0]->m_numTimesPermitted > 2 )
                         LaunchScout();
-                    }
                 }
             }
         }
@@ -415,14 +201,7 @@ void Carrier::LaunchScout()
 
 bool Carrier::IsActionQueueable()
 {
-    if( m_currentState != 2 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 int Carrier::FindTarget()
@@ -464,18 +243,10 @@ void Carrier::Retaliate( int attackerId )
             obj->m_visible[ m_teamId ] && 
             !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ])
         {
-            if( m_states[m_currentState]->m_numTimesPermitted > 0 )
+            if( m_states[m_currentState]->m_numTimesPermitted > 0 &&
+                m_currentState == 0 )
             {
-                int launchType = -1;
-                if( m_currentState == 0 ) 
-                {
-                    launchType = WorldObject::TypeFighter;
-                }
-                else 
-                {
-                    launchType = WorldObject::TypeBomber;
-                }
-                if( g_app->GetWorld()->GetAttackOdds( launchType, obj->m_type ) > 0 )
+                if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeFighter, obj->m_type ) > 0 )
                 {
                     Action( attackerId, -1, -1 );
 
@@ -491,41 +262,9 @@ void Carrier::Retaliate( int attackerId )
 
 bool Carrier::UsingNukes()
 {
-    if( m_currentState == 1 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
-
-void Carrier::FireGun( Fixed range)
-{
-    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
-    AppAssert( targetObject );
-    DepthCharge *bullet = new DepthCharge( range );
-    bullet->SetPosition( m_longitude, m_latitude );
-    bullet->SetTeamId( m_teamId );
-    bullet->m_origin = m_objectId;
-    bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type );
-    bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude );
-    (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
-}
-
-void Carrier::AcquireTargetFromAction( ActionOrder *action )
-{
-    if( m_currentState != 2 || action->m_targetObjectId == -1 ) return;
-    WorldObject *obj = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-    if( obj && ( obj->m_visible[m_teamId] || obj->m_seen[m_teamId] ) &&
-        obj->IsSubmarine() &&
-        g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, obj->m_type ) > 0 )
-    {
-        m_targetObjectId = action->m_targetObjectId;
-    }
-}
 
 void Carrier::FleetAction( int targetObjectId )
 {
@@ -534,14 +273,9 @@ void Carrier::FleetAction( int targetObjectId )
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetObjectId );
         if( obj )
         {
-            if( m_states[ m_currentState ]->m_numTimesPermitted != 0 )
+            if( m_states[ m_currentState ]->m_numTimesPermitted != 0 &&
+                m_stateTimer <= 0 )
             {
-                if( obj->IsSubmarine() )
-                {
-                    SetState(2);
-                }
-                else if( m_stateTimer <= 0 )
-                {
                     if( m_currentState == 0 )
                     {
                         if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeFighter, obj->m_type ) > 0 )
@@ -553,19 +287,6 @@ void Carrier::FleetAction( int targetObjectId )
                             RequestAction( action );
                         }
                     }
-                    else if( m_currentState == 1 )
-                    {
-                        if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, obj->m_type ) > 0 )
-                        {
-                            Action( targetObjectId, obj->m_longitude, obj->m_latitude );
-                            ActionOrder *action = new ActionOrder();
-                            action->m_targetObjectId = targetObjectId;
-                            action->m_longitude = obj->m_longitude;
-                            action->m_latitude = obj->m_latitude;
-                            RequestAction( action );
-                        }
-                    }
-                }
             }
             MovingObject::Retaliate( targetObjectId );
         }
@@ -574,15 +295,7 @@ void Carrier::FleetAction( int targetObjectId )
 
 bool Carrier::CanLaunchBomber()
 {
-    if( m_currentState == 1 &&
-        m_states[1]->m_numTimesPermitted > 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 bool Carrier::CanLaunchFighter()
@@ -604,21 +317,6 @@ int Carrier::GetAttackOdds( int _defenderType )
     if( CanLaunchFighter() )
     {
         return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
-    }
-
-    if( CanLaunchBomber() )
-    {
-        if( _defenderType == TypeCity ||
-            _defenderType == TypeSilo ||
-            _defenderType == TypeAirBase ||
-            _defenderType == TypeRadarStation )
-        {
-            return g_app->GetWorld()->GetAttackOdds( TypeNuke, _defenderType );
-        }
-        else
-        {
-            return g_app->GetWorld()->GetAttackOdds( TypeBomber, _defenderType );
-        }
     }
 
     return MovingObject::GetAttackOdds( _defenderType );
@@ -643,15 +341,6 @@ int Carrier::IsValidCombatTarget( int _objectId )
         }
     }
 
-    if( m_currentState == 1 )
-    {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
-        if( attackOdds > 0 || !obj->IsMovingObject() )
-        {
-            return TargetTypeLaunchBomber;
-        }
-    }
-
     return TargetTypeInvalid;
 }
 
@@ -666,19 +355,6 @@ int Carrier::IsValidMovementTarget( Fixed longitude, Fixed latitude )
         if( m_states[0]->m_defconPermitted < g_app->GetWorld()->GetDefcon() )
             return TargetTypeDefconRequired;
         return TargetTypeLaunchFighter;
-    }
-    if( m_currentState == 1 )
-    {
-        if( m_states[1]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
-            return TargetTypeOutOfStock;
-        if( m_states[1]->m_defconPermitted < g_app->GetWorld()->GetDefcon() )
-            return TargetTypeDefconRequired;
-        return TargetTypeLaunchBomber;
-    }
-
-    if( m_currentState == 2 )
-    {
-        return g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId )->IsValidFleetPosition( longitude, latitude );
     }
 
     if( m_states[m_currentState]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
@@ -730,8 +406,7 @@ void Carrier::Render2D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        Image *bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
 
         Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
@@ -780,8 +455,7 @@ void Carrier::Render3D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        Image *bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
 
         Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();

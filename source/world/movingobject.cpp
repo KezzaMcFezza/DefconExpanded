@@ -107,9 +107,14 @@ bool MovingObject::Update()
         WorldObject *home = g_app->GetWorld()->GetWorldObject( m_isLanding );
         if( home )
         {
-            if(( IsFighterClass() &&
+            if( IsBomberClass() && home->IsCarrierClass() )
+            {
+                Land( GetClosestLandingPad() );
+            }
+            else if(( IsFighterClass() &&
                 home->m_states[0]->m_numTimesPermitted >= home->m_maxFighters ) ||
                 ( IsBomberClass() &&
+                home->m_maxBombers > 0 &&
                 home->m_states[1]->m_numTimesPermitted >= home->m_maxBombers ))
             {
                 Land( GetClosestLandingPad() );
@@ -129,7 +134,8 @@ bool MovingObject::Update()
                     }
                     else
                     {
-                        if( home->m_states[1]->m_numTimesPermitted < home->m_maxBombers )
+                        if( home->m_maxBombers > 0 &&
+                            home->m_states[1]->m_numTimesPermitted < home->m_maxBombers )
                         {
                             home->m_states[1]->m_numTimesPermitted++;
                             if( home->m_nukeSupply >= 0 )
@@ -1096,7 +1102,13 @@ int MovingObject::GetClosestLandingPad()
                 {
                     int roomInside = 0;
                     if( IsFighterClass() ) roomInside = obj->m_maxFighters - obj->m_states[0]->m_numTimesPermitted;
-                    if( IsBomberClass() ) roomInside = obj->m_maxBombers - obj->m_states[1]->m_numTimesPermitted;
+                    if( IsBomberClass() )
+                    {
+                        if( obj->m_maxBombers <= 0 )
+                            roomInside = 0;
+                        else
+                            roomInside = obj->m_maxBombers - obj->m_states[1]->m_numTimesPermitted;
+                    }
 
                     if( roomInside > 0 )
                     {

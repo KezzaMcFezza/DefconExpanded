@@ -9,7 +9,6 @@ class Carrier : public MovingObject
 {
 protected:
     char bmpFighterMarkerFilename[256];
-    char bmpBomberMarkerFilename[256];
 
 public:
 
@@ -20,7 +19,6 @@ public:
 
     void    RequestAction       (ActionOrder *_action);
     void    Action              ( int targetObjectId, Fixed longitude, Fixed latitude );
-    void    AcquireTargetFromAction( ActionOrder *action ) override;
     bool    Update              ();
     void    RunAI               ();
     bool    IsActionQueueable   ();
@@ -29,7 +27,6 @@ public:
 
     void    Retaliate           ( int attackerId );
     bool    UsingNukes          ();
-    void    FireGun             ( Fixed range );
 
     void    FleetAction     ( int targetObjectId );
 

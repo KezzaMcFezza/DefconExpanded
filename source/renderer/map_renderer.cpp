@@ -42,6 +42,7 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
+#include "world/bomber.h"
 #include "world/explosion.h"
 #include "world/city.h"
 #include "world/silo.h"
@@ -992,14 +993,26 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             break;
 
         case WorldObject::TypeAirBase:
-        case WorldObject::TypeCarrier:
             numFighters = wobj->m_states[0]->m_numTimesPermitted;
             numBombers = wobj->m_states[1]->m_numTimesPermitted;
-            // No nukes - airbase/carrier have infinite resupply, don't show nuke storage
+            break;
+        case WorldObject::TypeCarrier:
+            numFighters = wobj->m_states[0]->m_numTimesPermitted;
+            // Carrier: fighters only, no bombers
             break;
 
         case WorldObject::TypeBomber:
-            numNukes = wobj->m_states[1]->m_numTimesPermitted;
+            {
+                Bomber *bomber = static_cast<Bomber *>(wobj);
+                if( bomber->m_lacmLoadout )
+                {
+                    numLACMs = wobj->m_states[2]->m_numTimesPermitted;
+                }
+                else
+                {
+                    numNukes = wobj->m_states[1]->m_numTimesPermitted;
+                }
+            }
             break;
 
         case WorldObject::TypeSub:
@@ -2379,9 +2392,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             switch( wobj->m_classType )
             {
                 case WorldObject::ClassTypeAirbase:
-                case WorldObject::ClassTypeCarrier:
                     if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
+                    break;
+                case WorldObject::ClassTypeCarrier:
+                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     break;
 
                 case WorldObject::ClassTypeSilo:
@@ -2403,7 +2418,10 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     break;
 
                 case WorldObject::ClassTypeBomber:
-                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    if( wobj->m_currentState == 2 )
+                        img = g_resource->GetImage( "graphics/lacm.bmp" );
+                    else if( wobj->m_currentState == 0 || wobj->m_currentState == 1 )
+                        img = g_resource->GetImage( "graphics/nuke.bmp" );
                     break;
             }
             
@@ -2436,8 +2454,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
                     // ASCM has no standby mode - always launch, so never grey.
                     // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
+                    // Bomber LACM (state 2) and Airbase cruise launch (state 2) use orange, not gray.
+                    bool isLacmOrCruiseLaunch = ( ( wobj->m_classType == WorldObject::ClassTypeBomber && wobj->m_currentState == 2 ) ||
+                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 2 ) );
                     bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
-                        ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM ) );
+                        ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM && !isLacmOrCruiseLaunch ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
                     if( isStandbyQueue )
                         iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );
@@ -2558,8 +2579,10 @@ void MapRenderer::RenderNukeUnits()
                             break;
 
                         case WorldObject::ClassTypeAirbase:
-                        case WorldObject::ClassTypeCarrier:
                             nukeCount = ( obj->m_states[1]->m_numTimesPermitted - ( obj->UsingNukes() ? obj->m_actionQueue.Size() : 0 ) ) * 2;
+                            break;
+                        case WorldObject::ClassTypeCarrier:
+                            nukeCount = 0;  // Carrier: fighters only, no bombers
                             break;
                     }
 

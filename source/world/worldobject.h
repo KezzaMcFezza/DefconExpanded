@@ -240,7 +240,7 @@ public:
 
     virtual bool        CanLaunchFighter();
     virtual bool        CanLaunchBomber ();
-    bool                LaunchBomber    ( int targetObjectId, Fixed longitude, Fixed latitude );
+    bool                LaunchBomber    ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );  // -1=auto, 1=NUKE, 2=LACM
     bool                LaunchFighter   ( int targetObjectId, Fixed longitude, Fixed latitude );
     virtual bool        SetWaypointOnAction();
 

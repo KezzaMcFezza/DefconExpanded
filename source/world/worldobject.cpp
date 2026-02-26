@@ -1084,7 +1084,7 @@ void WorldObject::FleetAction( int targetObjectId )
 {
 }
 
-bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latitude )
+bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
     Bomber *bomber = new Bomber();
     bomber->SetTeamId( m_teamId );
@@ -1092,16 +1092,57 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
     bomber->SetWaypoint( longitude, latitude );
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-    if( target )
+    if( aircraftMode == 1 )
     {
-        if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, target->m_type ) > 0 )
+        bomber->m_lacmLoadout = false;
+        bomber->m_states[1]->m_numTimesPermitted = 2;
+        bomber->m_states[2]->m_numTimesPermitted = 0;
+        bomber->m_states[0]->m_numTimesPermitted = 2;
+        // Buildings (ballistic nuke) or navy ships (LANM)
+        bool validNukeTarget = target && ( !target->IsMovingObject() ||
+            target->IsCarrierClass() || target->IsBattleShipClass() || ( target->IsSubmarine() && !target->IsHiddenFrom() ) );
+        if( validNukeTarget )
         {
-            bomber->SetState(0);
-            bomber->m_targetObjectId = target->m_objectId;
+            bomber->SetState(1);
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            bomber->RequestAction( order );
+            bomber->m_bombingRun = true;
         }
-        else
+    }
+    else if( aircraftMode == 2 )
+    {
+        bomber->m_lacmLoadout = true;
+        bomber->m_states[1]->m_numTimesPermitted = 0;
+        bomber->m_states[2]->m_numTimesPermitted = 6;
+        bomber->m_states[0]->m_numTimesPermitted = 6;
+        if( target && !target->IsMovingObject() && WorldObject::GetArchetypeForType(target->m_type) == WorldObject::ArchetypeBuilding )
         {
-            if( !target->IsMovingObject() )
+            bomber->SetState(2);
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            bomber->RequestAction( order );
+            bomber->m_bombingRun = true;
+        }
+    }
+    else
+    {
+        bomber->m_lacmLoadout = false;
+        bomber->m_states[1]->m_numTimesPermitted = 2;
+        bomber->m_states[2]->m_numTimesPermitted = 0;
+        bomber->m_states[0]->m_numTimesPermitted = 2;
+        if( target )
+        {
+            if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeBomber, target->m_type ) > 0 )
+            {
+                bomber->SetState(0);
+                bomber->m_targetObjectId = target->m_objectId;
+            }
+            else if( !target->IsMovingObject() )
             {
                 bomber->SetState(1);
                 ActionOrder *order = new ActionOrder();
@@ -1112,31 +1153,30 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
                 bomber->m_bombingRun = true;
             }
         }
-    }
-    else if( targetObjectId != -1 )
-    {
-        // target has already been destroyed, launch ready for attack
-        bomber->SetState(0);
-    }
-
-    if( bomber->m_currentState == 0 )
-    {
-        for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
+        else if( targetObjectId != -1 )
         {
-            if( g_app->GetWorld()->m_cities.ValidIndex(i) )
+            bomber->SetState(0);
+        }
+
+        if( bomber->m_currentState == 0 )
+        {
+            for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
             {
-                City *city = g_app->GetWorld()->m_cities[i];
-                if( city->m_longitude == longitude &&
-                    city->m_latitude == latitude )
+                if( g_app->GetWorld()->m_cities.ValidIndex(i) )
                 {
-                    bomber->SetState(1);
-                    ActionOrder *order = new ActionOrder();
-                    order->m_targetObjectId = city->m_objectId;
-                    order->m_longitude = longitude;
-                    order->m_latitude = latitude;
-                    bomber->RequestAction( order );
-                    bomber->m_bombingRun = true;
-                    break;
+                    City *city = g_app->GetWorld()->m_cities[i];
+                    if( city->m_longitude == longitude &&
+                        city->m_latitude == latitude )
+                    {
+                        bomber->SetState(1);
+                        ActionOrder *order = new ActionOrder();
+                        order->m_targetObjectId = city->m_objectId;
+                        order->m_longitude = longitude;
+                        order->m_latitude = latitude;
+                        bomber->RequestAction( order );
+                        bomber->m_bombingRun = true;
+                        break;
+                    }
                 }
             }
         }
@@ -1144,7 +1184,6 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
 
     g_app->GetWorld()->AddWorldObject( bomber );
 
-    // Only clear bomber nukes when we have finite supply and it's exhausted (m_nukeSupply == 0). -1 = infinite resupply.
     if( m_nukeSupply == 0 )
     {
         bomber->ClearActionQueue();

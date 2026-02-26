@@ -41,6 +41,9 @@ AirBase::AirBase()
 
     AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 10, 45, true, 5, 3 );
     AddState( LANGUAGEPHRASE("state_bomberlaunch"), 120, 120, 10, 140, true, 5, 3 );
+    AddState( LANGUAGEPHRASE("state_cruisebomberlaunch"), 120, 120, 10, 140, true, 5, 3 );
+
+    m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
@@ -78,12 +81,21 @@ void AirBase::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         }
         else if( m_currentState == 1 )
         {
-            if(!LaunchBomber( targetObjectId, longitude, latitude ))
+            if(!LaunchBomber( targetObjectId, longitude, latitude, 1 ))
+            {
+                return;
+            }
+        }
+        else if( m_currentState == 2 )
+        {
+            if(!LaunchBomber( targetObjectId, longitude, latitude, 2 ))
             {
                 return;
             }
         }
         WorldObject::Action( targetObjectId, longitude, latitude );
+        if( m_currentState == 1 || m_currentState == 2 )
+            m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
     }
 }
 
@@ -333,10 +345,7 @@ bool AirBase::UsingNukes()
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void AirBase::NukeStrike()
@@ -353,7 +362,8 @@ void AirBase::NukeStrike()
 
 bool AirBase::Update()
 {
-    int altState = (m_currentState == 0 ? 1 : 0);
+    m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
+    int altState = ( m_currentState == 0 ) ? 1 : 0;
     if( m_states[m_currentState]->m_numTimesPermitted == 0 &&
         m_states[altState]->m_numTimesPermitted > 0 )
     {
@@ -379,8 +389,8 @@ bool AirBase::Update()
 
 bool AirBase::CanLaunchBomber()
 {
-    if( m_currentState == 1 &&
-        m_states[1]->m_numTimesPermitted > 0 )
+    if( ( m_currentState == 1 || m_currentState == 2 ) &&
+        m_states[m_currentState]->m_numTimesPermitted > 0 )
     {
         return true;
     }
@@ -450,11 +460,23 @@ int AirBase::IsValidCombatTarget( int _objectId )
 
     if( m_currentState == 1 )
     {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeBomber, obj->m_type );
-        if( attackOdds > 0 || !obj->IsMovingObject() )
-        {
+        // Buildings (ballistic nuke) or navy ships (LANM) only - exclude aircraft, missiles
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
+            return TargetTypeInvalid;
+        if( !obj->IsMovingObject() )
             return TargetTypeLaunchBomber;
-        }
+        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            return TargetTypeLaunchBomber;
+    }
+
+    if( m_currentState == 2 )
+    {
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
+            return TargetTypeInvalid;
+        if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            return TargetTypeLaunchBomber;
+        if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+            return TargetTypeLaunchBomber;
     }
 
     return TargetTypeInvalid;
@@ -479,7 +501,7 @@ int AirBase::IsValidMovementTarget( Fixed longitude, Fixed latitude )
         return TargetTypeLaunchFighter;
     }
 
-    if( m_currentState == 1 )
+    if( m_currentState == 1 || m_currentState == 2 )
     {
         return TargetTypeLaunchBomber;
     }
