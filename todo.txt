@@ -103,7 +103,7 @@ Raitos Goals:
 - multi-tier radar system                                 - DONE
 - expansion of unit system                                - INPROGRESS
   missiles - nuke, ballistic, lacm                           - DONE
-  gunfire - gunfire (antiair), torpedo, depthcharge, abm                    - DONE
+  gunfire - gunfire (antiair), torpedo, depthcharge, abm     - DONE
   silos - icbm, mrbm, tel-n, tel-c, ascm                     - DONE
   SAMs - abm, sam                                            - DONE
   airbase - 1,2,3                                            -
@@ -120,7 +120,10 @@ TODO:
 - territory unique units
 - unit stats rebalance
 - unit outlines
+- refine burstfire
 - ammunition revamp
+- lacm strike on airbase/carrier bug
 - refueler
+- fix friendly targeting
 - performance efficiancy increase
 - ballistic anti ship missiles

@@ -1135,7 +1135,7 @@ int MovingObject::GetClosestLandingPad()
     //
     // Fighter - go for nearest landing pad
 
-    if( m_type == TypeFighter && 
+    if( IsFighterClass() && 
         nearestId != -1 )
     {
         return nearestId;

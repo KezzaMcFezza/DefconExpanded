@@ -5,7 +5,7 @@
 
 expansion of unit system                                - INPROGRESS
   missiles - nuke, ballistic, lacm                          - DONE
-  gunfire - gunfire(antiair), torpedo, depthcharge, antibm  - DONE
+  gunfire - gunfire (antiair), torpedo, depthcharge, antibm - DONE
   silos - icbm, mrbm, tel-n, tel-c, ascm                    - DONE
   SAMs - abm, sam                                           - DONE
   airbase - 1,2,3                                           -
@@ -147,5 +147,253 @@ row 3: battleship_fg
 row 4: subc
 row 5: subk
 
-TerritoryTaiwan
+unfinished:
+Taiwan
+Installations
+● Airbase (ROC)
+● Conventional TEL / ASBM
+● SAM
+● ABM
+● Radar
+● Early Warning Radar
+● Coastal ASCM Battery
+Air Assets
+● AEW Aircraft
+● F-16 Viper
+Naval Assets
+● Generic Destroyer
+● Generic Frigate
+● SSK
+
+Ukraine
+Installations
+● Airbase (Ukraine)
+● SAM
+● ABM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27 Flanker (family abstraction)
+
+Philippines
+Installations
+● Generic Airbase (Western)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+Naval Assets
+● Generic Frigate
+
+Thailand
+Installations
+● Generic Airbase (Western)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+Naval Assets
+● Generic Frigate
+
+Indonesia
+Installations
+● Airbase (Indonesia)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27/30 Flanker (family abstraction)
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+NorthKorea
+Installations
+● Generic Airbase (Eastern)
+● Silo Medium (MRBM)
+● Mobile Launcher (Nuclear TEL)
+● Conventional TEL / ASBM
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● Su-27 Flanker (family abstraction)
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● SSK
+
+Islamic Republic of Iran
+Installations
+● Airbase (Iran)
+● Silo Medium (MRBM)
+● Conventional TEL / ASBM
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-14A Tomcat
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● SSK
+
+Israel
+Installations
+● Airbase (Israel)
+● Silo (ICBM)
+● Conventional TEL / ASBM
+● SAM
+● ABM
+● Radar
+● Early Warning Radar
+● Coastal ASCM Battery
+Air Assets
+● AEW Aircraft
+● F-16 Viper
+● F-35 Lightning II
+Naval Assets
+● Generic Frigate
+● SSK
+
+Saudi Arabia, Bahrain, and Qatar
+Installations
+● Airbase (Saudi Arabia)
+● Conventional TEL / ASBM
+● SAM
+● ABM
+● Radar
+● Early Warning Radar
+● Coastal ASCM Battery
+Air Assets
+● AEW Aircraft
+● Rafale
+● F-16 Viper
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+Egypt
+Installations
+● Airbase (Egypt)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● AEW Aircraft
+● F-16 Viper
+● Rafale
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+Vietnam
+Installations
+● Generic Airbase (Eastern)
+● Conventional TEL / ASBM
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● Su-27/30 Flanker (family abstraction)
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+Brazil
+Installations
+● Generic Airbase (Western)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper (generic Western fighter abstraction)
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+South Africa
+Installations
+● Generic Airbase (Western)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper (generic Western fighter abstraction)
+Naval Assets
+● Generic Frigate
+● SSK
+
+Neutral Americas
+Installations
+● Generic Airbase (Western)
+● Generic Airbase (Eastern)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27/30 Flanker (family abstraction)
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+Neutral Africa
+Installations
+● Generic Airbase (Western)
+● Generic Airbase (Eastern)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27/30 Flanker (family abstraction)
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+Neutral Europe
+Installations
+● Generic Airbase (Western)
+● Generic Airbase (Eastern)
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27/30 Flanker (family abstraction)
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
+
+Neutral Asia
+Installations
+● Generic Airbase (Western)
+● Generic Airbase (Eastern)
+● Conventional TEL / ASBM
+● SAM
+● Radar
+● Coastal ASCM Battery
+Air Assets
+● F-16 Viper
+● Su-27/30 Flanker (family abstraction)
+● MiG-29 Fulcrum
+Naval Assets
+● Generic Frigate
+● Generic Destroyer
+● SSK
 

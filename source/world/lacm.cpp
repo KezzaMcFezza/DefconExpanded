@@ -319,7 +319,32 @@ bool LACM::Update()
         m_targetLongitude = 0;
         m_targetLatitude = 0;
         m_vel.Zero();
-        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
+        // Apply direct damage to building target (CreateExplosion intensity 30 doesn't damage units)
+        int targetTeamId = -1;
+        WorldObject *targetObj = ( m_targetObjectId != -1 ) ? g_app->GetWorld()->GetWorldObject( m_targetObjectId ) : 0;
+        if( targetObj && targetObj->m_life > 0 && !targetObj->IsMovingObject() )
+        {
+            targetTeamId = targetObj->m_teamId;
+            int randomChance = syncfrand(100).IntValue();
+            Fixed attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObj->m_type, m_origin );
+            if( Fixed(randomChance) < attackOdds )
+            {
+                targetObj->m_life--;
+                targetObj->m_life = ( targetObj->m_life > 0 ) ? targetObj->m_life : 0;
+                if( targetObj->m_life == 0 && m_origin != -1 )
+                {
+                    WorldObject *origin = g_app->GetWorld()->GetWorldObject( m_origin );
+                    if( origin )
+                    {
+                        origin->SetTargetObjectId( -1 );
+                        origin->m_isRetaliating = false;
+                        targetObj->m_lastHitByTeamId = origin->m_teamId;
+                    }
+                }
+            }
+            targetObj->Retaliate( m_origin );
+        }
+        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), targetTeamId, IsNuclearExplosion() );
 #ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif

@@ -43,6 +43,7 @@
 #include "world/earthdata.h"
 #include "world/worldobject.h"
 #include "world/bomber.h"
+#include "world/fighter.h"
 #include "world/explosion.h"
 #include "world/city.h"
 #include "world/silo.h"
@@ -994,11 +995,19 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
         case WorldObject::TypeAirBase:
             numFighters = wobj->m_states[0]->m_numTimesPermitted;
-            numBombers = wobj->m_states[1]->m_numTimesPermitted;
+            numBombers = wobj->m_states[2]->m_numTimesPermitted;
             break;
         case WorldObject::TypeCarrier:
             numFighters = wobj->m_states[0]->m_numTimesPermitted;
-            // Carrier: fighters only, no bombers
+            break;
+
+        case WorldObject::TypeFighter:
+            {
+                Fighter *fighter = static_cast<Fighter *>(wobj);
+                numFighters = wobj->m_states[0]->m_numTimesPermitted;
+                if( fighter->m_lacmLoadout )
+                    numLACMs = wobj->m_states[1]->m_numTimesPermitted;
+            }
             break;
 
         case WorldObject::TypeBomber:
@@ -2392,11 +2401,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             switch( wobj->m_classType )
             {
                 case WorldObject::ClassTypeAirbase:
-                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
-                    if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
+                    if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
                     break;
                 case WorldObject::ClassTypeCarrier:
-                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     break;
 
                 case WorldObject::ClassTypeSilo:
@@ -2430,6 +2439,14 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 for( int i = 0; i < wobj->m_actionQueue.Size(); ++i )
                 {
                     ActionOrder *order = wobj->m_actionQueue[i];
+                    WorldObject *orderTarget = g_app->GetWorld()->GetWorldObject( order->m_targetObjectId );
+                    Image *orderImg = img;
+                    if( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
+                        wobj->m_currentState == 1 && orderTarget &&
+                        !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() )
+                    {
+                        orderImg = g_resource->GetImage( "graphics/lacm.bmp" );
+                    }
                     float targetLongitude = order->m_longitude.DoubleValue();
                     float targetLatitude = order->m_latitude.DoubleValue();
 
@@ -2454,9 +2471,13 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
                     // ASCM has no standby mode - always launch, so never grey.
                     // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
-                    // Bomber LACM (state 2) and Airbase cruise launch (state 2) use orange, not gray.
+                    // Bomber LACM (state 2), Airbase bomber LACM (state 3), Strike fighter LACM (airbase/carrier state 1 + ship/building target).
+                    bool strikeFighterLacmOrder = ( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
+                        wobj->m_currentState == 1 && orderTarget &&
+                        !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() );
                     bool isLacmOrCruiseLaunch = ( ( wobj->m_classType == WorldObject::ClassTypeBomber && wobj->m_currentState == 2 ) ||
-                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 2 ) );
+                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 3 ) ||
+                        strikeFighterLacmOrder );
                     bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
                         ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM && !isLacmOrCruiseLaunch ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
@@ -2473,11 +2494,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     else
                         lineCol = isActiveTarget ? Colour( 255, 165, 0, 180 ) : Colour( 255, 200, 80, 180 );    // Orange/yellow: LACM, non-nuke ballistic
 
-                    g_renderer2d->RotatingSprite( img, targetLongitude, targetLatitude,
+                    g_renderer2d->RotatingSprite( orderImg, targetLongitude, targetLatitude,
                                                   size, size, iconCol, angle );
                     if( isFirstSeamIteration )
                     {
-                        g_renderer2d->RotatingSprite( img, targetLongitude + GetLongitudeMod(), targetLatitude,
+                        g_renderer2d->RotatingSprite( orderImg, targetLongitude + GetLongitudeMod(), targetLatitude,
                                                       size, size, iconCol, angle );
                     }
                                                   
@@ -3556,13 +3577,12 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
     WorldObject *selection = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
 
     //
-    // If clicking on airbase/carrier with aircraft selected, request landing
-
+    // If clicking on airbase/carrier with aircraft selected, request landing (left-click = land)
+    // If clicking on another base with airbase/carrier selected, launch aircraft to land at that base (original Defcon behavior)
     if( selection && 
         selection->m_teamId == g_app->GetWorld()->m_myTeamId )
     {
         bool selectionLandable = selection->IsAircraft();
-
         bool underMouseLandable = undermouse->IsAircraftLauncher();
 
         if( selectionLandable && underMouseLandable )
@@ -3572,6 +3592,14 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
                              undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
             g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
             UpdateSelectionAnimation(-1);
+            landed = true;
+        }
+        else if( selection->IsAircraftLauncher() && underMouseLandable && selection->m_objectId != _underMouseId )
+        {
+            g_app->GetClientToServer()->RequestAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), _underMouseId,
+                undermouse->m_longitude, undermouse->m_latitude );
+            g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeActionMarker, selection->m_objectId,
+                undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
             landed = true;
         }
     }
@@ -3956,7 +3984,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
             action->m_combatTarget = ( action->m_targetType > WorldObject::TargetTypeInvalid );
             if( action->m_targetType == WorldObject::TargetTypeInvalid &&
                 obj->IsAircraftLauncher() &&
-                obj->m_currentState == 0 )
+                ( obj->m_currentState == 0 || obj->m_currentState == 1 ) )
             {
                 action->m_targetType = WorldObject::TargetTypeLaunchFighter;
                 action->m_combatTarget = false;
@@ -4276,16 +4304,22 @@ void MapRenderer::Update()
                 else if( underMouse )
                 {
                     // If we have selection that can attack the object under mouse, give attack order (enables targeting cities, silos, etc.)
+                    // Do not treat TargetTypeLand (landing at friendly base) as attack - that goes through HandleSelectObject for original Defcon behavior
                     int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
                     bool hasValidCombatTarget = false;
                     for( int si = 0; si < selCount; ++si )
                     {
                         int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
                         WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
-                        if( obj && obj->IsValidCombatTarget( underMouseId ) > WorldObject::TargetTypeInvalid )
+                        if( obj )
                         {
-                            hasValidCombatTarget = true;
-                            break;
+                            int combatResult = obj->IsValidCombatTarget( underMouseId );
+                            if( combatResult > WorldObject::TargetTypeInvalid &&
+                                combatResult != WorldObject::TargetTypeLand )
+                            {
+                                hasValidCombatTarget = true;
+                                break;
+                            }
                         }
                     }
                     if( hasValidCombatTarget )
@@ -4367,8 +4401,39 @@ void MapRenderer::Update()
             {
                 if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                 {
-                    // Silos and other static units take no waypoints - right-click is no-op
-                    if( SelectionHasMovingUnit() )
+                    bool hasValidCombatTarget = false;
+                    if( underMouse )
+                    {
+                        for( int si = 0; si < g_app->GetWorldRenderer()->GetSelectionCount(); ++si )
+                        {
+                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( si ) );
+                            if( obj )
+                            {
+                                int combatResult = obj->IsValidCombatTarget( underMouseId );
+                                if( combatResult > WorldObject::TargetTypeInvalid &&
+                                    combatResult != WorldObject::TargetTypeLand )
+                                {
+                                    hasValidCombatTarget = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if( hasValidCombatTarget )
+                    {
+                        if( (SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
+                        {
+                            int targetId = SelectionHasCBMLaunchUnit()
+                                ? underMouseId
+                                : ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+                            HandleObjectAction( longitude, latitude, targetId );
+                        }
+                        else
+                        {
+                            HandleObjectAction( longitude, latitude, underMouseId );
+                        }
+                    }
+                    else if( SelectionHasMovingUnit() )
                     {
                         if( isDoubleClick && underMouseId == -1 )
                         {

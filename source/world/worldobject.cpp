@@ -1194,7 +1194,7 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
     return true;
 }
 
-bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed latitude )
+bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
     if( targetObjectId >= OBJECTID_CITYS )
     {
@@ -1206,11 +1206,70 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
     {
         fighter->SetTeamId( m_teamId );
         fighter->SetPosition( m_longitude, m_latitude );
+
+        // aircraftMode: 1=CAP (6 air attack, 0 LACM), 2=Strike (2 air attack, 2 LACM)
+        if( aircraftMode == 2 )
+        {
+            fighter->m_lacmLoadout = true;
+            fighter->m_states[0]->m_numTimesPermitted = 2;
+            fighter->m_states[1]->m_numTimesPermitted = 2;
+            fighter->SetState( 1 );  // Strike fighters start in state 1 (LACM mode)
+        }
+        else
+        {
+            fighter->m_lacmLoadout = false;
+            fighter->m_states[0]->m_numTimesPermitted = 6;
+            fighter->m_states[1]->m_numTimesPermitted = 0;
+        }
+
 	    WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
         if( target && target->IsMovingObject() )
         {
+            if( fighter->GetAttackOdds( target->m_type ) > 0 )
+            {
+                fighter->SetTargetObjectId(targetObjectId);
+                fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+                if( aircraftMode == 2 )
+                {
+                    ActionOrder *order = new ActionOrder();
+                    order->m_targetObjectId = targetObjectId;
+                    order->m_longitude = target->m_longitude;
+                    order->m_latitude = target->m_latitude;
+                    fighter->RequestAction( order );
+                }
+            }
+            else if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
+            {
+                fighter->SetTargetObjectId(targetObjectId);
+                fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            }
+            else
+            {
+                fighter->SetWaypoint( longitude, latitude );
+                fighter->m_playerSetWaypoint = true;
+            }
+        }
+        else if( target && !target->IsMovingObject() &&
+                 g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
+        {
             fighter->SetTargetObjectId(targetObjectId);
-		    fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+        }
+        else if( target && !target->IsMovingObject() &&
+                 !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+                 fighter->GetAttackOdds( target->m_type ) > 0 )
+        {
+            // Enemy building (LACM target for Strike)
+            fighter->SetTargetObjectId(targetObjectId);
+            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            if( aircraftMode == 2 )
+            {
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = target->m_longitude;
+                order->m_latitude = target->m_latitude;
+                fighter->RequestAction( order );
+            }
         }
 	    else
 	    {

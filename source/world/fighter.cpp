@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "lib/math/vector3.h"
+#include "lib/math/random_number.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -14,7 +15,8 @@
 
 
 Fighter::Fighter()
-:   MovingObject()
+:   MovingObject(),
+    m_lacmLoadout(false)
 {
     SetType( TypeFighter );
 
@@ -30,41 +32,129 @@ Fighter::Fighter()
     m_movementType = MovementTypeAir;
     m_opportunityFireOnly = false;
 
-    AddState( LANGUAGEPHRASE("state_attack"), 60, 20, 5, 10, true );
+    AddState( LANGUAGEPHRASE("state_attack"), 60, 20, 5, 10, true, 6 );   // Gun: state 0 ammo (6 CAP / 2 Strike)
+    AddState( LANGUAGEPHRASE("state_fighterlacm"), 240, 120, 5, 10, true, 0 );  // LACM: state 1 ammo (0 CAP / 2 Strike)
+
+    m_states[1]->m_numTimesPermitted = 0;
 
     InitialiseTimers();
 }
 
 
+int Fighter::GetAttackOdds( int _defenderType )
+{
+    WorldObject::Archetype defenderArchetype = WorldObject::GetArchetypeForType( _defenderType );
+    if( defenderArchetype == WorldObject::ArchetypeAircraft )
+    {
+        if( m_states[0]->m_numTimesPermitted > 0 )
+            return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
+    }
+    else if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+    {
+        if( defenderArchetype == WorldObject::ArchetypeBuilding )
+            return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+        WorldObject::ClassType defenderClass = WorldObject::GetClassTypeForType( _defenderType );
+        if( defenderClass == WorldObject::ClassTypeCarrier || defenderClass == WorldObject::ClassTypeBattleShip ||
+            defenderClass == WorldObject::ClassTypeSub )
+            return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+    }
+    return MovingObject::GetAttackOdds( _defenderType );
+}
+
 void Fighter::AcquireTargetFromAction( ActionOrder *action )
 {
-    if( m_currentState != 0 || action->m_targetObjectId == -1 ) return;
+    if( action->m_targetObjectId == -1 ) return;
     WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-    if( target &&
-        target->m_visible[m_teamId] &&
-        g_app->GetWorld()->GetAttackOdds( m_type, target->m_type ) > 0 )
+    if( !target || !target->m_visible[m_teamId] ) return;
+    // Landing at friendly base/carrier
+    if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
     {
         m_targetObjectId = action->m_targetObjectId;
+        return;
     }
+    // State 1 LACM: set target for pursuit (like bomber)
+    if( m_currentState == 1 && GetAttackOdds( target->m_type ) > 0 )
+    {
+        m_targetObjectId = action->m_targetObjectId;
+        return;
+    }
+    // State 0 gun
+    if( m_currentState != 0 ) return;
+    if( GetAttackOdds( target->m_type ) > 0 )
+        m_targetObjectId = action->m_targetObjectId;
 }
 
 void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
-{   
+{
+    // State 1 LACM: mirror bomber state 2 flow (Action consumes ammo, re-queues for second shot)
+    if( m_currentState == 1 )
+    {
+        if( m_states[1]->m_numTimesPermitted <= 0 )
+            return;
+        if( targetObjectId == -1 )
+            return;
+        WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( targetObjectId );
+        if( !targetObj || targetObj->m_life <= 0 )
+            return;
+
+        Fixed nukeRange = GetActionRange();
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude );
+        bool inRange = ( distSqd <= nukeRange * nukeRange );
+
+        if( m_stateTimer > 0 )
+        {
+            ActionOrder *retry = new ActionOrder();
+            retry->m_targetObjectId = targetObjectId;
+            retry->m_longitude = longitude;
+            retry->m_latitude = latitude;
+            m_actionQueue.PutDataAtStart( retry );
+            return;
+        }
+
+        if( inRange )
+        {
+            MovingObject::Action( targetObjectId, longitude, latitude );
+            g_app->GetWorld()->LaunchCruiseMissile( m_teamId, m_objectId, longitude, latitude, nukeRange, targetObjectId );
+
+            int remainingAfterQueue = m_states[1]->m_numTimesPermitted - m_actionQueue.Size();
+            if( remainingAfterQueue > 0 && m_actionQueue.Size() == 0 )
+            {
+                ActionOrder *repeat = new ActionOrder();
+                repeat->m_targetObjectId = targetObjectId;
+                repeat->m_longitude = longitude;
+                repeat->m_latitude = latitude;
+                RequestAction( repeat );
+            }
+            else if( m_actionQueue.Size() > 0 )
+            {
+                ActionOrder *next = m_actionQueue[0];
+                SetWaypoint( next->m_longitude, next->m_latitude );
+            }
+            return;
+        }
+        else
+        {
+            ActionOrder *retry = new ActionOrder();
+            retry->m_targetObjectId = targetObjectId;
+            retry->m_longitude = longitude;
+            retry->m_latitude = latitude;
+            m_actionQueue.PutDataAtStart( retry );
+            SetWaypoint( longitude, latitude );
+            return;
+        }
+    }
+
+    // State 0: gun targets and landing
     m_targetObjectId = -1;
     m_opportunityFireOnly = false;
 
-    if( m_currentState == 0 )
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( target && target->m_visible[m_teamId] )
     {
-        //SetWaypoint( longitude, latitude );
-        WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-        if( target )
-        {
-            if( target->m_visible[m_teamId] &&
-                g_app->GetWorld()->GetAttackOdds( m_type, target->m_type ) > 0)
-            {
-                m_targetObjectId = targetObjectId;
-            }
-        }
+        if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
+            m_targetObjectId = targetObjectId;
+        else if( GetAttackOdds( target->m_type ) > 0 )
+            m_targetObjectId = targetObjectId;
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId &&
@@ -74,13 +164,35 @@ void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 												  longitude.DoubleValue(), latitude.DoubleValue() );
     }
 
-    MovingObject::Action( targetObjectId, longitude, latitude );
+    // State 0: do not call base Action - ammo consumed only when actually firing in Update()
 }
 
 bool Fighter::Update()
 {   
     bool arrived = MoveToWaypoint();
     bool holdingPattern = false;
+
+    // State 1 LACM: when in range of queued target, pop and call Action() (mirrors bomber state 2 block)
+    if( m_currentState == 1 && m_actionQueue.Size() > 0 && m_stateTimer <= 0 )
+    {
+        ActionOrder *head = m_actionQueue[0];
+        if( head->m_targetObjectId != -1 )
+        {
+            WorldObject *obj = g_app->GetWorld()->GetWorldObject( head->m_targetObjectId );
+            if( obj && obj->m_life > 0 )
+            {
+                Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
+                if( distSqd <= GetActionRangeSqd() )
+                {
+                    int targetId = head->m_targetObjectId;
+                    Fixed lon = obj->m_longitude, lat = obj->m_latitude;
+                    m_actionQueue.RemoveData(0);
+                    delete head;
+                    Action( targetId, lon, lat );
+                }
+            }
+        }
+    }
 
     if( m_targetObjectId != -1 )
     {
@@ -119,24 +231,45 @@ bool Fighter::Update()
 
                         if( distanceSqd <= GetActionRangeSqd() )
                         {
-                            FireGun( GetActionRange() );
-                            m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
-                            if( BurstFireOnFired( m_targetObjectId ) )
+                            WorldObject::Archetype targetArchetype = WorldObject::GetArchetypeForType( targetObject->m_type );
+                            bool isAircraftTarget = ( targetArchetype == WorldObject::ArchetypeAircraft );
+
+                            if( isAircraftTarget && m_states[0]->m_numTimesPermitted > 0 )
                             {
-                                LList<int> excluded;
-                                BurstFireGetExcludedIds( excluded );
-                                int newId = GetTarget( ( m_range < 40 ) ? m_range : 40, &excluded );
-                                if( newId != -1 )
+                                FireGun( GetActionRange() );
+                                m_states[0]->m_numTimesPermitted--;
+                                m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
+                                if( BurstFireOnFired( m_targetObjectId ) )
                                 {
-                                    m_targetObjectId = newId;
-                                    BurstFireResetShotCount();
+                                    LList<int> excluded;
+                                    BurstFireGetExcludedIds( excluded );
+                                    int newId = GetTarget( ( m_range < 40 ) ? m_range : 40, &excluded );
+                                    if( newId != -1 )
+                                    {
+                                        m_targetObjectId = newId;
+                                        BurstFireResetShotCount();
+                                    }
+                                    else
+                                    {
+                                        BurstFireAccelerateCountdowns( Fixed(10) );
+                                        BurstFireRemoveTarget( m_targetObjectId );
+                                        BurstFireResetShotCount();
+                                    }
                                 }
-                                else
-                                {
-                                    BurstFireAccelerateCountdowns( Fixed(10) );
-                                    BurstFireRemoveTarget( m_targetObjectId );
-                                    BurstFireResetShotCount();
-                                }
+                            }
+                            else if( ( targetArchetype == WorldObject::ArchetypeBuilding || targetArchetype == WorldObject::ArchetypeNavy ) &&
+                                     m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+                            {
+                                // State 1 LACM: base pops queue and calls Action() when in range - no inline fire
+                                holdingPattern = true;
+                            }
+                            else if( ( isAircraftTarget && m_states[0]->m_numTimesPermitted <= 0 ) ||
+                                     ( !isAircraftTarget && ( m_currentState != 1 || m_states[1]->m_numTimesPermitted <= 0 ) ) )
+                            {
+                                m_targetObjectId = -1;
+                                if( !isAircraftTarget && m_currentState == 1 )
+                                    ClearWaypoints();
+                                BurstFireResetShotCount();
                             }
                         }
                     }
@@ -160,7 +293,12 @@ bool Fighter::Update()
              m_isLanding == -1 &&
              ( m_targetLongitude != 0 || m_targetLatitude != 0 ) )
     {
-        // On patrol: opportunity fire at hostiles in range without changing course
+        bool hasQueuedAttack = false;
+        for( int i = 0; i < m_actionQueue.Size(); ++i )
+            if( m_actionQueue[i]->m_targetObjectId != -1 ) { hasQueuedAttack = true; break; }
+        if( !hasQueuedAttack )
+        {
+        // On patrol: opportunity fire at hostiles in range (including LACM at ships when Strike). Skip if we have active target or queued attacks.
         if( m_stateTimer <= 0 )
         {
             LList<int> excluded;
@@ -174,11 +312,30 @@ bool Fighter::Update()
                 {
                     m_targetObjectId = targetId;
                     m_opportunityFireOnly = true;
-                    FireGun( GetActionRange() );
-                    m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
-                    BurstFireOnFired( targetId );
+                    WorldObject::Archetype targetArchetype = WorldObject::GetArchetypeForType( targetObject->m_type );
+                    bool isAircraftTarget = ( targetArchetype == WorldObject::ArchetypeAircraft );
+                    if( isAircraftTarget && m_states[0]->m_numTimesPermitted > 0 )
+                    {
+                        FireGun( GetActionRange() );
+                        m_states[0]->m_numTimesPermitted--;
+                        m_stateTimer = m_states[ m_currentState ]->m_timeToReload;
+                        BurstFireOnFired( targetId );
+                    }
+                    else if( ( targetArchetype == WorldObject::ArchetypeBuilding || targetArchetype == WorldObject::ArchetypeNavy ) &&
+                             m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+                    {
+                        // Opportunity fire LACM: add to queue, base will pop and call Action() (same flow as bomber)
+                        ActionOrder *order = new ActionOrder();
+                        order->m_targetObjectId = targetId;
+                        order->m_longitude = targetObject->m_longitude;
+                        order->m_latitude = targetObject->m_latitude;
+                        RequestAction( order );
+                        m_targetObjectId = targetId;
+                        BurstFireResetShotCount();
+                    }
                 }
             }
+        }
         }
     }
 
@@ -202,7 +359,12 @@ bool Fighter::Update()
         }
     }
 
-    if( IsIdle() )
+    if( m_currentState == 1 && m_states[1]->m_numTimesPermitted <= 0 )
+    {
+        SetState( 0 );
+        Land( GetClosestLandingPad() );
+    }
+    else if( IsIdle() )
     {
         LList<int> excluded;
         BurstFireGetExcludedIds( excluded );
@@ -307,12 +469,61 @@ int Fighter::CountTargettedFighters( int targetId )
 }
 
 
+int Fighter::GetTarget( Fixed range, const LList<int> *excludeIds )
+{
+    LList<int> farTargets;
+    LList<int> closeTargets;
+    for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+    {
+        if( g_app->GetWorld()->m_objects.ValidIndex(i) )
+        {
+            WorldObject *obj = g_app->GetWorld()->m_objects[i];
+            if( obj->m_teamId != TEAMID_SPECIALOBJECTS )
+            {
+                if( excludeIds )
+                {
+                    bool excluded = false;
+                    for( int e = 0; e < excludeIds->Size(); ++e )
+                        if( excludeIds->GetData( e ) == obj->m_objectId ) { excluded = true; break; }
+                    if( excluded ) continue;
+                }
+                if( !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
+                    GetAttackOdds( obj->m_type ) > 0 &&
+                    obj->m_visible[m_teamId] &&
+                    !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ] )
+                {
+                    Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
+                    if( distanceSqd < GetActionRangeSqd() )
+                    {
+                        closeTargets.PutData(obj->m_objectId );
+                    }
+                    else if( distanceSqd < range * range )
+                    {
+                        farTargets.PutData( obj->m_objectId );
+                    }
+                }
+            }
+        }
+    }
+    if( closeTargets.Size() > 0 )
+    {
+        int targetIndex = syncrand() % closeTargets.Size();
+        return closeTargets[ targetIndex ];
+    }
+    else if( farTargets.Size() > 0 )
+    {
+        int targetIndex = syncrand() % farTargets.Size();
+        return farTargets[ targetIndex ];
+    }
+    return -1;
+}
+
 int Fighter::IsValidCombatTarget( int _objectId )
 {
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
-    if( obj->m_type == TypeCarrier || 
+    if( obj->m_type == TypeCarrier ||
         obj->m_type == TypeAirBase )
     {
         if( obj->m_teamId == m_teamId )
@@ -321,9 +532,84 @@ int Fighter::IsValidCombatTarget( int _objectId )
         }
     }
 
-    return MovingObject::IsValidCombatTarget( _objectId );
+    if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
+    {
+        if( m_states[0]->m_numTimesPermitted > 0 )
+            return TargetTypeLaunchFighter;
+        return TargetTypeInvalid;
+    }
+
+    if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+    {
+        if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+            return TargetTypeLaunchLACM;
+        return TargetTypeInvalid;
+    }
+    if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+    {
+        if( m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
+            return TargetTypeLaunchLACM;
+        return TargetTypeInvalid;
+    }
+
+    return TargetTypeInvalid;
 }
 
+
+bool Fighter::IsActionQueueable()
+{
+    return true;
+}
+
+bool Fighter::ShouldProcessActionQueue()
+{
+    return true;  // Process queue in both states (state 0: gun/land, state 1: LACM)
+}
+
+bool Fighter::ShouldProcessNextQueuedAction()
+{
+    // State 1 LACM: process when in range of head action's target (like bomber state 2)
+    if( m_currentState == 1 )
+    {
+        if( m_actionQueue.Size() == 0 )
+            return true;
+        ActionOrder *head = m_actionQueue[0];
+        if( head->m_targetObjectId == -1 )
+            return true;
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( head->m_targetObjectId );
+        if( !obj )
+            return true;
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
+        return ( distSqd <= GetActionRangeSqd() );
+    }
+    // State 0: don't pop until done with current target
+    if( m_targetObjectId == -1 )
+        return true;
+    return false;
+}
+
+void Fighter::RequestAction( ActionOrder *_action )
+{
+    if( m_currentState == 1 )
+    {
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( _action->m_targetObjectId );
+        if( target && ( target->IsAircraft() || target->IsCruiseMissileClass() || target->IsBallisticMissileClass() ) )
+        {
+            delete _action;
+            return;
+        }
+        bool wasQueueEmpty = ( m_actionQueue.Size() == 0 );
+        WorldObject::RequestAction( _action );
+        if( wasQueueEmpty && _action->m_targetObjectId != -1 && target )
+        {
+            SetWaypoint( target->m_longitude, target->m_latitude );
+        }
+    }
+    else
+    {
+        MovingObject::RequestAction( _action );
+    }
+}
 
 bool Fighter::SetWaypointOnAction()
 {

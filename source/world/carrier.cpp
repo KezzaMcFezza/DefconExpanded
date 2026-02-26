@@ -41,7 +41,8 @@ Carrier::Carrier()
     
     m_ghostFadeTime = 150;
     
-    AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 15, 45, true, 5, 3 );
+    AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 15, 45, true, 5, 3 );   // 0: CAP
+    AddState( LANGUAGEPHRASE("state_strikefighterlaunch"), 120, 120, 15, 45, true, 5, 3 );  // 1: Strike
 
     InitialiseTimers();
 }
@@ -69,14 +70,21 @@ void Carrier::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_stateTimer <= 0 )
     {
-        if( m_currentState == 0 )
-        {        
-            if(!LaunchFighter( targetObjectId, longitude, latitude ))
+        if( m_currentState == 0 || m_currentState == 1 )
+        {
+            int fighterMode = ( m_currentState == 0 ) ? 1 : 2;  // 1=CAP, 2=Strike
+            if(!LaunchFighter( targetObjectId, longitude, latitude, fighterMode ))
             {
                 return;
             }
         }
         MovingObject::Action( targetObjectId, longitude, latitude );
+        if( m_currentState == 0 || m_currentState == 1 )
+        {
+            int c = m_states[0]->m_numTimesPermitted;
+            if( (int)m_states[1]->m_numTimesPermitted < c ) c = m_states[1]->m_numTimesPermitted;
+            m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted = c;
+        }
     }
 }
 
@@ -139,7 +147,7 @@ void Carrier::RunAI()
                 {                
                     if( obj->IsAircraft() && m_stateTimer <= 0 )
                     {
-                        SetState(0);
+                        SetState( 0 );  // CAP for intercepting aircraft
                         ActionOrder *action = new ActionOrder();
                         action->m_targetObjectId = obj->m_objectId;
                         action->m_longitude = obj->m_longitude;
@@ -244,7 +252,7 @@ void Carrier::Retaliate( int attackerId )
             !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ])
         {
             if( m_states[m_currentState]->m_numTimesPermitted > 0 &&
-                m_currentState == 0 )
+                ( m_currentState == 0 || m_currentState == 1 ) )
             {
                 if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeFighter, obj->m_type ) > 0 )
                 {
@@ -276,7 +284,7 @@ void Carrier::FleetAction( int targetObjectId )
             if( m_states[ m_currentState ]->m_numTimesPermitted != 0 &&
                 m_stateTimer <= 0 )
             {
-                    if( m_currentState == 0 )
+                    if( m_currentState == 0 || m_currentState == 1 )
                     {
                         if( g_app->GetWorld()->GetAttackOdds( WorldObject::TypeFighter, obj->m_type ) > 0 )
                         {
@@ -300,8 +308,8 @@ bool Carrier::CanLaunchBomber()
 
 bool Carrier::CanLaunchFighter()
 {
-    if( m_currentState == 0 &&
-        m_states[0]->m_numTimesPermitted > 0 )
+    if( ( m_currentState == 0 || m_currentState == 1 ) &&
+        m_states[m_currentState]->m_numTimesPermitted > 0 )
     {
         return true;
     }
@@ -316,7 +324,19 @@ int Carrier::GetAttackOdds( int _defenderType )
 {
     if( CanLaunchFighter() )
     {
-        return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
+        WorldObject::Archetype defenderArchetype = WorldObject::GetArchetypeForType( _defenderType );
+        if( defenderArchetype == WorldObject::ArchetypeAircraft )
+            return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
+        if( m_currentState == 1 )  // Strike mode
+        {
+            if( defenderArchetype == WorldObject::ArchetypeBuilding )
+                return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+            WorldObject::ClassType defenderClass = WorldObject::GetClassTypeForType( _defenderType );
+            if( defenderClass == WorldObject::ClassTypeCarrier || defenderClass == WorldObject::ClassTypeBattleShip ||
+                defenderClass == WorldObject::ClassTypeSub )
+                return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+        }
+        return 0;
     }
 
     return MovingObject::GetAttackOdds( _defenderType );
@@ -332,13 +352,30 @@ int Carrier::IsValidCombatTarget( int _objectId )
     if( basicCheck < TargetTypeInvalid ) return basicCheck;
 
     // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target. Allow allies.
-    if( m_currentState == 0  )
+    if( m_currentState == 0 )  // CAP
     {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-        if( attackOdds > 0)
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
         {
-            return TargetTypeLaunchFighter;
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+            if( attackOdds > 0 )
+                return TargetTypeLaunchFighter;
         }
+        return TargetTypeInvalid;
+    }
+
+    if( m_currentState == 1 )  // Strike
+    {
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
+        {
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+            if( attackOdds > 0 )
+                return TargetTypeLaunchFighter;
+        }
+        else if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            return TargetTypeLaunchLACM;
+        else if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+            return TargetTypeLaunchLACM;
+        return TargetTypeInvalid;
     }
 
     return TargetTypeInvalid;
@@ -348,11 +385,11 @@ int Carrier::IsValidCombatTarget( int _objectId )
 int Carrier::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 {
     // For state 0/1: range is not a gate. Allow out-of-range (fuel indicator only).
-    if( m_currentState == 0 )
+    if( m_currentState == 0 || m_currentState == 1 )
     {
-        if( m_states[0]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
+        if( m_states[m_currentState]->m_numTimesPermitted - m_actionQueue.Size() <= 0 )
             return TargetTypeOutOfStock;
-        if( m_states[0]->m_defconPermitted < g_app->GetWorld()->GetDefcon() )
+        if( m_states[m_currentState]->m_defconPermitted < g_app->GetWorld()->GetDefcon() )
             return TargetTypeDefconRequired;
         return TargetTypeLaunchFighter;
     }

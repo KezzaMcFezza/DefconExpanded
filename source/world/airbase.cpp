@@ -39,11 +39,12 @@ AirBase::AirBase()
     m_maxFighters = 10;
     m_maxBombers = 10;
 
-    AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 10, 45, true, 5, 3 );
-    AddState( LANGUAGEPHRASE("state_bomberlaunch"), 120, 120, 10, 140, true, 5, 3 );
-    AddState( LANGUAGEPHRASE("state_cruisebomberlaunch"), 120, 120, 10, 140, true, 5, 3 );
+    AddState( LANGUAGEPHRASE("state_fighterlaunch"), 120, 120, 10, 45, true, 5, 3 );   // 0: CAP
+    AddState( LANGUAGEPHRASE("state_strikefighterlaunch"), 120, 120, 10, 45, true, 5, 3 );  // 1: Strike
+    AddState( LANGUAGEPHRASE("state_bomberlaunch"), 120, 120, 10, 140, true, 5, 3 );  // 2: Nuke
+    AddState( LANGUAGEPHRASE("state_cruisebomberlaunch"), 120, 120, 10, 140, true, 5, 3 );  // 3: LACM
 
-    m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
+    m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
 
     InitialiseTimers();
 }
@@ -72,21 +73,22 @@ void AirBase::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_stateTimer <= 0 )
     {
-        if( m_currentState == 0 )
-        {        
-            if(!LaunchFighter( targetObjectId, longitude, latitude ))
+        if( m_currentState == 0 || m_currentState == 1 )
+        {
+            int fighterMode = ( m_currentState == 0 ) ? 1 : 2;  // 1=CAP, 2=Strike
+            if(!LaunchFighter( targetObjectId, longitude, latitude, fighterMode ))
             {
                 return;
             }
         }
-        else if( m_currentState == 1 )
+        else if( m_currentState == 2 )
         {
             if(!LaunchBomber( targetObjectId, longitude, latitude, 1 ))
             {
                 return;
             }
         }
-        else if( m_currentState == 2 )
+        else if( m_currentState == 3 )
         {
             if(!LaunchBomber( targetObjectId, longitude, latitude, 2 ))
             {
@@ -94,8 +96,14 @@ void AirBase::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             }
         }
         WorldObject::Action( targetObjectId, longitude, latitude );
-        if( m_currentState == 1 || m_currentState == 2 )
-            m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
+        if( m_currentState == 2 || m_currentState == 3 )
+            m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
+        if( m_currentState == 0 || m_currentState == 1 )
+        {
+            int c = m_states[0]->m_numTimesPermitted;
+            if( (int)m_states[1]->m_numTimesPermitted < c ) c = m_states[1]->m_numTimesPermitted;
+            m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted = c;
+        }
     }
 }
 
@@ -203,9 +211,9 @@ void AirBase::RunAI()
                             }
                             else if( obj->IsSubmarine() )
                             {
-                                if( m_states[1]->m_numTimesPermitted > 0 )
+                                if( m_states[2]->m_numTimesPermitted > 0 )
                                 {
-                                    SetState(1);
+                                    SetState(2);
                                 }
                             }
                             else
@@ -304,11 +312,11 @@ void AirBase::RunAI()
                         if( team->m_subState >= Team::SubStateLaunchBombers ||
                             team->m_currentState == Team::StatePanic )
                         {
-                            if( m_currentState != 1 )
+                            if( m_currentState != 2 )
                             {
-                                SetState(1);
+                                SetState(2);
                             }
-                            if( m_currentState == 1 )
+                            if( m_currentState == 2 )
                             {
                                 // launch bombers!
                                 Fixed longitude = 0;
@@ -341,7 +349,7 @@ bool AirBase::IsActionQueueable()
 
 bool AirBase::UsingNukes()
 {
-    if( m_currentState == 1 )
+    if( m_currentState == 2 )
     {
         return true;
     }
@@ -356,14 +364,17 @@ void AirBase::NukeStrike()
     float bomberLossFactor = 0.5f;
 
     m_states[0]->m_numTimesPermitted *= fighterLossFactor;
-    m_states[1]->m_numTimesPermitted *= bomberLossFactor;
+    m_states[1]->m_numTimesPermitted *= fighterLossFactor;
+    m_states[2]->m_numTimesPermitted *= bomberLossFactor;
+    m_states[3]->m_numTimesPermitted *= bomberLossFactor;
     // No m_nukeSupply - airbases don't store nukes
 }
 
 bool AirBase::Update()
 {
-    m_states[2]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
-    int altState = ( m_currentState == 0 ) ? 1 : 0;
+    m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
+    m_states[1]->m_numTimesPermitted = m_states[0]->m_numTimesPermitted;
+    int altState = ( m_currentState < 2 ) ? 2 : 0;
     if( m_states[m_currentState]->m_numTimesPermitted == 0 &&
         m_states[altState]->m_numTimesPermitted > 0 )
     {
@@ -389,7 +400,7 @@ bool AirBase::Update()
 
 bool AirBase::CanLaunchBomber()
 {
-    if( ( m_currentState == 1 || m_currentState == 2 ) &&
+    if( ( m_currentState == 2 || m_currentState == 3 ) &&
         m_states[m_currentState]->m_numTimesPermitted > 0 )
     {
         return true;
@@ -402,8 +413,8 @@ bool AirBase::CanLaunchBomber()
 
 bool AirBase::CanLaunchFighter()
 {
-    if( m_currentState == 0 &&
-        m_states[0]->m_numTimesPermitted > 0 )
+    if( ( m_currentState == 0 || m_currentState == 1 ) &&
+        m_states[m_currentState]->m_numTimesPermitted > 0 )
     {
         return true;
     }
@@ -418,7 +429,19 @@ int AirBase::GetAttackOdds( int _defenderType )
 {
     if( CanLaunchFighter() )
     {
-        return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
+        WorldObject::Archetype defenderArchetype = WorldObject::GetArchetypeForType( _defenderType );
+        if( defenderArchetype == WorldObject::ArchetypeAircraft )
+            return g_app->GetWorld()->GetAttackOdds( TypeFighter, _defenderType );
+        if( m_currentState == 1 )  // Strike mode
+        {
+            if( defenderArchetype == WorldObject::ArchetypeBuilding )
+                return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+            WorldObject::ClassType defenderClass = WorldObject::GetClassTypeForType( _defenderType );
+            if( defenderClass == WorldObject::ClassTypeCarrier || defenderClass == WorldObject::ClassTypeBattleShip ||
+                defenderClass == WorldObject::ClassTypeSub )
+                return g_app->GetWorld()->GetAttackOdds( TypeLACM, _defenderType );
+        }
+        return 0;
     }
 
     if( CanLaunchBomber() )
@@ -449,18 +472,34 @@ int AirBase::IsValidCombatTarget( int _objectId )
     if( basicCheck < TargetTypeInvalid ) return basicCheck;
 
     // Range is not a launch gate - allow out-of-range for UI. Aircraft will fly toward target. Allow allies.
-    if( m_currentState == 0 )
+    if( m_currentState == 0 )  // CAP
     {
-        int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
-        if( attackOdds > 0 )
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
         {
-            return TargetTypeLaunchFighter;
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+            if( attackOdds > 0 )
+                return TargetTypeLaunchFighter;
         }
+        return TargetTypeInvalid;
     }
 
-    if( m_currentState == 1 )
+    if( m_currentState == 1 )  // Strike
     {
-        // Buildings (ballistic nuke) or navy ships (LANM) only - exclude aircraft, missiles
+        if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
+        {
+            int attackOdds = g_app->GetWorld()->GetAttackOdds( TypeFighter, obj->m_type );
+            if( attackOdds > 0 )
+                return TargetTypeLaunchFighter;
+        }
+        else if( obj->IsCarrierClass() || obj->IsBattleShipClass() || ( obj->IsSubmarine() && !obj->IsHiddenFrom() ) )
+            return TargetTypeLaunchLACM;
+        else if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
+            return TargetTypeLaunchLACM;
+        return TargetTypeInvalid;
+    }
+
+    if( m_currentState == 2 )  // Bomber Nuke
+    {
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
             return TargetTypeInvalid;
         if( !obj->IsMovingObject() )
@@ -469,7 +508,7 @@ int AirBase::IsValidCombatTarget( int _objectId )
             return TargetTypeLaunchBomber;
     }
 
-    if( m_currentState == 2 )
+    if( m_currentState == 3 )  // Bomber LACM
     {
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
             return TargetTypeInvalid;
@@ -496,12 +535,12 @@ int AirBase::IsValidMovementTarget( Fixed longitude, Fixed latitude )
         return TargetTypeDefconRequired;
     }
 
-    if( m_currentState == 0 )
+    if( m_currentState == 0 || m_currentState == 1 )
     {
         return TargetTypeLaunchFighter;
     }
 
-    if( m_currentState == 1 || m_currentState == 2 )
+    if( m_currentState == 2 || m_currentState == 3 )
     {
         return TargetTypeLaunchBomber;
     }
@@ -526,7 +565,7 @@ void AirBase::Render2D()
         colour.m_a = 150;
 
         Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        if( m_currentState == 0 || m_currentState == 1 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
 
         if( bmpImage )
         {
@@ -572,7 +611,7 @@ void AirBase::Render3D()
         colour.m_a = 150;
 
         Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        if( m_currentState == 0 || m_currentState == 1 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
 
         if( bmpImage )
         {

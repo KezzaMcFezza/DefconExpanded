@@ -241,7 +241,7 @@ public:
     virtual bool        CanLaunchFighter();
     virtual bool        CanLaunchBomber ();
     bool                LaunchBomber    ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );  // -1=auto, 1=NUKE, 2=LACM
-    bool                LaunchFighter   ( int targetObjectId, Fixed longitude, Fixed latitude );
+    bool                LaunchFighter   ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 1 );  // 1=CAP (6 air/0 LACM), 2=Strike (2 air/2 LACM)
     virtual bool        SetWaypointOnAction();
 
     virtual void        CeaseFire       ( int teamId );

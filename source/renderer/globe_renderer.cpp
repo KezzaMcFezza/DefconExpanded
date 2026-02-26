@@ -2706,11 +2706,11 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
             switch( wobj->m_classType )
             {
                 case WorldObject::ClassTypeAirbase:
-                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
-                    if( wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
+                    if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
                     break;
                 case WorldObject::ClassTypeCarrier:
-                    if( wobj->m_currentState == 0 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
+                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
                     break;
 
                 case WorldObject::ClassTypeSilo:
@@ -2744,10 +2744,18 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                 for( int i = 0; i < wobj->m_actionQueue.Size(); ++i )
                 {
                     ActionOrder *order = wobj->m_actionQueue[i];
+                    WorldObject *orderTarget = g_app->GetWorld()->GetWorldObject( order->m_targetObjectId );
+                    Image *orderImg = img;
+                    if( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
+                        wobj->m_currentState == 1 && orderTarget &&
+                        !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() )
+                    {
+                        orderImg = g_resource->GetImage( "graphics/lacm.bmp" );
+                    }
                     float targetLongitude = order->m_longitude.DoubleValue();
                     float targetLatitude = order->m_latitude.DoubleValue();
 
-                    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( order->m_targetObjectId );
+                    WorldObject *targetObject = orderTarget;
                     if( targetObject )
                     {
                         targetLongitude = targetObject->m_longitude.DoubleValue() +
@@ -2771,9 +2779,13 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
                     // ASCM has no standby mode - always launch, so never grey.
                     // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
-                    // Bomber LACM (state 2) and Airbase cruise launch (state 2) use orange, not gray.
+                    // Bomber LACM (state 2), Airbase bomber LACM (state 3), Strike fighter LACM (airbase/carrier state 1 + ship/building target).
+                    bool strikeFighterLacmOrder = ( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
+                        wobj->m_currentState == 1 && orderTarget &&
+                        !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() );
                     bool isLacmOrCruiseLaunch = ( ( wobj->m_classType == WorldObject::ClassTypeBomber && wobj->m_currentState == 2 ) ||
-                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 2 ) );
+                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 3 ) ||
+                        strikeFighterLacmOrder );
                     bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
                         ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM && !isLacmOrCruiseLaunch ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
@@ -2790,7 +2802,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     else
                         lineCol = isActiveTarget ? Colour( 255, 165, 0, 180 ) : Colour( 255, 200, 80, 180 );    // Orange/yellow: LACM, non-nuke ballistic
 
-                    g_renderer3d->RotatingSprite3D( img, targetRenderPos.x, targetRenderPos.y, targetRenderPos.z, 
+                    g_renderer3d->RotatingSprite3D( orderImg, targetRenderPos.x, targetRenderPos.y, targetRenderPos.z, 
                                                   size, size, iconCol, angle, BILLBOARD_SURFACE_ALIGNED );
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
