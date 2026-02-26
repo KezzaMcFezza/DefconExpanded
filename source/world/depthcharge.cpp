@@ -26,7 +26,9 @@ DepthCharge::DepthCharge( Fixed range )
 :   GunFire( range ),
     m_timer(40)
 {
-    m_speed = 0;
+    m_useFixedSpeed = true;
+    m_speed = Fixed::Hundredths(6);
+    m_speed /= g_app->GetWorld()->GetUnitScaleFactor();
     m_turnRate = Fixed::Hundredths(80);
     m_maxHistorySize = -1;
     m_movementType = MovementTypeSea;
@@ -43,11 +45,6 @@ bool DepthCharge::Update()
         if( !obj )
         {
             return true;   // target destroyed: detonate immediately
-        }
-        if( m_speed == 0 )
-        {
-            m_speed = Fixed::Hundredths(6);
-            m_speed /= g_app->GetWorld()->GetUnitScaleFactor();
         }
         SetWaypoint( obj->m_longitude, obj->m_latitude );
         MoveToWaypoint();

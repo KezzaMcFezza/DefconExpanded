@@ -323,6 +323,8 @@ void Fleet::GetFormationPosition( int memberCount, int memberId, Fixed *longitud
             }
             break;
         }
+        default:
+            break;
     }
 }
 

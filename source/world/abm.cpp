@@ -8,6 +8,7 @@
 
 #include "world/world.h"
 #include "world/abm.h"
+#include "world/antibm.h"
 
 
 ABM::ABM()
@@ -17,6 +18,23 @@ ABM::ABM()
     strcpy( bmpImageFilename, "graphics/abm.bmp" );
 }
 
+void ABM::FireGun( Fixed range )
+{
+    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
+    AppAssert( targetObject );
+    AntiBM *bullet = new AntiBM( range );
+    bullet->SetPosition( m_longitude, m_latitude );
+    bullet->SetTargetObjectId( targetObject->m_objectId );
+    bullet->SetTeamId( m_teamId );
+    bullet->m_origin = m_objectId;
+    Fixed interceptLongitude, interceptLatitude;
+    bullet->GetCombatInterceptionPoint( targetObject, &interceptLongitude, &interceptLatitude );
+    bullet->SetWaypoint( interceptLongitude, interceptLatitude );
+    bullet->SetInitialVelocityTowardWaypoint();
+    bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, interceptLongitude, interceptLatitude );
+    bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
+    (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
+}
 
 Image *ABM::GetBmpImage( int state )
 {
@@ -71,8 +89,8 @@ int ABM::IsValidCombatTarget( int _objectId )
     if( WorldObject::GetArchetypeForType( obj->m_type ) != WorldObject::ArchetypeBallisticMissile )
         return TargetTypeInvalid;
 
-    if( g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId ) )
-        return TargetTypeInvalid;
+    // Allow manual targeting of friendlies (e.g. to shoot down stray missiles)
+    // AirDefense() auto-targeting still excludes friendlies via GetNearestObject.
 
     if( g_app->GetWorld()->GetAttackOdds( TypeABM, obj->m_type ) > 0 )
         return TargetTypeValid;

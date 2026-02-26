@@ -39,6 +39,7 @@ public:
 
     void    RequestAction   ( ActionOrder *_action );
 
+    void    FireGun                 ( Fixed range ) override;
     int     GetBurstFireShots       () const;
     int     GetAttackOdds           ( int _defenderType );
     int     IsValidCombatTarget     ( int _objectId );

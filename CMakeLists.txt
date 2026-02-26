@@ -557,6 +557,8 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/lanm.cpp
     ${ROOT_PATH}/source/world/node.cpp
     ${ROOT_PATH}/source/world/depthcharge.cpp
+    ${ROOT_PATH}/source/world/torpedo.cpp
+    ${ROOT_PATH}/source/world/antibm.cpp
     ${ROOT_PATH}/source/world/bomber.cpp
     ${ROOT_PATH}/source/world/tornado.cpp
     ${ROOT_PATH}/source/network/ClientToServer.cpp

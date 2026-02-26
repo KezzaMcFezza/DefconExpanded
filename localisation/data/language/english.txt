@@ -528,6 +528,7 @@ dialog_credits_2                    Remaining
 dialog_fleets                       Fleets
 dialog_units                        Units
 dialog_place_fleet                  Place Fleet
+dialog_clear_fleet                  Clear Fleet
 
 dialog_paused                       PAUSED
 dialog_recording_paused             RECORDING PAUSED
@@ -1081,6 +1082,7 @@ tooltip_place_fleet                         Place Fleet Here
 tooltip_fleet_button                        Build a Fleet
 tooltip_fleet_remove                        Remove this unit from Fleet
 tooltip_fleet_place                         Place this Fleet
+tooltip_clear_fleet                         Clear all ships from fleet slots
 
 tooltip_territory_northamerica              North America
 tooltip_territory_southamerica              South America

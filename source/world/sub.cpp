@@ -23,6 +23,7 @@
 #include "world/sub.h"
 #include "world/nuke.h"
 #include "world/fleet.h"
+#include "world/torpedo.h"
 
 
 Sub::Sub()
@@ -389,6 +390,24 @@ void Sub::Render3D()
         }
     }
 #endif
+}
+
+void Sub::FireGun( Fixed range )
+{
+    WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(m_targetObjectId);
+    AppAssert( targetObject );
+    Torpedo *bullet = new Torpedo( range );
+    bullet->SetPosition( m_longitude, m_latitude );
+    bullet->SetTargetObjectId( targetObject->m_objectId );
+    bullet->SetTeamId( m_teamId );
+    bullet->m_origin = m_objectId;
+    Fixed interceptLongitude, interceptLatitude;
+    bullet->GetCombatInterceptionPoint( targetObject, &interceptLongitude, &interceptLatitude );
+    bullet->SetWaypoint( interceptLongitude, interceptLatitude );
+    bullet->SetInitialVelocityTowardWaypoint();
+    bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, interceptLongitude, interceptLatitude );
+    bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
+    (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
 }
 
 void Sub::RunAI()

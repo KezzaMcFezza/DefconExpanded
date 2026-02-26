@@ -22,14 +22,15 @@
 
 GunFire::GunFire( Fixed range )
 :   MovingObject(),
+    m_useFixedSpeed(true),
     m_origin(-1),
     m_distanceToTarget(0)
 {
     m_stealthType = 100;  // normal
     m_range = range;
-    m_speed = Fixed::Hundredths(60);
+    m_speed = Fixed::Hundredths(30);
 
-    m_turnRate = Fixed::Hundredths(60);
+    m_turnRate = Fixed::Hundredths(30);
     m_maxHistorySize = -1;
     m_movementType = MovementTypeAir;
     
@@ -290,12 +291,13 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
     Fixed distance = (Vector3<Fixed>( wayLong, wayLat, 0 ) -
                       Vector3<Fixed>( m_longitude, m_latitude, 0 )).Mag();
 
-    m_speed = distance / 50;
-
-    Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetUnitScaleFactor();
-    Fixed maxSpeed = 2 / g_app->GetWorld()->GetUnitScaleFactor();
-
-    Clamp( m_speed, minSpeed, maxSpeed );
+    if( !m_useFixedSpeed )
+    {
+        m_speed = distance / 50;
+        Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetUnitScaleFactor();
+        Fixed maxSpeed = 2 / g_app->GetWorld()->GetUnitScaleFactor();
+        Clamp( m_speed, minSpeed, maxSpeed );
+    }
 
     targetDir * m_speed;
 

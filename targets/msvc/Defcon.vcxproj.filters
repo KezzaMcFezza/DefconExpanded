@@ -105,6 +105,12 @@
     <ClCompile Include="..\..\source\world\depthcharge.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\world\torpedo.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\world\antibm.cpp">
+      <Filter>world</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\world\earthdata.cpp">
       <Filter>world</Filter>
     </ClCompile>
@@ -403,6 +409,12 @@
       <Filter>world</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\world\depthcharge.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\world\torpedo.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\world\antibm.h">
       <Filter>world</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\world\earthdata.h">

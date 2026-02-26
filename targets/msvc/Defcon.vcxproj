@@ -253,6 +253,8 @@
     <ClCompile Include="..\..\source\world\city.cpp" />
     <ClCompile Include="..\..\source\world\date.cpp" />
     <ClCompile Include="..\..\source\world\depthcharge.cpp" />
+    <ClCompile Include="..\..\source\world\torpedo.cpp" />
+    <ClCompile Include="..\..\source\world\antibm.cpp" />
     <ClCompile Include="..\..\source\world\earthdata.cpp" />
     <ClCompile Include="..\..\source\world\explosion.cpp" />
     <ClCompile Include="..\..\source\world\fighter.cpp" />
@@ -354,6 +356,8 @@
     <ClInclude Include="..\..\source\world\city.h" />
     <ClInclude Include="..\..\source\world\date.h" />
     <ClInclude Include="..\..\source\world\depthcharge.h" />
+    <ClInclude Include="..\..\source\world\torpedo.h" />
+    <ClInclude Include="..\..\source\world\antibm.h" />
     <ClInclude Include="..\..\source\world\earthdata.h" />
     <ClInclude Include="..\..\source\world\explosion.h" />
     <ClInclude Include="..\..\source\world\fighter.h" />

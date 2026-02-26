@@ -1366,6 +1366,82 @@ void World::LaunchCBM( int teamId, int objId, Fixed longitude, Fixed latitude, F
     cbm->m_range = range;
 
     AddWorldObject( cbm );
+
+    Fixed fromLongitude = from->m_longitude;
+    Fixed fromLatitude = from->m_latitude;
+    if( from->m_fleetId != -1 )
+    {
+        Fleet *fleet = GetTeam( from->m_teamId )->GetFleet( from->m_fleetId );
+        if( fleet )
+        {
+            fromLongitude = fleet->m_longitude;
+            fromLatitude = fleet->m_latitude;
+        }
+    }
+
+    if( teamId != m_myTeamId )
+    {
+        bool messageFound = false;
+        for( int i = 0; i < g_app->GetWorld()->m_messages.Size(); ++i )
+        {
+            WorldMessage *wm = g_app->GetWorld()->m_messages[i];
+            if( wm->m_messageType == WorldMessage::TypeLaunch &&
+                GetDistanceSqd( wm->m_longitude, wm->m_latitude, fromLongitude, fromLatitude ) < 10 * 10 )
+            {
+                wm->SetMessage(LANGUAGEPHRASE("message_multilaunch"));
+                wm->m_timer += 3;
+                if( wm->m_timer > 20 )
+                    wm->m_timer = 20;
+                wm->m_renderFull = true;
+                messageFound = true;
+                break;
+            }
+        }
+        if( !messageFound )
+        {
+            char msg[64];
+            sprintf( msg, "%s", LANGUAGEPHRASE("message_nukelaunch") );
+            AddWorldMessage( fromLongitude, fromLatitude, teamId, msg, WorldMessage::TypeLaunch );
+            int id = g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeNukePointer, objId,
+                                                                from->m_longitude.DoubleValue(), from->m_latitude.DoubleValue() );
+            if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex( id ) )
+            {
+                NukePointer *pointer = (NukePointer *)g_app->GetWorldRenderer()->GetAnimations()[id];
+                if( pointer->m_animationType == WorldRenderer::AnimationTypeNukePointer )
+                {
+                    pointer->m_targetId = from->m_objectId;
+                    pointer->Merge();
+                }
+            }
+        }
+
+        if( g_app->m_hidden )
+        {
+            g_app->GetStatusIcon()->SetSubIcon( STATUS_ICON_NUKE );
+            g_app->GetStatusIcon()->SetCaption( LANGUAGEPHRASE("tray_icon_nuke_launches_detected") );
+        }
+
+        if( m_firstLaunch[ teamId ] == false )
+        {
+            m_firstLaunch[ teamId ] = true;
+            char msg[128];
+            sprintf( msg, "%s", LANGUAGEPHRASE("message_firstlaunch") );
+            LPREPLACESTRINGFLAG('T', GetTeam(teamId)->GetTeamName(), msg );
+            strupr(msg);
+            g_app->GetInterface()->ShowMessage( 0, 0, teamId, msg, true );
+#ifdef TOGGLE_SOUND
+            g_soundSystem->TriggerEvent( "Interface", "FirstLaunch" );
+#endif
+        }
+    }
+
+    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
+    {
+        if( m_teams[i]->m_type == Team::TypeAI )
+        {
+            m_teams[i]->AddEvent( Event::TypeNukeLaunch, objId, from->m_teamId, -1, from->m_longitude, from->m_latitude );
+        }
+    }
 }
 
 void World::LaunchCruiseMissile( int teamId, int objId, Fixed longitude, Fixed latitude, Fixed range, int targetObjectId )
@@ -3918,12 +3994,12 @@ int World::GetAttackOdds( int attackerType, int defenderType )
     static const int s_attackOdds[6][5] =
     {
     /*           SAM     SUB     SHP     BMR     FTR       DEFENDER */
-        {  0, 10, 20, 25,  3   },  // Sub
-        {  0, 20, 20, 25, 10   },  // Carrier
-        {  0, 20, 10, 25, 10   },  // BattleShip
-        { 30, 0,  20,  0, 30   },  // Bomber
-        { 30, 0,  30,  0, 10   },  // Fighter
-        {  0, 0,  40,  0,  0    },  // LACM, LANM
+        {  0, 15, 30, 0,  0   },  // Sub
+        {  0, 30, 40, 0, 0   },  // Carrier
+        {  0, 30, 40, 0, 0   },  // BattleShip
+        { 40, 0,  40,  0, 60   },  // Bomber
+        { 30, 0,  30,  0, 40   },  // Fighter
+        {  25, 0,  50,  0,  50    },  // LACM, LANM
     };
 
     int defenderRow = -1;

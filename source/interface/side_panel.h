@@ -107,6 +107,17 @@ public:
     void MouseUp();
 };
 
+class ClearFleetButton : public InterfaceButton
+{
+protected:
+    bool m_disabled;
+
+public:
+    ClearFleetButton();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+    void MouseUp();
+};
+
 
 
 class NewFleetButton : public InterfaceButton

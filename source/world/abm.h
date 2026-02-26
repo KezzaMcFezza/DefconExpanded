@@ -11,6 +11,7 @@ class ABM : public SAM
 public:
     ABM();
 
+    void    FireGun     ( Fixed range ) override;
     void    AirDefense() override;
     int     GetAttackOdds( int _defenderType ) override;
     int     IsValidCombatTarget( int _objectId ) override;

@@ -7,6 +7,9 @@
 
 class GunFire : public MovingObject
 {
+protected:
+    bool    m_useFixedSpeed;  // when true, CalculateNewPosition does not overwrite m_speed
+
 public:
     int     m_origin;
     bool    m_killShot;

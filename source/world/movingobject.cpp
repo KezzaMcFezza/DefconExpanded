@@ -1550,7 +1550,6 @@ void MovingObject::CombatIntercept( WorldObject *target )
     }
 }
 
-
 void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLongitude, Fixed *interceptLatitude )
 {
     Fixed timeLimit = Fixed::MAX;
@@ -1691,6 +1690,14 @@ void MovingObject::GetCombatInterceptionPoint( WorldObject *target, Fixed *inter
             leadFactor = Fixed::Hundredths(96) + distLeadFactor * Fixed::Hundredths(4);
         timeLeft = timeLeft * leadFactor;
     }
+
+    // Reduce lead at high latitude (linear lon/lat extrapolation over-predicts at poles).
+    // 84% at poles.
+    Fixed targetLatAbs = target->m_latitude.abs();
+    Fixed latNorm = targetLatAbs / Fixed(90);
+    Fixed poleScale = Fixed(1) - latNorm * latNorm * Fixed::Hundredths(16);
+    if( poleScale < Fixed::Hundredths(84) ) poleScale = Fixed::Hundredths(84);
+    timeLeft = timeLeft * poleScale;
 
     *interceptLongitude = targetLongitude + timeLeft * targetVel.x;
     *interceptLatitude  = target->m_latitude + timeLeft * targetVel.y;

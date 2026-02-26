@@ -36,7 +36,7 @@ SidePanel::SidePanel( const char *name )
 	m_fontsize(13.0f)
 {
     //SetMovable(false);
-    SetSize( 250, 475 );  // Thundy dimensions for future subunits
+    SetSize( 250, 550 );  // 2x6 buildings, 6 fleet slots (single column)
 	if( g_windowManager->WindowH() > 480 )
 	{
 		SetPosition( 0, 100 );
@@ -76,48 +76,50 @@ void SidePanel::Create()
     //CreateExpandButton();
     int x = 26;
     int y = 50;
+    int colGap = 75;
+    int rowGap = 75;
 
 	m_fontsize = 48 / 1.2f / 4.0f;
 
-    // 2x2 grid, 75px spacing (Thundy layout for future subunits)
+    // 2 columns x 6 rows for buildings (12 slots)
     UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
     radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
     RegisterButton( radar );
 
     UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-    silo->SetProperties( "Silo", x+75, y, 48, 48, "", "tooltip_place_silo", false, true );
+    silo->SetProperties( "Silo", x+colGap, y, 48, 48, "", "tooltip_place_silo", false, true );
     RegisterButton( silo );
 
     UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
-    sam->SetProperties( "SAM", x, y+75, 48, 48, "", "tooltip_place_sam", false, true );
+    sam->SetProperties( "SAM", x, y+rowGap, 48, 48, "", "tooltip_place_sam", false, true );
     RegisterButton( sam );
 
     UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-    airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
+    airbase->SetProperties( "AirBase", x+colGap, y+rowGap, 48, 48, "", "tooltip_place_airbase", false, true );
     RegisterButton( airbase );
 
     UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
-    abm->SetProperties( "ABM", x, y+150, 48, 48, "", "tooltip_place_abm", false, true );
+    abm->SetProperties( "ABM", x, y+rowGap*2, 48, 48, "", "tooltip_place_abm", false, true );
     RegisterButton( abm );
 
     UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
-    silomed->SetProperties( "SiloMed", x+75, y+150, 48, 48, "", "tooltip_place_silomed", false, true );
+    silomed->SetProperties( "SiloMed", x+colGap, y+rowGap*2, 48, 48, "", "tooltip_place_silomed", false, true );
     RegisterButton( silomed );
 
     UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
-    silomobile->SetProperties( "SiloMobile", x, y+225, 48, 48, "", "tooltip_place_silomobile", false, true );
+    silomobile->SetProperties( "SiloMobile", x, y+rowGap*3, 48, 48, "", "tooltip_place_silomobile", false, true );
     RegisterButton( silomobile );
 
     UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
-    silomobilecon->SetProperties( "SiloMobileCon", x+75, y+225, 48, 48, "", "tooltip_place_silomobilecon", false, true );
+    silomobilecon->SetProperties( "SiloMobileCon", x+colGap, y+rowGap*3, 48, 48, "", "tooltip_place_silomobilecon", false, true );
     RegisterButton( silomobilecon );
 
     UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
-    ascm->SetProperties( "ASCM", x+150, y+150, 48, 48, "", "tooltip_place_ascm", false, true );
+    ascm->SetProperties( "ASCM", x, y+rowGap*4, 48, 48, "", "tooltip_place_ascm", false, true );
     RegisterButton( ascm );
 
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-    fmb->SetProperties( "FleetMode", x, y+300, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+    fmb->SetProperties( "FleetMode", x, m_h - 58, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
 
     RegisterButton( fmb );
@@ -195,10 +197,6 @@ void SidePanel::Render( bool hasFocus )
     {
         if( m_currentFleetId != -1 )
         {
-            int x = 0;
-            int y = 0;
-            int yMod = 0;
-            
             Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
 
             //
@@ -253,23 +251,15 @@ void SidePanel::Render( bool hasFocus )
                 
                 if( m_mode == ModeFleetPlacement )
                 {
-                    x = m_x + 120;
-                    y = m_y + 20;
-                    yMod = 50;
-
+                    // 6 fleet slots in single column, like original Defcon
+                    int fleetSlotX = 160, slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
                     for( int i = 0; i < 6; ++i )
                     {
-                        g_renderer2d->RectFill( x, y, 40, 40, Colour(90,90,170,200) );
-                        g_renderer2d->Rect(x, y, 40, 40, White );
-                        y += yMod;
+                        int sx = m_x + fleetSlotX;
+                        int sy = m_y + slotY + i * (slotH + slotGap);
+                        g_renderer2d->RectFill( sx, sy, slotW, slotH, Colour(90,90,170,200) );
+                        g_renderer2d->Rect(sx, sy, slotW, slotH, White );
                     }
-                    y = m_y+20;
-                }
-                else
-                {
-                    x = m_x + 10;
-                    y = m_y + 40;
-                    yMod = 60;
                 }
 
                 //
@@ -278,14 +268,16 @@ void SidePanel::Render( bool hasFocus )
                 g_renderer2d->EndRectFillBatch();
                 g_renderer2d->BeginStaticSpriteBatch();
                 
+                int fleetSlotX = 160, slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
                 for( int i = 0; i < myTeam->m_fleets[ m_currentFleetId ]->m_memberType.Size(); ++i )
                 {
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
+                    int sx = m_x + fleetSlotX + 2;
+                    int sy = m_y + slotY + i * (slotH + slotGap) + 2;
                     Image *bmpImage	= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(type) );
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer2d->StaticSprite( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
+                    g_renderer2d->StaticSprite( bmpImage, sx, sy, 36, 36, myTeam->GetTeamColour() );
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                    y += yMod;
                 }
             }
         }
@@ -352,43 +344,43 @@ void SidePanel::ChangeMode( int mode )
     InterfaceWindow::Remove();
 //    CreateExpandButton();
 
-    if( m_mode == ModeUnitPlacement )
-    {
-        // 2x2 grid, 75px spacing (Thundy layout for future subunits)
+        if( m_mode == ModeUnitPlacement )
+        {
+        int colGap = 75, rowGap = 75;
         UnitPlacementButton *radar = new UnitPlacementButton(WorldObject::TypeRadarStation);
         radar->SetProperties( "Radar", x, y, 48, 48, "", "tooltip_place_radar", false, true );
         RegisterButton( radar );
 
         UnitPlacementButton *silo = new UnitPlacementButton(WorldObject::TypeSilo);
-        silo->SetProperties( "Silo", x+75, y, 48, 48, "", "tooltip_place_silo", false, true );
+        silo->SetProperties( "Silo", x+colGap, y, 48, 48, "", "tooltip_place_silo", false, true );
         RegisterButton( silo );
 
         UnitPlacementButton *sam = new UnitPlacementButton(WorldObject::TypeSAM);
-        sam->SetProperties( "SAM", x, y+75, 48, 48, "", "tooltip_place_sam", false, true );
+        sam->SetProperties( "SAM", x, y+rowGap, 48, 48, "", "tooltip_place_sam", false, true );
         RegisterButton( sam );
 
         UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
-        airbase->SetProperties( "AirBase", x+75, y+75, 48, 48, "", "tooltip_place_airbase", false, true );
+        airbase->SetProperties( "AirBase", x+colGap, y+rowGap, 48, 48, "", "tooltip_place_airbase", false, true );
         RegisterButton( airbase );
 
         UnitPlacementButton *abm = new UnitPlacementButton(WorldObject::TypeABM);
-        abm->SetProperties( "ABM", x, y+150, 48, 48, "", "tooltip_place_abm", false, true );
+        abm->SetProperties( "ABM", x, y+rowGap*2, 48, 48, "", "tooltip_place_abm", false, true );
         RegisterButton( abm );
 
         UnitPlacementButton *silomed = new UnitPlacementButton(WorldObject::TypeSiloMed);
-        silomed->SetProperties( "SiloMed", x+75, y+150, 48, 48, "", "tooltip_place_silomed", false, true );
+        silomed->SetProperties( "SiloMed", x+colGap, y+rowGap*2, 48, 48, "", "tooltip_place_silomed", false, true );
         RegisterButton( silomed );
 
         UnitPlacementButton *silomobile = new UnitPlacementButton(WorldObject::TypeSiloMobile);
-        silomobile->SetProperties( "SiloMobile", x, y+225, 48, 48, "", "tooltip_place_silomobile", false, true );
+        silomobile->SetProperties( "SiloMobile", x, y+rowGap*3, 48, 48, "", "tooltip_place_silomobile", false, true );
         RegisterButton( silomobile );
 
         UnitPlacementButton *silomobilecon = new UnitPlacementButton(WorldObject::TypeSiloMobileCon);
-        silomobilecon->SetProperties( "SiloMobileCon", x+75, y+225, 48, 48, "", "tooltip_place_silomobilecon", false, true );
+        silomobilecon->SetProperties( "SiloMobileCon", x+colGap, y+rowGap*3, 48, 48, "", "tooltip_place_silomobilecon", false, true );
         RegisterButton( silomobilecon );
 
         UnitPlacementButton *ascm = new UnitPlacementButton(WorldObject::TypeASCM);
-        ascm->SetProperties( "ASCM", x+150, y+150, 48, 48, "", "tooltip_place_ascm", false, true );
+        ascm->SetProperties( "ASCM", x, y+rowGap*4, 48, 48, "", "tooltip_place_ascm", false, true );
         RegisterButton( ascm );
 
         Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
@@ -401,7 +393,7 @@ void SidePanel::ChangeMode( int mode )
         }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-        fmb->SetProperties( "FleetMode", x, y+300, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+        fmb->SetProperties( "FleetMode", x, m_h - 58, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
         if( shipsRemaining == 0 )
         {
@@ -412,40 +404,49 @@ void SidePanel::ChangeMode( int mode )
     }
     else if( m_mode == ModeFleetPlacement )
     {
-        m_w = 160;
+        m_w = 250;
+        int colGap = 75, rowGap = 75;
 
-        AddToFleetButton *battleship = new AddToFleetButton(WorldObject::TypeBattleShip);
-        battleship->SetProperties( "BattleShip", x, y, 48, 48, "", "tooltip_place_battleship", false, true );
-        RegisterButton( battleship );
-
+        // 2x6 grid for ship types (up to 12), matching buildings page layout
         AddToFleetButton *sub = new AddToFleetButton(WorldObject::TypeSub);
-        sub->SetProperties( "Sub", x, y+75, 48, 48, "", "tooltip_place_sub", false, true );
+        sub->SetProperties( "Sub", x, y, 48, 48, "", "tooltip_place_sub", false, true );
         RegisterButton( sub );
 
+        AddToFleetButton *battleship = new AddToFleetButton(WorldObject::TypeBattleShip);
+        battleship->SetProperties( "BattleShip", x+colGap, y, 48, 48, "", "tooltip_place_battleship", false, true );
+        RegisterButton( battleship );
+
         AddToFleetButton *carrier = new AddToFleetButton(WorldObject::TypeCarrier);
-        carrier->SetProperties( "Carrier", x, y+150, 48, 48, "", "tooltip_place_carrier", false, true );
+        carrier->SetProperties( "Carrier", x, y+rowGap, 48, 48, "", "tooltip_place_carrier", false, true );
         RegisterButton( carrier );
 
+        // Slot (1,1) reserved for future ship type
         PanelModeButton *umb = new PanelModeButton( ModeUnitPlacement, true );
-        umb->SetProperties( "UnitMode", x, y+220, 48, 48, "dialog_units", "", true, false );
+        umb->SetProperties( "UnitMode", x, m_h - 58, 48, 48, "dialog_units", "", true, false );
         strcpy( umb->bmpImageFilename, "graphics/units.bmp" );
         RegisterButton( umb );
 
-        x = 120;
-        y = 20;
+        int fleetSlotX = 160;  // Right column, to the right of 2x6 ship grid (26+75+48=149)
+        ClearFleetButton *cfb = new ClearFleetButton();
+        cfb->SetProperties( "ClearFleet", fleetSlotX, 20, 88, 28, "dialog_clear_fleet", "tooltip_clear_fleet", false, true );
+        RegisterButton( cfb );
+
+        // 6 fleet slots in single column, like original Defcon
+        int slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
         for( int i = 0; i < 6; ++i )
         {
             char name[128];
             sprintf( name, "Remove Unit %d", i );
+            int sx = fleetSlotX;
+            int sy = slotY + i * (slotH + slotGap);
             RemoveUnitButton *rb = new RemoveUnitButton();
-            rb->SetProperties( name, x, y, 40, 40, "", "tooltip_fleet_remove", false, true );
+            rb->SetProperties( name, sx, sy, slotW, slotH, "", "tooltip_fleet_remove", false, true );
             rb->m_memberId = i;
             RegisterButton( rb );
-            y += 50;   
         }
 
         FleetPlacementButton *fpb = new FleetPlacementButton();
-        fpb->SetProperties( "PlaceFleet", x, y, 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
+        fpb->SetProperties( "PlaceFleet", fleetSlotX, slotY + 6*(slotH+slotGap), 40, 40, "dialog_place_fleet", "tooltip_fleet_place", true, true );
         RegisterButton( fpb );
 
         Team *myTeam = g_app->GetWorld()->GetTeam( currentTeamId );
@@ -785,7 +786,9 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
 		    colour.m_r += 80;
 	    }
 	    if( team->m_unitsAvailable[m_unitType] <= 0 ||
-            team->m_unitCredits < g_app->GetWorld()->GetUnitValue(m_unitType))
+            team->m_unitCredits < g_app->GetWorld()->GetUnitValue(m_unitType) ||
+            ( parent->m_currentFleetId != -1 && team->m_fleets.ValidIndex( parent->m_currentFleetId ) &&
+              team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() >= 6 ) )
 	    {
 		    m_disabled = true;
 	    }
@@ -909,6 +912,62 @@ void AddToFleetButton::MouseUp()
     Removes the selected unit from current fleet
     ####################
 */
+
+ClearFleetButton::ClearFleetButton()
+:   InterfaceButton(),
+    m_disabled(false)
+{
+}
+
+void ClearFleetButton::Render( int realX, int realY, bool highlighted, bool clicked )
+{
+    SidePanel *parent = (SidePanel *)m_parent;
+    if( parent->m_mode != SidePanel::ModeFleetPlacement )
+        return;
+
+    m_disabled = false;
+    Team *team = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
+    if( !team || parent->m_currentFleetId == -1 ||
+        !team->m_fleets.ValidIndex( parent->m_currentFleetId ) )
+    {
+        m_disabled = true;
+    }
+    else if( team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Size() == 0 )
+    {
+        m_disabled = true;
+    }
+
+    int transparency = g_renderer2d->m_alpha * 255;
+    if( highlighted || clicked ) transparency = 255;
+
+    Colour col = Colour(80,80,120, transparency);
+    if( m_disabled ) col = Colour(60,60,80, transparency);
+    else if( highlighted ) col = Colour(100,100,140, transparency);
+    else if( clicked ) col = Colour(120,120,160, transparency);
+
+    g_renderer2d->RectFill( realX, realY, m_w, m_h, col );
+    g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(150,150,180, transparency) );
+
+    Colour textCol = m_disabled ? Colour(100,100,100,255) : White;
+    g_renderer2d->TextCentreSimple( realX + m_w/2, realY + m_h/2 - 6, textCol, parent->m_fontsize, LANGUAGEPHRASE("dialog_clear_fleet") );
+}
+
+void ClearFleetButton::MouseUp()
+{
+    if( g_app->GetWorld()->GetTimeScaleFactor() == 0 )
+        return;
+    if( m_disabled )
+        return;
+
+    SidePanel *parent = (SidePanel *)m_parent;
+    Team *team = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
+    if( parent->m_currentFleetId != -1 &&
+        team->m_fleets.ValidIndex( parent->m_currentFleetId ) &&
+        !team->m_fleets[ parent->m_currentFleetId ]->m_active )
+    {
+        team->m_fleets[ parent->m_currentFleetId ]->m_memberType.Empty();
+    }
+}
 
 RemoveUnitButton::RemoveUnitButton()
 :   InterfaceButton(),

@@ -102,18 +102,18 @@ Raitos Goals:
 - launch render improvments                               - DONE
 - multi-tier radar system                                 - DONE
 - expansion of unit system                                - INPROGRESS
-  missiles - nuke, ballistic, lacm,                - DONE
-  gunfire - aa, torpedo, depthcharge, abm
-  silos - icbm, mrbm, tel-n, tel-c, ascm           - DONE
-  SAMs - abm, sam                                  - DONE
-  airbase - 1,2,3
-  radar - radar, ew
-  ships - cruiser, destroyer, frigate
-  carriers - nuclear, escort
-  subs - ssbn, ssg, ssn, ssk
-  bombers - normal, stealth, fast
-  fighters - naval, stealth naval, light, stealth
-  AEW - AWACS
+  missiles - nuke, ballistic, lacm                           - DONE
+  gunfire - gunfire (antiair), torpedo, depthcharge, abm                    - DONE
+  silos - icbm, mrbm, tel-n, tel-c, ascm                     - DONE
+  SAMs - abm, sam                                            - DONE
+  airbase - 1,2,3                                            -
+  radar - radar, radarEW                                     -
+  ships - cruiser, destroyer, frigate                        -
+  carriers - carrier, carriersuper, carrierlight, carrierLHD -
+  subs - ssbn, ssg, ssn, ssk                                 -
+  bombers - normal, stealth, fast                            -
+  fighters - naval, stealth naval, light, stealth            -
+  AEW - AWACS                                                -
 
 
 TODO:
