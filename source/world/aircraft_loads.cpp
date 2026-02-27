@@ -5,10 +5,10 @@
 
 #include <cstring>
 
-// Airbase state indices: 0,1 fighter_light; 2,3 fighter; 4,5 fighter_navy_stealth; 6,7 fighter_stealth; 8,9 bomber; 10,11 bomber_fast; 12,13 bomber_stealth; 14 AEW
+// Airbase state indices: 0,1 fighter_light; 2,3 fighter; 4,5 fighter_navy_stealth; 6,7 fighter_stealth; 8,9 bomber; 10,11 bomber_fast; 12,13 bomber_stealth; 14 AEW; 15 Tanker
 // Carrier state indices: 0,1 fighter; 2,3 fighter_navy_stealth; 4 AEW
 
-static void SetAirbaseLoad( WorldObject *obj, int fl, int f, int fs, int b, int bf, int bs, int aew, int fns )
+static void SetAirbaseLoad( WorldObject *obj, int fl, int f, int fs, int b, int bf, int bs, int aew, int fns, int tanker = 0 )
 {
     if ( obj->m_states.Size() < 15 ) return;
     obj->m_states[0]->m_numTimesPermitted = fl;
@@ -26,6 +26,8 @@ static void SetAirbaseLoad( WorldObject *obj, int fl, int f, int fs, int b, int 
     obj->m_states[12]->m_numTimesPermitted = bs;
     obj->m_states[13]->m_numTimesPermitted = bs;
     obj->m_states[14]->m_numTimesPermitted = aew;
+    if( obj->m_states.Size() > 15 )
+        obj->m_states[15]->m_numTimesPermitted = tanker;
     int totalF = fl + f + fs + fns;
     int totalB = b + bf + bs;
     obj->m_maxFighters = ( totalF > 10 ) ? totalF : 10;
@@ -58,11 +60,11 @@ void ApplyTerritoryAircraftLoads( WorldObject *obj, int primaryTerritory )
         if ( t == World::TerritoryUSA )
         {
             if ( type == WorldObject::TypeAirBase )
-                SetAirbaseLoad( obj, 5, 0, 0, 0, 0, 0, 2, 2 );  // USA Airbase
+                SetAirbaseLoad( obj, 5, 0, 0, 0, 0, 0, 2, 2, 2 );  // USA Airbase (2 tankers)
             else if ( type == WorldObject::TypeAirBase2 )
                 SetAirbaseLoad( obj, 0, 0, 2, 5, 2, 2, 2, 0 );  // USA Airbase2
             else if ( type == WorldObject::TypeAirBase3 )
-                SetAirbaseLoad( obj, 0, 2, 0, 0, 0, 0, 2, 2 );  // USA Airbase3
+                SetAirbaseLoad( obj, 0, 2, 0, 0, 0, 0, 2, 2, 2 );  // USA Airbase3 (2 tankers)
         }
         else if ( t == World::TerritoryNATO )
         {

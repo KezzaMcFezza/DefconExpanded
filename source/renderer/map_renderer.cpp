@@ -958,9 +958,14 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     // When adding new units/buildings with ammo, add a case here and avoid per-unit sprite overlays.
 
     int numFighters = -1;
+    int numFighterLight = -1;
+    int numStealthFighter = -1;
     int numBombers = -1;
+    int numBomberFast = -1;
+    int numBomberStealth = -1;
     int numNavyStealthFighters = -1;
     int numAEWCarrier = -1;
+    int numTanker = -1;
     int numNukes = -1;
     int numLACMs = -1;
     int numCBMs = -1;
@@ -988,10 +993,18 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             break;
 
         case WorldObject::ClassTypeAirbase:
-            numFighters = wobj->GetFighterCount();
-            numBombers = wobj->GetBomberCount();
-            numAEWCarrier = wobj->GetAEWCount();
-            if( numAEWCarrier <= 0 ) numAEWCarrier = -1;
+            if( wobj->m_states.Size() >= 16 )
+            {
+                numFighterLight = wobj->m_states[0]->m_numTimesPermitted;
+                numFighters = wobj->m_states[2]->m_numTimesPermitted;
+                numNavyStealthFighters = wobj->m_states[4]->m_numTimesPermitted;
+                numStealthFighter = wobj->m_states[6]->m_numTimesPermitted;
+                numBombers = wobj->m_states[8]->m_numTimesPermitted;
+                numBomberFast = wobj->m_states[10]->m_numTimesPermitted;
+                numBomberStealth = wobj->m_states[12]->m_numTimesPermitted;
+                numAEWCarrier = wobj->m_states[14]->m_numTimesPermitted;
+                numTanker = wobj->m_states[15]->m_numTimesPermitted;
+            }
             break;
 
         case WorldObject::ClassTypeCarrier:
@@ -1046,7 +1059,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
 
     float totalBoxH = 1 * -(*boxH);
-    if( numFighters != -1 || numBombers != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
+    if( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
     {
         totalBoxH += 0.9f * -(*boxH);
     }
@@ -1111,10 +1124,15 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     Colour col(255,255,255,alpha);
 
     float totalSize = 0;
+    if( numFighterLight != -1 ) totalSize += gap * numFighterLight + gap * 0.5f;
     if( numFighters != -1 ) totalSize += gap * numFighters + gap * 0.5f;
     if( numNavyStealthFighters != -1 ) totalSize += gap * numNavyStealthFighters + gap * 0.5f;
-    if( numAEWCarrier != -1 ) totalSize += gap * numAEWCarrier + gap * 0.5f;
+    if( numStealthFighter != -1 ) totalSize += gap * numStealthFighter + gap * 0.5f;
     if( numBombers != -1 ) totalSize += gap * numBombers + gap * 0.5f;
+    if( numBomberFast != -1 ) totalSize += gap * numBomberFast + gap * 0.5f;
+    if( numBomberStealth != -1 ) totalSize += gap * numBomberStealth + gap * 0.5f;
+    if( numAEWCarrier != -1 ) totalSize += gap * numAEWCarrier + gap * 0.5f;
+    if( numTanker != -1 ) totalSize += gap * numTanker + gap * 0.5f;
     if( numNukes != -1 ) totalSize += gap * numNukes * 0.5f + gap * 0.25f;
     if( numLACMs != -1 ) totalSize += gap * numLACMs * 0.5f + gap * 0.25f;
     if( numCBMs != -1 ) totalSize += gap * numCBMs * 0.5f + gap * 0.25f;
@@ -1127,8 +1145,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 
 
-    bool anyAmmo = ( numFighters != -1 || numBombers != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
-    bool allZero = ( numFighters <= 0 ) && ( numBombers <= 0 ) && ( numNavyStealthFighters <= 0 ) && ( numAEWCarrier <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
+    bool anyAmmo = ( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
+    bool allZero = ( numFighters <= 0 ) && ( numFighterLight <= 0 ) && ( numStealthFighter <= 0 ) && ( numBombers <= 0 ) && ( numBomberFast <= 0 ) && ( numBomberStealth <= 0 ) && ( numNavyStealthFighters <= 0 ) && ( numAEWCarrier <= 0 ) && ( numTanker <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
     if( anyAmmo && allZero )
     {
         col.m_a = 150;
@@ -1139,55 +1157,84 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
         //
-        // Fighters
+        // Fighters (each type with distinct sprite)
 
-        if( numFighters != -1 )
+        if( numFighterLight > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/f16.bmp" );
+            for( int i = 0; i < numFighterLight; ++i )
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+            xPos += gap*0.5f;
+        }
+
+        if( numFighters > 0 )
         {
             Image *img = g_resource->GetImage( "graphics/fighter.bmp" );
             for( int i = 0; i < numFighters; ++i )
-            {
                 g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
-            }
-            
-            if( numFighters > 0 ) xPos += gap*0.5f;
+            xPos += gap*0.5f;
         }
 
-        if( numNavyStealthFighters != -1 )
+        if( numNavyStealthFighters > 0 )
         {
             Image *img = g_resource->GetImage( "graphics/f35c.bmp" );
             for( int i = 0; i < numNavyStealthFighters; ++i )
-            {
                 g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
-            }
-            if( numNavyStealthFighters > 0 ) xPos += gap*0.5f;
+            xPos += gap*0.5f;
         }
 
-        if( numAEWCarrier != -1 )
+        if( numStealthFighter > 0 )
         {
-            Image *img = g_resource->GetImage( "graphics/aew.bmp" );
-            for( int i = 0; i < numAEWCarrier; ++i )
-            {
+            Image *img = g_resource->GetImage( "graphics/f22.bmp" );
+            for( int i = 0; i < numStealthFighter; ++i )
                 g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
-            }
-            if( numAEWCarrier > 0 ) xPos += gap*0.5f;
+            xPos += gap*0.5f;
         }
 
         //
-        // Bombers
-        
-        if( numBombers != -1 )
+        // Bombers (each type with distinct sprite)
+
+        if( numBombers > 0 )
         {
             Image *img = g_resource->GetImage( "graphics/bomber.bmp" );
-            Image *nuke = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numBombers; ++i )
-            {
                 g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
-                if( (i+1) <= numNukes )
-                {
-                    g_renderer2d->RotatingSprite( nuke, xPos, yPos, objSize*0.65f, objSize*0.65f, col, 0 );
-                }
-            }
-            if( numBombers > 0 ) xPos += gap*0.5f;
+            xPos += gap*0.5f;
+        }
+
+        if( numBomberFast > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/b1b.bmp" );
+            for( int i = 0; i < numBomberFast; ++i )
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
+            xPos += gap*0.5f;
+        }
+
+        if( numBomberStealth > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/stealthbomber.bmp" );
+            for( int i = 0; i < numBomberStealth; ++i )
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
+            xPos += gap*0.5f;
+        }
+
+        //
+        // AEW and Tanker
+
+        if( numAEWCarrier > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/aew.bmp" );
+            for( int i = 0; i < numAEWCarrier; ++i )
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+            xPos += gap*0.5f;
+        }
+
+        if( numTanker > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/kc10.bmp" );
+            for( int i = 0; i < numTanker; ++i )
+                g_renderer2d->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+            xPos += gap*0.5f;
         }
 
 
@@ -1769,6 +1816,12 @@ void MapRenderer::RenderMouse()
             {
                 actionCursorCol.Set( 0, 0, 255, 255 );                
             }
+            else if( validCombatTarget == WorldObject::TargetTypeLaunchAEW ||
+                     validCombatTarget == WorldObject::TargetTypeLaunchTanker )
+            {
+                actionCursorCol.Set( 0, 0, 255, 255 );
+                spawnUnitCol.Set( 0, 0, 255, 255 );
+            }
             else if( validCombatTarget > WorldObject::TargetTypeValid )
             {
                 spawnUnitCol.Set( 255, 0, 0, 255 );
@@ -1859,14 +1912,25 @@ void MapRenderer::RenderMouse()
         {
             switch( spawnType )
             {
-                case WorldObject::TargetTypeLaunchFighter:      
-                    img = g_resource->GetImage( "graphics/fighter.bmp" );       
-                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter") );
+                case WorldObject::TargetTypeLaunchFighter:
+                    if( selection->IsCarrierClass() )
+                    {
+                        if( selection->m_currentState <= 1 )      { img = g_resource->GetImage( "graphics/fighter.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter") ); }
+                        else                                      { img = g_resource->GetImage( "graphics/f35c.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_navy_stealth") ); }
+                    }
+                    else
+                    {
+                        if( selection->m_currentState <= 1 )      { img = g_resource->GetImage( "graphics/f16.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_light") ); }
+                        else if( selection->m_currentState <= 3 ) { img = g_resource->GetImage( "graphics/fighter.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter") ); }
+                        else if( selection->m_currentState <= 5 ) { img = g_resource->GetImage( "graphics/f35c.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_navy_stealth") ); }
+                        else                                      { img = g_resource->GetImage( "graphics/f22.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_stealth") ); }
+                    }
                     break;
 
-                case WorldObject::TargetTypeLaunchBomber:       
-                    img = g_resource->GetImage( "graphics/bomber.bmp" );        
-                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber") );
+                case WorldObject::TargetTypeLaunchBomber:
+                    if( selection->m_currentState <= 9 )       { img = g_resource->GetImage( "graphics/bomber.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber") ); }
+                    else if( selection->m_currentState <= 11 ) { img = g_resource->GetImage( "graphics/b1b.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber_fast") ); }
+                    else                                       { img = g_resource->GetImage( "graphics/stealthbomber.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber_stealth") ); }
                     break;
                                                                 
                 case WorldObject::TargetTypeLaunchNuke:
@@ -1882,6 +1946,16 @@ void MapRenderer::RenderMouse()
                 case WorldObject::TargetTypeLaunchCBM:
                     img = g_resource->GetImage( "graphics/nuke.bmp" );
                     tooltip->PutData( LANGUAGEPHRASE("tooltip_spawncbm") );
+                    break;
+
+                case WorldObject::TargetTypeLaunchAEW:
+                    img = g_resource->GetImage( "graphics/aew.bmp" );
+                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnaew") );
+                    break;
+
+                case WorldObject::TargetTypeLaunchTanker:
+                    img = g_resource->GetImage( "graphics/kc10.bmp" );
+                    tooltip->PutData( LANGUAGEPHRASE("tooltip_spawntanker") );
                     break;
             }
             
@@ -3900,7 +3974,7 @@ static bool SelectionHasLaunchableUnit()
     {
         int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
         WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
-        if( obj && ( obj->CanLaunchFighter() || obj->CanLaunchBomber() ) )
+        if( obj && ( obj->CanLaunchFighter() || obj->CanLaunchBomber() || obj->CanLaunchAEW() || obj->CanLaunchTanker() ) )
             return true;
     }
     return false;

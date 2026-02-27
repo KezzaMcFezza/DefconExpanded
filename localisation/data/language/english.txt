@@ -1153,6 +1153,7 @@ tooltip_spawnbomber                 [LMB] LAUNCH BOMBER HERE
 tooltip_spawnbomber_fast            [LMB] LAUNCH FAST BOMBER HERE
 tooltip_spawnbomber_stealth         [LMB] LAUNCH STEALTH BOMBER HERE
 tooltip_spawnaew                    [LMB] LAUNCH AWACS HERE
+tooltip_spawntanker                 [LMB] LAUNCH TANKER HERE
 tooltip_spawnnuke                   [LMB] LAUNCH NUCLEAR WARHEAD HERE
 tooltip_spawnlacm                   [LMB] LAUNCH CRUISE MISSILE HERE
 tooltip_spawncbm                    [LMB] LAUNCH CBM HERE
@@ -1364,6 +1365,7 @@ unit_fighter_navy_stealth           CARRER STEALTH FIGHTer
 unit_awacs                          AEW
 unit_bomber                         BOMBER
 unit_aew                            AEW
+unit_tanker                         TANKER REFUELER
 unit_bomber_stealth                 STEALTH BOMBER
 unit_bomber_fast                    FAST BOMBER
 unit_bobomber                         BOMBER
@@ -1408,6 +1410,7 @@ state_navystrikefighterlaunch       NAVAL STRIKE LAUNCH
 state_stealthfighterlaunch          STEALTH CAP LAUNCH
 state_stealthstrikefighterlaunch    STEALTH STRIKE LAUNCH
 state_aewlaunch                     AWACS LAUNCH
+state_tankerlaunch                  TANKER LAUNCH
 state_bomberlaunch                  BOMBER LAUNCH (NUKE)
 state_cruisebomberlaunch            BOMBER LAUNCH (ALCM)
 state_bomber_fastlaunch             FAST BOMBER LAUNCH (NUKE)
@@ -1433,6 +1436,7 @@ state_antisub                       ANTI-SUBMARINE WARFARE
 state_ontarget                      ON TARGET
 state_disarm                        DISARM
 state_radar                         SCANNING
+state_refuel                        REFUELING
 state_silonuke                      ICBM LAUNCH
 state_silomednuke                      MRBM LAUNCH
 state_standby                       STANDBY

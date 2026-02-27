@@ -190,27 +190,17 @@ bool LACM::Update()
         }
         else
         {
-            // Target already dead: fly to last known position
-            Fixed currentDistance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude,
-                                                                     m_targetLongitude, m_targetLatitude );
-            if( m_prevDistanceToTarget < Fixed::MAX )
+            // Target already dead: always drain miss time so missile self-destructs
+            Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
+            m_missTime -= timePerUpdate;
+            if( m_missTime <= 0 )
             {
-                Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
-                Fixed tolerance = Fixed::Hundredths(1);
-                if( currentDistance > m_prevDistanceToTarget + tolerance )
-                {
-                    m_missTime -= timePerUpdate;
-                    if( m_missTime <= 0 )
-                    {
-                        g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
+                g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, GetExplosionIntensity(), -1, IsNuclearExplosion() );
 #ifdef TOGGLE_SOUND
-                        g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
+                g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
 #endif
-                        return true;
-                    }
-                }
+                return true;
             }
-            m_prevDistanceToTarget = currentDistance;
         }
 
         bool reachedTarget = MoveToWaypointAntiShip();

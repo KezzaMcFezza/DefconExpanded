@@ -577,6 +577,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/torpedo.cpp
     ${ROOT_PATH}/source/world/antibm.cpp
     ${ROOT_PATH}/source/world/aew.cpp
+    ${ROOT_PATH}/source/world/tanker.cpp
     ${ROOT_PATH}/source/world/bomber.cpp
     ${ROOT_PATH}/source/world/bomber_fast.cpp
     ${ROOT_PATH}/source/world/bomber_stealth.cpp

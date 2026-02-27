@@ -55,6 +55,7 @@ public:
         TypeSiloMobile,     // Mobile silo: less health, radar, stealth
         TypeSiloMobileCon,  // Mobile silo that launches CBM
         TypeASCM,           // Anti-Ship Cruise Missile battery (launches LACM at ships only)
+        TypeTanker,         // Aerial refueling tanker (extends aircraft range)
         NumObjectTypes
     };
 
@@ -75,6 +76,7 @@ public:
         TargetTypeLaunchBomberFast,
         TargetTypeLaunchStealthBomber,
         TargetTypeLaunchAEW,
+        TargetTypeLaunchTanker,
         TargetTypeLand
     };
 
@@ -274,6 +276,7 @@ public:
     virtual bool        CanLaunchBomberFast();
     virtual bool        CanLaunchStealthBomber();
     virtual bool        CanLaunchAEW();
+    virtual bool        CanLaunchTanker();
     bool                LaunchBomber    ( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );  // -1=auto, 1=NUKE, 2=LACM
     bool                LaunchBomberFast( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );
     bool                LaunchStealthBomber( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = -1 );
@@ -282,6 +285,7 @@ public:
     bool                LaunchStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 0 );
     bool                LaunchNavyStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode = 0 );
     bool                LaunchAEW       ( int targetObjectId, Fixed longitude, Fixed latitude );
+    bool                LaunchTanker    ( int targetObjectId, Fixed longitude, Fixed latitude );
     virtual bool        SetWaypointOnAction();
 
     virtual void        CeaseFire       ( int teamId );

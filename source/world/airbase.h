@@ -32,13 +32,16 @@ public:
     bool CanLaunchBomberFast();
     bool CanLaunchStealthBomber();
     bool CanLaunchAEW();
+    bool CanLaunchTanker();
     bool CanLaunchNavyStealthFighter();
     int GetFighterCount() override;
     int GetBomberCount() override;
     int GetAEWCount() override;
+    int GetTankerCount();
     void OnFighterLanded( int aircraftType ) override;
     void OnBomberLanded( int aircraftType ) override;
     void OnAEWLanded() override;
+    void OnTankerLanded();
     void MaybeRemoveRandomStoredAircraft() override;
     
     int  GetAttackOdds           ( int _defenderType );

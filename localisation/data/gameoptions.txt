@@ -91,7 +91,7 @@ VictoryTrigger          0       100     20          5
 VictoryTimer            0       600     45          10
 MaxGameRealTime         0       600     0           1
 
-VariableUnitCounts      0       1       0           0
+VariableUnitCounts      0       1       1           0
     Disabled
     Enabled
 
@@ -110,7 +110,7 @@ TeamSwitching           0       1       1           0
     Disabled
     Enabled
 
-ToggleCPU               0       1       1           0
+ToggleCPU               0       1       0           0
     Disabled
     Enabled
 

@@ -49,6 +49,7 @@
 #include "world/fighter_stealth.h"
 #include "world/fighter_navystealth.h"
 #include "world/aew.h"
+#include "world/tanker.h"
 #include "world/city.h"
 #include "world/nuke.h"
 #include "world/lacm.h"
@@ -474,7 +475,7 @@ Image *WorldObject::GetOutlineImage()
 {
     if( IsBlip() || g_preferences->GetInt( PREFS_GRAPHICS_OUTLINES ) != 1 )
         return NULL;
-    if( IsBallisticMissileClass() || IsCruiseMissileClass() )
+    if( IsBallisticMissileClass() )
         return NULL;
     Team *team = g_app->GetWorld()->GetTeam( m_teamId );
     Team *myTeam = g_app->GetWorld()->GetMyTeam();
@@ -487,6 +488,10 @@ Image *WorldObject::GetOutlineImage()
     char outlinePath[256];
     Image *outlineimage = NULL;
     bool surfaced = ( m_currentState == 2 );
+
+    const char *outlineBase = base;
+    if( m_type == TypeTanker ) outlineBase = "tanker.bmp";
+    bool useOwnOutline = ( m_type == TypeASCM );
 
     if( isSpectator )
     {
@@ -504,9 +509,9 @@ Image *WorldObject::GetOutlineImage()
                 else outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
             }
             else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_airbase.bmp" );
-            else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_blufor_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+            else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
         else if( aid == 1 )
         {
@@ -514,9 +519,9 @@ Image *WorldObject::GetOutlineImage()
             else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
             else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
             else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
-            else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_opfor_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
         else
         {
@@ -524,9 +529,9 @@ Image *WorldObject::GetOutlineImage()
             else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_carrier.bmp" );
             else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
             else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_airbase.bmp" );
-            else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+            else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
     }
     else
@@ -547,9 +552,9 @@ Image *WorldObject::GetOutlineImage()
                     else outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
                 }
                 else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_airbase.bmp" );
-                else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
+                else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
                 else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_radarstation.bmp" );
-                else { sprintf( outlinePath, "graphics/outline_blufor_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+                else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = g_resource->GetImage( outlinePath ); }
             }
             else
             {
@@ -557,9 +562,9 @@ Image *WorldObject::GetOutlineImage()
                 else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_carrier.bmp" );
                 else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
                 else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_airbase.bmp" );
-                else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
+                else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
                 else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_radarstation.bmp" );
-                else { sprintf( outlinePath, "graphics/outline_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+                else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
             }
         }
         else
@@ -568,9 +573,9 @@ Image *WorldObject::GetOutlineImage()
             else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
             else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
             else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
-            else if( IsSiloClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_opfor_%s", base ); outlineimage = g_resource->GetImage( outlinePath ); }
+            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
     }
     return outlineimage;
@@ -880,6 +885,7 @@ const char *WorldObject::GetName (int _type)
         case TypeBomberFast:    return LANGUAGEPHRASE("unit_bomber_fast");
         case TypeBomberStealth: return LANGUAGEPHRASE("unit_bomber_stealth");
         case TypeAEW:           return LANGUAGEPHRASE("unit_aew");
+        case TypeTanker:        return LANGUAGEPHRASE("unit_tanker");
         case TypeCarrier:       return LANGUAGEPHRASE("unit_carrier");
         case TypeCarrierLight:  return LANGUAGEPHRASE("unit_carrier_light");
         case TypeCarrierSuper:  return LANGUAGEPHRASE("unit_carrier_super");
@@ -943,6 +949,7 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeBomberFast:    return "bomber_fast";
         case TypeBomberStealth: return "bomber_stealth";
         case TypeAEW:           return "aew";
+        case TypeTanker:        return "tanker";
         case TypeCarrier:       return "carrier";
         case TypeCarrierLight:  return "carrierlight";
         case TypeCarrierSuper:  return "carriersuper";
@@ -1238,6 +1245,7 @@ WorldObject *WorldObject::CreateObject( int _type )
         case TypeBomberFast:            return new BomberFast();
         case TypeBomberStealth:         return new BomberStealth();
         case TypeAEW:                   return new AEW();
+        case TypeTanker:                return new Tanker();
 		case TypeCarrier:               return new Carrier();
 		case TypeCarrierLight:          return new CarrierLight();
 		case TypeCarrierSuper:          return new CarrierSuper();
@@ -1615,6 +1623,21 @@ bool WorldObject::LaunchAEW( int targetObjectId, Fixed longitude, Fixed latitude
     return true;
 }
 
+bool WorldObject::LaunchTanker( int targetObjectId, Fixed longitude, Fixed latitude )
+{
+    Tanker *tanker = new Tanker();
+    if( !tanker->IsValidPosition( longitude, latitude ) )
+    {
+        delete tanker;
+        return false;
+    }
+    tanker->SetTeamId( m_teamId );
+    tanker->SetPosition( m_longitude, m_latitude );
+    tanker->SetWaypoint( longitude, latitude );
+    g_app->GetWorld()->AddWorldObject( tanker );
+    return true;
+}
+
 
 int WorldObject::IsValidCombatTarget( int _objectId )
 {
@@ -1733,6 +1756,11 @@ bool WorldObject::CanLaunchNavyStealthFighter()
 }
 
 bool WorldObject::CanLaunchAEW()
+{
+    return false;
+}
+
+bool WorldObject::CanLaunchTanker()
 {
     return false;
 }
@@ -1894,6 +1922,7 @@ WorldObject::Archetype WorldObject::GetArchetypeForType( int type )
         case TypeBomberFast:
         case TypeBomberStealth:
         case TypeAEW:
+        case TypeTanker:
         case TypeLACM:
         case TypeLANM:
             return ArchetypeAircraft;
@@ -1946,6 +1975,7 @@ WorldObject::ClassType WorldObject::GetClassTypeForType( int type )
         case TypeBomberFast:    return ClassTypeBomber;
         case TypeBomberStealth: return ClassTypeBomber;
         case TypeAEW:           return ClassTypeAEW;
+        case TypeTanker:        return ClassTypeAEW;
 
         case TypeNuke:          return ClassTypeBallisticMissile;
         case TypeLACM:          return ClassTypeCruiseMissile;

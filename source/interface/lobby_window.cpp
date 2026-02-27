@@ -2357,9 +2357,9 @@ void LobbyWindow::Update()
             {
                 Team *team = g_app->GetWorld()->m_teams[i];
                 if( team->m_clientId == g_app->GetClientToServer()->m_clientId &&
-                    team->m_allianceId != 1 )
+                    team->m_allianceId != 0 )
                 {
-                    g_app->GetClientToServer()->RequestAlliance( team->m_teamId, 1 );
+                    g_app->GetClientToServer()->RequestAlliance( team->m_teamId, 0 );
                 }
             }
         }

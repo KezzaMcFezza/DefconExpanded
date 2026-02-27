@@ -28,6 +28,7 @@ public:
     Fixed   m_targetLongitude;
     Fixed   m_targetLatitude;
     Fixed   m_range;
+    Fixed   m_maxRange;
 
     Fixed   m_finalTargetLongitude;
     Fixed   m_finalTargetLatitude;
@@ -88,6 +89,7 @@ public:
     void            Ping            ();       // active sonar: creates visible ping, reveals ships and pinger
     void            PassivePing     ();       // passive sonar: detects non-hidden ships at 1.5x range, no ping, sub stays hidden
     void            SetSpeed        ( Fixed speed );
+    Fixed           GetSpeed        () const { return m_speed; }
 
     char            *LogState();
 

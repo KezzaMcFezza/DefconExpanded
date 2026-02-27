@@ -29,6 +29,7 @@ Nuke::Nuke()
     m_directionLeadLon(0),
     m_directionLeadLat(0),
     m_targetLocked(false),
+    m_flightAge(0),
     m_impactzone_x(0.0f), m_impactzone_y(0.0f), m_impactzone_w(0.0f), m_impactzone_h(0.0f),
     m_cointoss_x(1.0f), m_cointoss_y(1.0f),
     m_launchposition_x(0), m_launchposition_y(0)
@@ -39,7 +40,7 @@ Nuke::Nuke()
     strcpy( bmpImageFilename, "graphics/nuke.bmp" );
 
     m_radarRange = 0;
-    m_speed = Fixed::Hundredths(20);
+    m_speed = Fixed::Hundredths(16);
     m_selectable = true;
     m_maxHistorySize = -1;
     m_range = Fixed::MAX;
@@ -233,7 +234,16 @@ bool Nuke::Update()
     Fixed speedMultiplier = Fixed(1) + (((Fixed(90) / latitudeFactor) - Fixed(1)) * Fixed(2) / Fixed(8));
     if( speedMultiplier > Fixed(3) ) speedMultiplier = Fixed(3);
 
-    m_vel = front * (m_speed * speedMultiplier);
+    Fixed actualSpeed = m_speed;
+    m_flightAge += timePerUpdate;
+    if( m_flightAge < Fixed(60) )
+    {
+        Fixed t = m_flightAge / Fixed(60);
+        Fixed boostFactor = Fixed::Hundredths(10) + (Fixed(1) - Fixed::Hundredths(10)) * t * t;
+        actualSpeed = m_speed * boostFactor;
+    }
+
+    m_vel = front * (actualSpeed * speedMultiplier);
 
     Fixed newLongitude = m_longitude + m_vel.x * timePerUpdate;
     Fixed newLatitude = m_latitude + m_vel.y * timePerUpdate;

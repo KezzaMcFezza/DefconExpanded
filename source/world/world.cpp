@@ -397,6 +397,7 @@ void World::AssignCities()
     int territoriesPerTeam = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
     int variableTeamUnits = g_app->GetGame()->GetOptionValue("VariableUnitCounts");
     Fixed worldScale = GetGameScale();
+    Fixed worldUnitScale = GetUnitScaleFactor();
 
     if( variableTeamUnits == 0 )
     {
@@ -1562,7 +1563,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 2 / GetGameScale();
+                    Fixed maxDistance = 1 / GetGameScale();
                     return ( distance > maxDistance );                    
                 }
             }

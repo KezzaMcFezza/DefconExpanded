@@ -28,6 +28,7 @@
 #include "world/fighter_stealth.h"
 #include "world/fighter_navystealth.h"
 #include "world/nuke.h"
+#include "world/tanker.h"
 
 
 
@@ -64,6 +65,7 @@ AirBase::AirBase()
     AddState( LANGUAGEPHRASE("state_stealthbomberlaunch"), 60, 30, 10, 140, true, 0, 3 );   // 12: Stealth Bomber NUKE
     AddState( LANGUAGEPHRASE("state_stealthcruisebomberlaunch"), 60, 30, 10, 140, true, 0, 3 );  // 13: Stealth Bomber ALCM
     AddState( LANGUAGEPHRASE("state_aewlaunch"), 60, 30, 10, 140, true, 2, 3 );   // 14: AEW
+    AddState( LANGUAGEPHRASE("state_tankerlaunch"), 60, 30, 10, 140, true, 0, 3 );  // 15: Tanker
 
     m_states[1]->m_numTimesPermitted = m_states[0]->m_numTimesPermitted;
     m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
@@ -84,6 +86,16 @@ void AirBase::SetTeamId( int teamId )
         Team *team = g_app->GetWorld()->GetTeam( teamId );
         if ( team && team->m_territories.Size() > 0 )
             ApplyTerritoryAircraftLoads( this, team->m_territories[0] );
+    }
+
+    for( int i = 0; i < m_states.Size(); ++i )
+    {
+        if( m_states[i]->m_numTimesPermitted > 0 )
+        {
+            m_currentState = i;
+            m_stateTimer = m_states[i]->m_timeToPrepare;
+            break;
+        }
     }
 }
 
@@ -125,6 +137,7 @@ void AirBase::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         else if( m_currentState == 12 ) { if(!LaunchStealthBomber( targetObjectId, longitude, latitude, 1 )) return; }
         else if( m_currentState == 13 ) { if(!LaunchStealthBomber( targetObjectId, longitude, latitude, 2 )) return; }
         else if( m_currentState == 14 ) { if(!LaunchAEW( targetObjectId, longitude, latitude )) return; }
+        else if( m_currentState == 15 ) { if(!LaunchTanker( targetObjectId, longitude, latitude )) return; }
         WorldObject::Action( targetObjectId, longitude, latitude );
         if( m_currentState <= 7 && ( m_currentState & 1 ) == 0 )
             m_states[m_currentState+1]->m_numTimesPermitted = m_states[m_currentState]->m_numTimesPermitted;
@@ -408,7 +421,7 @@ bool AirBase::Update()
 
     if( m_states[m_currentState]->m_numTimesPermitted == 0 )
     {
-        for( int i = 0; i < 15; ++i )
+        for( int i = 0; i < m_states.Size(); ++i )
         {
             if( m_states[i]->m_numTimesPermitted > 0 )
             {
@@ -418,23 +431,24 @@ bool AirBase::Update()
         }
     }
 
-    if( GetFighterCount() < 5 )
-    {
-        m_fighterRegenTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
-        if( m_fighterRegenTimer <= 0 )
-        {
-            if( m_states[2]->m_numTimesPermitted < m_maxFighters )
-            {
-                m_states[2]->m_numTimesPermitted++;
-                m_states[3]->m_numTimesPermitted++;
-            }
-            m_fighterRegenTimer = 1024;
-        }
-    }
-    else
-    {
-        m_fighterRegenTimer = 1024;
-    }
+    // Fighter regen disabled for now
+    //if( GetFighterCount() < 5 )
+    //{
+    //    m_fighterRegenTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
+    //    if( m_fighterRegenTimer <= 0 )
+    //    {
+    //        if( m_states[2]->m_numTimesPermitted < m_maxFighters )
+    //        {
+    //            m_states[2]->m_numTimesPermitted++;
+    //            m_states[3]->m_numTimesPermitted++;
+    //        }
+    //        m_fighterRegenTimer = 1024;
+    //    }
+    //}
+    //else
+    //{
+    //    m_fighterRegenTimer = 1024;
+    //}
 
     return WorldObject::Update();
 }
@@ -456,6 +470,7 @@ bool AirBase::CanLaunchNavyStealthFighter() { return ( ( m_currentState == 4 || 
 bool AirBase::CanLaunchBomberFast() { return ( ( m_currentState == 10 || m_currentState == 11 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
 bool AirBase::CanLaunchStealthBomber() { return ( ( m_currentState == 12 || m_currentState == 13 ) && m_states[m_currentState]->m_numTimesPermitted > 0 ); }
 bool AirBase::CanLaunchAEW() { return ( m_currentState == 14 && m_states[14]->m_numTimesPermitted > 0 ); }
+bool AirBase::CanLaunchTanker() { return ( m_currentState == 15 && m_states[15]->m_numTimesPermitted > 0 ); }
 
 int AirBase::GetFighterCount()
 {
@@ -470,6 +485,11 @@ int AirBase::GetBomberCount()
 int AirBase::GetAEWCount()
 {
     return m_states.Size() > 14 ? m_states[14]->m_numTimesPermitted : 0;
+}
+
+int AirBase::GetTankerCount()
+{
+    return m_states.Size() > 15 ? m_states[15]->m_numTimesPermitted : 0;
 }
 
 void AirBase::OnFighterLanded( int aircraftType )
@@ -500,15 +520,21 @@ void AirBase::OnAEWLanded()
         m_states[14]->m_numTimesPermitted++;
 }
 
+void AirBase::OnTankerLanded()
+{
+    if( m_states.Size() > 15 )
+        m_states[15]->m_numTimesPermitted++;
+}
+
 void AirBase::MaybeRemoveRandomStoredAircraft()
 {
     if( syncfrand(100) >= 50 )
         return;
     // Pick random category with stock: (0,1) FighterLight, (2,3) Fighter, (4,5) NavyStealth, (6,7) Stealth,
-    // (8,9) Bomber, (10,11) BomberFast, (12,13) Stealth Bomber, (14) AEW
-    int primaryStates[] = { 0, 2, 4, 6, 8, 10, 12, 14 };
-    int numCategories = ( m_states.Size() > 14 ) ? 8 : 7;
-    int available[8], numAvailable = 0;
+    // (8,9) Bomber, (10,11) BomberFast, (12,13) Stealth Bomber, (14) AEW, (15) Tanker
+    int primaryStates[] = { 0, 2, 4, 6, 8, 10, 12, 14, 15 };
+    int numCategories = ( m_states.Size() > 15 ) ? 9 : ( ( m_states.Size() > 14 ) ? 8 : 7 );
+    int available[9], numAvailable = 0;
     for( int i = 0; i < numCategories; ++i )
     {
         int idx = primaryStates[i];
@@ -568,9 +594,12 @@ int AirBase::IsValidCombatTarget( int _objectId )
 
     if( m_currentState == 14 )
     {
-        if( obj->IsAircraftLauncher() && obj->m_teamId == m_teamId )
-            return TargetTypeLaunchAEW;
         return TargetTypeLaunchAEW;
+    }
+
+    if( m_currentState == 15 )
+    {
+        return TargetTypeLaunchTanker;
     }
 
     if( m_currentState <= 7 )
@@ -621,15 +650,17 @@ int AirBase::IsValidMovementTarget( Fixed longitude, Fixed latitude )
         return TargetTypeDefconRequired;
     }
 
-    if( m_currentState == 0 || m_currentState == 1 )
-    {
+    if( m_currentState >= 0 && m_currentState <= 7 )
         return TargetTypeLaunchFighter;
-    }
 
-    if( m_currentState == 2 || m_currentState == 3 )
-    {
+    if( m_currentState >= 8 && m_currentState <= 13 )
         return TargetTypeLaunchBomber;
-    }
+
+    if( m_currentState == 14 )
+        return TargetTypeLaunchAEW;
+
+    if( m_currentState == 15 )
+        return TargetTypeLaunchTanker;
 
     return TargetTypeInvalid;
 }
@@ -651,8 +682,20 @@ void AirBase::Render2D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState >= 0 && m_currentState <= 7 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        Image *bmpImage = NULL;
+        switch( m_currentState )
+        {
+            case 0: case 1:  bmpImage = g_resource->GetImage("graphics/smalllightfighter.bmp"); break;
+            case 2: case 3:  bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+            case 4: case 5:  bmpImage = g_resource->GetImage("graphics/smallstealthnavyfighter.bmp"); break;
+            case 6: case 7:  bmpImage = g_resource->GetImage("graphics/smallstealthfighter.bmp"); break;
+            case 8: case 9:  bmpImage = g_resource->GetImage("graphics/smallbomber.bmp"); break;
+            case 10: case 11: bmpImage = g_resource->GetImage("graphics/smallfastbomber.bmp"); break;
+            case 12: case 13: bmpImage = g_resource->GetImage("graphics/smallstealthbomber.bmp"); break;
+            case 14:         bmpImage = g_resource->GetImage("graphics/smallaew.bmp"); break;
+            case 15:         bmpImage = g_resource->GetImage("graphics/smallrefueler.bmp"); break;
+            default:         bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+        }
 
         if( bmpImage )
         {
@@ -698,8 +741,20 @@ void AirBase::Render3D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
-        if( m_currentState >= 0 && m_currentState <= 7 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+        Image *bmpImage = NULL;
+        switch( m_currentState )
+        {
+            case 0: case 1:  bmpImage = g_resource->GetImage("graphics/smalllightfighter.bmp"); break;
+            case 2: case 3:  bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+            case 4: case 5:  bmpImage = g_resource->GetImage("graphics/smallstealthnavyfighter.bmp"); break;
+            case 6: case 7:  bmpImage = g_resource->GetImage("graphics/smallstealthfighter.bmp"); break;
+            case 8: case 9:  bmpImage = g_resource->GetImage("graphics/smallbomber.bmp"); break;
+            case 10: case 11: bmpImage = g_resource->GetImage("graphics/smallfastbomber.bmp"); break;
+            case 12: case 13: bmpImage = g_resource->GetImage("graphics/smallstealthbomber.bmp"); break;
+            case 14:         bmpImage = g_resource->GetImage("graphics/smallaew.bmp"); break;
+            case 15:         bmpImage = g_resource->GetImage("graphics/smallrefueler.bmp"); break;
+            default:         bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+        }
 
         if( bmpImage )
         {

@@ -68,6 +68,16 @@ void Carrier::SetTeamId( int teamId )
         if ( team && team->m_territories.Size() > 0 )
             ApplyTerritoryAircraftLoads( this, team->m_territories[0] );
     }
+
+    for( int i = 0; i < m_states.Size(); ++i )
+    {
+        if( m_states[i]->m_numTimesPermitted > 0 )
+        {
+            m_currentState = i;
+            m_stateTimer = m_states[i]->m_timeToPrepare;
+            break;
+        }
+    }
 }
 
 void Carrier::RequestAction(ActionOrder *_action)
@@ -501,7 +511,14 @@ void Carrier::Render2D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
+        Image *bmpImage = NULL;
+        switch( m_currentState )
+        {
+            case 0: case 1:  bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+            case 2: case 3:  bmpImage = g_resource->GetImage("graphics/smallstealthnavyfighter.bmp"); break;
+            case 4:          bmpImage = g_resource->GetImage("graphics/smallaew.bmp"); break;
+            default:         bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+        }
 
         Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
@@ -550,7 +567,14 @@ void Carrier::Render3D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
+        Image *bmpImage = NULL;
+        switch( m_currentState )
+        {
+            case 0: case 1:  bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+            case 2: case 3:  bmpImage = g_resource->GetImage("graphics/smallstealthnavyfighter.bmp"); break;
+            case 4:          bmpImage = g_resource->GetImage("graphics/smallaew.bmp"); break;
+            default:         bmpImage = g_resource->GetImage("graphics/smallfighter.bmp"); break;
+        }
 
         Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();

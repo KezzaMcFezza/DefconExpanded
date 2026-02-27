@@ -15,6 +15,7 @@ protected:
     Fixed   m_directionLeadLat;
 
     bool    m_targetLocked;
+    Fixed   m_flightAge;
 
 public:
     Nuke();

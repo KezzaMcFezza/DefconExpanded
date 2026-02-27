@@ -22,6 +22,7 @@
 
 #include "world/world.h"
 #include "world/movingobject.h"
+#include "world/airbase.h"
 #include "world/fleet.h"
 
 
@@ -34,6 +35,7 @@ MovingObject::MovingObject()
     m_targetLatitude(0),
     m_movementType(MovementTypeLand),
     m_range(0),
+    m_maxRange(0),
     m_targetNodeId(-1),
     m_finalTargetLongitude(0),
     m_finalTargetLatitude(0),
@@ -61,6 +63,7 @@ void MovingObject::InitialiseTimers()
     Fixed gameScale = World::GetUnitScaleFactor();
     m_speed /= gameScale;
     //m_range /= gameScale;
+    m_maxRange = m_range;
 }
 
 
@@ -142,6 +145,15 @@ bool MovingObject::Update()
                             home->OnBomberLanded( m_type );
                             if( home->m_nukeSupply >= 0 )
                                 home->m_nukeSupply += m_states[1]->m_numTimesPermitted;
+                            landed = true;
+                        }
+                    }
+                    else if( m_type == WorldObject::TypeTanker )
+                    {
+                        if( home->IsAirbaseClass() )
+                        {
+                            AirBase *airbase = (AirBase *)home;
+                            airbase->OnTankerLanded();
                             landed = true;
                         }
                     }
