@@ -1,0 +1,72 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-01-2026 
+-->
+
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>DEFCON Replay Viewer</title>
+  <link rel="stylesheet" href="loading_screen.css">
+</head>
+
+<body>
+  <div id="loading-overlay">
+    <div id="loading-container">
+      <div id="loading-title-bar">
+        <div id="loading-title">Connection Status</div>
+      </div>
+      <div id="loading-window-background"></div>
+      <div id="loading-inner-border"></div>
+      <div id="loading-invert-box"></div>
+      <div id="loading-resizer">
+        <div id="loading-resizer-line1"></div>
+        <div id="loading-resizer-line2"></div>
+      </div>
+      <div id="loading-shadow-right"></div>
+      <div id="loading-shadow-corner"></div>
+      <div id="loading-shadow-bottom"></div>
+      <div id="loading-content">
+        <div id="loading-status" class="state-connecting">Connecting</div>
+        <div id="progress-container">
+          <div id="progress-bar"></div>
+          <div id="progress-border"></div>
+        </div>
+        <div id="loading-details">Downloading</div>
+        <div id="progress-container-2">
+          <div id="progress-bar-2"></div>
+          <div id="progress-border-2"></div>
+        </div>
+        <div id="loading-info"></div>
+      </div>
+
+    </div>
+  </div>
+      <div class="canvas-container">
+      <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+
+  <script>
+    var canvasElement = document.getElementById('canvas');
+    var Module = {
+      canvas: canvasElement
+    };
+  </script>
+  <script src="loading_screen.js"></script>
+  <script async type="text/javascript" src="replay_viewer_R1.30.4.js"></script>
+
+</body>
+
+</html>
