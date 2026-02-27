@@ -40,6 +40,7 @@ public:
     Fixed   m_pathCalcTimer;
     bool    m_blockHistory;
     int     m_isLanding;
+    int     m_isEscorting;
 
     bool    m_turning;          //  Used to turn the object when
     Fixed   m_angleTurned;      //  Its target is directly behind it

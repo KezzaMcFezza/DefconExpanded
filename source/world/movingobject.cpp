@@ -44,6 +44,7 @@ MovingObject::MovingObject()
     m_targetLatitudeAcrossSeam(0),
     m_blockHistory(false),
     m_isLanding(-1),
+    m_isEscorting(-1),
     m_turning(false),
     m_angleTurned(0)
 {
@@ -110,7 +111,12 @@ bool MovingObject::Update()
         WorldObject *home = g_app->GetWorld()->GetWorldObject( m_isLanding );
         if( home )
         {
-            if( IsBomberClass() && home->IsCarrierClass() )
+            if( home->m_type == TypeTanker &&
+                g_app->GetWorld()->IsFriend( m_teamId, home->m_teamId ) )
+            {
+                Land( m_isLanding );
+            }
+            else if( IsBomberClass() && home->IsCarrierClass() )
             {
                 Land( GetClosestLandingPad() );
             }
@@ -185,6 +191,19 @@ bool MovingObject::Update()
         else
         {
             m_isLanding = -1;
+        }
+    }
+
+    if( m_isEscorting != -1 )
+    {
+        WorldObject *escortTarget = g_app->GetWorld()->GetWorldObject( m_isEscorting );
+        if( escortTarget && escortTarget->m_life > 0 )
+        {
+            SetWaypoint( escortTarget->m_longitude, escortTarget->m_latitude );
+        }
+        else
+        {
+            m_isEscorting = -1;
         }
     }
 
@@ -467,7 +486,25 @@ bool MovingObject::MoveToWaypoint()
         Fixed newLatitude;
         Fixed newDistance;
 
+        Fixed savedSpeed = m_speed;
+        if( m_isLanding != -1 )
+        {
+            WorldObject *landTarget = g_app->GetWorld()->GetWorldObject( m_isLanding );
+            if( landTarget && landTarget->m_type == TypeTanker && landTarget->IsMovingObject() &&
+                g_app->GetWorld()->IsFriend( m_teamId, landTarget->m_teamId ) )
+            {
+                Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude,
+                    landTarget->m_longitude, landTarget->m_latitude );
+                if( distSqd < Fixed(8) * Fixed(8) )
+                {
+                    MovingObject *tanker = (MovingObject *)landTarget;
+                    if( m_speed > tanker->m_speed )
+                        m_speed = tanker->m_speed;
+                }
+            }
+        }
         CalculateNewPosition( &newLongitude, &newLatitude, &newDistance );
+        m_speed = savedSpeed;
 
         // if the unit has reached the edge of the map, move it to the other side and update all nessecery information
         if( newLongitude <= -180 ||
@@ -607,10 +644,10 @@ void MovingObject::Render2D()
         if( outlineImage )
         {
             Colour white( 255, 255, 255, 255 );
-            float outlineX = predictedLongitude - size;
-            float outlineY = predictedLatitude + size;
-            float outlineW = size * 2.0f;
-            float outlineH = size * -2.0f;
+            float outlineX = predictedLongitude - size * 0.5f;
+            float outlineY = predictedLatitude + size * 0.5f;
+            float outlineW = size;
+            float outlineH = -size;
             g_renderer2d->StaticSprite( outlineImage, outlineX, outlineY, outlineW, outlineH, white );
         }
 
@@ -695,7 +732,7 @@ void MovingObject::Render3D()
         {
             Colour white( 255, 255, 255, 255 );
             g_renderer3d->StaticSprite3D( outlineImage3d, spritePos.x, spritePos.y, spritePos.z,
-                                          size, size, white, BILLBOARD_SURFACE_ALIGNED );
+                                          size * 0.5f, size * 0.5f, white, BILLBOARD_SURFACE_ALIGNED );
         }
         
         g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
@@ -758,10 +795,29 @@ void MovingObject::RenderHistory2D()
                 break;
 
             case TypeBattleShip:
+            case TypeBattleShip2:
+            case TypeBattleShip3:
             case TypeCarrier:
+            case TypeCarrierLight:
+            case TypeCarrierSuper:
+            case TypeCarrierLHD:
             case TypeSub:
+            case TypeSubG:
+            case TypeSubC:
+            case TypeSubK:
             case TypeFighter:
+            case TypeFighterLight:
+            case TypeFighterStealth:
+            case TypeFighterNavyStealth:
             case TypeBomber:
+            case TypeBomberFast:
+            case TypeBomberStealth:
+            case TypeAEW:
+            case TypeTanker:
+            case TypeLACM:
+            case TypeLANM:
+            case TypeCBM:
+            case TypeABM:
                 break;
 
             default:
@@ -855,10 +911,29 @@ void MovingObject::RenderHistory3D()
                 break;
 
             case TypeBattleShip:
+            case TypeBattleShip2:
+            case TypeBattleShip3:
             case TypeCarrier:
+            case TypeCarrierLight:
+            case TypeCarrierSuper:
+            case TypeCarrierLHD:
             case TypeSub:
+            case TypeSubG:
+            case TypeSubC:
+            case TypeSubK:
             case TypeFighter:
+            case TypeFighterLight:
+            case TypeFighterStealth:
+            case TypeFighterNavyStealth:
             case TypeBomber:
+            case TypeBomberFast:
+            case TypeBomberStealth:
+            case TypeAEW:
+            case TypeTanker:
+            case TypeLACM:
+            case TypeLANM:
+            case TypeCBM:
+            case TypeABM:
                 break;
 
             default:
@@ -1060,6 +1135,7 @@ void MovingObject::ClearWaypoints()
     m_targetLatitudeAcrossSeam = 0;
     m_targetNodeId = -1;
     m_isLanding = -1;
+    m_isEscorting = -1;
 //    m_movementBlips.EmptyAndDelete();
 }
 

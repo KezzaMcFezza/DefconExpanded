@@ -91,6 +91,10 @@ protected:
     float   m_lastRightClickX;
     float   m_lastRightClickY;
 
+    float   m_lmbClickStartTime;
+    bool    m_lmbAircraftActionDispatched;
+    int     m_lmbClickedTargetId;
+
     float   m_tooltipTimer;
 
 	float   m_longitudePlanningOld;

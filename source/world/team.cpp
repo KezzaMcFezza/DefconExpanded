@@ -17,6 +17,56 @@
 #include "world/city.h"
 #include "world/fleet.h"
 
+static int CountAvailableByClass( const Team *t, WorldObject::ClassType cls )
+{
+    int total = 0;
+    for( int i = 0; i < WorldObject::NumObjectTypes; ++i )
+        if( WorldObject::GetClassTypeForType(i) == cls )
+            total += t->m_unitsAvailable[i];
+    return total;
+}
+
+static int CountInPlayByClass( const Team *t, WorldObject::ClassType cls )
+{
+    int total = 0;
+    for( int i = 0; i < WorldObject::NumObjectTypes; ++i )
+        if( WorldObject::GetClassTypeForType(i) == cls )
+            total += t->m_unitsInPlay[i];
+    return total;
+}
+
+static int PickAvailableOfClass( const Team *t, WorldObject::ClassType cls )
+{
+    for( int i = 0; i < WorldObject::NumObjectTypes; ++i )
+        if( WorldObject::GetClassTypeForType(i) == cls && t->m_unitsAvailable[i] > 0 )
+            return i;
+    return -1;
+}
+
+static int GetNearestObjectOfClass( int teamId, Fixed lon, Fixed lat, WorldObject::ClassType cls )
+{
+    int result = -1;
+    Fixed nearestSqd = Fixed::MAX;
+    for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+    {
+        if( g_app->GetWorld()->m_objects.ValidIndex(i) )
+        {
+            WorldObject *obj = g_app->GetWorld()->m_objects[i];
+            if( g_app->GetWorld()->IsFriend( obj->m_teamId, teamId ) &&
+                obj->m_classType == cls )
+            {
+                Fixed dsq = g_app->GetWorld()->GetDistanceSqd( lon, lat, obj->m_longitude, obj->m_latitude );
+                if( dsq < nearestSqd )
+                {
+                    nearestSqd = dsq;
+                    result = obj->m_objectId;
+                }
+            }
+        }
+    }
+    return result;
+}
+
 Team::Team()
 :   m_teamId(-1),
     m_clientId(-1),
@@ -202,11 +252,9 @@ int Team::GetPlacementPriority()
     int territoriesPerTeam = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
 
     int numRadar = (7 * gameScale * territoriesPerTeam).IntValue();
-    if( m_unitsAvailable[WorldObject::TypeRadarStation] > 0 &&
-        m_unitsInPlay[WorldObject::TypeRadarStation] < numRadar )
-    {
-        return WorldObject::TypeRadarStation;
-    }
+    int radarType = PickAvailableOfClass( this, WorldObject::ClassTypeRadar );
+    if( radarType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeRadar ) < numRadar )
+        return radarType;
 
     int numSilos = (6 * gameScale).IntValue();
     if( g_app->GetGame()->GetOptionValue("VariableUnitCounts") == 1 )
@@ -215,43 +263,58 @@ int Team::GetPlacementPriority()
     }
     numSilos *= territoriesPerTeam;
 
-    if( m_unitsAvailable[WorldObject::TypeSilo] > 0 &&
-        m_unitsInPlay[WorldObject::TypeSilo] < numSilos )
-        return WorldObject::TypeSilo;
+    int siloType = PickAvailableOfClass( this, WorldObject::ClassTypeSilo );
+    if( siloType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeSilo ) < numSilos )
+        return siloType;
 
     int numSams = (6 * territoriesPerTeam * gameScale).IntValue();
-    if( m_unitsAvailable[WorldObject::TypeSAM] > 0 &&
-        m_unitsInPlay[WorldObject::TypeSAM] < numSams )
-        return WorldObject::TypeSAM;
+    int samType = PickAvailableOfClass( this, WorldObject::ClassTypeSAM );
+    if( samType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeSAM ) < numSams )
+        return samType;
+
+    int abmType = PickAvailableOfClass( this, WorldObject::ClassTypeABM );
+    if( abmType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeABM ) < numSams )
+        return abmType;
 
     int numAirbases = (4 * territoriesPerTeam * gameScale).IntValue();
-    if( m_unitsAvailable[WorldObject::TypeAirBase] > 0 &&
-        m_unitsInPlay[WorldObject::TypeAirBase] < numAirbases )
-        return WorldObject::TypeAirBase;
+    int airbaseType = PickAvailableOfClass( this, WorldObject::ClassTypeAirbase );
+    if( airbaseType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeAirbase ) < numAirbases )
+        return airbaseType;
 
-    if( m_unitsAvailable[WorldObject::TypeSub] > 0 )
-        return WorldObject::TypeSub;
+    int subType = PickAvailableOfClass( this, WorldObject::ClassTypeSub );
+    if( subType >= 0 )
+        return subType;
 
-    if( m_unitsAvailable[WorldObject::TypeCarrier] > 0 )
-        return WorldObject::TypeCarrier;
+    int carrierType = PickAvailableOfClass( this, WorldObject::ClassTypeCarrier );
+    if( carrierType >= 0 )
+        return carrierType;
 
-    if( m_unitsAvailable[WorldObject::TypeBattleShip] > 0 )
-        return WorldObject::TypeBattleShip;
+    int shipType = PickAvailableOfClass( this, WorldObject::ClassTypeBattleShip );
+    if( shipType >= 0 )
+        return shipType;
 
     if( m_unitCredits > 0 &&
         g_app->GetGame()->GetOptionValue("VariableUnitCounts") == 1)
     {
-        if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeSilo ) )
-            return WorldObject::TypeSilo;
+        int st = PickAvailableOfClass( this, WorldObject::ClassTypeSilo );
+        if( st >= 0 && m_unitCredits >= g_app->GetWorld()->GetUnitValue( st ) )
+            return st;
 
-        if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeAirBase ) )
-            return WorldObject::TypeAirBase;
+        int at = PickAvailableOfClass( this, WorldObject::ClassTypeAirbase );
+        if( at >= 0 && m_unitCredits >= g_app->GetWorld()->GetUnitValue( at ) )
+            return at;
 
-        if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeRadarStation) )
-            return WorldObject::TypeRadarStation;
+        int rt = PickAvailableOfClass( this, WorldObject::ClassTypeRadar );
+        if( rt >= 0 && m_unitCredits >= g_app->GetWorld()->GetUnitValue( rt ) )
+            return rt;
 
-        if( m_unitCredits >= g_app->GetWorld()->GetUnitValue( WorldObject::TypeSAM) )
-            return WorldObject::TypeSAM;
+        int smt = PickAvailableOfClass( this, WorldObject::ClassTypeSAM );
+        if( smt >= 0 && m_unitCredits >= g_app->GetWorld()->GetUnitValue( smt ) )
+            return smt;
+
+        int abt = PickAvailableOfClass( this, WorldObject::ClassTypeABM );
+        if( abt >= 0 && m_unitCredits >= g_app->GetWorld()->GetUnitValue( abt ) )
+            return abt;
     }
 
     return -1;
@@ -269,7 +332,7 @@ void Team::CheckPanicState()
             fractionAlive = min( fractionAlive, 1.0f );
             fractionAlive = max( fractionAlive, 0.0f );
 
-            if( m_unitsInPlay[WorldObject::TypeSilo] < 3 ||
+            if( CountInPlayByClass( this, WorldObject::ClassTypeSilo ) < 3 ||
                 fractionAlive < 0.3f )
             {
                 if( m_currentState != StatePanic )
@@ -435,16 +498,23 @@ void Team::PlacementAI()
     {
         bool createFleet = false;
         Fixed minDistance = 0;
-        switch( objectPriority )
-        {            
-            case WorldObject::TypeRadarStation : minDistance = 20;   break;
-            case WorldObject::TypeSilo         : minDistance = 10;   break;
-            case WorldObject::TypeSAM          : minDistance = 10;   break;
-            case WorldObject::TypeAirBase      : minDistance = 10;   break;
-
-            default: 
-                createFleet = true;   
-                break;
+        WorldObject::Archetype arch = WorldObject::GetArchetypeForType( objectPriority );
+        WorldObject::ClassType cls = WorldObject::GetClassTypeForType( objectPriority );
+        if( arch == WorldObject::ArchetypeNavy )
+        {
+            createFleet = true;
+        }
+        else
+        {
+            switch( cls )
+            {
+                case WorldObject::ClassTypeRadar:       minDistance = 20; break;
+                case WorldObject::ClassTypeSilo:        minDistance = 10; break;
+                case WorldObject::ClassTypeSAM:
+                case WorldObject::ClassTypeABM:         minDistance = 10; break;
+                case WorldObject::ClassTypeAirbase:     minDistance = 10; break;
+                default:                                minDistance = 10; break;
+            }
         }
 
         Fixed worldScale = World::GetGameScale();
@@ -528,12 +598,12 @@ void Team::PlacementAI()
             Fixed latitude = 0;
             bool randomPlacement = false;
 
-            if( objectPriority == WorldObject::TypeRadarStation ||
-                objectPriority == WorldObject::TypeSilo )
+            if( cls == WorldObject::ClassTypeRadar ||
+                cls == WorldObject::ClassTypeSilo )
             {
                 if( CheckCityCoverage( objectPriority, &longitude, &latitude ) )
                 {
-                    if( GetUncoveredArea( objectPriority == WorldObject::TypeRadarStation, &longitude, &latitude) )
+                    if( GetUncoveredArea( cls == WorldObject::ClassTypeRadar, &longitude, &latitude) )
                     {
                         g_app->GetWorld()->ObjectPlacement( m_teamId, objectPriority, longitude, latitude, 255 );
                     }
@@ -563,9 +633,8 @@ void Team::PlacementAI()
                     }
                 }
             }
-            else if( objectPriority == WorldObject::TypeSAM )
+            else if( cls == WorldObject::ClassTypeSAM || cls == WorldObject::ClassTypeABM )
             {
-                // SAM: use same city-coverage logic as silo (defensive placement), fallback to random
                 if( CheckCityCoverage( objectPriority, &longitude, &latitude ) )
                 {
                     randomPlacement = true;
@@ -592,12 +661,12 @@ void Team::PlacementAI()
                     }
                 }
             }
-            else if( objectPriority == WorldObject::TypeAirBase )
+            else if( cls == WorldObject::ClassTypeAirbase )
             {
                 int defensiveBases = 4 * g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
                 defensiveBases *= (10.0f - m_aggression) / 10.0f;
 
-                if( m_unitsAvailable[objectPriority] <= defensiveBases )
+                if( CountAvailableByClass( this, WorldObject::ClassTypeAirbase ) <= defensiveBases )
                 {
                     // place city-defensive airbases
                     if( CheckCityCoverage( objectPriority, &longitude, &latitude ) )
@@ -659,7 +728,7 @@ void Team::PlacementAI()
                                                                     g_app->GetWorld()->m_populationCenter[randTerritory].x, 
                                                                     g_app->GetWorld()->m_populationCenter[randTerritory].y) < 90 * 90 )
                             {
-                                int index = g_app->GetWorld()->GetNearestObject( m_teamId, longitude, latitude, objectPriority );
+                                int index = GetNearestObjectOfClass( m_teamId, longitude, latitude, cls );
                                 WorldObject *obj = g_app->GetWorld()->GetWorldObject( index );
                                 if( obj )
                                 {
@@ -703,7 +772,7 @@ void Team::PlacementAI()
                     }
                     longitude = syncsfrand(360);
                     latitude = syncsfrand(180);
-                    int index = g_app->GetWorld()->GetNearestObject( m_teamId, longitude, latitude, objectPriority );
+                    int index = GetNearestObjectOfClass( m_teamId, longitude, latitude, cls );
                     WorldObject *obj = g_app->GetWorld()->GetWorldObject( index );
                                         
                     if( g_app->GetWorld()->IsValidPlacement( m_teamId, longitude, latitude, objectPriority ) )
@@ -830,7 +899,7 @@ void Team::HandleAIEvents()
                         Fleet *fleet = GetFleet(j);
                         if( fleet &&                            
                             !fleet->IsInCombat() &&
-                            fleet->IsInFleet( WorldObject::TypeCarrier ) &&
+                            fleet->IsInFleetClass( WorldObject::ClassTypeCarrier ) &&
                             fleet->m_aiState == Fleet::AIStateHunting &&
                             !fleet->m_crossingSeam )
                         {
@@ -925,7 +994,8 @@ Fixed Team::GetClosestObject( int cityId, int objectType )
 {
     Fixed dist = Fixed::MAX;
     City *city = g_app->GetWorld()->m_cities[cityId];
-    int index = g_app->GetWorld()->GetNearestObject( m_teamId, city->m_longitude, city->m_latitude, objectType );
+    WorldObject::ClassType cls = WorldObject::GetClassTypeForType( objectType );
+    int index = GetNearestObjectOfClass( m_teamId, city->m_longitude, city->m_latitude, cls );
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( index );
     if( obj )
     {
@@ -936,12 +1006,13 @@ Fixed Team::GetClosestObject( int cityId, int objectType )
 
 bool Team::CheckCityCoverage( int objectType, Fixed *longitude, Fixed *latitude )
 {
-    Fixed checkDistance = 20; // radar and silo both have range of 30.0f, make sure cities are reasonably covered
-    if( objectType == WorldObject::TypeAirBase ) 
+    Fixed checkDistance = 20;
+    WorldObject::ClassType cls = WorldObject::GetClassTypeForType( objectType );
+    if( cls == WorldObject::ClassTypeAirbase )
     {
         checkDistance = 40;
     }
-    else if( objectType == WorldObject::TypeSilo )
+    else if( cls == WorldObject::ClassTypeSilo )
     {
         checkDistance = Fixed::FromDouble(7.5);
     }
@@ -991,15 +1062,15 @@ bool Team::GetUncoveredArea( bool radar, Fixed *longitude, Fixed *latitude )
 {
     int x = 0;
 
-    int type = -1;
+    WorldObject::ClassType cls;
     Fixed distance = 30;
     if( radar )
     {
-        type = WorldObject::TypeRadarStation;
+        cls = WorldObject::ClassTypeRadar;
     }
     else
     {
-        type = WorldObject::TypeSilo;
+        cls = WorldObject::ClassTypeSilo;
         distance = Fixed::FromDouble(7.5f);
     }
 
@@ -1008,7 +1079,7 @@ bool Team::GetUncoveredArea( bool radar, Fixed *longitude, Fixed *latitude )
         x++;
         Fixed randLong = syncsfrand(360);
         Fixed randLat = syncsfrand(180);
-        int index = g_app->GetWorld()->GetNearestObject( m_teamId, randLong, randLat, type );;
+        int index = GetNearestObjectOfClass( m_teamId, randLong, randLat, cls );
         WorldObject *obj = g_app->GetWorld()->GetWorldObject(index);
 
         if( obj )
@@ -1029,29 +1100,27 @@ bool Team::AssembleFleet( int fleetType )
 {
     int ships = 0;
     int subs = 0;
-    int carriers =0;
+    int carriers = 0;
     Fleet::GetFleetMembers( fleetType, &ships, &subs, &carriers );
 
-    if( ( m_unitsAvailable[WorldObject::TypeBattleShip] >= ships &&
-          m_unitsAvailable[WorldObject::TypeSub] >= subs &&
-          m_unitsAvailable[WorldObject::TypeCarrier] >= carriers ) ||
+    int totalShips   = CountAvailableByClass( this, WorldObject::ClassTypeBattleShip );
+    int totalSubs    = CountAvailableByClass( this, WorldObject::ClassTypeSub );
+    int totalCarriers= CountAvailableByClass( this, WorldObject::ClassTypeCarrier );
+
+    if( ( totalShips >= ships && totalSubs >= subs && totalCarriers >= carriers ) ||
         ( fleetType == Fleet::FleetTypeMixed &&
-          m_unitsAvailable[WorldObject::TypeBattleShip] +
-          m_unitsAvailable[WorldObject::TypeSub] +
-          m_unitsAvailable[WorldObject::TypeCarrier] <= Fleet::MaxFleetSize ) ||
+          totalShips + totalSubs + totalCarriers <= Fleet::MaxFleetSize ) ||
           fleetType == Fleet::FleetTypeRandom )
     {
         CreateFleet();
-        if( (m_unitsAvailable[WorldObject::TypeBattleShip] +
-            m_unitsAvailable[WorldObject::TypeSub] +
-            m_unitsAvailable[WorldObject::TypeCarrier] <= Fleet::MaxFleetSize &&
+        if( (totalShips + totalSubs + totalCarriers <= Fleet::MaxFleetSize &&
             fleetType == Fleet::FleetTypeMixed ) ||
             !CanAssembleFleet())
         {
             fleetType = Fleet::FleetTypeMixed;
-            ships = m_unitsAvailable[WorldObject::TypeBattleShip];
-            subs = m_unitsAvailable[WorldObject::TypeSub];
-            carriers = m_unitsAvailable[WorldObject::TypeCarrier];
+            ships = totalShips;
+            subs = totalSubs;
+            carriers = totalCarriers;
         }
         else if( fleetType == Fleet::FleetTypeRandom )
         {
@@ -1071,31 +1140,34 @@ bool Team::AssembleFleet( int fleetType )
                 {
                     case 0 : 
                     {
-                        if( m_unitsAvailable[WorldObject::TypeBattleShip] - ships > 0 &&
-                            credits - g_app->GetWorld()->GetUnitValue(WorldObject::TypeBattleShip) >= 0) 
+                        int st = PickAvailableOfClass( this, WorldObject::ClassTypeBattleShip );
+                        if( st >= 0 && totalShips - ships > 0 &&
+                            credits - g_app->GetWorld()->GetUnitValue(st) >= 0) 
                         {
                             ships++; 
-                            credits -= g_app->GetWorld()->GetUnitValue( WorldObject::TypeBattleShip );
+                            credits -= g_app->GetWorld()->GetUnitValue( st );
                             break;
                         }
                     }
                     case 1 : 
                     {
-                        if( m_unitsAvailable[WorldObject::TypeSub] - subs > 0  &&
-                            credits - g_app->GetWorld()->GetUnitValue(WorldObject::TypeSub) >= 0) 
+                        int st = PickAvailableOfClass( this, WorldObject::ClassTypeSub );
+                        if( st >= 0 && totalSubs - subs > 0 &&
+                            credits - g_app->GetWorld()->GetUnitValue(st) >= 0) 
                         {
                             subs++;
-                            credits -= g_app->GetWorld()->GetUnitValue( WorldObject::TypeSub);
+                            credits -= g_app->GetWorld()->GetUnitValue( st );
                             break;
                         }
                     }
                     case 2 :
                     {
-                        if( m_unitsAvailable[WorldObject::TypeCarrier] - carriers > 0  &&
-                            credits - g_app->GetWorld()->GetUnitValue(WorldObject::TypeCarrier) >= 0) 
+                        int st = PickAvailableOfClass( this, WorldObject::ClassTypeCarrier );
+                        if( st >= 0 && totalCarriers - carriers > 0 &&
+                            credits - g_app->GetWorld()->GetUnitValue(st) >= 0) 
                         {
                             carriers++;
-                            credits -= g_app->GetWorld()->GetUnitValue( WorldObject::TypeCarrier );
+                            credits -= g_app->GetWorld()->GetUnitValue( st );
                             break;
                         }
                     }
@@ -1111,28 +1183,31 @@ bool Team::AssembleFleet( int fleetType )
 
         for( int i = 0; i < ships; ++i )
         {
-            if( m_unitsAvailable[WorldObject::TypeBattleShip] > 0 )
+            int t = PickAvailableOfClass( this, WorldObject::ClassTypeBattleShip );
+            if( t >= 0 )
             {
-                m_fleets[id]->m_memberType.PutData( WorldObject::TypeBattleShip );
-                m_unitsAvailable[WorldObject::TypeBattleShip]--;
+                m_fleets[id]->m_memberType.PutData( t );
+                m_unitsAvailable[t]--;
             }
         }
 
         for( int i = 0; i < subs; ++i )
         {
-            if( m_unitsAvailable[WorldObject::TypeSub] > 0 )
+            int t = PickAvailableOfClass( this, WorldObject::ClassTypeSub );
+            if( t >= 0 )
             {
-                m_fleets[id]->m_memberType.PutData( WorldObject::TypeSub );
-                m_unitsAvailable[WorldObject::TypeSub]--;
+                m_fleets[id]->m_memberType.PutData( t );
+                m_unitsAvailable[t]--;
             }
         }
 
         for( int i = 0; i < carriers; ++i )
         {
-            if( m_unitsAvailable[WorldObject::TypeCarrier] > 0 )
+            int t = PickAvailableOfClass( this, WorldObject::ClassTypeCarrier );
+            if( t >= 0 )
             {
-                m_fleets[id]->m_memberType.PutData( WorldObject::TypeCarrier );
-                m_unitsAvailable[WorldObject::TypeCarrier]--;
+                m_fleets[id]->m_memberType.PutData( t );
+                m_unitsAvailable[t]--;
             }
         }
         return true;
@@ -1145,6 +1220,10 @@ bool Team::AssembleFleet( int fleetType )
 
 bool Team::CanAssembleFleet()
 {
+    int totalShips   = CountAvailableByClass( this, WorldObject::ClassTypeBattleShip );
+    int totalSubs    = CountAvailableByClass( this, WorldObject::ClassTypeSub );
+    int totalCarriers= CountAvailableByClass( this, WorldObject::ClassTypeCarrier );
+
     for( int i = 0; i < Fleet::NumFleetTypes; ++i )
     {
         int ships, subs, carriers;
@@ -1158,9 +1237,9 @@ bool Team::CanAssembleFleet()
         bool enoughCredits = m_unitCredits >= creditCost;
         if( !variableTeamUnits ) enoughCredits = true;
         
-        if( m_unitsAvailable[WorldObject::TypeBattleShip] >= ships &&
-            m_unitsAvailable[WorldObject::TypeSub] >= subs &&
-            m_unitsAvailable[WorldObject::TypeCarrier] >= carriers &&
+        if( totalShips >= ships &&
+            totalSubs >= subs &&
+            totalCarriers >= carriers &&
             enoughCredits )
         {
             return true;
@@ -1181,9 +1260,9 @@ bool Team::CanAssembleFleet( int fleetType )
     bool enoughCredits = m_unitCredits >= creditCost;
     if( !variableTeamUnits ) enoughCredits = true;
 
-    if( m_unitsAvailable[WorldObject::TypeBattleShip] >= ships &&
-        m_unitsAvailable[WorldObject::TypeSub] >= subs &&
-        m_unitsAvailable[WorldObject::TypeCarrier] >= carriers &&
+    if( CountAvailableByClass( this, WorldObject::ClassTypeBattleShip ) >= ships &&
+        CountAvailableByClass( this, WorldObject::ClassTypeSub ) >= subs &&
+        CountAvailableByClass( this, WorldObject::ClassTypeCarrier ) >= carriers &&
         enoughCredits )
     {
         return true;

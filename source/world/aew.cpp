@@ -44,13 +44,22 @@ AEW::AEW()
 void AEW::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
     m_targetObjectId = -1;
+    m_isLanding = -1;
+    m_isEscorting = -1;
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
     if( target &&
-        target->m_teamId == m_teamId &&
-        target->IsAircraftLauncher() )
+        g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+        ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
     {
         Land( targetObjectId );
+    }
+    else if( target &&
+             g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+             target->IsAircraft() )
+    {
+        m_isEscorting = targetObjectId;
+        SetWaypoint( target->m_longitude, target->m_latitude );
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId && targetObjectId == -1 )
@@ -128,10 +137,20 @@ int AEW::IsValidCombatTarget( int _objectId )
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
-    if( obj->IsAircraftLauncher() &&
-        obj->m_teamId == m_teamId )
+    if( obj->IsAircraftLauncher() || obj->m_type == TypeTanker )
     {
-        return TargetTypeLand;
+        if( obj->m_teamId == m_teamId ||
+            g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] )
+        {
+            return TargetTypeLand;
+        }
+    }
+
+    if( obj->IsAircraft() &&
+        ( obj->m_teamId == m_teamId ||
+          g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] ) )
+    {
+        return TargetTypePursue;
     }
 
     return MovingObject::IsValidCombatTarget( _objectId );

@@ -62,7 +62,7 @@ void Fleet::Update()
         m_speedUpdateTimer = 5 + syncfrand(10);
         Fixed slowestSpeed = Fixed::Hundredths(3);
         Fixed speedDropoff = GetSpeedDropoff();
-        if( IsInFleet( WorldObject::TypeSub ) )
+        if( IsInFleetClass( WorldObject::ClassTypeSub ) )
         {
             slowestSpeed = Fixed::Hundredths(2);
         }
@@ -286,40 +286,37 @@ void Fleet::GetFormationPosition( int memberCount, int memberId, Fixed *longitud
         }
         case 4:
         {
-            // Center + triangle around; center first, then clockwise from north
             switch(memberId)
             {
                 case 0  :   /* center */                                break;
-                case 1  :                           *latitude += offset*6;  break;  // north
-                case 2  :   *longitude += offset*5; *latitude -= offset*3;  break;  // bottom-right (cw)
-                case 3  :   *longitude -= offset*5; *latitude -= offset*3;  break;  // bottom-left (cw)
+                case 1  :                           *latitude += offset*4;  break;
+                case 2  :   *longitude += offset*5; *latitude -= offset*4;  break;
+                case 3  :   *longitude -= offset*5; *latitude -= offset*4;  break;
             }
             break;
         }
         case 5:
         {
-            // Center + diamond around; center first, then clockwise from north
             switch(memberId)
             {
-                case 0  :   /* center */                                break;
-                case 1  :                           *latitude += offset*6;  break;
-                case 2  :   *longitude += offset*6;                      break;
-                case 3  :                           *latitude -= offset*6;  break;
-                case 4  :   *longitude -= offset*6;                      break;
+                case 0  :   /* center */                                            break;
+                case 1  :   *longitude += offset*4; *latitude += offset*4;          break;
+                case 2  :   *longitude += offset*4; *latitude -= offset*4;          break;
+                case 3  :   *longitude -= offset*4; *latitude -= offset*4;          break;
+                case 4  :   *longitude -= offset*4; *latitude += offset*4;          break;
             }
             break;
         }
         case 6:
         {
-            // Center + pentagon around; center first, then clockwise from north
             switch(memberId)
             {
                 case 0  :   /* center */                                break;
                 case 1  :                           *latitude += offset*6;  break;
-                case 2  :   *longitude += offset*5; *latitude += offset*3;  break;
-                case 3  :   *longitude += offset*5; *latitude -= offset*3;  break;
-                case 4  :   *longitude -= offset*5; *latitude -= offset*3;  break;
-                case 5  :   *longitude -= offset*5; *latitude += offset*3;  break;
+                case 2  :   *longitude += offset*6; *latitude += offset*2;  break;
+                case 3  :   *longitude += offset*4; *latitude -= offset*5;  break;
+                case 4  :   *longitude -= offset*4; *latitude -= offset*5;  break;
+                case 5  :   *longitude -= offset*6; *latitude += offset*2;  break;
             }
             break;
         }
@@ -403,7 +400,7 @@ void Fleet::MoveFleet( Fixed longitude, Fixed latitude, bool cancelPursuits )
     //
     // If there are subs in the fleet currently nuking then put a stop to it
 
-    if( IsInFleet( WorldObject::TypeSub ) )
+    if( IsInFleetClass( WorldObject::ClassTypeSub ) )
     {
         for( int i = 0; i < m_fleetMembers.Size(); ++i )
         {
@@ -826,7 +823,7 @@ bool Fleet::FindGoodAttackSpot( Fixed &_longitude, Fixed &_latitude )
     LList<ValidTargetPoint> validTargetPoints;
     
     Fixed attackRange = 60;
-    if( IsInFleet(WorldObject::TypeSub) &&
+    if( IsInFleetClass(WorldObject::ClassTypeSub) &&
         CountNukesInFleet() > 0 )
     {
         attackRange = 45;
@@ -927,7 +924,7 @@ bool Fleet::FindGoodAttackSpotSlow( Fixed &_longitude, Fixed &_latitude )
     LList<ValidTargetPoint> validTargetPoints;
 
     Fixed attackRange = 60;
-    if( IsInFleet(WorldObject::TypeSub) &&
+    if( IsInFleetClass(WorldObject::ClassTypeSub) &&
         CountNukesInFleet() > 0 )
     {
         attackRange = 45;

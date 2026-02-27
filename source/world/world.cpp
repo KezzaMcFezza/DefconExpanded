@@ -1909,6 +1909,17 @@ void World::ObjectSpecialAction( int objectId, int targetObjectId, int specialAc
                     mobj->AddToSquad( targetObjectId );
                 }
                 break;*/
+
+            case SpecialActionForceAttack:
+                if( wobj->IsMovingObject() )
+                {
+                    MovingObject *mobj = (MovingObject *) wobj;
+                    mobj->m_isEscorting = -1;
+                    mobj->m_isLanding = -1;
+                    mobj->ClearActionQueue();
+                    wobj->m_targetObjectId = targetObjectId;
+                }
+                break;
         }
     }
 }
@@ -4016,7 +4027,7 @@ int World::GetAttackOdds( int attackerType, int defenderType )
     }   
 
     if( attackerClass == WorldObject::ClassTypeCarrier || attackerClass == WorldObject::ClassTypeBomber ||
-        attackerClass == WorldObject::ClassTypeAEW ){
+        attackerClass == WorldObject::ClassTypeAEW  ){
         return 0;
     }
 
@@ -4074,7 +4085,8 @@ int World::GetAttackOdds( int attackerType, int defenderType )
         case WorldObject::TypeFighterLight: defenderRow = 9; break;
         case WorldObject::TypeFighterStealth:
         case WorldObject::TypeFighterNavyStealth: defenderRow = 10; break;
-        case WorldObject::TypeAEW:          defenderRow = 11; break;
+        case WorldObject::TypeAEW:
+        case WorldObject::TypeTanker:       defenderRow = 11; break;
         case WorldObject::TypeLACM:
         case WorldObject::TypeLANM:         defenderRow = 12; break;
         default:                            return 0;

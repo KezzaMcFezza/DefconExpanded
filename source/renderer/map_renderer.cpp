@@ -95,6 +95,9 @@ MapRenderer::MapRenderer()
     m_lastRightClickTime(0.0f),
     m_lastRightClickX(0.0f),
     m_lastRightClickY(0.0f),
+    m_lmbClickStartTime(0.0f),
+    m_lmbAircraftActionDispatched(false),
+    m_lmbClickedTargetId(-1),
     m_tooltip(NULL),
     m_tooltipTimer(0.0f),
 	m_longitudePlanningOld(0.0f),
@@ -1816,6 +1819,10 @@ void MapRenderer::RenderMouse()
             {
                 actionCursorCol.Set( 0, 0, 255, 255 );                
             }
+            else if( validCombatTarget == WorldObject::TargetTypePursue )
+            {
+                actionCursorCol.Set( 127, 161, 255, 255 );
+            }
             else if( validCombatTarget == WorldObject::TargetTypeLaunchAEW ||
                      validCombatTarget == WorldObject::TargetTypeLaunchTanker )
             {
@@ -1908,7 +1915,9 @@ void MapRenderer::RenderMouse()
         
         int spawnType = validCombatTarget;
         if( spawnType <= WorldObject::TargetTypeInvalid ) spawnType = validMovementTarget;    
-        if( spawnType > WorldObject::TargetTypeValid)
+        if( spawnType > WorldObject::TargetTypeValid &&
+            spawnType != WorldObject::TargetTypeLand &&
+            spawnType != WorldObject::TargetTypePursue )
         {
             switch( spawnType )
             {
@@ -2517,7 +2526,15 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 }
                 else if( mobj->IsAircraft() && mobj->m_isLanding != -1 )
                 {
-                    actionCursorCol.Set( 0, 255, 0, 150 );   // Green: landing
+                    WorldObject *landTarget = g_app->GetWorld()->GetWorldObject( mobj->m_isLanding );
+                    if( landTarget && landTarget->m_type == WorldObject::TypeTanker )
+                        actionCursorCol.Set( 127, 255, 0, 150 );   // Lime: pursuing tanker for refuel
+                    else
+                        actionCursorCol.Set( 0, 255, 0, 150 );   // Green: landing
+                }
+                else if( mobj->IsAircraft() && mobj->m_isEscorting != -1 )
+                {
+                    actionCursorCol.Set( 127, 161, 255, 150 );   // Sapphire: non-combat pursuit
                 }
                 else if( mobj->IsBomberClass() && mobj->m_currentState == 1 )
                 {
@@ -4121,7 +4138,16 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                          combatResult == WorldObject::TargetTypeOutOfRange );
         }
 
-        if( !canAction ) continue;
+        if( !canAction )
+        {
+            if( obj->IsAircraft() )
+            {
+                g_app->GetClientToServer()->RequestSetWaypoint( recId, targetLong, targetLat );
+                g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
+                anyOrderGiven = true;
+            }
+            continue;
+        }
 
         if( obj->SetWaypointOnAction() )
             g_app->GetClientToServer()->RequestSetWaypoint( recId, targetLong, targetLat );
@@ -4235,6 +4261,8 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
         else
         {
             g_app->GetClientToServer()->RequestSetWaypoint( recId, mouseX, mouseY, _isDoubleClick );
+            if( wobj->IsAircraft() )
+                g_app->GetClientToServer()->RequestAction( recId, -1, mouseX, mouseY );
             int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, _mouseX, _mouseY );
             ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
             marker->m_targetType = WorldObject::TargetTypeValid;
@@ -4353,9 +4381,37 @@ void MapRenderer::Update()
     {
         if( g_inputManager->m_lmbClicked )
         {
+            m_lmbClickStartTime = GetHighResTime();
+            m_lmbAircraftActionDispatched = false;
+            m_lmbClickedTargetId = -1;
+
             bool hasSelection = g_app->GetWorldRenderer()->GetSelectionCount() > 0;
             bool shiftAdd = hasSelection && g_keys[KEY_SHIFT] && !g_keys[KEY_CONTROL];
             bool ctrlShiftRemove = hasSelection && g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT];
+
+            if( hasSelection && !shiftAdd && !ctrlShiftRemove &&
+                underMouse && underMouse->IsAircraft() && m_currentStateId == -1 )
+            {
+                int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+                bool hasSelectedAircraft = false;
+                for( int si = 0; si < selCount; ++si )
+                {
+                    int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                    WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                    if( obj && obj->IsAircraft() &&
+                        obj->IsValidCombatTarget( underMouseId ) > WorldObject::TargetTypeInvalid )
+                    {
+                        hasSelectedAircraft = true;
+                        break;
+                    }
+                }
+                if( hasSelectedAircraft )
+                {
+                    HandleObjectAction( longitude, latitude, underMouseId );
+                    m_lmbAircraftActionDispatched = true;
+                    m_lmbClickedTargetId = underMouseId;
+                }
+            }
 
             if( !hasSelection )
             {
@@ -4454,16 +4510,41 @@ void MapRenderer::Update()
 
             if( !consumedByMarquee )
             {
-                if( m_currentStateId != -1 )                            
+                if( m_lmbAircraftActionDispatched )
+                {
+                    float clickDuration = GetHighResTime() - m_lmbClickStartTime;
+                    if( clickDuration > 0.5f && underMouse && m_lmbClickedTargetId == underMouseId )
+                    {
+                        WorldObject *target = g_app->GetWorld()->GetWorldObject( underMouseId );
+                        if( target && target->IsAircraft() )
+                        {
+                            int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+                            for( int si = 0; si < selCount; ++si )
+                            {
+                                int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                                WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                                if( obj && obj->IsFighterClass() &&
+                                    g_app->GetWorld()->IsFriend( obj->m_teamId, target->m_teamId ) &&
+                                    obj->GetAttackOdds( target->m_type ) > 0 )
+                                {
+                                    g_app->GetClientToServer()->RequestSpecialAction(
+                                        recId, underMouseId, World::SpecialActionForceAttack );
+                                }
+                            }
+                        }
+                    }
+                    m_lmbAircraftActionDispatched = false;
+                    m_lmbClickedTargetId = -1;
+                }
+                else if( m_currentStateId != -1 )                            
                 {             
                     HandleClickStateMenu();
                 }
                 else if( underMouse )
                 {
-                    // If we have selection that can attack the object under mouse, give attack order (enables targeting cities, silos, etc.)
-                    // Do not treat TargetTypeLand (landing at friendly base) as attack - that goes through HandleSelectObject for original Defcon behavior
                     int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
                     bool hasValidCombatTarget = false;
+                    bool hasLandTarget = false;
                     for( int si = 0; si < selCount; ++si )
                     {
                         int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
@@ -4471,15 +4552,21 @@ void MapRenderer::Update()
                         if( obj )
                         {
                             int combatResult = obj->IsValidCombatTarget( underMouseId );
-                            if( combatResult > WorldObject::TargetTypeInvalid &&
-                                combatResult != WorldObject::TargetTypeLand )
+                            if( ( combatResult == WorldObject::TargetTypeLand ||
+                                  combatResult == WorldObject::TargetTypePursue ) && obj->IsAircraft() )
+                            {
+                                hasLandTarget = true;
+                            }
+                            else if( combatResult > WorldObject::TargetTypeInvalid &&
+                                combatResult != WorldObject::TargetTypeLand &&
+                                combatResult != WorldObject::TargetTypePursue )
                             {
                                 hasValidCombatTarget = true;
                                 break;
                             }
                         }
                     }
-                    if( hasValidCombatTarget )
+                    if( hasValidCombatTarget || hasLandTarget )
                     {
                         if( (SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
                         {
@@ -4499,9 +4586,23 @@ void MapRenderer::Update()
                         int resolvedId = ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
                         HandleObjectAction( longitude, latitude, resolvedId );
                     }
-                    else if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
+                    else
                     {
-                        HandleSelectObject(underMouseId);
+                        bool hasSelectedAircraft = false;
+                        for( int si = 0; si < selCount; ++si )
+                        {
+                            int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                            if( obj && obj->IsAircraft() ) { hasSelectedAircraft = true; break; }
+                        }
+                        if( hasSelectedAircraft )
+                        {
+                            HandleObjectAction(longitude, latitude, underMouseId);
+                        }
+                        else if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
+                        {
+                            HandleSelectObject(underMouseId);
+                        }
                     }
                 }
                 else if( !underMouse )
@@ -4568,7 +4669,8 @@ void MapRenderer::Update()
                             {
                                 int combatResult = obj->IsValidCombatTarget( underMouseId );
                                 if( combatResult > WorldObject::TargetTypeInvalid &&
-                                    combatResult != WorldObject::TargetTypeLand )
+                                    combatResult != WorldObject::TargetTypeLand &&
+                                    combatResult != WorldObject::TargetTypePursue )
                                 {
                                     hasValidCombatTarget = true;
                                     break;

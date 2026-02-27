@@ -87,11 +87,31 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_currentState == 2 )
     {
+        if( targetObjectId == -1 )
+        {
+            m_targetObjectId = -1;
+            m_isLanding = -1;
+            m_isEscorting = -1;
+            return;
+        }
+        WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( targetObjectId );
+        if( targetObj && g_app->GetWorld()->IsFriend( m_teamId, targetObj->m_teamId ) )
+        {
+            m_targetObjectId = -1;
+            m_isLanding = -1;
+            m_isEscorting = -1;
+            ClearActionQueue();
+            if( targetObj->IsAircraftLauncher() || targetObj->m_type == TypeTanker )
+                Land( targetObjectId );
+            else if( targetObj->IsAircraft() )
+            {
+                m_isEscorting = targetObjectId;
+                SetWaypoint( targetObj->m_longitude, targetObj->m_latitude );
+            }
+            return;
+        }
         if( m_states[2]->m_numTimesPermitted <= 0 )
             return;
-        if( targetObjectId == -1 )
-            return;
-        WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( targetObjectId );
         if( !targetObj || targetObj->m_life <= 0 )
             return;
 
@@ -137,6 +157,31 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_currentState == 1 )
     {
+        if( targetObjectId == -1 )
+        {
+            m_targetObjectId = -1;
+            m_isLanding = -1;
+            m_isEscorting = -1;
+            return;
+        }
+        {
+            WorldObject *friendCheck = g_app->GetWorld()->GetWorldObject( targetObjectId );
+            if( friendCheck && g_app->GetWorld()->IsFriend( m_teamId, friendCheck->m_teamId ) )
+            {
+                m_targetObjectId = -1;
+                m_isLanding = -1;
+                m_isEscorting = -1;
+                ClearActionQueue();
+                if( friendCheck->IsAircraftLauncher() || friendCheck->m_type == TypeTanker )
+                    Land( targetObjectId );
+                else if( friendCheck->IsAircraft() )
+                {
+                    m_isEscorting = targetObjectId;
+                    SetWaypoint( friendCheck->m_longitude, friendCheck->m_latitude );
+                }
+                return;
+            }
+        }
         if( m_states[1]->m_numTimesPermitted <= 0 )
             return;
 
@@ -208,6 +253,24 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     }
     else
     {
+        m_targetObjectId = -1;
+        m_isLanding = -1;
+        m_isEscorting = -1;
+
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+        if( target &&
+            g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+            ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
+        {
+            Land( targetObjectId );
+        }
+        else if( target &&
+                 g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+                 target->IsAircraft() )
+        {
+            m_isEscorting = targetObjectId;
+            SetWaypoint( target->m_longitude, target->m_latitude );
+        }
         MovingObject::Action( targetObjectId, longitude, latitude );
     }
 }
@@ -611,12 +674,20 @@ int Bomber::IsValidCombatTarget( int _objectId )
         return basicResult;
     }
 
-    if( obj->IsAircraftLauncher() )
+    if( obj->IsAircraftLauncher() || obj->m_type == TypeTanker )
     {
-        if( obj->m_teamId == m_teamId )
+        if( obj->m_teamId == m_teamId ||
+            g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] )
         {
             return TargetTypeLand;
         }
+    }
+
+    if( obj->IsAircraft() &&
+        ( obj->m_teamId == m_teamId ||
+          g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] ) )
+    {
+        return TargetTypePursue;
     }
 
     // LACM targets: state 2 (active) or state 0 (standby - queue for when we engage)
@@ -689,7 +760,13 @@ void Bomber::RequestAction( ActionOrder *_action )
             return;
         }
         WorldObject *target = g_app->GetWorld()->GetWorldObject( _action->m_targetObjectId );
-        if( target && ( target->IsAircraft() || target->IsCruiseMissileClass() || target->IsBallisticMissileClass() ) )
+        if( target && ( target->IsCruiseMissileClass() || target->IsBallisticMissileClass() ) )
+        {
+            delete _action;
+            return;
+        }
+        if( target && target->IsAircraft() &&
+            !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
             delete _action;
             return;

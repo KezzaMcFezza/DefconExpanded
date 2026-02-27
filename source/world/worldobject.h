@@ -77,7 +77,8 @@ public:
         TargetTypeLaunchStealthBomber,
         TargetTypeLaunchAEW,
         TargetTypeLaunchTanker,
-        TargetTypeLand
+        TargetTypeLand,
+        TargetTypePursue
     };
 
     enum Archetype

@@ -157,6 +157,8 @@ void SidePanel::Render( bool hasFocus )
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierSuper];
+                shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLHD];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
                 shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];
@@ -381,6 +383,8 @@ void SidePanel::ChangeMode( int mode )
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeBattleShip3];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrier];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLight];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierSuper];
+            shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeCarrierLHD];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSub];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubG];
             shipsRemaining += myTeam->m_unitsAvailable[WorldObject::TypeSubC];

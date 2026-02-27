@@ -17,6 +17,7 @@ public:
     void    Action  ( int targetObjectId, Fixed longitude, Fixed latitude );
     bool    Update  ();
     void    RunAI   ();
+    void    Render2D();
 
     void    Land            ( int targetId );
 

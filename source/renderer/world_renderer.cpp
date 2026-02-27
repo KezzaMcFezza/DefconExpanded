@@ -100,6 +100,7 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeBomberFast], "graphics/b1b.bmp");
     sprintf(m_imageFiles[WorldObject::TypeBomberStealth], "graphics/stealthbomber.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAEW], "graphics/aew.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeTanker], "graphics/kc10.bmp");
     sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
     sprintf(m_imageFiles[WorldObject::TypeLACM], "graphics/lacm.bmp");
     sprintf(m_imageFiles[WorldObject::TypeCBM], "graphics/nuke.bmp");
@@ -117,7 +118,7 @@ void WorldRenderer::Init()
     sprintf(m_imageFiles[WorldObject::TypeBattleShip3], "graphics/lcs.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAirBase2], "graphics/airbase.bmp");
     sprintf(m_imageFiles[WorldObject::TypeAirBase3], "graphics/airbase.bmp");
-    sprintf(m_imageFiles[WorldObject::TypeCarrierLight], "graphics/carrier.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrierLight], "graphics/wasp.bmp");
     sprintf(m_imageFiles[WorldObject::TypeCarrierLHD], "graphics/type075.bmp");
     sprintf(m_imageFiles[WorldObject::TypeCarrierSuper], "graphics/carrier.bmp");
 }

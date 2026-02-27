@@ -8,6 +8,7 @@
 
 #include "app/app.h"
 #include "app/globals.h"
+#include "app/game.h"
 
 #include "renderer/world_renderer.h"
 
@@ -27,7 +28,7 @@ Tanker::Tanker()
     strcpy( bmpImageFilename, "graphics/kc10.bmp" );
 
     m_stealthType = 100;
-    m_radarRange = 0;
+    m_radarRange = 1;
     m_speed = Fixed::Hundredths(4);
     m_turnRate = Fixed::Hundredths(2);
     m_selectable = true;
@@ -40,7 +41,7 @@ Tanker::Tanker()
     m_refuelSlot[0] = -1;
     m_refuelSlot[1] = -1;
 
-    AddState( LANGUAGEPHRASE("state_refuel"), 0, 0, 5, 0, false );
+    AddState( LANGUAGEPHRASE("state_refuel"), 0, 0, 1, 5, false );
 
     InitialiseTimers();
 }
@@ -49,13 +50,22 @@ Tanker::Tanker()
 void Tanker::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
     m_targetObjectId = -1;
+    m_isLanding = -1;
+    m_isEscorting = -1;
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
     if( target &&
-        target->m_teamId == m_teamId &&
-        target->IsAircraftLauncher() )
+        g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+        ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
     {
         Land( targetObjectId );
+    }
+    else if( target &&
+             g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+             target->IsAircraft() )
+    {
+        m_isEscorting = targetObjectId;
+        SetWaypoint( target->m_longitude, target->m_latitude );
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId && targetObjectId == -1 )
@@ -158,6 +168,38 @@ void Tanker::Land( int targetId )
     }
 }
 
+void Tanker::Render2D()
+{
+    MovingObject::Render2D();
+
+    if( m_teamId != g_app->GetWorld()->m_myTeamId &&
+        g_app->GetWorld()->m_myTeamId != -1 &&
+        g_app->GetGame()->m_winner == -1 )
+    {
+        return;
+    }
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float tankerX = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float tankerY = (m_latitude + m_vel.y * predictionTime).DoubleValue();
+
+    for( int s = 0; s < 2; ++s )
+    {
+        if( m_refuelSlot[s] == -1 ) continue;
+        if( s == 1 && m_refuelSlot[0] == m_refuelSlot[1] ) continue;
+
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( m_refuelSlot[s] );
+        if( !target || !target->IsMovingObject() ) continue;
+
+        MovingObject *aircraft = (MovingObject *)target;
+        float targetX = (aircraft->m_longitude + aircraft->m_vel.x * predictionTime).DoubleValue();
+        float targetY = (aircraft->m_latitude + aircraft->m_vel.y * predictionTime).DoubleValue();
+
+        g_renderer2d->Line( tankerX, tankerY, targetX, targetY,
+                            Colour(255, 255, 255, 140), 2.0f );
+    }
+}
+
 int Tanker::GetAttackState()
 {
     return -1;
@@ -168,10 +210,20 @@ int Tanker::IsValidCombatTarget( int _objectId )
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
-    if( obj->IsAircraftLauncher() &&
-        obj->m_teamId == m_teamId )
+    if( obj->IsAircraftLauncher() || obj->m_type == TypeTanker )
     {
-        return TargetTypeLand;
+        if( obj->m_teamId == m_teamId ||
+            g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] )
+        {
+            return TargetTypeLand;
+        }
+    }
+
+    if( obj->IsAircraft() &&
+        ( obj->m_teamId == m_teamId ||
+          g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] ) )
+    {
+        return TargetTypePursue;
     }
 
     return MovingObject::IsValidCombatTarget( _objectId );
@@ -232,11 +284,6 @@ void Tanker::RefuelTargets( Fixed timeStep )
 
         aircraft->m_range += toGive;
         m_range -= toGive;
-
-        if( aircraft->GetSpeed() > m_speed )
-        {
-            aircraft->m_vel = aircraft->m_vel.Normalized() * m_speed;
-        }
     }
 }
 

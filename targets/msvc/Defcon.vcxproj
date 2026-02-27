@@ -271,6 +271,7 @@
     <ClCompile Include="..\..\source\world\fighter_stealth.cpp" />
     <ClCompile Include="..\..\source\world\fighter_navystealth.cpp" />
     <ClCompile Include="..\..\source\world\aew.cpp" />
+    <ClCompile Include="..\..\source\world\tanker.cpp" />
     <ClCompile Include="..\..\source\world\fleet.cpp" />
     <ClCompile Include="..\..\source\world\gunfire.cpp" />
     <ClCompile Include="..\..\source\world\movingobject.cpp" />
@@ -391,6 +392,8 @@
     <ClInclude Include="..\..\source\world\node.h" />
     <ClInclude Include="..\..\source\world\nuke.h" />
     <ClInclude Include="..\..\source\world\lacm.h" />
+    <ClInclude Include="..\..\source\world\aew.h" />
+    <ClInclude Include="..\..\source\world\tanker.h" />
     <ClInclude Include="..\..\source\world\radargrid.h" />
     <ClInclude Include="..\..\source\world\radarstation.h" />
     <ClInclude Include="..\..\source\world\radar_ew.h" />

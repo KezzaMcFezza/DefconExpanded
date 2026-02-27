@@ -90,7 +90,8 @@ public:
     enum 
     {
         SpecialActionLandingAircraft,
-        SpecialActionFormingSquad
+        SpecialActionFormingSquad,
+        SpecialActionForceAttack
     };
 
     enum

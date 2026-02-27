@@ -490,7 +490,11 @@ Image *WorldObject::GetOutlineImage()
     bool surfaced = ( m_currentState == 2 );
 
     const char *outlineBase = base;
-    if( m_type == TypeTanker ) outlineBase = "tanker.bmp";
+    if( IsFighterClass() )       outlineBase = "fighter.bmp";
+    else if( IsBomberClass() )   outlineBase = "bomber.bmp";
+    else if( IsAEWClass() && m_type != TypeTanker ) outlineBase = "aew.bmp";
+    else if( m_type == TypeTanker ) outlineBase = "tanker.bmp";
+    else if( m_type == TypeLACM || m_type == TypeLANM ) outlineBase = "lacm.bmp";
     bool useOwnOutline = ( m_type == TypeASCM );
 
     if( isSpectator )
@@ -606,7 +610,9 @@ void WorldObject::Render2D()
     if( outlineImage )
     {
         Colour white( 255, 255, 255, 255 );
-        g_renderer2d->StaticSprite( outlineImage, x, y, thisSize, size*-2, white );
+        float outX = predictedLongitude - size * 0.5f;
+        float outY = predictedLatitude + size * 0.5f;
+        g_renderer2d->StaticSprite( outlineImage, outX, outY, size, -size, white );
     }
 
     if( bmpImage )
@@ -689,8 +695,9 @@ void WorldObject::Render3D()
         if( outlineImage3d )
         {
             Colour white( 255, 255, 255, 255 );
+            float outlineSize = size;
             g_renderer3d->StaticSprite3D( outlineImage3d, renderPos.x, renderPos.y, renderPos.z,
-                                          spriteSize, spriteSize, white, BILLBOARD_SURFACE_ALIGNED );
+                                          outlineSize, outlineSize, white, BILLBOARD_SURFACE_ALIGNED );
         }
 
         g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
