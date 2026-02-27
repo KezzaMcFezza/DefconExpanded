@@ -1040,6 +1040,7 @@ void Renderer2DD3D11::FlushLines( bool isImmediate )
 		IncrementDrawCall( DRAW_CALL_LINES );
 	}
 
+	bool usedGeometryShader = false;
 	if ( m_lineBuffer && UpdateBufferData( m_lineBuffer, m_lineVertices, m_lineVertexCount ) )
 	{
 		if ( m_currentLineWidth == 1.0f )
@@ -1049,6 +1050,7 @@ void Renderer2DD3D11::FlushLines( bool isImmediate )
 		}
 		else
 		{
+			usedGeometryShader = true;
 			SetColorShaderUniforms();
 			g_renderer->SetShaderProgram( m_lineShaderProgram );
 			SetLineShaderUniforms( m_currentLineWidth );
@@ -1062,6 +1064,15 @@ void Renderer2DD3D11::FlushLines( bool isImmediate )
 	}
 
 	m_lineVertexCount = 0;
+
+	if ( usedGeometryShader && m_deviceContext )
+	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		m_currentlyBoundGS = nullptr;
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+	}
 
 	if ( isImmediate )
 	{
@@ -1182,6 +1193,7 @@ void Renderer2DD3D11::FlushCircles( bool isImmediate )
 		IncrementDrawCall( DRAW_CALL_CIRCLES );
 	}
 
+	bool usedGeometryShaderCircles = false;
 	if ( m_circleBuffer && UpdateBufferData( m_circleBuffer, m_circleVertices, m_circleVertexCount ) )
 	{
 		if ( m_currentCircleWidth == 1.0f )
@@ -1191,6 +1203,7 @@ void Renderer2DD3D11::FlushCircles( bool isImmediate )
 		}
 		else
 		{
+			usedGeometryShaderCircles = true;
 			SetColorShaderUniforms();
 			g_renderer->SetShaderProgram( m_lineShaderProgram );
 			SetLineShaderUniforms( m_currentCircleWidth );
@@ -1204,6 +1217,15 @@ void Renderer2DD3D11::FlushCircles( bool isImmediate )
 	}
 
 	m_circleVertexCount = 0;
+
+	if ( usedGeometryShaderCircles && m_deviceContext )
+	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		m_currentlyBoundGS = nullptr;
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+	}
 
 	if ( isImmediate )
 	{
@@ -1266,6 +1288,7 @@ void Renderer2DD3D11::FlushRects( bool isImmediate )
 		IncrementDrawCall( DRAW_CALL_RECTS );
 	}
 
+	bool usedGeometryShaderRects = false;
 	if ( m_rectBuffer && UpdateBufferData( m_rectBuffer, m_rectVertices, m_rectVertexCount ) )
 	{
 		if ( m_currentRectWidth == 1.0f )
@@ -1275,6 +1298,7 @@ void Renderer2DD3D11::FlushRects( bool isImmediate )
 		}
 		else
 		{
+			usedGeometryShaderRects = true;
 			SetColorShaderUniforms();
 			g_renderer->SetShaderProgram( m_lineShaderProgram );
 			SetLineShaderUniforms( m_currentRectWidth );
@@ -1288,6 +1312,15 @@ void Renderer2DD3D11::FlushRects( bool isImmediate )
 	}
 
 	m_rectVertexCount = 0;
+
+	if ( usedGeometryShaderRects && m_deviceContext )
+	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		m_currentlyBoundGS = nullptr;
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+	}
 
 	if ( isImmediate )
 	{
