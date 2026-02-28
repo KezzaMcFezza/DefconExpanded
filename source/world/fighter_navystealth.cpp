@@ -17,7 +17,7 @@ FighterNavyStealth::FighterNavyStealth()
 
     strcpy( bmpImageFilename, "graphics/f35c.bmp" );
 
-    m_stealthType = 15;
+    m_stealthType = 30;
 
     m_states[0]->m_numTimesPermitted = 2;
 }

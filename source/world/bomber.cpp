@@ -41,13 +41,13 @@ Bomber::Bomber()
     m_maxHistorySize = 10;
     m_range = 140;
 
-    m_nukeSupply = 1;
+    m_nukeSupply = 2;
 
     m_movementType = MovementTypeAir;
 
     AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 5, 25, true, 2, 3 );
-    AddState( LANGUAGEPHRASE("state_bombernuke"), 240, 120, 5, 25, true, 2, 1 );
-    AddState( LANGUAGEPHRASE("state_bomberlacm"), 240, 120, 5, 25, true, 6, 3 );
+    AddState( LANGUAGEPHRASE("state_bombernuke"), 15, 5, 5, 25, true, 2, 1 );
+    AddState( LANGUAGEPHRASE("state_bomberlacm"), 15, 5, 5, 25, true, 6, 3 );
 
     m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
     m_states[2]->m_numTimesPermitted = 0;
@@ -282,25 +282,28 @@ bool Bomber::Update()
     m_speed = Fixed::Hundredths(5) / gameScale;         
     m_turnRate = Fixed::Hundredths(1) / gameScale;
 
-    // Switch to attack mode when defcon allows (original Defcon behaviour: bomber launched at target, attacks when defcon drops)
-    // Only when we have m_targetObjectId (launched from airbase with target) and no standby queue - do not switch if user queued orders
-    if( m_currentState == 0 && m_actionQueue.Size() == 0 && m_targetObjectId != -1 )
+    if( m_currentState == 0 && m_targetObjectId != -1 )
     {
         int attackState = m_lacmLoadout ? 2 : 1;
         if( m_states[attackState]->m_numTimesPermitted > 0 &&
             g_app->GetWorld()->GetDefcon() <= m_states[attackState]->m_defconPermitted &&
             CanSetState( attackState ) )
         {
-            WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
-            if( targetObj && targetObj->m_life > 0 )
+            if( m_actionQueue.Size() == 0 && m_targetObjectId != -1 )
             {
-                ActionOrder *order = new ActionOrder();
-                order->m_targetObjectId = m_targetObjectId;
-                order->m_longitude = targetObj->m_longitude;
-                order->m_latitude = targetObj->m_latitude;
-                RequestAction( order );
+                WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
+                if( targetObj && targetObj->m_life > 0 )
+                {
+                    ActionOrder *order = new ActionOrder();
+                    order->m_targetObjectId = m_targetObjectId;
+                    order->m_longitude = targetObj->m_longitude;
+                    order->m_latitude = targetObj->m_latitude;
+                    m_actionQueue.PutData( order );
+                }
             }
-            SetState( attackState );
+            m_currentState = attackState;
+            m_stateTimer = m_states[attackState]->m_timeToPrepare;
+            m_targetObjectId = -1;
         }
     }
 

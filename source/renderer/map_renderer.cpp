@@ -2583,8 +2583,20 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 }
                 else if( mobj->IsBomberClass() && mobj->m_currentState == 1 )
                 {
-                    // Bomber in nuke mode but no nuke target set: waypoint only (Lavender)
-                    actionCursorCol.Set( 187, 127, 255, 150 );
+                    if( mobj->m_actionQueue.Size() > 0 )
+                        actionCursorCol.Set( 255, 100, 130, 150 );   // Pink: nuke bomber with queued target
+                    else
+                        actionCursorCol.Set( 187, 127, 255, 150 );   // Lavender: nuke bomber, no target
+                }
+                else if( mobj->IsBomberClass() && mobj->m_currentState == 0 && mobj->m_actionQueue.Size() > 0 )
+                {
+                    actionCursorCol.Set( 160, 160, 160, 120 );
+                }
+                else if( mobj->IsAircraft() && mobj->m_actionQueue.Size() > 0 &&
+                         ((mobj->IsFighterClass() && mobj->m_currentState == 1) ||
+                          (mobj->IsBomberClass() && mobj->m_currentState == 2)) )
+                {
+                    actionCursorCol.Set( 255, 165, 0, 150 );   // Orange: LACM mode with queued target
                 }
 
                 if( !suppressMovementLine )
@@ -4208,6 +4220,11 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                     g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
                 anyOrderGiven = true;
             }
+            else if( obj->IsAircraftLauncher() )
+            {
+                g_app->GetClientToServer()->RequestAction( recId, underMouseId, targetLong, targetLat );
+                anyOrderGiven = true;
+            }
             continue;
         }
 
@@ -4453,8 +4470,9 @@ void MapRenderer::Update()
 
             int aircraftTargetId = underMouseId;
             WorldObject *aircraftTarget = underMouse;
-            if( hasSelection && m_currentStateId == -1 &&
-                (!underMouse || !underMouse->IsAircraft()) )
+            if( hasSelection && m_currentStateId == -1 && !underMouse &&
+                !(SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() ||
+                  SelectionHasStandbyNukeUnit() || SelectionHasLaunchableUnit()) )
             {
                 bool anySelectedAircraft = false;
                 int sc = g_app->GetWorldRenderer()->GetSelectionCount();
@@ -4719,7 +4737,7 @@ void MapRenderer::Update()
                             WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
                             if( obj && obj->IsAircraft() ) { hasSelectedAircraft = true; break; }
                         }
-                        if( hasSelectedAircraft )
+                        if( hasSelectedAircraft || SelectionHasLaunchableUnit() )
                         {
                             HandleObjectAction(longitude, latitude, underMouseId);
                         }

@@ -205,8 +205,14 @@ void Tanker::Render2D()
         float targetX = (aircraft->m_longitude + aircraft->m_vel.x * predictionTime).DoubleValue();
         float targetY = (aircraft->m_latitude + aircraft->m_vel.y * predictionTime).DoubleValue();
 
-        g_renderer2d->Line( tankerX, tankerY, targetX, targetY,
-                            Colour(255, 255, 255, 140), 2.0f );
+        Colour lineCol(255, 255, 255, 140);
+        g_renderer2d->Line( tankerX, tankerY, targetX, targetY, lineCol, 2.0f );
+
+        Image *circleImg = g_resource->GetImage( "graphics/cursor_target.bmp" );
+        float circleSize = 1.5f;
+        float circleAngle = g_gameTime * -1.0f;
+        g_renderer2d->RotatingSprite( circleImg, targetX, targetY,
+                                      circleSize, circleSize, lineCol, circleAngle );
     }
 }
 
@@ -250,9 +256,17 @@ void Tanker::Render3D()
         targetNormal.Normalise();
         targetPos += targetNormal * GLOBE_ELEVATION;
 
+        Colour lineCol(255, 255, 255, 140);
         g_renderer3d->Line3D( tankerPos.x, tankerPos.y, tankerPos.z,
                               targetPos.x, targetPos.y, targetPos.z,
-                              Colour(255, 255, 255, 140) );
+                              lineCol );
+
+        Image *circleImg = g_resource->GetImage( "graphics/cursor_target.bmp" );
+        float circleSize = GLOBE_ANIMATED_ICON_SIZE;
+        float circleAngle = g_gameTime * -1.0f;
+        g_renderer3d->RotatingSprite3D( circleImg, targetPos.x, targetPos.y, targetPos.z,
+                                        circleSize, circleSize, lineCol, circleAngle,
+                                        BILLBOARD_SURFACE_ALIGNED );
     }
 }
 

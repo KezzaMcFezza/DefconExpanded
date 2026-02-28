@@ -1580,7 +1580,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 3 / GetGameScale();
+                    Fixed maxDistance = 1 / GetGameScale();
                     return ( distance > maxDistance );
                 }
             }

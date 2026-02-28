@@ -1105,9 +1105,9 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeAEW:           return "aew";
         case TypeTanker:        return "tanker";
         case TypeCarrier:       return "carrier";
-        case TypeCarrierLight:  return "carrierlight";
-        case TypeCarrierSuper:  return "carriersuper";
-        case TypeCarrierLHD:    return "carrierlhd";
+        case TypeCarrierLight:  return "carrier_light";
+        case TypeCarrierSuper:  return "carrier_super";
+        case TypeCarrierLHD:    return "carrier_lhd";
 		case TypeTornado:       return "tornado";
         case TypeSaucer:        return "saucer";
         case TypeLACM:         return "lacm";
@@ -1711,9 +1711,10 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
     if( aircraftMode == 1 )
     {
         bomber->m_lacmLoadout = false;
-        bomber->m_states[1]->m_numTimesPermitted = 2;
         bomber->m_states[2]->m_numTimesPermitted = 0;
-        bomber->m_states[0]->m_numTimesPermitted = 2;
+        if( bomber->m_states[1]->m_numTimesPermitted == 0 )
+            bomber->m_states[1]->m_numTimesPermitted = 2;
+        bomber->m_states[0]->m_numTimesPermitted = bomber->m_states[1]->m_numTimesPermitted;
         bool validNukeTarget = target && ( !target->IsMovingObject() ||
             target->IsTargetableSurfaceNavy() );
         if( validNukeTarget )
@@ -1725,15 +1726,19 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
             order->m_latitude = latitude;
             bomber->RequestAction( order );
             bomber->m_bombingRun = true;
+            if( bomber->m_currentState == 0 )
+                bomber->m_targetObjectId = targetObjectId;
         }
     }
     else if( aircraftMode == 2 )
     {
         bomber->m_lacmLoadout = true;
         bomber->m_states[1]->m_numTimesPermitted = 0;
-        bomber->m_states[2]->m_numTimesPermitted = 6;
-        bomber->m_states[0]->m_numTimesPermitted = 6;
-        if( target && !target->IsMovingObject() && WorldObject::GetArchetypeForType(target->m_type) == WorldObject::ArchetypeBuilding )
+        if( bomber->m_states[2]->m_numTimesPermitted == 0 )
+            bomber->m_states[2]->m_numTimesPermitted = 6;
+        bomber->m_states[0]->m_numTimesPermitted = bomber->m_states[2]->m_numTimesPermitted;
+        if( target && ( (!target->IsMovingObject() && WorldObject::GetArchetypeForType(target->m_type) == WorldObject::ArchetypeBuilding) ||
+                        target->IsTargetableSurfaceNavy() ) )
         {
             bomber->SetState(2);
             ActionOrder *order = new ActionOrder();
@@ -1742,14 +1747,15 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
             order->m_latitude = latitude;
             bomber->RequestAction( order );
             bomber->m_bombingRun = true;
+            if( bomber->m_currentState == 0 )
+                bomber->m_targetObjectId = targetObjectId;
         }
     }
     else
     {
         bomber->m_lacmLoadout = false;
-        bomber->m_states[1]->m_numTimesPermitted = 2;
         bomber->m_states[2]->m_numTimesPermitted = 0;
-        bomber->m_states[0]->m_numTimesPermitted = 2;
+        bomber->m_states[0]->m_numTimesPermitted = bomber->m_states[1]->m_numTimesPermitted;
         if( target )
         {
             if( g_app->GetWorld()->GetAttackOdds( bomber->m_type, target->m_type ) > 0 )
@@ -1766,6 +1772,8 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
                 order->m_latitude = latitude;
                 bomber->RequestAction( order );
                 bomber->m_bombingRun = true;
+                if( bomber->m_currentState == 0 )
+                    bomber->m_targetObjectId = targetObjectId;
             }
         }
         else if( targetObjectId != -1 )

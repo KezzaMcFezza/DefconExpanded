@@ -5,6 +5,33 @@
 
 **Unit stats reference** (goatcon): [Google Sheets](https://docs.google.com/spreadsheets/d/1-H62mTA2QfVusg6o__63ntxi6qa7lSKGxBhz7t7S-lM/edit?gid=1935469833#gid=1935469833) — Life Points, Stealth Type, Speed, Turn Rate, Prepare/Reload Time, Action/Fuel Range, Nuke/LACM supply, Max Fighters, per-airbase launch options
 
+territory-specific modifications to unit stats/launch modes
+
+USA:
+bomber_fast: always 0 nukes, airbases always 0 bomber_fast nuke launch, m_range 130, m_stealthType = 30
+bomber: m_range = 150
+fighter: state 0 action range = 11
+fighter_stealth: always 0 lacm, airbases always 0 fighter_stealth strike launch
+fighter_stealth: m_range = 60
+
+Russia:
+bomber: m_range = 145, m_speed = 4
+bomber_fast: m_stealthtype = 110
+fighter: m_turnRate = 5
+figher_stealth: m_stealthType = 40, m_range = 50
+
+China:
+bomber: m_range = 75, m_stealthtype = 110
+fighter: m_turnRate = 5
+fighter_stealth: always 0 lacm, airbases always 0 fighter_stealth strike launch
+figher_stealth: m_stealthType = 30, m_range = 55
+
+NATO:
+India:
+Egypt:
+Saudi:
+fighter: state 0 action range = 11
+
 territory-specific unit names
 
 generic:

@@ -21,6 +21,7 @@ BomberStealth::BomberStealth()
     m_stealthType = 10;
 
     m_nukeSupply = 1;
+    m_states[0]->m_numTimesPermitted = 1;
     m_states[1]->m_numTimesPermitted = 1;
     m_states[2]->m_numTimesPermitted = 2;
 }
