@@ -67,24 +67,13 @@ void Fighter::AcquireTargetFromAction( ActionOrder *action )
     if( action->m_targetObjectId == -1 ) return;
     WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
     if( !target || !target->m_visible[m_teamId] ) return;
-    if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
-        ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
-    {
-        m_targetObjectId = action->m_targetObjectId;
+    if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         return;
-    }
-    if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
-        target->IsAircraft() )
-    {
-        return;
-    }
-    // State 1 LACM: set target for pursuit (like bomber)
     if( m_currentState == 1 && GetAttackOdds( target->m_type ) > 0 )
     {
         m_targetObjectId = action->m_targetObjectId;
         return;
     }
-    // State 0 gun
     if( m_currentState != 0 ) return;
     if( GetAttackOdds( target->m_type ) > 0 )
         m_targetObjectId = action->m_targetObjectId;
@@ -677,7 +666,12 @@ void Fighter::RequestAction( ActionOrder *_action )
     }
     else
     {
-        MovingObject::RequestAction( _action );
+        m_targetObjectId = -1;
+        m_isLanding = -1;
+        m_isEscorting = -1;
+        m_opportunityFireOnly = false;
+        ClearActionQueue();
+        WorldObject::RequestAction( _action );
     }
 }
 

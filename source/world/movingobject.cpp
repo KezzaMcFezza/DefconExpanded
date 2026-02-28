@@ -17,6 +17,8 @@
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
+#include "world/tanker.h"
+
 
 #include "interface/interface.h"
 
@@ -493,13 +495,11 @@ bool MovingObject::MoveToWaypoint()
             if( landTarget && landTarget->m_type == TypeTanker && landTarget->IsMovingObject() &&
                 g_app->GetWorld()->IsFriend( m_teamId, landTarget->m_teamId ) )
             {
-                Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude,
-                    landTarget->m_longitude, landTarget->m_latitude );
-                if( distSqd < Fixed(8) * Fixed(8) )
+                Tanker *tanker = (Tanker *)landTarget;
+                if( tanker->IsRefuelingTarget( m_objectId ) &&
+                    m_speed > tanker->m_speed )
                 {
-                    MovingObject *tanker = (MovingObject *)landTarget;
-                    if( m_speed > tanker->m_speed )
-                        m_speed = tanker->m_speed;
+                    m_speed = tanker->m_speed;
                 }
             }
         }

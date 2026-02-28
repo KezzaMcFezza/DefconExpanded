@@ -771,6 +771,22 @@ void Bomber::RequestAction( ActionOrder *_action )
             delete _action;
             return;
         }
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        {
+            m_targetObjectId = -1;
+            m_isLanding = -1;
+            m_isEscorting = -1;
+            ClearActionQueue();
+            if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+                Land( _action->m_targetObjectId );
+            else if( target->IsAircraft() )
+            {
+                m_isEscorting = _action->m_targetObjectId;
+                SetWaypoint( target->m_longitude, target->m_latitude );
+            }
+            delete _action;
+            return;
+        }
         bool wasQueueEmpty = ( m_actionQueue.Size() == 0 );
         WorldObject::RequestAction( _action );
         if( wasQueueEmpty && m_currentState == 1 )

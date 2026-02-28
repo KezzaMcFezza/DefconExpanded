@@ -29,6 +29,7 @@ public:
     void    ClearSlot       ( int objectId );
     void    RefuelTargets   ( Fixed timeStep );
     int     FindBestRefuelTarget();
+    bool    IsRefuelingTarget( int objectId ) const;
 };
 
 

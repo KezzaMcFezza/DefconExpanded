@@ -52,6 +52,7 @@
 #include "world/blip.h"
 #include "world/fleet.h"
 #include "world/whiteboard.h"
+#include "world/tanker.h"
 #include "curves.h"
 
 
@@ -619,7 +620,7 @@ void MapRenderer::RenderCountryControl()
                 team->m_teamId == g_app->GetWorld()->m_myTeamId )
             {
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                float maxDistance = 2.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
+                float maxDistance = 1.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
 
                 g_renderer->SetDepthBuffer( true, true );
                 for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
@@ -972,6 +973,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     int numNukes = -1;
     int numLACMs = -1;
     int numCBMs = -1;
+    int numAirAttack = -1;
 
     WorldObject::ClassType ctype = WorldObject::GetClassTypeForType( wobj->m_type );
     int objType = wobj->m_type;
@@ -1039,9 +1041,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
         case WorldObject::ClassTypeFighter:
             {
-                Fighter *fighter = static_cast<Fighter *>(wobj);
-                numFighters = wobj->m_states[0]->m_numTimesPermitted;
-                if( fighter->m_lacmLoadout && wobj->m_states.Size() > 1 )
+                numAirAttack = wobj->m_states[0]->m_numTimesPermitted;
+                if( wobj->m_states.Size() > 1 )
                     numLACMs = wobj->m_states[1]->m_numTimesPermitted;
             }
             break;
@@ -1062,7 +1063,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
 
     float totalBoxH = 1 * -(*boxH);
-    if( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 )
+    if( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 || numAirAttack != -1 )
     {
         totalBoxH += 0.9f * -(*boxH);
     }
@@ -1139,6 +1140,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     if( numNukes != -1 ) totalSize += gap * numNukes * 0.5f + gap * 0.25f;
     if( numLACMs != -1 ) totalSize += gap * numLACMs * 0.5f + gap * 0.25f;
     if( numCBMs != -1 ) totalSize += gap * numCBMs * 0.5f + gap * 0.25f;
+    if( numAirAttack != -1 ) totalSize += gap * numAirAttack * 0.5f + gap * 0.25f;
 
     float maxSize = *boxW;
     if( totalSize > maxSize )
@@ -1148,8 +1150,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     }
 
 
-    bool anyAmmo = ( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 );
-    bool allZero = ( numFighters <= 0 ) && ( numFighterLight <= 0 ) && ( numStealthFighter <= 0 ) && ( numBombers <= 0 ) && ( numBomberFast <= 0 ) && ( numBomberStealth <= 0 ) && ( numNavyStealthFighters <= 0 ) && ( numAEWCarrier <= 0 ) && ( numTanker <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 );
+    bool anyAmmo = ( numFighters != -1 || numFighterLight != -1 || numStealthFighter != -1 || numBombers != -1 || numBomberFast != -1 || numBomberStealth != -1 || numNavyStealthFighters != -1 || numAEWCarrier != -1 || numTanker != -1 || numNukes != -1 || numLACMs != -1 || numCBMs != -1 || numAirAttack != -1 );
+    bool allZero = ( numFighters <= 0 ) && ( numFighterLight <= 0 ) && ( numStealthFighter <= 0 ) && ( numBombers <= 0 ) && ( numBomberFast <= 0 ) && ( numBomberStealth <= 0 ) && ( numNavyStealthFighters <= 0 ) && ( numAEWCarrier <= 0 ) && ( numTanker <= 0 ) && ( numNukes <= 0 ) && ( numLACMs <= 0 ) && ( numCBMs <= 0 ) && ( numAirAttack <= 0 );
     if( anyAmmo && allZero )
     {
         col.m_a = 150;
@@ -1256,7 +1258,21 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
 
 
         //
-        // LACMs (battleship, ASCM)
+        // Air attack (fighter gun ammo)
+
+        if( numAirAttack > 0 )
+        {
+            Image *img = g_resource->GetImage( "graphics/laser.bmp" );
+            for( int i = 0; i < numAirAttack; ++i )
+            {
+                g_renderer2d->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
+            }
+            xPos += gap*0.25f;
+        }
+
+
+        //
+        // LACMs
 
         if( numLACMs != -1 )
         {
@@ -2476,9 +2492,10 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                                     actionCursorCol, actionCursorAngle );
             }
 
+            float targetLineWidth = ( wobj->m_type == WorldObject::TypeTanker ) ? 16.0f : 1.0f;
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
-                              actionCursorCol, 1.0f );
+                              actionCursorCol, targetLineWidth );
         }
         
 
@@ -2519,6 +2536,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 Colour actionCursorCol( 0, 0, 255, 150 );
                 float actionCursorSize = 2.0f;
                 float actionCursorAngle = 0;
+                bool suppressMovementLine = false;
 
                 if( mobj->IsBallisticMissileClass() )
                 {
@@ -2528,7 +2546,13 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 {
                     WorldObject *landTarget = g_app->GetWorld()->GetWorldObject( mobj->m_isLanding );
                     if( landTarget && landTarget->m_type == WorldObject::TypeTanker )
-                        actionCursorCol.Set( 127, 255, 0, 150 );   // Lime: pursuing tanker for refuel
+                    {
+                        Tanker *tanker = (Tanker *)landTarget;
+                        if( tanker->IsRefuelingTarget( wobj->m_objectId ) )
+                            suppressMovementLine = true;
+                        else
+                            actionCursorCol.Set( 127, 255, 0, 150 );   // Lime: pursuing tanker for refuel (not yet connected)
+                    }
                     else
                         actionCursorCol.Set( 0, 255, 0, 150 );   // Green: landing
                 }
@@ -2542,20 +2566,23 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     actionCursorCol.Set( 187, 127, 255, 150 );
                 }
 
-                Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-                g_renderer2d->RotatingSprite( img, actionCursorLongitude, actionCursorLatitude, 
-                                    actionCursorSize, actionCursorSize, 
-                                    actionCursorCol, actionCursorAngle );
-                if( isFirstSeamIteration )
+                if( !suppressMovementLine )
                 {
-                    g_renderer2d->RotatingSprite( img, actionCursorLongitude + GetLongitudeMod(), actionCursorLatitude, 
+                    Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
+                    g_renderer2d->RotatingSprite( img, actionCursorLongitude, actionCursorLatitude, 
                                         actionCursorSize, actionCursorSize, 
                                         actionCursorCol, actionCursorAngle );
-                }
+                    if( isFirstSeamIteration )
+                    {
+                        g_renderer2d->RotatingSprite( img, actionCursorLongitude + GetLongitudeMod(), actionCursorLatitude, 
+                                            actionCursorSize, actionCursorSize, 
+                                            actionCursorCol, actionCursorAngle );
+                    }
 
-                RenderActionLine( predictedLongitude, predictedLatitude, 
-                                  actionCursorLongitude, actionCursorLatitude, 
-                                  actionCursorCol, 1.0f );
+                    RenderActionLine( predictedLongitude, predictedLatitude, 
+                                      actionCursorLongitude, actionCursorLatitude, 
+                                      actionCursorCol, 1.0f );
+                }
                 }
             }
         }
@@ -4389,8 +4416,49 @@ void MapRenderer::Update()
             bool shiftAdd = hasSelection && g_keys[KEY_SHIFT] && !g_keys[KEY_CONTROL];
             bool ctrlShiftRemove = hasSelection && g_keys[KEY_CONTROL] && g_keys[KEY_SHIFT];
 
+            int aircraftTargetId = underMouseId;
+            WorldObject *aircraftTarget = underMouse;
+            if( hasSelection && m_currentStateId == -1 &&
+                (!underMouse || !underMouse->IsAircraft()) )
+            {
+                bool anySelectedAircraft = false;
+                int sc = g_app->GetWorldRenderer()->GetSelectionCount();
+                for( int si = 0; si < sc; ++si )
+                {
+                    WorldObject *sel = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( si ) );
+                    if( sel && sel->IsAircraft() ) { anySelectedAircraft = true; break; }
+                }
+                if( anySelectedAircraft )
+                {
+                    Fixed nearDist(5);
+                    if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 ) nearDist = 2;
+                    if( GetZoomFactor() <= 0.25f )
+                        nearDist *= Fixed::FromDouble( GetZoomFactor() * 4 );
+                    Fixed mLon = Fixed::FromDouble(longitude);
+                    Fixed mLat = Fixed::FromDouble(latitude);
+                    for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
+                    {
+                        if( !g_app->GetWorld()->m_objects.ValidIndex(i) ) continue;
+                        WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+                        if( !wobj->IsAircraft() ) continue;
+                        if( g_app->GetWorld()->m_myTeamId != -1 &&
+                            !wobj->m_visible[g_app->GetWorld()->m_myTeamId] &&
+                            wobj->m_lastSeenTime[g_app->GetWorld()->m_myTeamId] <= 0 &&
+                            g_app->GetGame()->m_winner == -1 )
+                            continue;
+                        Fixed d = g_app->GetWorld()->GetDistance( wobj->m_longitude, wobj->m_latitude, mLon, mLat );
+                        if( d < nearDist )
+                        {
+                            nearDist = d;
+                            aircraftTargetId = wobj->m_objectId;
+                            aircraftTarget = wobj;
+                        }
+                    }
+                }
+            }
+
             if( hasSelection && !shiftAdd && !ctrlShiftRemove &&
-                underMouse && underMouse->IsAircraft() && m_currentStateId == -1 )
+                aircraftTarget && aircraftTarget->IsAircraft() && m_currentStateId == -1 )
             {
                 int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
                 bool hasSelectedAircraft = false;
@@ -4399,7 +4467,7 @@ void MapRenderer::Update()
                     int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
                     WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
                     if( obj && obj->IsAircraft() &&
-                        obj->IsValidCombatTarget( underMouseId ) > WorldObject::TargetTypeInvalid )
+                        obj->IsValidCombatTarget( aircraftTargetId ) > WorldObject::TargetTypeInvalid )
                     {
                         hasSelectedAircraft = true;
                         break;
@@ -4407,9 +4475,9 @@ void MapRenderer::Update()
                 }
                 if( hasSelectedAircraft )
                 {
-                    HandleObjectAction( longitude, latitude, underMouseId );
+                    HandleObjectAction( longitude, latitude, aircraftTargetId );
                     m_lmbAircraftActionDispatched = true;
-                    m_lmbClickedTargetId = underMouseId;
+                    m_lmbClickedTargetId = aircraftTargetId;
                 }
             }
 
@@ -4513,9 +4581,30 @@ void MapRenderer::Update()
                 if( m_lmbAircraftActionDispatched )
                 {
                     float clickDuration = GetHighResTime() - m_lmbClickStartTime;
-                    if( clickDuration > 0.5f && underMouse && m_lmbClickedTargetId == underMouseId )
+                    int releaseAircraftId = m_lmbClickedTargetId;
+                    if( clickDuration > 0.5f && m_lmbClickedTargetId != -1 )
                     {
-                        WorldObject *target = g_app->GetWorld()->GetWorldObject( underMouseId );
+                        WorldObject *clickedObj = g_app->GetWorld()->GetWorldObject( m_lmbClickedTargetId );
+                        if( clickedObj && clickedObj->IsAircraft() )
+                        {
+                            Fixed mLon = Fixed::FromDouble(longitude);
+                            Fixed mLat = Fixed::FromDouble(latitude);
+                            Fixed dist = g_app->GetWorld()->GetDistance(
+                                clickedObj->m_longitude, clickedObj->m_latitude, mLon, mLat );
+                            Fixed threshold(2);
+                            if( GetZoomFactor() <= 0.25f )
+                                threshold *= Fixed::FromDouble( GetZoomFactor() * 4 );
+                            if( dist < threshold )
+                                releaseAircraftId = m_lmbClickedTargetId;
+                            else
+                                releaseAircraftId = -1;
+                        }
+                        else
+                            releaseAircraftId = -1;
+                    }
+                    if( clickDuration > 0.5f && releaseAircraftId != -1 )
+                    {
+                        WorldObject *target = g_app->GetWorld()->GetWorldObject( releaseAircraftId );
                         if( target && target->IsAircraft() )
                         {
                             int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
@@ -4528,7 +4617,7 @@ void MapRenderer::Update()
                                     obj->GetAttackOdds( target->m_type ) > 0 )
                                 {
                                     g_app->GetClientToServer()->RequestSpecialAction(
-                                        recId, underMouseId, World::SpecialActionForceAttack );
+                                        recId, releaseAircraftId, World::SpecialActionForceAttack );
                                 }
                             }
                         }

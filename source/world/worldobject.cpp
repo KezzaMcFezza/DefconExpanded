@@ -610,9 +610,9 @@ void WorldObject::Render2D()
     if( outlineImage )
     {
         Colour white( 255, 255, 255, 255 );
-        float outX = predictedLongitude - size * 0.5f;
-        float outY = predictedLatitude + size * 0.5f;
-        g_renderer2d->StaticSprite( outlineImage, outX, outY, size, -size, white );
+        float outX = predictedLongitude - size;
+        float outY = predictedLatitude + size;
+        g_renderer2d->StaticSprite( outlineImage, outX, outY, size*2, -size*2, white );
     }
 
     if( bmpImage )
@@ -695,7 +695,7 @@ void WorldObject::Render3D()
         if( outlineImage3d )
         {
             Colour white( 255, 255, 255, 255 );
-            float outlineSize = size;
+            float outlineSize = size * 2.0f;
             g_renderer3d->StaticSprite3D( outlineImage3d, renderPos.x, renderPos.y, renderPos.z,
                                           outlineSize, outlineSize, white, BILLBOARD_SURFACE_ALIGNED );
         }
@@ -1332,25 +1332,16 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
         }
 
 	    WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( target && target->IsMovingObject() )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
-            if( fighter->GetAttackOdds( target->m_type ) > 0 )
+            if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
             {
-                fighter->SetTargetObjectId(targetObjectId);
-                fighter->SetWaypoint(target->m_longitude, target->m_latitude);
-                if( aircraftMode == 2 )
-                {
-                    ActionOrder *order = new ActionOrder();
-                    order->m_targetObjectId = targetObjectId;
-                    order->m_longitude = target->m_longitude;
-                    order->m_latitude = target->m_latitude;
-                    fighter->RequestAction( order );
-                }
+                fighter->Land( targetObjectId );
             }
-            else if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
+            else if( target->IsAircraft() )
             {
-                fighter->SetTargetObjectId(targetObjectId);
-                fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+                fighter->m_isEscorting = targetObjectId;
+                fighter->SetWaypoint( target->m_longitude, target->m_latitude );
             }
             else
             {
@@ -1358,17 +1349,8 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
                 fighter->m_playerSetWaypoint = true;
             }
         }
-        else if( target && !target->IsMovingObject() &&
-                 g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) && target->IsAircraftLauncher() )
+        else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
-            fighter->SetTargetObjectId(targetObjectId);
-            fighter->SetWaypoint(target->m_longitude, target->m_latitude);
-        }
-        else if( target && !target->IsMovingObject() &&
-                 !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
-                 fighter->GetAttackOdds( target->m_type ) > 0 )
-        {
-            // Enemy building (LACM target for Strike)
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
             if( aircraftMode == 2 )
@@ -1410,7 +1392,22 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
         if( aircraftMode == 1 )
             fighter->SetState( 1 );  // Strike (LACM) mode
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( target && target->IsMovingObject() )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        {
+            if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+                fighter->Land( targetObjectId );
+            else if( target->IsAircraft() )
+            {
+                fighter->m_isEscorting = targetObjectId;
+                fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+            }
+            else
+            {
+                fighter->SetWaypoint( longitude, latitude );
+                fighter->m_playerSetWaypoint = true;
+            }
+        }
+        else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
@@ -1445,7 +1442,22 @@ bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude,
         if( aircraftMode == 1 )
             fighter->SetState( 1 );
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( target && target->IsMovingObject() )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        {
+            if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+                fighter->Land( targetObjectId );
+            else if( target->IsAircraft() )
+            {
+                fighter->m_isEscorting = targetObjectId;
+                fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+            }
+            else
+            {
+                fighter->SetWaypoint( longitude, latitude );
+                fighter->m_playerSetWaypoint = true;
+            }
+        }
+        else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
@@ -1478,9 +1490,24 @@ bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fix
         fighter->SetTeamId( m_teamId );
         fighter->SetPosition( m_longitude, m_latitude );
         if( aircraftMode == 1 )
-            fighter->SetState( 1 );  // Strike (LACM) mode
+            fighter->SetState( 1 );
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( target && target->IsMovingObject() )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        {
+            if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+                fighter->Land( targetObjectId );
+            else if( target->IsAircraft() )
+            {
+                fighter->m_isEscorting = targetObjectId;
+                fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+            }
+            else
+            {
+                fighter->SetWaypoint( longitude, latitude );
+                fighter->m_playerSetWaypoint = true;
+            }
+        }
+        else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
@@ -1507,6 +1534,18 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
     bomber->SetWaypoint( longitude, latitude );
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( target && g_app->GetWorld()->IsFriend( wo->m_teamId, target->m_teamId ) )
+    {
+        if( target->IsAircraftLauncher() || target->m_type == WorldObject::TypeTanker )
+            bomber->Land( targetObjectId );
+        else if( target->IsAircraft() )
+        {
+            bomber->m_isEscorting = targetObjectId;
+            bomber->SetWaypoint( target->m_longitude, target->m_latitude );
+        }
+        g_app->GetWorld()->AddWorldObject( bomber );
+        return true;
+    }
     if( aircraftMode == 1 )
     {
         bomber->m_lacmLoadout = false;
@@ -1625,7 +1664,23 @@ bool WorldObject::LaunchAEW( int targetObjectId, Fixed longitude, Fixed latitude
     }
     aew->SetTeamId( m_teamId );
     aew->SetPosition( m_longitude, m_latitude );
-    aew->SetWaypoint( longitude, latitude );
+
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+    {
+        if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+            aew->Land( targetObjectId );
+        else if( target->IsAircraft() )
+        {
+            aew->m_isEscorting = targetObjectId;
+            aew->SetWaypoint( target->m_longitude, target->m_latitude );
+        }
+        else
+            aew->SetWaypoint( longitude, latitude );
+    }
+    else
+        aew->SetWaypoint( longitude, latitude );
+
     g_app->GetWorld()->AddWorldObject( aew );
     return true;
 }
@@ -1640,7 +1695,23 @@ bool WorldObject::LaunchTanker( int targetObjectId, Fixed longitude, Fixed latit
     }
     tanker->SetTeamId( m_teamId );
     tanker->SetPosition( m_longitude, m_latitude );
-    tanker->SetWaypoint( longitude, latitude );
+
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+    {
+        if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
+            tanker->Land( targetObjectId );
+        else if( target->IsAircraft() )
+        {
+            tanker->m_isEscorting = targetObjectId;
+            tanker->SetWaypoint( target->m_longitude, target->m_latitude );
+        }
+        else
+            tanker->SetWaypoint( longitude, latitude );
+    }
+    else
+        tanker->SetWaypoint( longitude, latitude );
+
     g_app->GetWorld()->AddWorldObject( tanker );
     return true;
 }

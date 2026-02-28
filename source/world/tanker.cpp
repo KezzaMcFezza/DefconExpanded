@@ -81,6 +81,9 @@ bool Tanker::Update()
 {
     MoveToWaypoint();
 
+    if( m_states.Size() > 0 )
+        m_states[0]->m_numTimesPermitted = m_range.IntValue();
+
     Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
 
     RefuelTargets( timePerUpdate );
@@ -271,6 +274,9 @@ void Tanker::RefuelTargets( Fixed timeStep )
         if( !target || !target->IsMovingObject() ) continue;
 
         MovingObject *aircraft = (MovingObject *)target;
+
+        if( aircraft->m_isLanding != m_objectId ) continue;
+
         Fixed maxRange = aircraft->m_maxRange;
         if( maxRange <= 0 ) continue;
         if( aircraft->m_range >= maxRange ) continue;
@@ -285,6 +291,11 @@ void Tanker::RefuelTargets( Fixed timeStep )
         aircraft->m_range += toGive;
         m_range -= toGive;
     }
+}
+
+bool Tanker::IsRefuelingTarget( int objectId ) const
+{
+    return ( m_refuelSlot[0] == objectId || m_refuelSlot[1] == objectId );
 }
 
 int Tanker::FindBestRefuelTarget()

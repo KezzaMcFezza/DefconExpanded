@@ -590,7 +590,13 @@ int AirBase::IsValidCombatTarget( int _objectId )
     if( !obj ) return TargetTypeInvalid;
 
     int basicCheck = WorldObject::IsValidCombatTarget( _objectId );
-    if( basicCheck < TargetTypeInvalid ) return basicCheck;
+    if( basicCheck < TargetTypeInvalid && basicCheck != TargetTypeOutOfRange )
+        return basicCheck;
+
+    bool isFriendlyAircraft = obj->IsAircraft() &&
+        ( obj->m_teamId == m_teamId || g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] );
+    bool isFriendlyLauncher = ( obj->IsAircraftLauncher() || obj->m_type == TypeTanker ) &&
+        ( obj->m_teamId == m_teamId || g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] );
 
     if( m_currentState == 14 )
     {
@@ -604,6 +610,8 @@ int AirBase::IsValidCombatTarget( int _objectId )
 
     if( m_currentState <= 7 )
     {
+        if( isFriendlyAircraft || isFriendlyLauncher )
+            return TargetTypeLaunchFighter;
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
         {
             int fighterType = ( m_currentState <= 1 ) ? TypeFighterLight : ( ( m_currentState <= 3 ) ? TypeFighter : ( ( m_currentState <= 5 ) ? TypeFighterNavyStealth : TypeFighterStealth ) );
@@ -622,6 +630,8 @@ int AirBase::IsValidCombatTarget( int _objectId )
 
     if( m_currentState >= 8 && m_currentState <= 13 )
     {
+        if( isFriendlyAircraft || isFriendlyLauncher )
+            return TargetTypeLaunchBomber;
         if( obj->IsAircraft() || obj->IsCruiseMissileClass() || obj->IsBallisticMissileClass() )
             return TargetTypeInvalid;
         if( !obj->IsMovingObject() )
