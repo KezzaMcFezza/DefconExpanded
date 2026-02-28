@@ -24,8 +24,8 @@ namespace
         { World::TerritoryChina, WorldObject::TypeFighterNavyStealth,"graphics/j35.bmp" },
         { World::TerritoryChina, WorldObject::TypeFighterStealth,    "graphics/j20.bmp" },
         { World::TerritoryChina, WorldObject::TypeBomber,            "graphics/h6.bmp" },
-        { World::TerritoryChina, WorldObject::TypeBattleShip,        "graphics/type55.bmp" },
-        { World::TerritoryChina, WorldObject::TypeBattleShip2,       "graphics/type52d.bmp" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip,        "graphics/type055.bmp" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip2,       "graphics/type052d.bmp" },
         { World::TerritoryChina, WorldObject::TypeBattleShip3,       "graphics/type054a.bmp" },
         { World::TerritoryChina, WorldObject::TypeCarrierSuper,      "graphics/fujian.bmp" },
         { World::TerritoryChina, WorldObject::TypeCarrier,           "graphics/kuznetsov.bmp" },
@@ -57,10 +57,9 @@ namespace
         { World::TerritoryIndia, WorldObject::TypeCarrier,           "graphics/kuznetsov.bmp" },
 
         // Pakistan
-        { World::TerritoryPakistan, WorldObject::TypeFighterLight,   "graphics/j10.bmp" },
+        { World::TerritoryPakistan, WorldObject::TypeFighter,        "graphics/j10.bmp" },
 
-        // Japan (roster uses CarrierLight for Izumo-class)
-        { World::TerritoryJapan, WorldObject::TypeCarrier,           "graphics/izumo.bmp" },
+        // Japan
         { World::TerritoryJapan, WorldObject::TypeCarrierLight,      "graphics/izumo.bmp" },
 
         // Ukraine

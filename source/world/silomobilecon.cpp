@@ -21,6 +21,12 @@ SiloMobileCon::SiloMobileCon()
     // Conventional missiles available at Defcon 3
     if( m_states.Size() > 1 )
         m_states[1]->m_defconPermitted = 3;
+    
+
+    Fixed gameScale = World::GetUnitScaleFactor();
+    Fixed range45 = Fixed( 45 ) / gameScale;
+    m_states[0]->m_actionRange = range45;
+    m_states[1]->m_actionRange = range45;
 }
 
 

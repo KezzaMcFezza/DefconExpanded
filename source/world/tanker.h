@@ -18,6 +18,7 @@ public:
     bool    Update  ();
     void    RunAI   ();
     void    Render2D();
+    void    Render3D();
 
     void    Land            ( int targetId );
 
@@ -26,6 +27,7 @@ public:
 
     bool    IsSlotAvailable ( bool largeSlot ) const;
     void    AssignSlot      ( int objectId, bool largeSlot );
+    void    ManualAssignSlot( int objectId, bool largeSlot );
     void    ClearSlot       ( int objectId );
     void    RefuelTargets   ( Fixed timeStep );
     int     FindBestRefuelTarget();

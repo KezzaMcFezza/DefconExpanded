@@ -58,8 +58,8 @@ void AEW::Action( int targetObjectId, Fixed longitude, Fixed latitude )
              g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
              target->IsAircraft() )
     {
-        m_isEscorting = targetObjectId;
         SetWaypoint( target->m_longitude, target->m_latitude );
+        m_isEscorting = targetObjectId;
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId && targetObjectId == -1 )

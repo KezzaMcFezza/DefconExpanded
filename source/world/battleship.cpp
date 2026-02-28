@@ -552,6 +552,9 @@ void BattleShip::FireGun( Fixed range )
         bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
         (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
     }
+
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+    if( team ) team->RegisterEngagedTarget( m_targetObjectId );
 }
 
 bool BattleShip::IsPinging()
@@ -563,9 +566,11 @@ void BattleShip::AirDefense()
 {
     if( g_app->GetWorld()->GetDefcon() > 3 ) return;
     Fixed actionRangeSqd = GetActionRangeSqd();
-    WorldObject *best = NULL;
+    WorldObject *bestUnengaged = NULL;
+    WorldObject *bestEngaged = NULL;
     LList<int> excluded;
     BurstFireGetExcludedIds( excluded );
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
 
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -583,11 +588,28 @@ void BattleShip::AirDefense()
         Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( distSqd > actionRangeSqd ) continue;
         if( g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type, m_objectId ) <= 0 ) continue;
-        if( !best || GetAttackPriority( best->m_type ) > GetAttackPriority( obj->m_type ) )
-            best = obj;
+
+        if( team && team->IsTargetRecentlyEngaged( obj->m_objectId ) )
+        {
+            if( !bestEngaged || GetAttackPriority( bestEngaged->m_type ) > GetAttackPriority( obj->m_type ) )
+                bestEngaged = obj;
+        }
+        else
+        {
+            if( !bestUnengaged || GetAttackPriority( bestUnengaged->m_type ) > GetAttackPriority( obj->m_type ) )
+                bestUnengaged = obj;
+        }
     }
-    if( best )
-        Action( best->m_objectId, -1, -1 );
+
+    if( bestUnengaged )
+    {
+        Action( bestUnengaged->m_objectId, -1, -1 );
+        if( team ) team->RegisterEngagedTarget( bestUnengaged->m_objectId );
+    }
+    else if( bestEngaged )
+    {
+        m_retargetTimer = Fixed::Hundredths(50);
+    }
 }
 
 int BattleShip::GetTarget( Fixed range, const LList<int> *excludeIds )

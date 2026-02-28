@@ -124,51 +124,53 @@ bool SAM::UsingGuns()
     return true;
 }
 
+int SAM::FindBestAirTarget( const LList<int> *excludeIds )
+{
+    Fixed actionRangeSqd = GetActionRangeSqd();
+    static const int priorities[] = { WorldObject::TypeLACM, WorldObject::TypeLANM,
+                                      WorldObject::TypeBomber, WorldObject::TypeFighter };
+    for( int p = 0; p < 4; ++p )
+    {
+        int id = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude,
+                                                       priorities[p], true, excludeIds );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( id );
+        if( obj && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude,
+                                                       obj->m_longitude, obj->m_latitude ) <= actionRangeSqd )
+        {
+            return obj->m_objectId;
+        }
+    }
+    return -1;
+}
+
+
 void SAM::AirDefense()
 {
     if( g_app->GetWorld()->GetDefcon() > 3 )
         return;
 
-    // SAM targets Aircraft archetype only (LACM, LANM, Bomber, Fighter); ABM handles ballistic.
-    LList<int> excluded;
-    BurstFireGetExcludedIds( excluded );
-    const LList<int> *excludePtr = excluded.Size() > 0 ? &excluded : nullptr;
-    Fixed actionRangeSqd = GetActionRangeSqd();
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
 
-    // Priority 1: LACM (cruise missiles)
-    int lacmId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeLACM, true, excludePtr );
-    WorldObject *lacm = g_app->GetWorld()->GetWorldObject( lacmId );
-    if( lacm && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lacm->m_longitude, lacm->m_latitude ) <= actionRangeSqd )
+    LList<int> burstExcluded;
+    BurstFireGetExcludedIds( burstExcluded );
+
+    LList<int> fullExcluded;
+    for( int i = 0; i < burstExcluded.Size(); ++i )
+        fullExcluded.PutData( burstExcluded[i] );
+    if( team ) team->GetRecentlyEngagedIds( fullExcluded );
+
+    int targetId = FindBestAirTarget( fullExcluded.Size() > 0 ? &fullExcluded : nullptr );
+    if( targetId != -1 )
     {
-        Action( lacm->m_objectId, -1, -1 );
+        Action( targetId, -1, -1 );
+        if( team ) team->RegisterEngagedTarget( targetId );
         return;
     }
 
-    // Priority 2: LANM
-    int lanmId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeLANM, true, excludePtr );
-    WorldObject *lanm = g_app->GetWorld()->GetWorldObject( lanmId );
-    if( lanm && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, lanm->m_longitude, lanm->m_latitude ) <= actionRangeSqd )
+    int engagedId = FindBestAirTarget( burstExcluded.Size() > 0 ? &burstExcluded : nullptr );
+    if( engagedId != -1 )
     {
-        Action( lanm->m_objectId, -1, -1 );
-        return;
-    }
-
-    // Priority 3: Bombers
-    int bomberId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeBomber, true, excludePtr );
-    WorldObject *bomber = g_app->GetWorld()->GetWorldObject( bomberId );
-    if( bomber && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, bomber->m_longitude, bomber->m_latitude ) <= actionRangeSqd )
-    {
-        Action( bomber->m_objectId, -1, -1 );
-        return;
-    }
-
-    // Priority 4: Fighters
-    int fighterId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeFighter, true, excludePtr );
-    WorldObject *fighter = g_app->GetWorld()->GetWorldObject( fighterId );
-    if( fighter && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, fighter->m_longitude, fighter->m_latitude ) <= actionRangeSqd )
-    {
-        Action( fighter->m_objectId, -1, -1 );
-        return;
+        m_retargetTimer = Fixed::Hundredths(50);
     }
 }
 

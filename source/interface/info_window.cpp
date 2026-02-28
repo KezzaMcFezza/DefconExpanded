@@ -191,9 +191,12 @@ void InfoWindow::Render( bool _hasFocus )
         }
         
         WorldObject *obj = g_app->GetWorld()->GetWorldObject(m_objectId);
-        const char *objName = WorldObject::GetName( m_infoType );
-		const char *objTypeName = WorldObject::GetTypeName( m_infoType );
         Team *team = obj ? g_app->GetWorld()->GetTeam(obj->m_teamId) : NULL;
+        int primaryTerritory = -1;
+        if( team && team->m_territories.Size() > 0 )
+            primaryTerritory = team->m_territories[0];
+        const char *objName = WorldObject::GetTerritoryName( m_infoType, primaryTerritory );
+		const char *objTypeName = WorldObject::GetTypeName( m_infoType );
         const char *teamName = team ? team->GetTeamName() : "";
 
         char unitName[256];

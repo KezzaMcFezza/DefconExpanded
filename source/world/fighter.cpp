@@ -188,8 +188,8 @@ void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         else if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
                  target->IsAircraft() )
         {
-            m_isEscorting = targetObjectId;
             SetWaypoint( target->m_longitude, target->m_latitude );
+            m_isEscorting = targetObjectId;
         }
         else if( GetAttackOdds( target->m_type ) > 0 )
             m_targetObjectId = targetObjectId;
@@ -342,6 +342,8 @@ bool Fighter::Update()
         {
             LList<int> excluded;
             BurstFireGetExcludedIds( excluded );
+            Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+            if( team ) team->GetRecentlyEngagedIds( excluded );
             int targetId = GetTarget( ( m_range < 40 ) ? m_range : 40, excluded.Size() > 0 ? &excluded : nullptr );
             if( targetId != -1 )
             {
@@ -351,6 +353,7 @@ bool Fighter::Update()
                 {
                     m_targetObjectId = targetId;
                     m_opportunityFireOnly = true;
+                    if( team ) team->RegisterEngagedTarget( targetId );
                     WorldObject::Archetype targetArchetype = WorldObject::GetArchetypeForType( targetObject->m_type );
                     bool isAircraftTarget = ( targetArchetype == WorldObject::ArchetypeAircraft );
                     if( isAircraftTarget && m_states[0]->m_numTimesPermitted > 0 )
@@ -363,7 +366,6 @@ bool Fighter::Update()
                     else if( ( targetArchetype == WorldObject::ArchetypeBuilding || targetArchetype == WorldObject::ArchetypeNavy ) &&
                              m_currentState == 1 && m_states[1]->m_numTimesPermitted > 0 )
                     {
-                        // Opportunity fire LACM: add to queue, base will pop and call Action() (same flow as bomber)
                         ActionOrder *order = new ActionOrder();
                         order->m_targetObjectId = targetId;
                         order->m_longitude = targetObject->m_longitude;

@@ -620,7 +620,7 @@ void MapRenderer::RenderCountryControl()
                 team->m_teamId == g_app->GetWorld()->m_myTeamId )
             {
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                float maxDistance = 1.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
+                float maxDistance = 3.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
 
                 g_renderer->SetDepthBuffer( true, true );
                 for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
@@ -815,8 +815,11 @@ void MapRenderer::RenderCityObjectDetails( WorldObject *wobj, float *boxX, float
     char *titleFont = g_styleTable->GetStyle( FONTSTYLE_POPUP )->m_fontName;
     g_renderer->SetFont( titleFont, true );
 
-    const char *objName = WorldObject::GetName( wobj->m_type );
     Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
+    int primaryTerritory = -1;
+    if( team && team->m_territories.Size() > 0 )
+        primaryTerritory = team->m_territories[0];
+    const char *objName = WorldObject::GetTerritoryName( wobj->m_type, primaryTerritory );
     const char *teamName = team ? team->GetTeamName() : "";
 
     char caption[256];
@@ -1641,8 +1644,11 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
             char *titleFont = g_styleTable->GetStyle( FONTSTYLE_POPUP )->m_fontName;
             g_renderer->SetFont( titleFont, true );
 
-            const char *objName = WorldObject::GetName( wobj->m_type );
             Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
+            int primaryTerritory = -1;
+            if( team && team->m_territories.Size() > 0 )
+                primaryTerritory = team->m_territories[0];
+            const char *objName = WorldObject::GetTerritoryName( wobj->m_type, primaryTerritory );
             const char *teamName = team ? team->GetTeamName() : "";
 
             char caption[256];
@@ -2480,6 +2486,22 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             Colour actionCursorCol = ( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
+            float targetLineWidth = 1.0f;
+
+            if( wobj->m_type == WorldObject::TypeTanker )
+            {
+                Tanker *tanker = (Tanker *)wobj;
+                if( tanker->IsRefuelingTarget( targetObjectId ) )
+                {
+                    actionCursorCol.Set( 255, 255, 255, 150 );
+                    targetLineWidth = 8.0f;
+                }
+                else
+                {
+                    actionCursorCol.Set( 150, 150, 150, 150 );
+                    targetLineWidth = 2.0f;
+                }
+            }
 
             Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
             g_renderer2d->RotatingSprite( img, TpredictedLongitude, TpredictedLatitude, 
@@ -2492,7 +2514,6 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                                     actionCursorCol, actionCursorAngle );
             }
 
-            float targetLineWidth = ( wobj->m_type == WorldObject::TypeTanker ) ? 16.0f : 1.0f;
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
                               actionCursorCol, targetLineWidth );
@@ -3576,15 +3597,20 @@ void MapRenderer::UpdateCameraControl( float longitude, float latitude )
     //
     // Handle zooming
 
-    m_totalZoom += g_inputManager->m_mouseVelZ * g_preferences->GetFloat(PREFS_INTERFACE_ZOOM_SPEED, 1.0);
+    const float minZoomFactor = 0.001f;
+    const float maxTotalZoom = logf(minZoomFactor) / logf(0.9f);
 
-    Clamp( m_totalZoom, 0.0f, 30.0f );
+    float zoomDelta = g_inputManager->m_mouseVelZ * g_preferences->GetFloat(PREFS_INTERFACE_ZOOM_SPEED, 1.0);
+    if( zoomDelta > 0 && m_totalZoom >= maxTotalZoom ) zoomDelta = 0;
+    m_totalZoom += zoomDelta;
+    Clamp( m_totalZoom, 0.0f, maxTotalZoom );
     float zoomFactor = pow(0.9f, m_totalZoom );
 
-    if( zoomFactor < 0.05f ) zoomFactor = 0.05f;
+    if( zoomFactor < minZoomFactor ) zoomFactor = minZoomFactor;
     if( zoomFactor > 1.0f ) zoomFactor = 1.0f;    
 	
-    if( fabs(zoomFactor - m_zoomFactor) > 0.01f )
+    float zoomThreshold = fmaxf(0.0001f, 0.05f * fmaxf(zoomFactor, m_zoomFactor));
+    if( fabs(zoomFactor - m_zoomFactor) > zoomThreshold )
     {        
         float factor1 = g_advanceTime * 5.0f;
         float factor2 = 1.0f - factor1;
@@ -3654,7 +3680,8 @@ void MapRenderer::UpdateCameraControl( float longitude, float latitude )
         if( ((g_keys[KeyS] || g_keys[KEY_DOWN]) && !ignoreKeys)   || (g_inputManager->m_mouseY >= m_pixelH-edgeSize && sideScrolling ) )   m_middleY -= scrollSpeed;
 
 		if( g_keys[KeyE] && !ignoreKeys) m_totalZoom -= 20 * g_advanceTime;
-		if( g_keys[KeyQ] && !ignoreKeys) m_totalZoom += 20 * g_advanceTime;
+		if( g_keys[KeyQ] && !ignoreKeys && m_totalZoom < maxTotalZoom ) m_totalZoom += 20 * g_advanceTime;
+		Clamp( m_totalZoom, 0.0f, maxTotalZoom );
 
         if( m_middleX == oldX && 
             m_middleY == oldY )
@@ -3705,14 +3732,21 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
         nearest = 2;
     }
 
-    if( g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
+    float zf = g_app->GetMapRenderer()->GetZoomFactor();
+    if( zf <= 0.25f )
     {
-        nearest *= Fixed::FromDouble(g_app->GetMapRenderer()->GetZoomFactor() * 4);
+        nearest *= Fixed::FromDouble(zf * 4);
+    }
+
+    float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
+    if( gameScale > 1.0f )
+    {
+        nearest /= Fixed::FromDouble( sqrt(gameScale) );
     }
 
     Fixed mouseLong = Fixed::FromDouble(_mouseX);
     Fixed mouseLat = Fixed::FromDouble(_mouseY);
-    Fixed maxConsiderSqd = Fixed(25) * Fixed(25);  // Skip objects farther than 25 units
+    Fixed maxConsiderSqd = Fixed(25) * Fixed(25);
 
     //
     // Find the nearest object to the Mouse
@@ -4170,7 +4204,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
             if( obj->IsAircraft() )
             {
                 g_app->GetClientToServer()->RequestSetWaypoint( recId, targetLong, targetLat );
-                g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
+                if( obj->IsFighterClass() )
+                    g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
                 anyOrderGiven = true;
             }
             continue;
@@ -4288,7 +4323,7 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
         else
         {
             g_app->GetClientToServer()->RequestSetWaypoint( recId, mouseX, mouseY, _isDoubleClick );
-            if( wobj->IsAircraft() )
+            if( wobj->IsFighterClass() )
                 g_app->GetClientToServer()->RequestAction( recId, -1, mouseX, mouseY );
             int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, _mouseX, _mouseY );
             ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
@@ -4759,7 +4794,8 @@ void MapRenderer::Update()
                                 int combatResult = obj->IsValidCombatTarget( underMouseId );
                                 if( combatResult > WorldObject::TargetTypeInvalid &&
                                     combatResult != WorldObject::TargetTypeLand &&
-                                    combatResult != WorldObject::TargetTypePursue )
+                                    combatResult != WorldObject::TargetTypePursue &&
+                                    !obj->IsAircraft() )
                                 {
                                     hasValidCombatTarget = true;
                                     break;

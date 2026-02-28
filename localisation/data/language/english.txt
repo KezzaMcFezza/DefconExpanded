@@ -1153,10 +1153,10 @@ tooltip_spawnbomber                 [LMB] LAUNCH BOMBER HERE
 tooltip_spawnbomber_fast            [LMB] LAUNCH FAST BOMBER HERE
 tooltip_spawnbomber_stealth         [LMB] LAUNCH STEALTH BOMBER HERE
 tooltip_spawnaew                    [LMB] LAUNCH AWACS HERE
-tooltip_spawntanker                 [LMB] LAUNCH TANKER HERE
 tooltip_spawnnuke                   [LMB] LAUNCH NUCLEAR WARHEAD HERE
 tooltip_spawnlacm                   [LMB] LAUNCH CRUISE MISSILE HERE
 tooltip_spawncbm                    [LMB] LAUNCH CBM HERE
+tooltip_spawntanker                 [LMB] LAUNCH TANKER HERE
 tooltip_spacetodeselect             SPACE TO DESELECT UNIT
 tooltip_landobject                  [LMB] LAND AIRCRAFT HERE
 
@@ -1301,89 +1301,103 @@ style_FontPopup                     Font Popup
 
 unit_silo                           ICBM SILO
 unit_silomed                        MRBM SILO
-unit_silomobile                     NBM TEL
-unit_silomobilecon                  CBM TEL
-unit_ascm                           ASCM
+unit_silomobile                     ICBM TEL
+unit_silomobilecon                  CONV. MRBM TEL
+unit_ascm                           ASCM BATTERY
 unit_sam                            SAM
 unit_abm                            ABM
 unit_nuke                           WARHEAD
-unit_lacm                           LACM
+unit_lacm                           CRUISE MISSILE
 unit_cbm                            CBM
-unit_lasm                           ASCM
 unit_lanm                           NUCLEAR-TIPPED LACM
 unit_city                           city
-unit_sub                            Submarine
-unit_subn                           SSBN
+unit_sub                            SSBN
 unit_subc                           SSN
 unit_subk                           SSK
 unit_subg                           SSGN
+unit_sub_ohio                       SSBN OHIO
+unit_subc_virginia                  SSN VIRGINIA
+unit_subg_ohio                      SSGN OHIO
+unit_sub_dolgorukiy                 SSBN DOLGORUKIY
+unit_subc_akula                     SSN AKULA
+unit_subk_kilo                      SSK KILO
+unit_subg_sev                       SSGN SEVERODVINSK
+unit_sub_jin                        SSBN JIN
+unit_subc_shang                     SSN SHANG
+unit_subk_yuan                      SSK YUAN
 unit_radar                          RADAR STATION
 unit_radar_ew                       EARLY WARNING RADAR
 unit_battleship                     CG
 unit_battleship_ddg                 DDG
 unit_battleship_fg                  FFG
-unit_ddg_arleigh                    DDG ARLEIGH BURKE
-unit_ddg_horizon                    DDG HORIZON
-unit_ddg_sov                        DDG SOVREMENNY
-unit_ddg_chi                        DDG TYPE-55
-unit_ddg_frigate                    Frigate
+unit_battleship_cg_tico		    CG TICONDEROGA
+unit_battleship_ddg_arleigh         DDG ARLEIGH BURKE
+unit_battleship_ffg_lcs		    LCS INDEPENDENCE
+unit_battleship_ddg_horizon         DDG HORIZON
+unit_battleship_ffg_fremm	    FFG FREMM
+unit_battleship_cg_slava            CG SLAVA
+unit_battleship_ddg_udaloy          DDG UDALOY
+unit_battleship_ffg_grigorovich     FFG ADMIRAL GRIGOROVICH
+unit_battleship_cg_type055          CG TYPE 055
+unit_battleship_ddg_type052d        DDG TYPE 052D
+unit_battleship_ffg_type054a        FFG TYPE 054A
 unit_airbase                        AIRBASE
 unit_airbase2                       AIRBASE
 unit_airbase3                       AIRBASE
-unit_airbase_usa1                   ACC AFB
-unit_airbase_usa2                   AFGSC AFB
+unit_airbase_usfighter              ACC AFB
+unit_airbase2_usbomber              AFGSC AFB
+unit_airbase3_usnavy                NAS
 unit_airbase_nato                   NATO AB
-unit_airbase_otan                   OTAN AB
-unit_airbase_ukr                     AIRBASE
-unit_airbase_sato                        AIRBASE
-unit_airbase_twn                        AIRBASE
-unit_airbase_anz                        AIRBASE
-unit_airbase_ru                     DBA AB
-unit_airbase_rusu                   VVS  AB
-unit_airbase_chi                        AIRBASE
-unit_airbase_nk                     EASTERN AIRBASE
-unit_airbase_ind                        AIRBASE
-unit_airbase_ines                        AIRBASE
-unit_airbase_phi                    WESTERN AIRBASE
-unit_airbase_pak                        AIRBASE
-unit_airbase_iran                        AIRBASE
-unit_airbase_egy                        AIRBASE
-unit_airbase_isr                        AIRBASE
-unit_airbase_ksa                        AIRBASE
+unit_airbase2_otan                  OTAN AB
+unit_airbase_rufighter              VKS AB
+unit_airbase2_rubomber              DBA AB
+unit_airbase_prcaf                  PLAAF AB
+unit_airbase2_prcnavy               PLAN AB
 unit_fighter                        FIGHTER
-unit_fighter_f18                        F-18 HORNET
-unit_fighter_rafale                        RAFALE M
-unit_fighter_flanker                        FLANKER
-unit_fighter_f16                        F-16 VIPER
-unit_fighter_f14                        F-14 TOMCAT
-unit_fighter_f35                        F-35 JSF
-unit_fighter_su57                        SU-57 FELON
-unit_fighter_j20                        J-20 FAGIN
-unit_fighter_stealth                 STEALTH FIGHTER
-unit_fighter_light                   LIGHT FIGHTER
-unit_fighter_navy_stealth           CARRER STEALTH FIGHTer
-unit_awacs                          AEW
-unit_bomber                         BOMBER
+unit_fighter_stealth                STEALTH FIGHTER
+unit_fighter_light                  LIGHT FIGHTER
+unit_fighter_navy_stealth           CARRIER-CAPABLE STEALTH FIGHTER
+unit_fighter_f18                    F/A-18E/F SUPER HORNET
+unit_fighter_light_f16              F-16 VIPER
+unit_fighter_stealth_f22            F-22A RAPTOR
+unit_fighter_navy_stealth_f35       F-35 JSF
+unit_fighter_rafale                 RAFALE M
+unit_fighter_flanker                FLANKER
+unit_fighter_light_fulcrum	    MiG-29 FULCRUM
+unit_fighter_f14                    F-14 TOMCAT
+unit_fighter_navy_stealth_j35       J-35
+unit_fighter_stealth_su57           SU-57 FELON
+unit_fighter_light_j10c             J-10C FIREBIRD
+unit_fighter_stealth_j20            J-20 FAGIN
 unit_aew                            AEW
+unit_uas                            UAV
+unit_uas_rq4                        RQ-4 GLOBAL HAWK
 unit_tanker                         TANKER REFUELER
 unit_bomber_stealth                 STEALTH BOMBER
 unit_bomber_fast                    FAST BOMBER
-unit_bobomber                         BOMBER
-unit_bomber_b2                         B-2A SPIRIT
-unit_bomber_b52                         B-52H STRATOFORTRESS
-unit_bomber_tu95                         TU-95 BEAR
-unit_bomber_tu22                         TU-22M BACKFIRE
-unit_bomber_h6                         H-6
-unit_carrier                        CVN
+unit_bomber                         BOMBER
+unit_bomber_stealth_b2              B-2A SPIRIT
+unit_bomber_fast_b1b		    B-1B LANCER
+unit_bomber_b52                     B-52H STRATOFORTRESS
+unit_bomber_tu95                    TU-95 BEAR
+unit_bomber_fast_tu22               TU-22M BACKFIRE
+unit_bomber_h6                      H-6 BADGER
+unit_carrier_super                  CVN
+unit_carrier                        CV
 unit_carrier_light                  CV
-unit_carrier_nimitz                 CVN NIMITZ
-unit_carrier_wasp                   LHD WASP
-unit_carrier_izumo                  DDH IZUMO
-unit_carrier_gaulle                 CVN DEGAULLE
-unit_carrier_queen                  CV QEII
-unit_carrier_rus                    CV KUZNETSOV
-unit_carrier_ind                    CV VIKRANT
+unit_carrier_lhd	            LHD
+unit_carrier_super_nimitz           CVN NIMITZ
+unit_carrier_light_wasp             LHD WASP
+unit_carrier_light_izumo            DDH IZUMO
+unit_carrier_light_canberra         LHD CANBERRA
+unit_carrier_degaulle               CVN CHARLES DE GAULLE
+unit_carrier_light_qe               CV QUEEN ELIZABETH II
+unit_carrier_kuznetsov              CV KUZNETSOV
+unit_carrier_vikrant                CV VIKRANT
+unit_carrier_super_fujian           CV FUJIAN
 unit_carrier_chi                    CV LIAONING
+unit_carrier_light_chi              CV SHANDONG
+unit_carrier_lhd_type075            LHD TYPE 075
 unit_tornado                        TORNADO
 unit_saucer                         alien ship
 unit_explosion                      explosion
@@ -1411,6 +1425,7 @@ state_stealthfighterlaunch          STEALTH CAP LAUNCH
 state_stealthstrikefighterlaunch    STEALTH STRIKE LAUNCH
 state_aewlaunch                     AWACS LAUNCH
 state_tankerlaunch                  TANKER LAUNCH
+state_refuel                        REFUEL
 state_bomberlaunch                  BOMBER LAUNCH (NUKE)
 state_cruisebomberlaunch            BOMBER LAUNCH (ALCM)
 state_bomber_fastlaunch             FAST BOMBER LAUNCH (NUKE)
@@ -1436,7 +1451,6 @@ state_antisub                       ANTI-SUBMARINE WARFARE
 state_ontarget                      ON TARGET
 state_disarm                        DISARM
 state_radar                         SCANNING
-state_refuel                        REFUELING
 state_silonuke                      ICBM LAUNCH
 state_silomednuke                      MRBM LAUNCH
 state_standby                       STANDBY
@@ -1713,82 +1727,117 @@ unitinfo_title                      UNIT INFO
 unitinfo_title2                     (no unit selected)
 
 unitinfo_fighter                    Fast, short range combat aircraft.\n+  Effective against Bombers\n+  Good at scouting\n-  Easily destroyed by battleships or SAMs
-unitinfo_fighter_light                 Light fighter for Combat Air Patrol (CAP) and Strike missions.
-unitinfo_fighter_stealth               Fifth-generation stealth fighter, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.
-unitinfo_fighter_navy_stealth          Carrier-based stealth fighter for CAP and Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
-unitinfo_fighter_f18                    The F/A-18E/F is a carrier-capable multirole fighter used for fleet air defense and strike escort missions.\n+  Excellent carrier-based flexibility\n+  Reliable in interception and patrol roles\n-  Outclassed by modern stealth fighters\n-  Limited range without tanker support
-unitinfo_fighter_f35                    The F-35B/C is a fifth-generation stealth fighter with advanced sensors, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Stealthy and networked for scouting\n+  Can perform Strike missions with cruise missiles against land or naval targets\n-  High maintenance requirements\n-  Outranged by heavier fighters
-unitinfo_fighter_rafale                 The Rafale is a French multirole fighter designed for Combat Air Patrol (CAP) and precision Strike using stand-off weapons.\n+  Agile in dogfights and effective in CAP missions\n+  Can conduct Strike missions against land or sea targets\n-  Lacks stealth compared to 5th-gen aircraft\n-  Moderate range
-unitinfo_fighter_flanker                The Su-30/35 Flanker series are Russian long-range fighters optimized for Combat Air Patrol (CAP) and equipped for limited Strike operations.\nNATO CALLSIGN: "Flanker"\n+  Excellent missile load for CAP missions\n+  Can launch cruise missiles against ships or ground targets\n-  Large radar signature\n-  Less effective in stealth-contested environments
-unitinfo_fighter_su57                   The Su-57 is a fifth-generation Russian stealth fighter intended for high-end Combat Air Patrol (CAP) and precision Strike.\nNATO CALLSIGN: "Felon"\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
-unitinfo_fighter_j20                    The J-20 is a Chinese stealth interceptor built for long-range Combat Air Patrol (CAP) and limited Strike capability.\nNATO CALLSIGN: "Fagin"\n+  Long-range CAP and stealthy engagements\n+  Can target ships or land assets with cruise missiles\n-  Limited maneuverability in close combat\n-  Relies on external targeting support
-unitinfo_fighter_f16                    The F-16 is a widely-used multirole fighter capable of Combat Air Patrol (CAP) and precision Strike with guided munitions.\n+  Inexpensive and reliable CAP platform\n+  Can carry cruise missiles for land or naval Strike\n-  Outranged by heavier fighters\n-  No stealth or carrier capability
-unitinfo_fighter_f14                    The F-14AM is an older U.S.-designed interceptor operated by Iran, used primarily for long-range Combat Air Patrol (CAP) and limited Strike.\nNATO CALLSIGN: "Tomcat"\n+  Long-range missile engagements for CAP\n+  Can carry air-to-ground weapons for limited Strike\n-  Outdated systems and limited upgrades\n-  Vulnerable to modern fighters and SAMs
-unitinfo_aew                          The AWACS is an airborne early warning aircraft providing radar coverage, target tracking, and battle management to allied forces.\n+  Extends radar and command range\n+  Critical for coordinating air assets\n-  Unarmed and slow\n-  Vulnerable without fighter escort
-unitinfo_silo                  A fixed field of hardened ICBM silos, each loaded with a single long-range nuclear warhead.\n+  Large supply of Long Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
+unitinfo_fighter_light              Light fighter for Combat Air Patrol (CAP) and Strike missions.
+unitinfo_fighter_stealth            Fifth-generation stealth fighter, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.
+unitinfo_fighter_navy_stealth       Carrier-based stealth fighter for CAP and Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
+unitinfo_fighter_f18               The F/A-18E/F SUPER HORNET is a carrier-capable multirole fighter used for fleet air defense and strike escort missions.\n+  Excellent carrier-based flexibility\n+  Reliable in interception and patrol roles\n-  Outclassed by modern stealth fighters\n-  Limited range without tanker support
+unitinfo_fighter_light_f16          The F-16 VIPER is a widely-used multirole fighter capable of Combat Air Patrol (CAP) and precision Strike with guided munitions.\n+  Inexpensive and reliable CAP platform\n+  Can carry cruise missiles for land or naval Strike\n-  Outranged by heavier fighters\n-  No stealth or carrier capability
+unitinfo_fighter_stealth_f22        The F-22A RAPTOR is a U.S. fifth-generation stealth air-superiority fighter built for high-end Combat Air Patrol (CAP).\n+  Excellent stealth and air-to-air performance\n+  Difficult to detect and engage during CAP\n-  Cannot perform Strike missions in this abstraction\n-  Expensive and limited in number
+unitinfo_fighter_navy_stealth_f35   The F-35B/C JSF is a fifth-generation stealth fighter with advanced sensors, capable of conducting Combat Air Patrol (CAP) and precision Strike missions.\n+  Stealthy and networked for scouting\n+  Can perform Strike missions with cruise missiles against land or naval targets\n-  High maintenance requirements\n-  Outranged by heavier fighters
+unitinfo_fighter_rafale             The Rafale is a French multirole fighter designed for Combat Air Patrol (CAP) and precision Strike using stand-off weapons.\n+  Agile in dogfights and effective in CAP missions\n+  Can conduct Strike missions against land or sea targets\n-  Lacks stealth compared to 5th-gen aircraft\n-  Moderate range
+unitinfo_fighter_flanker            The Su-27/30/35 FLANKER series are Russian long-range fighters optimized for Combat Air Patrol (CAP) and equipped for limited Strike operations.\nNATO CALLSIGN: "Flanker"\n+  Excellent missile load for CAP missions\n+  Can launch cruise missiles against ships or ground targets\n-  Large radar signature\n-  Less effective in stealth-contested environments
+unitinfo_fighter_light_fulcrum      The MiG-29 FULCRUM is a Russian light fighter used for Combat Air Patrol (CAP) and limited Strike operations.\nNATO CALLSIGN: "Fulcrum"\n+  Agile and effective in short-range CAP missions\n+  Can conduct limited Strike missions\n-  Shorter range than larger fighters\n-  Less survivable in modern contested airspace
+unitinfo_fighter_f14                The F-14AM TOMCAT is an older U.S.-designed interceptor operated by Iran, used primarily for long-range Combat Air Patrol (CAP) and limited Strike.\nNATO CALLSIGN: "Tomcat"\n+  Long-range missile engagements for CAP\n+  Can carry air-to-ground weapons for limited Strike\n-  Outdated systems and limited upgrades\n-  Vulnerable to modern fighters and SAMs
+unitinfo_fighter_navy_stealth_j35   The J-35 is a Chinese carrier-capable stealth fighter for Combat Air Patrol (CAP) and precision Strike missions.\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and developing doctrine\n-  High maintenance requirements
+unitinfo_fighter_stealth_su57       The Su-57 FELON is a fifth-generation Russian stealth fighter intended for high-end Combat Air Patrol (CAP) and precision Strike.\nNATO CALLSIGN: "Felon"\n+  Difficult to detect and engage during CAP\n+  Can launch cruise missiles against land/naval targets\n-  Limited numbers and unproven systems\n-  High maintenance requirements
+unitinfo_fighter_light_j10c         The J-10C FIREBIRD is a Chinese light multirole fighter used for Combat Air Patrol (CAP) and limited Strike missions.\nCALLSIGN: "Firebird"\n+  Agile and effective in CAP missions\n+  Can launch cruise missiles against ships or land targets\n-  Shorter range than heavier fighters\n-  No stealth capability
+unitinfo_fighter_stealth_j20        The J-20 FAGIN is a Chinese stealth interceptor built for long-range Combat Air Patrol (CAP) and limited Strike capability.\nCALLSIGN: "Fagin"\n+  Long-range CAP and stealthy engagements\n+  Can target ships or land assets with cruise missiles\n-  Limited maneuverability in close combat\n-  Relies on external targeting support
+
+unitinfo_aew                        The AEW is an airborne early warning aircraft providing radar coverage, target tracking, and battle management to allied forces.\n+  Extends radar and command range\n+  Critical for coordinating air assets\n-  Unarmed and slow\n-  Vulnerable without fighter escort
+unitinfo_uas                        Unmanned aerial system used for reconnaissance and surveillance.\n+  Useful for scouting and persistent ISR\n+  Lower risk than manned aircraft\n-  Unarmed\n-  Vulnerable if detected
+unitinfo_uas_rq4                    The RQ-4 is a high-altitude, long-endurance reconnaissance drone providing persistent surveillance and battle damage assessment.\n+  Excellent long-range scouting and ISR\n+  Hard to replace once lost\n-  Unarmed and slow to react\n-  Vulnerable without air superiority
+unitinfo_tanker                     Airborne refueling aircraft used to extend the range and endurance of friendly air units.\n+  Extends range of Fighters and Bombers\n+  Useful for sustained operations far from base\n-  Unarmed and highly vulnerable\n-  Requires escort in contested airspace
+
+unitinfo_silo                       A fixed field of hardened ICBM silos, each loaded with a single long-range nuclear warhead.\n+  Large supply of Long Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
 unitinfo_silomed                    A cluster of fixed MRBM silos used for regional nuclear strike capability.\n+  Moderate supply of Medium Range Nuclear Warheads\n+  Reinforced against nuclear strikes\n-  Launch reveals location to all
-unitinfo_silomobile                  A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
-unitinfo_silomobilecon                 A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
-unitinfo_ascm                      Anti-Ship Cruise Missile battery. Fixed silo that launches LACM at ships only.\n+  Auto-targets enemy ships in range\n+  Ammo regenerates 1 per 15 minutes\n+  Available at Defcon 3\n-  Ships only, no land targets\n-  Launch reveals location
-unitinfo_sam                        A fixed air defense site for intercepting aircraft and cruise missiles\n+  Strong Anti-Aircraft and Anti-Missile coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
+unitinfo_silomobile                 A concealed pair of road-mobile ICBM launchers, or transporter-launcher-erectors, (TELs) for survivable second-strike capability.\n+  Hidden placement for strategic counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_silomobilecon              A concealed pair of road-mobile conventional MRBM launchers, or transporter-launcher-erectors, (TELs) for survivable regional strike capability.\n+  Hidden placement for conventional counter-attack\n+  Vulnerable to strikes when found\n-  Launch reveals location to all
+unitinfo_ascm                       Anti-Ship Cruise Missile battery. Fixed silo that launches LACM at ships only.\n+  Auto-targets enemy ships in range\n+  Ammo regenerates 1 per 15 minutes\n+  Available at Defcon 3\n-  Ships only, no land targets\n-  Launch reveals location
+unitinfo_sam                        A fixed air defense site for intercepting aircraft and cruise missiles.\n+  Strong Anti-Aircraft and Anti-Missile coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
 unitinfo_abm                        A fixed air defense site for intercepting ballistic missiles.\n+  Strong Anti-Ballistic coverage\n+  Reinforced against nuclear strikes\n-  Vulnerable to cruise missile saturation
-unitinfo_radar                      A ground-based radar station providing long-range surveillance coverage.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
-unitinfo_radar_ew                    An early warning radar for detecting high-altitude ballistic missile threats.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
-unitinfo_bomber_fast                   Fast bomber with nuclear and conventional strike capability.
-unitinfo_bomber_stealth                Stealth bomber for penetrating air defenses.
-unitinfo_bomber                       Versatile, long range aircraft.\n+  Carries a single Short Range nuke\n+  Nuke launch does not show up on enemy radar\n+  Effective against Ships\n-  Easily shot down by Fighters\n-  Slow moving
-unitinfo_bomber_b2                     The B-2A is a U.S. stealth strategic bomber designed for penetrating dense air defenses and delivering precision-guided nuclear or conventional munitions.\n+  Carries a single short-range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down if detected\n-  Limited payload per sortie
-unitinfo_bomber_b52                    The B-52H is a U.S. long-range, subsonic strategic bomber capable of launching cruise missiles and nuclear ordnance against both naval and land targets.\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow moving
-unitinfo_bomber_tu95                  The Tu-95 is a Russian turboprop-powered strategic bomber used to deliver cruise missiles and nuclear weapons against ground and naval targets.\nNATO CALLSIGN: "Bear"\n+  Carries a single Short Range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow and noisy
-unitinfo_bomber_tu22                   The Tu-22M is a Russian supersonic bomber designed for maritime strike and strategic attack, equipped to carry both nuclear and conventional cruise missiles.\nNATO CALLSIGN: "Backfire"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Shorter range than other strategic bombers\n-  Vulnerable to advanced SAM systems
-unitinfo_bomber_h6                     The H-6 is a Chinese strategic bomber based on the Soviet Tu-16, capable of launching both nuclear and conventional cruise missiles against sea or land targets.\nNATO CALLSIGN: "Badger"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters or air defenses\n-  Slow moving
-unitinfo_battleship                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_battleship_ddg              Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_battleship_fg               Versatile anti-ship, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
-unitinfo_ddg_arleigh                The Arleigh Burke-class is a U.S. guided missile destroyer designed for multi-domain warfare, including air defense, anti-submarine, and ballistic missile defense.\n+  Strong air and missile defense\n+  Capable of anti-sub and anti-ship warfare\n-  Can be overwhelmed by saturation attacks\n-  Vulnerable to stealthy subs if unsupported
-unitinfo_ddg_horizon                The Horizon-class is a European air-defense destroyer primarily built for fleet protection with secondary anti-ship and ASW capabilities.\n+  Strong air defense with Aster missiles\n+  Moderate anti-sub capability\n-  Limited offensive missile load\n-  Vulnerable to submarine ambush
-unitinfo_ddg_sov                    The Sovremenny-class is a Russian destroyer optimized for surface strike missions using powerful anti-ship missiles and point defense systems.\n+  Powerful anti-ship missile battery\n+  Good close-range anti-air\n+  Can drop Depth Charges against Subs\n-  Weak missile defense vs modern threats\n-  Limited sub detection
-unitinfo_ddg_chi                    The Type 055 is a Chinese guided missile destroyer with advanced radar systems and a balanced loadout for air, surface, and subsurface warfare.\n+  Capable air and missile defense\n+  Versatile loadout for all threat types\n-  C4ISR still maturing\n-  Vulnerable when isolated
-unitinfo_ddg_frigate                Frigates are light escort ships used for patrol, convoy defense, and support roles with modest combat capability across all domains.\n+  Cost-effective and flexible\n+  Useful in groups or convoy escort\n-  Poor survivability in high-threat environments\n-  Limited missile range and tracking
-unitinfo_sub                        Strategic nuclear-powered ballistic missile submarine (SSBN).\n+  Invisible to conventional radar\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_subn                        Strategic nuclear-powered ballistic missile submarine (SSBN).\n+  Invisible to conventional radar\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_subg                        Strategic nuclear-powered guided missile submarine (SSG).\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_subc                       Nuclear-powered attack submarine (SSN) designed for stealth and strike missions.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_subk                       Diesel-electric attack submarine (SSK) optimized for coastal defense and stealthy cruise missile strikes.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
-unitinfo_carrier                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
-unitinfo_carrier_light               Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
-unitinfo_carrier_nimitz             The Nimitz-class is a U.S. nuclear-powered aircraft carrier capable of launching and recovering fighters and airborne early warning (AEW) aircraft.\n+  Supports Fighters and AEW aircraft\n-  Cannot launch Bombers\n-  Cannot directly defend itself
-unitinfo_carrier_wasp               The Wasp-class is a U.S. amphibious assault ship that can operate STOVL aircraft and helicopters for expeditionary support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
-unitinfo_carrier_gaulle             Charles de Gaulle a French nuclear-powered aircraft carrier capable of launching and recovering fighters and AEW aircraft.\n+  Supports Fighters and AEW aircraft\n+  Can drop Depth Charges against Subs\n-  Cannot launch Bombers\n-  Cannot directly defend itself
-unitinfo_carrier_queen              The Queen Elizabeth-class is a British carrier designed for STOVL operations with a full complement of F-35Bs and helicopters.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
-unitinfo_carrier_rus                Admiral Kuznetsov is the only Russian aircraft carrier, capable of launching fighters and lacks fixed-wing AEW.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_radar                      A ground-based radar station providing long-range surveillance coverage.\n+  Long radar coverage against air and surface threats\n-  Easily destroyed by nuclear strikes or cruise missiles
+unitinfo_radar_ew                   An early warning radar for detecting high-altitude ballistic missile threats.\n+  Longest radar range available\n-  Easily destroyed by nuclear strikes or cruise missiles
+
 unitinfo_nuke                       High-yield Nuclear Warhead.\n+  Incredible destructive power\n-  Vulnerable to anti-ballistic missiles
 unitinfo_lacm                       Medium-yield Conventional Warhead.\n+  Moderate destructive power\n-  Vulnerable to anti-aircraft fire
-unitinfo_gacam                       Medium-yield Conventional Warhead.\n+  Moderate destructive power\n-  Vulnerable to anti-aircraft fire
-unitinfo_airbase                    Launch point for Fighters, Bombers, and AEW aircraft.\n+  Large number of Bombers\n+  Regenerates fighters over time\n-  Easily destroyed by Nuke hit
-unitinfo_airbase_usa1                    A hardened military airbase used to launch Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_usa2                    A hardened military airbase used to launch Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_nato                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_otan                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_sato                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_twn                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_anz                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_ru                     A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_rusu                   A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_chi                    A hardened airbase capable of launching Fighters, Bombers, and AEW aircraft.\n+  Hosts a large number of Bombers\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_nk                     An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_ind                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_ines                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_phi                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_pak                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_iran                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_egy                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_isr                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_ksa                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_west                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
-unitinfo_airbase_east                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_cbm                        Conventional ballistic missile warhead.\n+  Fast strike against land targets\n+  Harder to intercept than cruise missiles without ABM coverage\n-  Vulnerable to anti-ballistic missiles
+unitinfo_lasm                       Anti-Ship Cruise Missile warhead.\n+  Effective against naval targets\n-  Vulnerable to anti-aircraft fire
+unitinfo_lanm                       Nuclear-tipped cruise missile warhead.\n+  High destructive power with stand-off launch range\n-  Vulnerable to anti-aircraft fire
 
+unitinfo_bomber_fast                Fast bomber with nuclear and conventional strike capability.
+unitinfo_bomber_stealth             Stealth bomber for penetrating air defenses.
+unitinfo_bomber                     Versatile, long range aircraft.\n+  Carries a single Short Range nuke\n+  Nuke launch does not show up on enemy radar\n+  Effective against Ships\n-  Easily shot down by Fighters\n-  Slow moving
+unitinfo_bomber_stealth_b2          The B-2A SPIRIT is a U.S. stealth strategic bomber designed for penetrating dense air defenses and delivering precision-guided nuclear or conventional munitions.\n+  Carries a single short-range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down if detected\n-  Limited payload per sortie
+unitinfo_bomber_fast_b1b            The B-1B LANCER is a U.S. supersonic bomber optimized for long-range conventional strike missions.\n+  Fast and flexible strike platform\n+  Can launch conventional ALCMs against ships or land targets\n-  No nuclear weapon in this abstraction\n-  Vulnerable if caught by advanced fighters or SAMs
+unitinfo_bomber_b52                 The B-52H STRATOFORTRESS is a U.S. long-range, subsonic strategic bomber capable of launching cruise missiles and nuclear ordnance against both naval and land targets.\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow moving
+unitinfo_bomber_tu95                The Tu-95 BEAR is a Russian turboprop-powered strategic bomber used to deliver cruise missiles and nuclear weapons against ground and naval targets.\nNATO CALLSIGN: "Bear"\n+  Carries a single Short Range nuclear warhead\n+  Missile launch does not alert space-based systems\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters\n-  Slow and noisy
+unitinfo_bomber_fast_tu22           The Tu-22M BACKFIRE is a Russian supersonic bomber designed for maritime strike and strategic attack, equipped to carry both nuclear and conventional cruise missiles.\nNATO CALLSIGN: "Backfire"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Shorter range than other strategic bombers\n-  Vulnerable to advanced SAM systems
+unitinfo_bomber_h6                  The H-6 BADGER is a Chinese strategic bomber based on the Soviet Tu-16, capable of launching both nuclear and conventional cruise missiles against sea or land targets.\nNATO CALLSIGN: "Badger"\n+  Carries a single short-range nuke\n+  Nuke launch does not show up on enemy radar\n+  Can launch conventional ALCMs against ships or land targets\n-  Easily shot down by Fighters or air defenses\n-  Slow moving
 
+unitinfo_battleship                 Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship_ddg             Versatile anti-ship, anti-ballistic missile, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship_fg              Versatile anti-ship, anti-air, and anti submarine unit.\n+  Effective against multiple targets\n-  Vulnerable to Subs and Bombers
+unitinfo_battleship_cg_tico         The Ticonderoga-class is a U.S. guided missile cruiser designed for multi-domain warfare, including air defense, anti-submarine, and ballistic missile defense.\n+  Strong air and missile defense\n+  Capable of anti-sub and anti-ship warfare\n-  Can be overwhelmed by saturation attacks\n-  Vulnerable to stealthy subs if unsupported
+unitinfo_battleship_ddg_arleigh     The Arleigh Burke-class is a U.S. guided missile destroyer designed for multi-domain warfare, including air defense, anti-submarine, and ballistic missile defense.\n+  Strong air and missile defense\n+  Capable of anti-sub and anti-ship warfare\n-  Can be overwhelmed by saturation attacks\n-  Vulnerable to stealthy subs if unsupported
+unitinfo_battleship_ffg_lcs         The Independence-class is a U.S. littoral combat ship used for patrol, escort, and limited strike missions.\n+  Fast and flexible in coastal operations\n+  Useful for light escort and patrol roles\n-  Lightly armed compared to larger surface combatants\n-  Vulnerable in high-threat environments
+unitinfo_battleship_ddg_horizon     The Horizon-class is a European air-defense destroyer primarily built for fleet protection with secondary anti-ship and ASW capabilities.\n+  Strong air defense with Aster missiles\n+  Moderate anti-sub capability\n-  Limited offensive missile load\n-  Vulnerable to submarine ambush
+unitinfo_battleship_ffg_fremm       The FREMM is a modern European frigate designed for escort, anti-submarine warfare, and flexible strike missions.\n+  Strong all-around frigate capability\n+  Good air defense and anti-sub performance\n-  Less survivable than major destroyers or cruisers\n-  Limited missile capacity compared to larger combatants
+unitinfo_battleship_cg_slava        The Slava-class is a Russian guided missile cruiser optimized for air defense and long-range surface strike.\n+  Strong offensive missile battery\n+  Good fleet air defense coverage\n-  Vulnerable to saturation attacks\n-  Limited survivability when isolated
+unitinfo_battleship_ddg_udaloy      The Udaloy-class is a Russian destroyer optimized for anti-submarine warfare with secondary anti-air and strike capability.\n+  Strong anti-sub warfare capability\n+  Useful escort for larger task groups\n-  Less flexible than true multirole destroyers\n-  Vulnerable to concentrated missile attacks
+unitinfo_battleship_ffg_grigorovich The Admiral Grigorovich-class is a Russian frigate used for escort, strike, and anti-submarine missions.\n+  Flexible frigate with useful strike options\n+  Capable escort for regional operations\n-  Limited survivability in major fleet engagements\n-  Vulnerable when unsupported
+unitinfo_battleship_cg_type055      The Type 055 is a Chinese guided missile cruiser with advanced radar systems and a balanced loadout for air, surface, and subsurface warfare.\n+  Capable air and missile defense\n+  Versatile loadout for all threat types\n-  C4ISR still maturing\n-  Vulnerable when isolated
+unitinfo_battleship_ddg_type052d    The Type 052D is a Chinese destroyer built for fleet air defense, escort, and precision strike.\n+  Strong multirole destroyer capability\n+  Good air defense and anti-ship strike potential\n-  Less capable than larger cruisers\n-  Vulnerable to submarine ambush if unsupported
+unitinfo_battleship_ffg_type054a    The Type 054A is a Chinese frigate used for escort, patrol, and anti-submarine missions.\n+  Cost-effective and flexible escort ship\n+  Good anti-sub capability for its size\n-  Limited survivability in major fleet combat\n-  Modest missile capacity
+
+unitinfo_sub                        Strategic nuclear-powered ballistic missile submarine (SSBN).\n+  Invisible to conventional radar\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subc                       Nuclear-powered attack submarine (SSN) designed for stealth and strike missions.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subk                       Diesel-electric attack submarine (SSK) optimized for coastal defense and stealthy cruise missile strikes.\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subg                       Strategic nuclear-powered guided missile submarine (SSGN).\n+  Invisible to conventional radar\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_sub_ohio                   The Ohio-class is a U.S. strategic nuclear-powered ballistic missile submarine (SSBN) built to provide survivable sea-based nuclear deterrence.\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n+  Difficult to detect while submerged\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subc_virginia              The Virginia-class is a U.S. nuclear-powered attack submarine (SSN) built for stealth, intelligence gathering, and precision strike missions.\n+  Highly survivable and difficult to detect\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subg_ohio                  The Ohio-class SSGN is a converted U.S. guided missile submarine carrying a large payload of long-range cruise missiles for precision strike.\n+  Extremely large cruise missile payload\n+  Difficult to detect before launch\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_sub_dolgorukiy             The Dolgorukiy-class is a Russian strategic nuclear-powered ballistic missile submarine (SSBN) built for secure second-strike deterrence.\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n+  Difficult to detect while submerged\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subc_akula                 The Akula-class is a Russian nuclear-powered attack submarine (SSN) designed for stealth patrol, hunter-killer operations, and cruise missile strike.\n+  Strong stealth and open-ocean endurance\n+  Carries long-range cruise missiles (LACMs)\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subk_kilo                  The Kilo-class is a Russian diesel-electric attack submarine (SSK) optimized for coastal ambush, sea denial, and stealthy cruise missile strikes.\n+  Very difficult to detect in littoral waters\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subg_sev                   The Severodvinsk-class is a Russian nuclear-powered guided missile submarine (SSGN) built for long-range precision strike and advanced multirole undersea warfare.\n+  Carries long-range cruise missiles (LACMs)\n+  Strong stealth and modern sensors\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_sub_jin                    The Jin-class is a Chinese strategic nuclear-powered ballistic missile submarine (SSBN) built to provide a survivable sea-based nuclear deterrent.\n+  Carries multiple submarine-launched ballistic missiles with thermonuclear warheads\n+  Difficult to detect while submerged\n-  Extremely vulnerable when surfaced\n-  SLBM launch reveals location to all\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subc_shang                 The Shang-class is a Chinese nuclear-powered attack submarine (SSN) used for long-range patrol, fleet escort, and cruise missile strike missions.\n+  Carries long-range cruise missiles (LACMs)\n+  Good endurance for regional sea control\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+unitinfo_subk_yuan                  The Yuan-class is a Chinese diesel-electric attack submarine (SSK) designed for coastal defense, ambush warfare, and stealthy cruise missile strikes.\n+  Quiet in coastal waters and hard to detect\n+  Carries long-range cruise missiles (LACMs)\n-  Must surface to recharge batteries\n-  Extremely vulnerable when surfaced\n-  Vulnerable to Depth Charges\n-  Zero radar range
+
+unitinfo_carrier_super              Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier                    Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier_light              Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier_lhd                Mobile Aircraft carrying unit.\n+  Can launch Fighters \n-  Cannot directly defend itself
+unitinfo_carrier_super_nimitz       The Nimitz-class is a U.S. nuclear-powered aircraft carrier capable of launching and recovering fighters and airborne early warning (AEW) aircraft.\n+  Supports Fighters and AEW aircraft\n-  Cannot launch Bombers\n-  Cannot directly defend itself
+unitinfo_carrier_light_wasp         The Wasp-class is a U.S. amphibious assault ship that can operate STOVL aircraft and helicopters for expeditionary support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_light_izumo        The Izumo-class is a Japanese helicopter destroyer adapted to operate STOVL fighters for sea control and fleet support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_light_canberra     The Canberra-class is an Australian amphibious assault ship used for expeditionary support and STOVL aviation operations.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_degaulle           Charles de Gaulle is a French nuclear-powered aircraft carrier capable of launching and recovering fighters and AEW aircraft.\n+  Supports Fighters and AEW aircraft\n+  Can drop Depth Charges against Subs\n-  Cannot launch Bombers\n-  Cannot directly defend itself
+unitinfo_carrier_light_qe           The Queen Elizabeth-class is a British carrier designed for STOVL operations with a full complement of F-35Bs and helicopters.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_kuznetsov          Admiral Kuznetsov is the only Russian aircraft carrier, capable of launching fighters and lacking fixed-wing AEW.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_vikrant            The Vikrant-class is an Indian aircraft carrier capable of launching fighters for fleet air defense and strike support.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_super_fujian       The Fujian is China’s most advanced aircraft carrier, designed to operate a larger and more modern carrier air wing.\n+  Supports Fighters and AEW aircraft\n-  Cannot launch Bombers\n-  Cannot directly defend itself
+unitinfo_carrier_chi                Liaoning is a Chinese aircraft carrier adapted from the Kuznetsov design, capable of launching fighters for fleet support.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_light_chi          Shandong is China’s first domestically built carrier, capable of launching fighters for fleet support.\n+  Supports Fighters\n-  Cannot launch Bombers or AEW aircraft\n-  Cannot directly defend itself
+unitinfo_carrier_lhd_type075        The Type 075 is a Chinese amphibious assault ship capable of operating helicopters and STOVL-style aviation abstractions for expeditionary support.\n+  Supports STOVL Fighters and Helicopters\n-  Cannot launch AEW aircraft\n-  Cannot directly defend itself
+
+unitinfo_airbase                    An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase2                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase3                   An airbase supporting the launch and recovery of Fighters and AEW aircraft.\n+  Regenerates Fighters over time\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_usfighter          Air Combat Command (ACC) airbase supporting the launch and recovery of U.S. tactical fighters and AEW aircraft for air superiority, interception, and strike missions.\n+  Supports frontline multirole air operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase2_usbomber          Air Force Global Strike Command (AFGSC) airbase supporting the launch and recovery of U.S. bombers and AEW aircraft for long-range nuclear and conventional strike missions.\n+  Supports strategic strike operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase3_usnavy            Naval Air Station (NAS) supporting the launch and recovery of carrier-capable naval aircraft and AEW aircraft for fleet defense and maritime strike missions.\n+  Regenerates Fighters over time\n+  Supports naval aviation and maritime operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_nato               NATO airbase supporting the launch and recovery of allied fighters and AEW aircraft for coalition air defense and multirole strike operations.\n+  Regenerates Fighters over time\n+  Supports coalition air operations across multiple fronts\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase2_otan              French/NATO airbase supporting the launch and recovery of allied fighters and AEW aircraft for European air defense and strike operations.\n+  Regenerates Fighters over time\n+  Supports coalition air operations with advanced multirole fighters\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_rufighter          Russian Aerospace Forces (VKS) airbase supporting the launch and recovery of tactical fighters and AEW aircraft for interception, air defense, and regional strike missions.\n+  Regenerates Fighters over time\n+  Supports frontline Russian tactical aviation\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase2_rubomber          Russian Long-Range Aviation (DBA) airbase supporting the launch and recovery of bombers and AEW aircraft for strategic nuclear and conventional strike missions.\n+  Supports long-range Russian strike operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase_prcaf              People's Liberation Army Air Force (PLAAF) airbase supporting the launch and recovery of fighters and AEW aircraft for regional air superiority and strike missions.\n+  Regenerates Fighters over time\n+  Supports land-based Chinese air operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+unitinfo_airbase2_prcnavy           People's Liberation Army Navy (PLAN) airbase supporting the launch and recovery of naval aircraft and AEW aircraft for maritime defense and fleet support missions.\n+  Regenerates Fighters over time\n+  Supports Chinese naval aviation and maritime strike operations\n-  Can be destroyed by repeated nuclear strikes or LACM salvos
+
+unitinfo_city                       Population center and industrial target.\n+  Critical strategic objective\n-  Extremely vulnerable to nuclear attack
+unitinfo_tornado                    Severe weather event that can damage exposed units.\n+  Disrupts local operations\n-  Uncontrolled and indiscriminate
+unitinfo_saucer                     Unidentified alien craft.\n+  Highly unusual contact\n-  Unknown capabilities
+unitinfo_explosion                  Visual effect for destructive impacts and detonations.
 
 
 # =============================================================================
@@ -2186,3 +2235,62 @@ overlay_16_27                       SIERRA 'QUEEN'
 overlay_16_28                       VAULT TEC/IDEALIST0
 overlay_16_29                       VERY FINE ART
 overlay_16_30                       ZAK
+
+overlay_17_1                        ----------------------------------------
+overlay_17_2                        -                                 %@
+overlay_17_3                        -                              @%**+*%@
+overlay_17_4                        -                                %==*
+overlay_17_5                        -                                %@%@
+overlay_17_6                        -        @@@@@@@@@    @@@@@@@@@
+overlay_17_7                        -        %========%   %=======*
+overlay_17_8                        -        %+========%  %+=====+%
+overlay_17_9                        -         %========*   %===+%
+overlay_17_10                       -         %=========%@ %===+%
+overlay_17_11                       -         %===+%=====* %===+%
+overlay_17_12                       -         %===+ %=====+%===+%
+overlay_17_13                       -         %===+  %=========+%
+overlay_17_14                       -         %===+   %+=======+%
+overlay_17_15                       -        @@%===+@@  %=======+%
+overlay_17_16                       -        %=======%   %+=====+%
+overlay_17_17                       -        %@@@@@@@%    @*@@@@*@
+overlay_17_18                       - U.S. NAVAL ACADEMY WARGAMING SOCIETY
+overlay_17_19                       - DEFCON SIMULATION ENVIRONMENT
+overlay_17_20                       - PROJECT LEAD: B.T. DI MASCIO '27
+overlay_17_21                       ----------------------------------------
+overlay_17_22                       - TRAINING, CRISIS RESPONSE, AND
+overlay_17_23                       - DECISION-MAKING UNDER PRESSURE
+overlay_17_24                       - USING UNCLASSIFIED OPEN-SOURCE
+overlay_17_25                       - INTELLIGENCE AND REALISTIC
+overlay_17_26                       - GEOPOLITICAL CONSTRAINTS
+overlay_17_27                       ----------------------------------------
+overlay_17_28                       - BUILT IN SUPPORT OF THE MISSION OF
+overlay_17_29                       - THE U.S. NAVAL ACADEMY TO DEVELOP
+overlay_17_30                       - MIDSHIPMEN FOR SERVICE AS OFFICERS
+overlay_17_31                       - IN THE U.S. NAVY AND MARINE CORPS
+overlay_17_32                       ----------------------------------------
+overlay_17_33                       - DESIGNED TO SHARPEN JUDGMENT,
+overlay_17_34                       - COMMUNICATION, AND LEADERSHIP
+overlay_17_35                       - IN HIGH-STAKES OPERATIONAL
+overlay_17_36                       - DECISION ENVIRONMENTS
+overlay_17_37                       ----------------------------------------
+overlay_17_38                       - PROJECT MISSION
+overlay_17_39                       - DELIVER A LIVE GEOPOLITICAL AND
+overlay_17_40                       - MILITARY CRISIS SIMULATOR BUILT
+overlay_17_41                       - FOR THE U.S. NAVAL ACADEMY AND
+overlay_17_42                       - TAILORED TO PRODUCE THE NEXT
+overlay_17_43                       - GENERATION OF JOINT-MINDED
+overlay_17_44                       - LEADERS FOR THE NAVAL SERVICE
+overlay_17_45                       ----------------------------------------
+overlay_17_46                       - PROJECT VISION
+overlay_17_47                       - A WORLD-CLASS SIMULATION TOOL FOR
+overlay_17_48                       - THE NAVAL ACADEMY, BUILT TO TEACH
+overlay_17_49                       - COMMUNICATION, CRISIS MANAGEMENT,
+overlay_17_50                       - AND COMMAND DECISION-MAKING
+overlay_17_51                       - SHAPED BY THE REALITIES FUTURE
+overlay_17_52                       - JUNIOR OFFICERS WILL FACE
+overlay_17_53                       ----------------------------------------
+overlay_17_54                       - GO NAVY BEAT ARMY
+overlay_17_55                       ----------------------------------------
+
+
+

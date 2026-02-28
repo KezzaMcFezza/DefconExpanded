@@ -499,8 +499,12 @@ Image *WorldObject::GetOutlineImage()
 
     if( isSpectator )
     {
-        int aid = team->m_allianceId;
-        if( aid == 0 )
+        int usaOwner = g_app->GetWorld()->GetTerritoryOwner( World::TerritoryUSA );
+        Team *usaTeam = ( usaOwner != -1 ) ? g_app->GetWorld()->GetTeam( usaOwner ) : NULL;
+        bool isBlufor = ( usaTeam && usaTeam->m_allianceId == team->m_allianceId );
+        bool isNeutral = !isBlufor && ( !usaTeam || usaTeam->m_ceaseFire[team->m_teamId] );
+
+        if( isBlufor )
         {
             if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_battleship.bmp" );
             else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_carrier.bmp" );
@@ -517,17 +521,7 @@ Image *WorldObject::GetOutlineImage()
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_radarstation.bmp" );
             else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
-        else if( aid == 1 )
-        {
-            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_battleship.bmp" );
-            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
-            else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
-            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
-            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
-            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
-        }
-        else
+        else if( isNeutral )
         {
             if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_battleship.bmp" );
             else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_carrier.bmp" );
@@ -536,6 +530,16 @@ Image *WorldObject::GetOutlineImage()
             else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
             else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_radarstation.bmp" );
             else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
+        }
+        else
+        {
+            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_battleship.bmp" );
+            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
+            else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
+            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
+            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
+            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
         }
     }
     else
@@ -813,25 +817,20 @@ Fixed WorldObject::GetSize()
 
 Fixed WorldObject::GetSize3D()
 {
+    Fixed size = 2;
 
-    //
-    // Returns size in 3D world coordinates
-    // Use sqrt scaling (like GetSize 2D) so units don't shrink too much when world scale is large
-
-    Fixed size = Fixed::FromDouble(0.5f);
-
-    if( IsAircraft() || IsBallisticMissileClass() || IsCruiseMissileClass() )
+    if( m_archetype == ArchetypeAircraft )
     {
-        size *= Fixed::FromDouble(0.05f);
-    }
-    else
-    {
-        size *= Fixed::FromDouble(0.06f);
+        size *= 1;
     }
 
-    Fixed gameScale = g_app->GetWorld()->GetGameScale();
-    if( gameScale > Fixed::Hundredths(1) )
-        size /= Fixed::FromDouble(sqrt(gameScale.DoubleValue()));
+    Fixed gameScale = g_app->GetWorld()->GetUnitScaleFactor();
+    size /= gameScale;
+    if( gameScale >= Fixed(4) )
+    {
+        float scaleComp = 1.0f + (gameScale.DoubleValue() - 4.0f) * (7.0f / 12.0f);
+        size *= Fixed::FromDouble(scaleComp);
+    }
 
     return size;
 }
@@ -910,6 +909,154 @@ const char *WorldObject::GetName (int _type)
     }
 
     return "?";
+}
+
+
+namespace
+{
+    struct TerritoryNameOverride
+    {
+        int territory;
+        int unitType;
+        const char *langKey;
+    };
+
+    static const TerritoryNameOverride s_nameOverrides[] =
+    {
+        // USA
+        { World::TerritoryUSA, WorldObject::TypeFighter,            "unit_fighter_f18" },
+        { World::TerritoryUSA, WorldObject::TypeFighterStealth,     "unit_fighter_stealth_f22" },
+        { World::TerritoryUSA, WorldObject::TypeBomber,             "unit_bomber_b52" },
+        { World::TerritoryUSA, WorldObject::TypeBomberFast,         "unit_bomber_fast_b1b" },
+        { World::TerritoryUSA, WorldObject::TypeBomberStealth,      "unit_bomber_stealth_b2" },
+        { World::TerritoryUSA, WorldObject::TypeCarrierSuper,       "unit_carrier_super_nimitz" },
+        { World::TerritoryUSA, WorldObject::TypeCarrierLight,       "unit_carrier_light_wasp" },
+        { World::TerritoryUSA, WorldObject::TypeBattleShip,         "unit_battleship_cg_tico" },
+        { World::TerritoryUSA, WorldObject::TypeBattleShip2,        "unit_battleship_ddg_arleigh" },
+        { World::TerritoryUSA, WorldObject::TypeBattleShip3,        "unit_battleship_ffg_lcs" },
+        { World::TerritoryUSA, WorldObject::TypeSub,                "unit_sub_ohio" },
+        { World::TerritoryUSA, WorldObject::TypeSubC,               "unit_subc_virginia" },
+        { World::TerritoryUSA, WorldObject::TypeSubG,               "unit_subg_ohio" },
+        { World::TerritoryUSA, WorldObject::TypeAirBase,            "unit_airbase_usfighter" },
+        { World::TerritoryUSA, WorldObject::TypeAirBase2,           "unit_airbase2_usbomber" },
+        { World::TerritoryUSA, WorldObject::TypeAirBase3,           "unit_airbase3_usnavy" },
+
+        // NATO
+        { World::TerritoryNATO, WorldObject::TypeFighter,           "unit_fighter_rafale" },
+        { World::TerritoryNATO, WorldObject::TypeCarrier,           "unit_carrier_degaulle" },
+        { World::TerritoryNATO, WorldObject::TypeCarrierLight,      "unit_carrier_light_qe" },
+        { World::TerritoryNATO, WorldObject::TypeBattleShip2,       "unit_battleship_ddg_horizon" },
+        { World::TerritoryNATO, WorldObject::TypeBattleShip3,       "unit_battleship_ffg_fremm" },
+        { World::TerritoryNATO, WorldObject::TypeAirBase,           "unit_airbase_nato" },
+        { World::TerritoryNATO, WorldObject::TypeAirBase2,          "unit_airbase2_otan" },
+
+        // Russia
+        { World::TerritoryRussia, WorldObject::TypeFighterLight,    "unit_fighter_light_fulcrum" },
+        { World::TerritoryRussia, WorldObject::TypeFighter,         "unit_fighter_flanker" },
+        { World::TerritoryRussia, WorldObject::TypeFighterStealth,  "unit_fighter_stealth_su57" },
+        { World::TerritoryRussia, WorldObject::TypeBomber,          "unit_bomber_tu95" },
+        { World::TerritoryRussia, WorldObject::TypeBomberFast,      "unit_bomber_fast_tu22" },
+        { World::TerritoryRussia, WorldObject::TypeCarrier,         "unit_carrier_kuznetsov" },
+        { World::TerritoryRussia, WorldObject::TypeBattleShip,      "unit_battleship_cg_slava" },
+        { World::TerritoryRussia, WorldObject::TypeBattleShip2,     "unit_battleship_ddg_udaloy" },
+        { World::TerritoryRussia, WorldObject::TypeBattleShip3,     "unit_battleship_ffg_grigorovich" },
+        { World::TerritoryRussia, WorldObject::TypeSub,             "unit_sub_dolgorukiy" },
+        { World::TerritoryRussia, WorldObject::TypeSubC,            "unit_subc_akula" },
+        { World::TerritoryRussia, WorldObject::TypeSubG,            "unit_subg_sev" },
+        { World::TerritoryRussia, WorldObject::TypeSubK,            "unit_subk_kilo" },
+        { World::TerritoryRussia, WorldObject::TypeAirBase,         "unit_airbase_rufighter" },
+        { World::TerritoryRussia, WorldObject::TypeAirBase2,        "unit_airbase2_rubomber" },
+
+        // China
+        { World::TerritoryChina, WorldObject::TypeFighterLight,     "unit_fighter_light_j10c" },
+        { World::TerritoryChina, WorldObject::TypeFighterStealth,   "unit_fighter_stealth_j20" },
+        { World::TerritoryChina, WorldObject::TypeFighterNavyStealth,"unit_fighter_navy_stealth_j35" },
+        { World::TerritoryChina, WorldObject::TypeBomber,           "unit_bomber_h6" },
+        { World::TerritoryChina, WorldObject::TypeCarrierSuper,     "unit_carrier_super_fujian" },
+        { World::TerritoryChina, WorldObject::TypeCarrier,          "unit_carrier_chi" },
+        { World::TerritoryChina, WorldObject::TypeCarrierLight,     "unit_carrier_light_chi" },
+        { World::TerritoryChina, WorldObject::TypeCarrierLHD,       "unit_carrier_lhd_type075" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip,       "unit_battleship_cg_type055" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip2,      "unit_battleship_ddg_type052d" },
+        { World::TerritoryChina, WorldObject::TypeBattleShip3,      "unit_battleship_ffg_type054a" },
+        { World::TerritoryChina, WorldObject::TypeSub,              "unit_sub_jin" },
+        { World::TerritoryChina, WorldObject::TypeSubC,             "unit_subc_shang" },
+        { World::TerritoryChina, WorldObject::TypeSubK,             "unit_subk_yuan" },
+        { World::TerritoryChina, WorldObject::TypeAirBase,          "unit_airbase_prcaf" },
+        { World::TerritoryChina, WorldObject::TypeAirBase2,         "unit_airbase2_prcnavy" },
+
+        // India
+        { World::TerritoryIndia, WorldObject::TypeFighterLight,     "unit_fighter_flanker" },
+        { World::TerritoryIndia, WorldObject::TypeFighter,          "unit_fighter_rafale" },
+        { World::TerritoryIndia, WorldObject::TypeCarrier,          "unit_carrier_vikrant" },
+
+        // Pakistan
+        { World::TerritoryPakistan, WorldObject::TypeFighter,       "unit_fighter_light_j10c" },
+
+        // Japan
+        { World::TerritoryJapan, WorldObject::TypeCarrierLight,     "unit_carrier_light_izumo" },
+
+        // Australia
+        { World::TerritoryAustralia, WorldObject::TypeCarrierLight, "unit_carrier_light_canberra" },
+
+        // Ukraine
+        { World::TerritoryUkraine, WorldObject::TypeFighterLight,   "unit_fighter_light_fulcrum" },
+
+        // Iran
+        { World::TerritoryIran, WorldObject::TypeFighterLight,      "unit_fighter_light_fulcrum" },
+        { World::TerritoryIran, WorldObject::TypeFighter,           "unit_fighter_f14" },
+
+        // Saudi
+        { World::TerritorySaudi, WorldObject::TypeFighter,          "unit_fighter_rafale" },
+
+        // Egypt
+        { World::TerritoryEgypt, WorldObject::TypeFighter,          "unit_fighter_rafale" },
+
+        // North Korea
+        { World::TerritoryNorthKorea, WorldObject::TypeFighterLight,"unit_fighter_light_fulcrum" },
+    };
+
+    static const int s_numNameOverrides = sizeof(s_nameOverrides) / sizeof(s_nameOverrides[0]);
+
+    struct GenericNameDefault
+    {
+        int unitType;
+        const char *langKey;
+    };
+
+    static const GenericNameDefault s_genericNameDefaults[] =
+    {
+        { WorldObject::TypeFighterLight,        "unit_fighter_light_f16" },
+        { WorldObject::TypeFighter,             "unit_fighter_flanker" },
+        { WorldObject::TypeFighterStealth,      "unit_fighter_stealth_su57" },
+        { WorldObject::TypeFighterNavyStealth,  "unit_fighter_navy_stealth_f35" },
+    };
+
+    static const int s_numGenericNameDefaults = sizeof(s_genericNameDefaults) / sizeof(s_genericNameDefaults[0]);
+}
+
+
+const char *WorldObject::GetTerritoryName( int _type, int _territory )
+{
+    if( _territory >= 0 )
+    {
+        for( int i = 0; i < s_numNameOverrides; ++i )
+        {
+            if( s_nameOverrides[i].territory == _territory &&
+                s_nameOverrides[i].unitType == _type )
+            {
+                return LANGUAGEPHRASE( s_nameOverrides[i].langKey );
+            }
+        }
+    }
+
+    for( int i = 0; i < s_numGenericNameDefaults; ++i )
+    {
+        if( s_genericNameDefaults[i].unitType == _type )
+            return LANGUAGEPHRASE( s_genericNameDefaults[i].langKey );
+    }
+
+    return GetName( _type );
 }
 
 
@@ -1208,6 +1355,9 @@ void WorldObject::FireGun( Fixed range )
     bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, interceptLongitude, interceptLatitude );
     bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
     (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
+
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+    if( team ) team->RegisterEngagedTarget( m_targetObjectId );
 }
 
 int WorldObject::GetAttackOdds( int _defenderType )
@@ -1340,8 +1490,8 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
             }
             else if( target->IsAircraft() )
             {
-                fighter->m_isEscorting = targetObjectId;
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+                fighter->m_isEscorting = targetObjectId;
             }
             else
             {
@@ -1390,7 +1540,13 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
         fighter->SetTeamId( m_teamId );
         fighter->SetPosition( m_longitude, m_latitude );
         if( aircraftMode == 1 )
-            fighter->SetState( 1 );  // Strike (LACM) mode
+        {
+            fighter->SetState( 1 );
+        }
+        else
+        {
+            fighter->m_states[1]->m_numTimesPermitted = 0;
+        }
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
         if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
@@ -1398,8 +1554,8 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
                 fighter->Land( targetObjectId );
             else if( target->IsAircraft() )
             {
-                fighter->m_isEscorting = targetObjectId;
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+                fighter->m_isEscorting = targetObjectId;
             }
             else
             {
@@ -1440,7 +1596,10 @@ bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude,
         fighter->SetTeamId( m_teamId );
         fighter->SetPosition( m_longitude, m_latitude );
         if( aircraftMode == 1 )
+        {
+            fighter->m_states[1]->m_numTimesPermitted = 1;
             fighter->SetState( 1 );
+        }
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
         if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
@@ -1448,8 +1607,8 @@ bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude,
                 fighter->Land( targetObjectId );
             else if( target->IsAircraft() )
             {
-                fighter->m_isEscorting = targetObjectId;
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+                fighter->m_isEscorting = targetObjectId;
             }
             else
             {
@@ -1490,7 +1649,10 @@ bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fix
         fighter->SetTeamId( m_teamId );
         fighter->SetPosition( m_longitude, m_latitude );
         if( aircraftMode == 1 )
+        {
+            fighter->m_states[1]->m_numTimesPermitted = 1;
             fighter->SetState( 1 );
+        }
         WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
         if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
@@ -1498,8 +1660,8 @@ bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fix
                 fighter->Land( targetObjectId );
             else if( target->IsAircraft() )
             {
-                fighter->m_isEscorting = targetObjectId;
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
+                fighter->m_isEscorting = targetObjectId;
             }
             else
             {
@@ -1540,8 +1702,8 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
             bomber->Land( targetObjectId );
         else if( target->IsAircraft() )
         {
-            bomber->m_isEscorting = targetObjectId;
             bomber->SetWaypoint( target->m_longitude, target->m_latitude );
+            bomber->m_isEscorting = targetObjectId;
         }
         g_app->GetWorld()->AddWorldObject( bomber );
         return true;
@@ -1672,8 +1834,8 @@ bool WorldObject::LaunchAEW( int targetObjectId, Fixed longitude, Fixed latitude
             aew->Land( targetObjectId );
         else if( target->IsAircraft() )
         {
-            aew->m_isEscorting = targetObjectId;
             aew->SetWaypoint( target->m_longitude, target->m_latitude );
+            aew->m_isEscorting = targetObjectId;
         }
         else
             aew->SetWaypoint( longitude, latitude );
@@ -1703,8 +1865,8 @@ bool WorldObject::LaunchTanker( int targetObjectId, Fixed longitude, Fixed latit
             tanker->Land( targetObjectId );
         else if( target->IsAircraft() )
         {
-            tanker->m_isEscorting = targetObjectId;
             tanker->SetWaypoint( target->m_longitude, target->m_latitude );
+            tanker->m_isEscorting = targetObjectId;
         }
         else
             tanker->SetWaypoint( longitude, latitude );

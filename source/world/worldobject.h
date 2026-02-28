@@ -261,6 +261,7 @@ public:
     virtual int         GetAttackOdds   ( int _defenderType );
 
     static const char         *GetName        ( int _type );
+    static const char         *GetTerritoryName( int _type, int _territory );
     static int          GetType         ( const char *_name );
 	static const char         *GetTypeName    ( int _type );
 	static WorldObject  *CreateObject   ( int _type );

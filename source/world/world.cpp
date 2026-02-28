@@ -235,9 +235,9 @@ Fixed World::GetGameScale()
 	// Game not running 
 
 	GameOption *option = g_app->GetGame()->GetOption( "WorldScale" );
-	if( !option || option->m_default == 0 )
+	if( !option )
 		return Fixed::FromDouble(1.0);
-	Fixed gameScale = Fixed::FromDouble( (double)option->m_currentValue / (double)option->m_default );
+	Fixed gameScale = Fixed::FromDouble( (double)option->m_currentValue / 100.0 );
 	
     //
 	// Cache the value if game is running
@@ -1563,7 +1563,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 1 / GetGameScale();
+                    Fixed maxDistance = 3 / GetGameScale();
                     return ( distance > maxDistance );                    
                 }
             }
@@ -1580,7 +1580,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
                 {
                     WorldObject *obj = GetWorldObject(nearestIndex);
                     Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
-                    Fixed maxDistance = 1 / GetGameScale();
+                    Fixed maxDistance = 3 / GetGameScale();
                     return ( distance > maxDistance );
                 }
             }
@@ -1868,6 +1868,8 @@ void World::ObjectSetWaypoint  ( int objectId, Fixed longitude, Fixed latitude )
         }
         MovingObject *mobj = (MovingObject *) wobj;
         mobj->m_isLanding = -1;
+        if( mobj->IsAircraft() )
+            mobj->m_targetObjectId = -1;
         mobj->SetWaypoint( longitude, latitude );
     }
 }
@@ -2076,11 +2078,15 @@ void World::AddDestroyedMessage( int attackerId, int defenderId, bool explosion 
 			}
 			if( g_languageTable->DoesFlagExist( 'U', msg ) )
 			{
-				LPREPLACESTRINGFLAG( 'U', WorldObject::GetName(defender->m_type), msg );
+				Team *defTeam = GetTeam( defender->m_teamId );
+				int defTerritory = ( defTeam && defTeam->m_territories.Size() > 0 ) ? defTeam->m_territories[0] : -1;
+				LPREPLACESTRINGFLAG( 'U', WorldObject::GetTerritoryName(defender->m_type, defTerritory), msg );
 			}
 			if( g_languageTable->DoesFlagExist( 'A', msg ) )
 			{
-				LPREPLACESTRINGFLAG( 'A', WorldObject::GetName(attacker->m_type), msg );
+				Team *atkTeam = GetTeam( attacker->m_teamId );
+				int atkTerritory = ( atkTeam && atkTeam->m_territories.Size() > 0 ) ? atkTeam->m_territories[0] : -1;
+				LPREPLACESTRINGFLAG( 'A', WorldObject::GetTerritoryName(attacker->m_type, atkTerritory), msg );
 			}
         }
 
@@ -2100,9 +2106,11 @@ void World::AddOutOfFueldMessage( int objectId )
             if( object->m_teamId == m_myTeamId )
             {
                 char msg[256];
+                Team *fuelTeam = GetTeam( object->m_teamId );
+                int fuelTerritory = ( fuelTeam && fuelTeam->m_territories.Size() > 0 ) ? fuelTeam->m_territories[0] : -1;
                 sprintf( msg, "%s %s %s", 
-                              GetTeam( object->m_teamId )->GetTeamName(), 
-                              WorldObject::GetName(object->m_type),
+                              fuelTeam->GetTeamName(), 
+                              WorldObject::GetTerritoryName(object->m_type, fuelTerritory),
                               LANGUAGEPHRASE("message_fuel"));
                 AddWorldMessage( object->m_longitude, object->m_latitude, object->m_teamId, msg, WorldMessage::TypeFuel );
             }
@@ -2375,6 +2383,17 @@ void World::Update()
         }
     }
     END_PROFILE("Fleets");
+
+    //
+    // Tick fire dispersal ledgers
+
+    {
+        Fixed dispersalDt = SERVER_ADVANCE_PERIOD * GetTimeScaleFactor();
+        for( int i = 0; i < m_teams.Size(); ++i )
+        {
+            m_teams[i]->FireDispersalTick( dispersalDt );
+        }
+    }
 
     //
     // Update explosions

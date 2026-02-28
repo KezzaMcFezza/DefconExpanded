@@ -38,7 +38,7 @@ SidePanel::SidePanel( const char *name )
 	m_fontsize(13.0f)
 {
     //SetMovable(false);
-    SetSize( 250, 615 );  // 7 fleet slots: 50 + 7*75 + 58 for mode button
+    SetSize( 250, 200 );
 	if( g_windowManager->WindowH() > 480 )
 	{
 		SetPosition( 0, 100 );
@@ -81,7 +81,6 @@ void SidePanel::Create()
 
 	m_fontsize = 48 / 1.2f / 4.0f;
 
-    // Territory roster: use first territory (or USA fallback if none)
     Team *myTeam = g_app->GetWorld()->GetMyTeam();
     int primaryTerritory = World::TerritoryUSA;
     if( myTeam && myTeam->m_territories.Size() > 0 )
@@ -89,6 +88,10 @@ void SidePanel::Create()
 
     TerritoryRosterSlot buildingSlots[6][2];
     int rowsUsed = GetTerritoryBuildingRoster( primaryTerritory, buildingSlots );
+
+    int modeButtonY = y + rowsUsed * rowGap;
+    int creditExtra = g_app->GetGame()->GetOptionValue("VariableUnitCounts") ? 30 : 0;
+    m_h = modeButtonY + 66 + creditExtra;
 
     for( int r = 0; r < rowsUsed && r < 6; ++r )
     {
@@ -106,7 +109,7 @@ void SidePanel::Create()
     }
 
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-    fmb->SetProperties( "FleetMode", x, m_h - 58, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+    fmb->SetProperties( "FleetMode", x, modeButtonY, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
     RegisterButton( fmb );
 }
@@ -360,6 +363,10 @@ void SidePanel::ChangeMode( int mode )
         TerritoryRosterSlot buildingSlots[6][2];
         int rowsUsed = GetTerritoryBuildingRoster( primaryTerritory, buildingSlots );
 
+        int modeButtonY = y + rowsUsed * rowGap;
+        int creditExtra = g_app->GetGame()->GetOptionValue("VariableUnitCounts") ? 30 : 0;
+        m_h = modeButtonY + 66 + creditExtra;
+
         for( int r = 0; r < rowsUsed && r < 6; ++r )
         {
             for( int c = 0; c < 2; ++c )
@@ -392,7 +399,7 @@ void SidePanel::ChangeMode( int mode )
         }
 
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
-        fmb->SetProperties( "FleetMode", x, m_h - 58, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
+        fmb->SetProperties( "FleetMode", x, modeButtonY, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
         if( shipsRemaining == 0 )
         {
@@ -414,6 +421,13 @@ void SidePanel::ChangeMode( int mode )
         TerritoryRosterSlot navySlots[6][2];
         int navyRows = GetTerritoryNavyRoster( primaryTerritory, navySlots );
 
+        int slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
+        int fleetColumnBottom = slotY + Fleet::MaxFleetSize * (slotH + slotGap) + slotH + 10;
+        int navyModeButtonY = y + navyRows * rowGap;
+        int creditExtra = g_app->GetGame()->GetOptionValue("VariableUnitCounts") ? 30 : 0;
+        m_h = navyModeButtonY + 66 + creditExtra;
+        if( fleetColumnBottom > m_h ) m_h = fleetColumnBottom;
+
         for( int r = 0; r < navyRows && r < 6; ++r )
         {
             for( int c = 0; c < 2; ++c )
@@ -429,17 +443,15 @@ void SidePanel::ChangeMode( int mode )
             }
         }
         PanelModeButton *umb = new PanelModeButton( ModeUnitPlacement, true );
-        umb->SetProperties( "UnitMode", x, m_h - 58, 48, 48, "dialog_units", "", true, false );
+        umb->SetProperties( "UnitMode", x, navyModeButtonY, 48, 48, "dialog_units", "", true, false );
         strcpy( umb->bmpImageFilename, "graphics/units.bmp" );
         RegisterButton( umb );
 
-        int fleetSlotX = 160;  // Right column, to the right of 2x6 ship grid (26+75+48=149)
+        int fleetSlotX = 160;
         ClearFleetButton *cfb = new ClearFleetButton();
         cfb->SetProperties( "ClearFleet", fleetSlotX, 20, 88, 28, "dialog_clear_fleet", "tooltip_clear_fleet", false, true );
         RegisterButton( cfb );
 
-        // Fleet slots in single column
-        int slotW = 40, slotH = 40, slotY = 55, slotGap = 35;
         for( int i = 0; i < Fleet::MaxFleetSize; ++i )
         {
             char name[128];
@@ -572,7 +584,10 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 
-    const char *unitName = WorldObject::GetName( m_unitType );
+    int primaryTerritory = -1;
+    if( team && team->m_territories.Size() > 0 )
+        primaryTerritory = team->m_territories[0];
+    const char *unitName = WorldObject::GetTerritoryName( m_unitType, primaryTerritory );
 
 	char caption[256];
 	sprintf(caption, "%s(%u)", unitName, team->m_unitsAvailable[m_unitType]);
@@ -811,7 +826,10 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
 
-        const char *unitName = WorldObject::GetName( m_unitType );
+        int primaryTerritory = -1;
+        if( team && team->m_territories.Size() > 0 )
+            primaryTerritory = team->m_territories[0];
+        const char *unitName = WorldObject::GetTerritoryName( m_unitType, primaryTerritory );
 
         char caption[256];
 	    sprintf(caption, "%s(%u)", unitName, team->m_unitsAvailable[m_unitType]);

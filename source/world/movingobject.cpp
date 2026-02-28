@@ -201,7 +201,9 @@ bool MovingObject::Update()
         WorldObject *escortTarget = g_app->GetWorld()->GetWorldObject( m_isEscorting );
         if( escortTarget && escortTarget->m_life > 0 )
         {
+            int savedEscort = m_isEscorting;
             SetWaypoint( escortTarget->m_longitude, escortTarget->m_latitude );
+            m_isEscorting = savedEscort;
         }
         else
         {
@@ -770,29 +772,23 @@ void MovingObject::RenderHistory2D()
 
     int maxSize = m_history.Size();
     
-    int sizeCap = 80;
-    if( g_app->GetMapRenderer() )
-    {
-        sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
-    }
+    float zf = g_app->GetMapRenderer() ? g_app->GetMapRenderer()->GetZoomFactor() : 1.0f;
     float gameScale = World::GetGameScale().DoubleValue();
-    if( gameScale > 0.01f )
-        sizeCap /= (int)sqrt(gameScale);
+    if( gameScale < 0.01f ) gameScale = 1.0f;
+    int sizeCap = (int)(80.0f * zf / gameScale);
+    if( sizeCap < 2 ) sizeCap = 2;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
         switch( m_type )
         {
             case TypeNuke:
-                if( g_app->GetMapRenderer() )
-                {
-                    sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                }
-                if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
-                {
-                    return;
-                }
+            {
+                int nukeCap = (int)(12.0f * zf / gameScale);
+                if( nukeCap < 2 ) nukeCap = 2;
+                sizeCap = nukeCap;
                 break;
+            }
 
             case TypeBattleShip:
             case TypeBattleShip2:
@@ -823,8 +819,6 @@ void MovingObject::RenderHistory2D()
             default:
                 return;
         }
-
-        if( sizeCap < 2 ) return;
     }
 
     maxSize = ( maxSize > sizeCap ? sizeCap : maxSize );
@@ -886,29 +880,23 @@ void MovingObject::RenderHistory3D()
 
     int maxSize = m_history.Size();
     
-    int sizeCap = 80;
-    if( g_app->GetMapRenderer() )
-    {
-        sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
-    }
-    float gameScale = World::GetGameScale().DoubleValue();
-    if( gameScale > 0.01f )
-        sizeCap /= (int)sqrt(gameScale);
+    float zf3d = g_app->GetMapRenderer() ? g_app->GetMapRenderer()->GetZoomFactor() : 1.0f;
+    float gameScale3d = World::GetGameScale().DoubleValue();
+    if( gameScale3d < 0.01f ) gameScale3d = 1.0f;
+    int sizeCap = (int)(80.0f * zf3d / gameScale3d);
+    if( sizeCap < 2 ) sizeCap = 2;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
         switch( m_type )
         {
             case TypeNuke:
-                if( g_app->GetMapRenderer() )
-                {
-                    sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                }
-                if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
-                {
-                    return;
-                }
+            {
+                int nukeCap3d = (int)(12.0f * zf3d / gameScale3d);
+                if( nukeCap3d < 2 ) nukeCap3d = 2;
+                sizeCap = nukeCap3d;
                 break;
+            }
 
             case TypeBattleShip:
             case TypeBattleShip2:
@@ -939,8 +927,6 @@ void MovingObject::RenderHistory3D()
             default:
                 return;
         }
-
-        if( sizeCap < 2 ) return;
     }
 
     maxSize = ( maxSize > sizeCap ? sizeCap : maxSize );

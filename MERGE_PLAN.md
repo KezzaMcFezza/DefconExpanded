@@ -5,6 +5,97 @@
 
 **Unit stats reference** (goatcon): [Google Sheets](https://docs.google.com/spreadsheets/d/1-H62mTA2QfVusg6o__63ntxi6qa7lSKGxBhz7t7S-lM/edit?gid=1935469833#gid=1935469833) — Life Points, Stealth Type, Speed, Turn Rate, Prepare/Reload Time, Action/Fuel Range, Nuke/LACM supply, Max Fighters, per-airbase launch options
 
+territory-specific unit names
+
+generic:
+fighter_light: f16
+fighter: flanker
+fighter_stealth: su57
+fighter_navy_stealth: f35
+
+USA:
+fighter: f18
+fighter_stealth: f22
+bomber: b52
+bomber_fast: b1b
+bomber_stealth: b2
+carrier_super: nimitz
+carrer_light: wasp
+battleship: ticonderoga
+battleship2: arleigh
+battleship3: independence
+sub: ssbn ohio
+subc: ssn virginia
+subg: ssgn ohio
+airbase: usfighter
+airbase2: usbomber
+airbase3: usnavy
+
+NATO:
+fighter: rafale
+carrier: degaullt
+carrier_light: queen
+battleship2: horizon
+battleship3: fremm
+airbase: nato
+airbase2: otan
+
+Russia:
+fighter_light: mig29
+bomber: tu95
+bomber_fast: tu22m
+carrier: kuznetsov
+battleship: slava
+battleship2: udaloy
+battleship3: grigorovich
+sub: dolgorukiy
+subc: akula
+subg: sev
+subk: kilo
+airbase: rufighter
+airbase: rubomber
+
+China:
+fighter_light: j10
+fighter_stealth: j20
+fighter_navy_stealth: j35
+bomber: h6
+carrier_super: fujian
+carrier: liaoning
+carrier_light: shandong
+carrier_lhd: type075
+battleship: type055
+battleship2: type052
+battleship3: type054
+sub: jin
+subc: shang
+subk: yuan
+airbase: prcaf
+airbase2: prcnavy
+
+India:
+fighter_light: flanker
+fighter: rafale
+carrier: vikrant
+
+Pakistan:
+fighter: j10
+
+Japan:
+carrier_light: izumo
+
+Australia:
+carrier_light: canberra
+
+Iran:
+fighter_light: mig29
+fighter: f14
+
+Ukraine:
+NorthKorea:
+fighter_light: mig29
+
+
 Territory-specific aircraft launcher loads
 
 Generic

@@ -105,8 +105,8 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 Land( targetObjectId );
             else if( targetObj->IsAircraft() )
             {
-                m_isEscorting = targetObjectId;
                 SetWaypoint( targetObj->m_longitude, targetObj->m_latitude );
+                m_isEscorting = targetObjectId;
             }
             return;
         }
@@ -176,8 +176,8 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                     Land( targetObjectId );
                 else if( friendCheck->IsAircraft() )
                 {
-                    m_isEscorting = targetObjectId;
                     SetWaypoint( friendCheck->m_longitude, friendCheck->m_latitude );
+                    m_isEscorting = targetObjectId;
                 }
                 return;
             }
@@ -268,8 +268,8 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                  g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
                  target->IsAircraft() )
         {
-            m_isEscorting = targetObjectId;
             SetWaypoint( target->m_longitude, target->m_latitude );
+            m_isEscorting = targetObjectId;
         }
         MovingObject::Action( targetObjectId, longitude, latitude );
     }
@@ -781,8 +781,8 @@ void Bomber::RequestAction( ActionOrder *_action )
                 Land( _action->m_targetObjectId );
             else if( target->IsAircraft() )
             {
-                m_isEscorting = _action->m_targetObjectId;
                 SetWaypoint( target->m_longitude, target->m_latitude );
+                m_isEscorting = _action->m_targetObjectId;
             }
             delete _action;
             return;

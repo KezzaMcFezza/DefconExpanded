@@ -1459,3 +1459,67 @@ Fleet *Team::GetFleet( int fleetId )
 }
 
 
+const Fixed Team::FIRE_DISPERSAL_WINDOW = Fixed(2);
+
+
+void Team::RegisterEngagedTarget( int targetId )
+{
+    for( int i = 0; i < m_fireDispersalTargetIds.Size(); ++i )
+    {
+        if( m_fireDispersalTargetIds[i] == targetId )
+        {
+            *m_fireDispersalCountdowns.GetPointer( i ) = FIRE_DISPERSAL_WINDOW;
+            return;
+        }
+    }
+    m_fireDispersalTargetIds.PutData( targetId );
+    m_fireDispersalCountdowns.PutData( FIRE_DISPERSAL_WINDOW );
+}
+
+
+bool Team::IsTargetRecentlyEngaged( int targetId ) const
+{
+    for( int i = 0; i < m_fireDispersalTargetIds.Size(); ++i )
+    {
+        if( m_fireDispersalTargetIds.GetData( i ) == targetId )
+            return true;
+    }
+    return false;
+}
+
+
+void Team::FireDispersalTick( Fixed dt )
+{
+    for( int i = m_fireDispersalTargetIds.Size() - 1; i >= 0; --i )
+    {
+        int targetId = m_fireDispersalTargetIds[i];
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( targetId );
+        if( !obj || obj->m_life <= 0 )
+        {
+            m_fireDispersalTargetIds.RemoveData( i );
+            m_fireDispersalCountdowns.RemoveData( i );
+            continue;
+        }
+        Fixed *cd = m_fireDispersalCountdowns.GetPointer( i );
+        if( cd )
+        {
+            *cd -= dt;
+            if( *cd <= 0 )
+            {
+                m_fireDispersalTargetIds.RemoveData( i );
+                m_fireDispersalCountdowns.RemoveData( i );
+            }
+        }
+    }
+}
+
+
+void Team::GetRecentlyEngagedIds( LList<int> &out ) const
+{
+    for( int i = 0; i < m_fireDispersalTargetIds.Size(); ++i )
+    {
+        out.PutData( m_fireDispersalTargetIds.GetData( i ) );
+    }
+}
+
+

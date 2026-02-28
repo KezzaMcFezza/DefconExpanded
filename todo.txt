@@ -120,11 +120,12 @@ Raitos Goals:
 - sub speed                                               - DONE
 - fix lacm range                                          - DONE
 - fleet size fix                                          - DONE
+- refueler                                                - DONE
+- aircraft non-combat pursuit waypoint handling           - DONE
 
 TODO:
 - unit stats rebalance
 - refine burstfire
 - ammunition revamp
 - lacm can't launch on friendly airbase/carrier bug
-- refueler
 - performance efficiancy increase

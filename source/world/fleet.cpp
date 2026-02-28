@@ -289,7 +289,7 @@ void Fleet::GetFormationPosition( int memberCount, int memberId, Fixed *longitud
             switch(memberId)
             {
                 case 0  :   /* center */                                break;
-                case 1  :                           *latitude += offset*4;  break;
+                case 1  :                           *latitude += offset*5;  break;
                 case 2  :   *longitude += offset*5; *latitude -= offset*4;  break;
                 case 3  :   *longitude -= offset*5; *latitude -= offset*4;  break;
             }

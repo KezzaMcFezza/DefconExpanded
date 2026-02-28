@@ -2,6 +2,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/render2d/renderer_2d.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/language_table.h"
@@ -11,6 +12,7 @@
 #include "app/game.h"
 
 #include "renderer/world_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 
@@ -64,8 +66,13 @@ void Tanker::Action( int targetObjectId, Fixed longitude, Fixed latitude )
              g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
              target->IsAircraft() )
     {
-        m_isEscorting = targetObjectId;
         SetWaypoint( target->m_longitude, target->m_latitude );
+        m_targetObjectId = targetObjectId;
+        m_isEscorting = targetObjectId;
+
+        bool isLarge = target->IsBomberClass() || target->IsAEWClass() ||
+                       target->m_type == TypeTanker;
+        ManualAssignSlot( targetObjectId, isLarge );
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId && targetObjectId == -1 )
@@ -73,8 +80,6 @@ void Tanker::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeActionMarker, m_objectId,
                                                     longitude.DoubleValue(), latitude.DoubleValue() );
     }
-
-    MovingObject::Action( targetObjectId, longitude, latitude );
 }
 
 bool Tanker::Update()
@@ -98,6 +103,8 @@ bool Tanker::Update()
                 ClearSlot( m_refuelSlot[s] );
                 continue;
             }
+            if( m_refuelSlot[s] == m_isEscorting || m_refuelSlot[s] == m_targetObjectId )
+                continue;
             Fixed dist = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
             if( dist > m_refuelRange + Fixed(2) )
             {
@@ -203,6 +210,52 @@ void Tanker::Render2D()
     }
 }
 
+void Tanker::Render3D()
+{
+    MovingObject::Render3D();
+
+    if( m_teamId != g_app->GetWorld()->m_myTeamId &&
+        g_app->GetWorld()->m_myTeamId != -1 &&
+        g_app->GetGame()->m_winner == -1 )
+    {
+        return;
+    }
+
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( !globeRenderer ) return;
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float tankerLon = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float tankerLat = (m_latitude + m_vel.y * predictionTime).DoubleValue();
+
+    Vector3<float> tankerPos = globeRenderer->ConvertLongLatTo3DPosition( tankerLon, tankerLat );
+    Vector3<float> tankerNormal = tankerPos;
+    tankerNormal.Normalise();
+    tankerPos += tankerNormal * GLOBE_ELEVATION;
+
+    for( int s = 0; s < 2; ++s )
+    {
+        if( m_refuelSlot[s] == -1 ) continue;
+        if( s == 1 && m_refuelSlot[0] == m_refuelSlot[1] ) continue;
+
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( m_refuelSlot[s] );
+        if( !target || !target->IsMovingObject() ) continue;
+
+        MovingObject *aircraft = (MovingObject *)target;
+        float targetLon = (aircraft->m_longitude + aircraft->m_vel.x * predictionTime).DoubleValue();
+        float targetLat = (aircraft->m_latitude + aircraft->m_vel.y * predictionTime).DoubleValue();
+
+        Vector3<float> targetPos = globeRenderer->ConvertLongLatTo3DPosition( targetLon, targetLat );
+        Vector3<float> targetNormal = targetPos;
+        targetNormal.Normalise();
+        targetPos += targetNormal * GLOBE_ELEVATION;
+
+        g_renderer3d->Line3D( tankerPos.x, tankerPos.y, tankerPos.z,
+                              targetPos.x, targetPos.y, targetPos.z,
+                              Colour(255, 255, 255, 140) );
+    }
+}
+
 int Tanker::GetAttackState()
 {
     return -1;
@@ -252,6 +305,38 @@ void Tanker::AssignSlot( int objectId, bool largeSlot )
             m_refuelSlot[0] = objectId;
         else if( m_refuelSlot[1] == -1 )
             m_refuelSlot[1] = objectId;
+    }
+}
+
+void Tanker::ManualAssignSlot( int objectId, bool isLarge )
+{
+    if( m_refuelSlot[0] == objectId || m_refuelSlot[1] == objectId )
+        return;
+
+    if( isLarge )
+    {
+        m_refuelSlot[0] = objectId;
+        m_refuelSlot[1] = objectId;
+        return;
+    }
+
+    if( m_refuelSlot[0] == -1 )
+    {
+        m_refuelSlot[0] = objectId;
+    }
+    else if( m_refuelSlot[1] == -1 )
+    {
+        m_refuelSlot[1] = objectId;
+    }
+    else if( m_refuelSlot[0] == m_refuelSlot[1] )
+    {
+        m_refuelSlot[0] = objectId;
+        m_refuelSlot[1] = -1;
+    }
+    else
+    {
+        m_refuelSlot[0] = m_refuelSlot[1];
+        m_refuelSlot[1] = objectId;
     }
 }
 
@@ -314,6 +399,9 @@ int Tanker::FindBestRefuelTarget()
 
         if( !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId ) ) continue;
 
+        MovingObject *aircraft = (MovingObject *)obj;
+        if( aircraft->m_isLanding != m_objectId ) continue;
+
         Fixed dist = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( dist > m_refuelRange ) continue;
 
@@ -325,7 +413,6 @@ int Tanker::FindBestRefuelTarget()
         }
         if( alreadySlotted ) continue;
 
-        MovingObject *aircraft = (MovingObject *)obj;
         Fixed maxRange = aircraft->m_maxRange;
         if( maxRange <= 0 ) continue;
         if( aircraft->m_range >= maxRange ) continue;

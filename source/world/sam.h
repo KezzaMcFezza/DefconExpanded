@@ -14,6 +14,7 @@ public:
     int     GetTargetObjectId();
     bool    UsingGuns       ();
     virtual void AirDefense      ();
+    int     FindBestAirTarget( const LList<int> *excludeIds );
 
     virtual int  GetAttackOdds       ( int _defenderType );
     virtual int  IsValidCombatTarget ( int _objectId );

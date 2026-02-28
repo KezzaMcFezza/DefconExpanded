@@ -34,6 +34,9 @@ void ABM::FireGun( Fixed range )
     bullet->m_distanceToTarget = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, interceptLongitude, interceptLatitude );
     bullet->m_attackOdds = g_app->GetWorld()->GetAttackOdds( m_type, targetObject->m_type, m_objectId );
     (void)g_app->GetWorld()->m_gunfire.PutData( bullet );
+
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+    if( team ) team->RegisterEngagedTarget( m_targetObjectId );
 }
 
 Image *ABM::GetBmpImage( int state )
@@ -43,30 +46,52 @@ Image *ABM::GetBmpImage( int state )
 }
 
 
+int ABM::FindBestBallisticTarget( const LList<int> *excludeIds )
+{
+    Fixed actionRangeSqd = GetActionRangeSqd();
+    static const int priorities[] = { WorldObject::TypeNuke, WorldObject::TypeCBM };
+    for( int p = 0; p < 2; ++p )
+    {
+        int id = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude,
+                                                       priorities[p], true, excludeIds );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( id );
+        if( obj && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude,
+                                                       obj->m_longitude, obj->m_latitude ) <= actionRangeSqd )
+        {
+            return obj->m_objectId;
+        }
+    }
+    return -1;
+}
+
+
 void ABM::AirDefense()
 {
     if( g_app->GetWorld()->GetDefcon() > 3 )
         return;
 
-    LList<int> excluded;
-    BurstFireGetExcludedIds( excluded );
-    const LList<int> *excludePtr = excluded.Size() > 0 ? &excluded : nullptr;
-    Fixed actionRangeSqd = GetActionRangeSqd();
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
 
-    // ABM targets ballistic missiles only (Nuke, then CBM)
-    int nukeId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeNuke, true, excludePtr );
-    WorldObject *nuke = g_app->GetWorld()->GetWorldObject( nukeId );
-    if( nuke && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, nuke->m_longitude, nuke->m_latitude ) <= actionRangeSqd )
+    LList<int> burstExcluded;
+    BurstFireGetExcludedIds( burstExcluded );
+
+    LList<int> fullExcluded;
+    for( int i = 0; i < burstExcluded.Size(); ++i )
+        fullExcluded.PutData( burstExcluded[i] );
+    if( team ) team->GetRecentlyEngagedIds( fullExcluded );
+
+    int targetId = FindBestBallisticTarget( fullExcluded.Size() > 0 ? &fullExcluded : nullptr );
+    if( targetId != -1 )
     {
-        Action( nuke->m_objectId, -1, -1 );
+        Action( targetId, -1, -1 );
+        if( team ) team->RegisterEngagedTarget( targetId );
         return;
     }
 
-    int cbmId = g_app->GetWorld()->GetNearestObject( m_teamId, m_longitude, m_latitude, WorldObject::TypeCBM, true, excludePtr );
-    WorldObject *cbm = g_app->GetWorld()->GetWorldObject( cbmId );
-    if( cbm && g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, cbm->m_longitude, cbm->m_latitude ) <= actionRangeSqd )
+    int engagedId = FindBestBallisticTarget( burstExcluded.Size() > 0 ? &burstExcluded : nullptr );
+    if( engagedId != -1 )
     {
-        Action( cbm->m_objectId, -1, -1 );
+        m_retargetTimer = Fixed::Hundredths(50);
     }
 }
 

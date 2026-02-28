@@ -102,6 +102,10 @@ public:
 
     BoundedArray<float> m_leftAllianceTimer;    // achievement tracking only
     bool    m_alwaysSolo;
+
+    LList<int>   m_fireDispersalTargetIds;
+    LList<Fixed> m_fireDispersalCountdowns;
+    static const Fixed FIRE_DISPERSAL_WINDOW;
     
 public:
     Team();
@@ -152,6 +156,11 @@ public:
     void AddEvent( int type, int objectId, int teamId, int fleetId, Fixed longitude, Fixed latitude );
     void DeleteEvent( int id );
     Event *GetEvent( int id );
+
+    void RegisterEngagedTarget   ( int targetId );
+    bool IsTargetRecentlyEngaged ( int targetId ) const;
+    void FireDispersalTick       ( Fixed dt );
+    void GetRecentlyEngagedIds   ( LList<int> &out ) const;
 };
 
 

@@ -13,6 +13,7 @@ public:
 
     void    FireGun     ( Fixed range ) override;
     void    AirDefense() override;
+    int     FindBestBallisticTarget( const LList<int> *excludeIds );
     int     GetAttackOdds( int _defenderType ) override;
     int     IsValidCombatTarget( int _objectId ) override;
     Image  *GetBmpImage( int state ) override;
