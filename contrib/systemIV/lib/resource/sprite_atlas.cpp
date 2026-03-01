@@ -665,10 +665,13 @@ bool RuntimeTextureAtlas::BuildFromDirectory( const char *directory,
 
 	for ( int i = 0; i < spriteCount; ++i )
 	{
-		m_spriteMap.PutData( sprites[i]->filename, sprites[i] );
+		if ( m_spriteMap.GetPointerConst( sprites[i]->filename ) )
+		{
+			delete sprites[i];
+			continue;
+		}
 
-		//
-		// delete source bitmap to save memory
+		m_spriteMap.PutData( sprites[i]->filename, sprites[i] );
 
 		delete sprites[i]->sourceBitmap;
 		sprites[i]->sourceBitmap = NULL;

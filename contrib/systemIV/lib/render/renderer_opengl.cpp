@@ -490,6 +490,12 @@ void RendererOpenGL::SetDepthMask( bool enabled )
 }
 
 
+bool RendererOpenGL::GetDepthMask() const
+{
+	return m_depthMaskEnabled;
+}
+
+
 void RendererOpenGL::SetDepthComparison( int comparisonFunc )
 {
 	if ( m_depthComparisonFunc != comparisonFunc )
@@ -1122,6 +1128,7 @@ unsigned int RendererOpenGL::CreateTexture( int width, int height, const Colour 
 	glGenTextures( 1, &texId );
 	m_allocatedTextureIds.insert( texId );
 	glBindTexture( GL_TEXTURE_2D, texId );
+	m_currentBoundTexture = texId;
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConvertTextureAddressMode( TEXTURE_ADDRESS_CLAMP ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ConvertTextureAddressMode( TEXTURE_ADDRESS_CLAMP ) );

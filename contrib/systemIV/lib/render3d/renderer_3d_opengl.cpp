@@ -526,6 +526,7 @@ void Renderer3DOpenGL::FlushStaticSprites3D( bool isImmediate )
 		IncrementDrawCall3D( DRAW_CALL_STATIC_SPRITES );
 	}
 
+	bool previousDepthMask = g_renderer->GetDepthMask();
 	g_renderer->SetDepthMask( false );
 
 	g_renderer->SetShaderProgram( m_shader3DTexturedProgram );
@@ -541,7 +542,7 @@ void Renderer3DOpenGL::FlushStaticSprites3D( bool isImmediate )
 	UploadVertexDataTo3DVBO( m_spriteVBO3D, m_staticSpriteVertices3D, m_staticSpriteVertexCount3D, GL_DYNAMIC_DRAW );
 
 	glDrawArrays( GL_TRIANGLES, 0, m_staticSpriteVertexCount3D );
-	g_renderer->SetDepthMask( true );
+	g_renderer->SetDepthMask( previousDepthMask );
 
 	m_staticSpriteVertexCount3D = 0;
 
@@ -572,6 +573,7 @@ void Renderer3DOpenGL::FlushRotatingSprite3D( bool isImmediate )
 		IncrementDrawCall3D( DRAW_CALL_ROTATING_SPRITES );
 	}
 
+	bool previousDepthMask = g_renderer->GetDepthMask();
 	g_renderer->SetDepthMask( false );
 
 	g_renderer->SetShaderProgram( m_shader3DTexturedProgram );
@@ -587,7 +589,7 @@ void Renderer3DOpenGL::FlushRotatingSprite3D( bool isImmediate )
 	UploadVertexDataTo3DVBO( m_spriteVBO3D, m_rotatingSpriteVertices3D, m_rotatingSpriteVertexCount3D, GL_DYNAMIC_DRAW );
 
 	glDrawArrays( GL_TRIANGLES, 0, m_rotatingSpriteVertexCount3D );
-	g_renderer->SetDepthMask( true );
+	g_renderer->SetDepthMask( previousDepthMask );
 
 	m_rotatingSpriteVertexCount3D = 0;
 

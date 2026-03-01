@@ -35,7 +35,7 @@ private:
     char* m_name;                               // Atlas name for debugging
     
     bool PackSprites              (PackedSprite** sprites, int spriteCount, 
-                                   int maxWidth = 2048, int maxHeight = 2048);
+                                   int maxWidth = 4096, int maxHeight = 4096);
     void BlitSpritesToAtlas       (PackedSprite** sprites, int spriteCount);
     void ExtrudeSpriteEdges       (Bitmap* src, int x, int y, int w, int h);
     void CreateGLTexture          ();

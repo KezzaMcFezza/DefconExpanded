@@ -81,6 +81,7 @@ public:
     virtual void SetBlendFunc       (int srcFactor, int dstFactor)        override;
     virtual void SetDepthBuffer     (bool enabled, bool clearNow)         override;
     virtual void SetDepthMask       (bool enabled)                        override;
+    virtual bool GetDepthMask       () const                              override;
     virtual void SetDepthComparison (int comparisonFunc)                  override;
     virtual void SetCullFace        (bool enabled, int mode)              override;
     virtual void SetColorMask       (bool r, bool g, bool b, bool a)      override;

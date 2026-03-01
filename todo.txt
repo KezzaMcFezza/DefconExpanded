@@ -128,6 +128,7 @@ Raitos Goals:
 - Added Scenarios to lobby gameoptions                    - DONE
   Can now set scenarios, which load pre-placed units
 - ascm autotarget                                         - DONE
+- fix 3D unit rendering bugs                              - DONE
 -
 
 
@@ -136,5 +137,4 @@ ONGOING:
 - refine burstfire
 
 TODO:
-- fix 3D unit rendering bugs
 - performance efficiancy increase

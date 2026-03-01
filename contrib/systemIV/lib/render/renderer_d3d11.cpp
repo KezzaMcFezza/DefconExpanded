@@ -1362,6 +1362,12 @@ void RendererD3D11::SetDepthBuffer( bool _enabled, bool _clearNow )
 }
 
 
+bool RendererD3D11::GetDepthMask() const
+{
+	return m_depthMaskEnabled;
+}
+
+
 void RendererD3D11::SetDepthMask( bool enabled )
 {
 	if ( m_depthMaskEnabled != enabled )

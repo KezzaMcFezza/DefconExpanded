@@ -774,10 +774,12 @@ void Renderer3DD3D11::Set3DShaderUniforms()
 		m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
 
 		//
-		// Clear texture binding
+		// Clear texture binding and invalidate BindTexture cache
 
 		ID3D11ShaderResourceView *nullSRV = nullptr;
 		m_deviceContext->PSSetShaderResources( 0, 1, &nullSRV );
+		m_currentTextureID = 0;
+		m_currentTextureSRV = nullptr;
 
 		//
 		// Ensure render states are applied
@@ -867,10 +869,13 @@ void Renderer3DD3D11::SetLineShaderUniforms3D( float lineWidth )
 		}
 
 		//
-		// Clear texture binding
+		// Clear texture binding and invalidate BindTexture cache
+		// so subsequent sprite flushes don't skip PSSetShaderResources
 
 		ID3D11ShaderResourceView *nullSRV = nullptr;
 		m_deviceContext->PSSetShaderResources( 0, 1, &nullSRV );
+		m_currentTextureID = 0;
+		m_currentTextureSRV = nullptr;
 
 		//
 		// Ensure render states are applied
@@ -1281,6 +1286,7 @@ void Renderer3DD3D11::FlushStaticSprites3D( bool isImmediate )
 		IncrementDrawCall3D( DRAW_CALL_STATIC_SPRITES );
 	}
 
+	bool previousDepthMask = g_renderer->GetDepthMask();
 	g_renderer->SetDepthMask( false );
 
 	BindTexture( m_currentStaticSpriteTexture3D );
@@ -1295,7 +1301,7 @@ void Renderer3DD3D11::FlushStaticSprites3D( bool isImmediate )
 		m_deviceContext->Draw( m_staticSpriteVertexCount3D, 0 );
 	}
 
-	g_renderer->SetDepthMask( true );
+	g_renderer->SetDepthMask( previousDepthMask );
 
 	m_staticSpriteVertexCount3D = 0;
 	
@@ -1326,6 +1332,7 @@ void Renderer3DD3D11::FlushRotatingSprite3D( bool isImmediate )
 		IncrementDrawCall3D( DRAW_CALL_ROTATING_SPRITES );
 	}
 
+	bool previousDepthMask = g_renderer->GetDepthMask();
 	g_renderer->SetDepthMask( false );
 
 	BindTexture( m_currentRotatingSpriteTexture3D );
@@ -1340,7 +1347,7 @@ void Renderer3DD3D11::FlushRotatingSprite3D( bool isImmediate )
 		m_deviceContext->Draw( m_rotatingSpriteVertexCount3D, 0 );
 	}
 
-	g_renderer->SetDepthMask( true );
+	g_renderer->SetDepthMask( previousDepthMask );
 
 	m_rotatingSpriteVertexCount3D = 0;
 

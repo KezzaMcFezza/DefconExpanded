@@ -220,6 +220,7 @@ public:
     virtual void SetBlendFunc       (int srcFactor, int dstFactor) = 0;
     virtual void SetDepthBuffer     (bool enabled, bool clearNow) = 0;
     virtual void SetDepthMask       (bool enabled) = 0;
+    virtual bool GetDepthMask       () const = 0;
     virtual void SetDepthComparison (int comparisonFunc) = 0;
     virtual void SetCullFace        (bool enabled, int mode) = 0;
     virtual void SetColorMask       (bool r, bool g, bool b, bool a) = 0;
