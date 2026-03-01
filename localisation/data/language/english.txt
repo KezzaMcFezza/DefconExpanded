@@ -123,6 +123,8 @@ dialog_objecttrails                 Show Object Trails
 dialog_citynumberpop                City Population Rounding
 dialog_objectoutlines               Show Unit Outlines
 dialog_lobbyeffects                 Lobby Effects
+dialog_cursorcoords                 Cursor Coordinates
+dialog_coordsnap                    Snap Coords to Unit
 
 dialog_unitghosts                   Unit Ghosts
 dialog_travelnodes                  Show Travel Nodes

@@ -1468,6 +1468,81 @@ void App::Render()
     
     
     //
+    // Cursor coordinate overlay (debug/modding tool)
+
+    if( g_preferences->GetInt( PREFS_GRAPHICS_CURSORCOORDS, 0 ) )
+    {
+        float longitude = 0.0f;
+        float latitude  = 0.0f;
+        bool  gotCoords = true;
+        bool  snapped   = false;
+
+        if( g_preferences->GetInt( PREFS_GRAPHICS_COORDSNAP, 0 ) )
+        {
+            int highlightId = GetWorldRenderer()->GetCurrentHighlightId();
+            if( highlightId != -1 )
+            {
+                WorldObject *obj = GetWorld()->GetWorldObject( highlightId );
+                if( obj )
+                {
+                    longitude = obj->m_longitude.DoubleValue();
+                    latitude  = obj->m_latitude.DoubleValue();
+                    snapped   = true;
+                }
+            }
+        }
+
+        if( !snapped )
+        {
+            if( IsGlobeMode() )
+            {
+                gotCoords = GetGlobeRenderer()->ScreenToLongLat(
+                    g_inputManager->m_mouseX, g_inputManager->m_mouseY,
+                    &longitude, &latitude );
+            }
+            else
+            {
+                GetMapRenderer()->ConvertPixelsToAngle(
+                    g_inputManager->m_mouseX, g_inputManager->m_mouseY,
+                    &longitude, &latitude );
+            }
+        }
+
+        if( gotCoords )
+        {
+            static float s_clipboardFlashTimer = 0.0f;
+
+            char coordText[128];
+            sprintf( coordText, "Lon: %.4f  Lat: %.4f", longitude, latitude );
+
+            if( g_keys[KEY_EQUALS] && g_keyDeltas[KEY_EQUALS] &&
+                !m_interface->UsingChatWindow() && !m_interface->UsingAnyInputField() )
+            {
+                SDL_SetClipboardText( coordText );
+                s_clipboardFlashTimer = 1.0f;
+            }
+
+            if( s_clipboardFlashTimer > 0.0f )
+                s_clipboardFlashTimer -= g_advanceTime;
+
+            float textX = g_inputManager->m_mouseX + 20.0f;
+            float textY = g_inputManager->m_mouseY + 20.0f;
+
+            float screenW = (float) g_windowManager->WindowW();
+            float screenH = (float) g_windowManager->WindowH();
+            if( textX + 200 > screenW ) textX = g_inputManager->m_mouseX - 220.0f;
+            if( textY + 20  > screenH ) textY = g_inputManager->m_mouseY - 30.0f;
+
+            g_renderer->SetFont( "zerothre" );
+            Colour coordCol = snapped ? Colour(0,255,255,220) : Colour(255,255,255,220);
+            if( s_clipboardFlashTimer > 0.0f )
+                coordCol = Colour(255,255,0,220);
+            g_renderer2d->TextSimple( textX, textY, coordCol, 12.0f, coordText );
+            g_renderer->SetFont();
+        }
+    }
+
+    //
     // Mouse 
 
     GetInterface()->UpdateMousePointerVisibility();

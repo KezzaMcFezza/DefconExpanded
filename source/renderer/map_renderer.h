@@ -21,6 +21,8 @@ class AnimatedIcon;
 #define    PREFS_GRAPHICS_WATER                       "RenderWater"
 #define    PREFS_GRAPHICS_TRAILS                      "RenderObjectTrails"
 #define    PREFS_GRAPHICS_OUTLINES                    "RenderObjectOutlines"
+#define    PREFS_GRAPHICS_CURSORCOORDS                "RenderCursorCoords"
+#define    PREFS_GRAPHICS_COORDSNAP                   "RenderCursorCoordsSnap"
 
 #define    STYLE_WORLD_COASTLINES                     "WorldCoastlines"
 #define    STYLE_WORLD_BORDERS                        "WorldBorders"

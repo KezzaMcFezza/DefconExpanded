@@ -1184,6 +1184,8 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
         g_preferences->SetInt( PREFS_GRAPHICS_OUTLINES, gow->m_outlines );
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
+        g_preferences->SetInt( PREFS_GRAPHICS_CURSORCOORDS, gow->m_cursorCoords );
+        g_preferences->SetInt( PREFS_GRAPHICS_COORDSNAP, gow->m_coordSnap );
         
         g_app->GetEarthData()->LoadCoastlines();
 
@@ -1200,9 +1202,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 390, 440 );
+    SetSize( 390, 500 );
 #else
-    SetSize( 390, 400 );
+    SetSize( 390, 460 );
 #endif
 
     Centralise();
@@ -1221,6 +1223,8 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_trails             = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
     m_outlines           = g_preferences->GetInt( PREFS_GRAPHICS_OUTLINES );
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
+    m_cursorCoords  = g_preferences->GetInt( PREFS_GRAPHICS_CURSORCOORDS );
+    m_coordSnap     = g_preferences->GetInt( PREFS_GRAPHICS_COORDSNAP );
 }
 
 
@@ -1303,6 +1307,20 @@ void GraphicsOptionsWindow::Create()
     dropDown->RegisterInt( &m_lobbyEffects );
     RegisterButton(dropDown);
 
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Cursor Coordinates", x, y+=h, w, 20, "dialog_cursorcoords", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_cursorCoords );
+    RegisterButton(dropDown);
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Snap Coords to Unit", x, y+=h, w, 20, "dialog_coordsnap", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_coordSnap );
+    RegisterButton(dropDown);
+
     CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
     RegisterButton( cancel );
@@ -1337,6 +1355,8 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objectoutlines") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_cursorcoords") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coordsnap") );
 }
 
 

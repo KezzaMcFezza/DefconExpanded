@@ -47,6 +47,8 @@ public:
     int     m_trails;
     int     m_outlines;
     int     m_lobbyEffects;
+    int     m_cursorCoords;
+    int     m_coordSnap;
     
 public:
     GraphicsOptionsWindow();
