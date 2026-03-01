@@ -15,6 +15,7 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 #include "interface/placement_icon.h"
@@ -65,8 +66,18 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
     float longitude = 0.0f;
     float latitude = 0.0f;
     
-    g_app->GetMapRenderer()->ConvertPixelsToAngle( g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
-    if( !g_app->GetWorld()->IsValidPlacement( team->m_teamId, Fixed::FromDouble(longitude),
+    bool gotCoords = true;
+    if( g_app->IsGlobeMode() )
+    {
+        gotCoords = g_app->GetGlobeRenderer()->ScreenToLongLat( 
+            g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
+    }
+    else
+    {
+        g_app->GetMapRenderer()->ConvertPixelsToAngle( 
+            g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
+    }
+    if( !gotCoords || !g_app->GetWorld()->IsValidPlacement( team->m_teamId, Fixed::FromDouble(longitude),
 															  Fixed::FromDouble(latitude), m_unitType ) )
     {
         colour.Set(10,10,10,255);
@@ -131,10 +142,21 @@ void PlacementIconButton::MouseUp()
 	float longitude;
 	float latitude;
 
-	g_app->GetMapRenderer()->
-		ConvertPixelsToAngle( g_inputManager->m_mouseX, 
-							  g_inputManager->m_mouseY, 
-							  &longitude, &latitude );
+	if( g_app->IsGlobeMode() )
+	{
+		if( !g_app->GetGlobeRenderer()->ScreenToLongLat( 
+				g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+				&longitude, &latitude ) )
+		{
+			return;
+		}
+	}
+	else
+	{
+		g_app->GetMapRenderer()->ConvertPixelsToAngle( 
+			g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+			&longitude, &latitude );
+	}
 
 	int teamId = g_app->GetWorld()->m_myTeamId;
 

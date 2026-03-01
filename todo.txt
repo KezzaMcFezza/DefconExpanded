@@ -122,11 +122,19 @@ Raitos Goals:
 - fleet size fix                                          - DONE
 - refueler                                                - DONE
 - aircraft non-combat pursuit waypoint handling           - DONE
+- lacm can't launch on friendly airbase/carrier bug       - DONE
+- world scale unit resize                                 - DONE
+- zoom in features camera stability and proper UI scaling - DONE
+- Added Scenarios to lobby gameoptions                    - DONE
+  Can now set scenarios, which load pre-placed units
+- ascm autotarget                                         - DONE
+-
 
-TODO:
- - ascm autotarget
+
+ONGOING:
 - unit stats rebalance
 - refine burstfire
-- ammunition revamp
-- lacm can't launch on friendly airbase/carrier bug
+
+TODO:
+- fix 3D unit rendering bugs
 - performance efficiancy increase

@@ -2188,6 +2188,39 @@ bool App::IsGlobeMode()
     return m_globeMode;
 }
 
+void App::SetGlobeMode( bool globeMode )
+{
+    if( m_globeMode == globeMode ) return;
+
+    GlobeRenderer *globe = GetGlobeRenderer();
+    MapRenderer *map = GetMapRenderer();
+
+    if( globeMode )
+    {
+        //
+        // 2D map -> 3D globe: transfer map camera to globe camera
+
+        float mapZoom = map->m_zoomFactor;
+        float clampedZoom = fmaxf(globe->m_minZoomFactor, fminf(globe->m_maxZoomFactor, mapZoom));
+        float normalizedZoom = (clampedZoom - globe->m_minZoomFactor) 
+                             / (globe->m_maxZoomFactor - globe->m_minZoomFactor);
+        float distance = globe->m_minCameraDistance 
+                       + normalizedZoom * (globe->m_maxCameraDistance - globe->m_minCameraDistance);
+
+        globe->SetCameraPosition(map->m_middleX, map->m_middleY, distance);
+        globe->m_targetCameraDistance = distance;
+    }
+    else
+    {
+        //
+        // 3D globe -> 2D map: transfer globe camera to map camera
+
+        map->SetCameraImmediate(globe->m_cameraLongitude, globe->m_cameraLatitude, globe->m_zoomFactor);
+    }
+
+    m_globeMode = globeMode;
+}
+
 bool App::MousePointerIsVisible()
 {
 	return m_mousePointerVisible;

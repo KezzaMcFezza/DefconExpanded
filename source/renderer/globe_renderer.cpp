@@ -1010,6 +1010,8 @@ void GlobeRenderer::Render()
     // Begin scene main scene
 
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    g_renderer->SetDepthMask(false);
+    g_renderer->SetDepthComparison(DEPTH_COMPARISON_LESS_EQUAL);
     
     g_renderer3d->BeginTextBatch3D();              // Text batching
     g_renderer3d->BeginLineBatch3D();              // Unit movement trails
@@ -1051,6 +1053,7 @@ void GlobeRenderer::Render()
         Render3DNukes();
 
         g_renderer3d->BeginLineBatch3D();
+        g_renderer->SetDepthMask(false);
     }
 
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
@@ -1073,6 +1076,7 @@ void GlobeRenderer::Render()
     g_renderer3d->EndRotatingSpriteBatch3D();
     g_renderer3d->EndStaticSpriteBatch3D();
 
+    g_renderer->SetDepthComparison(DEPTH_COMPARISON_LESS);
     g_renderer->SetDepthBuffer(false, false);
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     
@@ -1167,6 +1171,56 @@ void GlobeRenderer::SetCameraPosition( float longitude, float latitude, float di
     float normalizedDistance = (m_cameraDistance - m_minCameraDistance) / (m_maxCameraDistance - m_minCameraDistance);
     normalizedDistance = fmaxf(0.0f, fminf(1.0f, normalizedDistance));
     m_zoomFactor = m_minZoomFactor + normalizedDistance * (m_maxZoomFactor - m_minZoomFactor);
+}
+
+bool GlobeRenderer::ScreenToLongLat(float screenX, float screenY, float *longitude, float *latitude)
+{
+    float screenW = g_windowManager->WindowW();
+    float screenH = g_windowManager->WindowH();
+    float fov = 60.0f;
+    float halfFovRad = (fov * 0.5f) * (float)M_PI / 180.0f;
+    float tanHalfFov = tanf(halfFovRad);
+    float aspect = screenW / screenH;
+
+    float ndcX = (2.0f * screenX / screenW) - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenY / screenH);
+
+    Vector3<float> spherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+    Vector3<float> cameraPos = spherePoint * m_cameraDistance;
+
+    Vector3<float> forward = Vector3<float>(0,0,0) - cameraPos;
+    forward.Normalise();
+
+    Vector3<float> north(0.0f, 1.0f, 0.0f);
+    Vector3<float> right = forward ^ north;
+    right.Normalise();
+    Vector3<float> up = right ^ forward;
+    up.Normalise();
+
+    Vector3<float> rayDir = forward + right * (ndcX * aspect * tanHalfFov) + up * (ndcY * tanHalfFov);
+    rayDir.Normalise();
+
+    float a = rayDir * rayDir;
+    float b = 2.0f * (cameraPos * rayDir);
+    float c = (cameraPos * cameraPos) - GLOBE_RADIUS * GLOBE_RADIUS;
+
+    float discriminant = b * b - 4.0f * a * c;
+    if (discriminant < 0.0f) return false;
+
+    float sqrtDisc = sqrtf(discriminant);
+    float t = (-b - sqrtDisc) / (2.0f * a);
+    if (t < 0.0f)
+    {
+        t = (-b + sqrtDisc) / (2.0f * a);
+        if (t < 0.0f) return false;
+    }
+
+    Vector3<float> hitPoint = cameraPos + rayDir * t;
+
+    *latitude = asinf(hitPoint.y / GLOBE_RADIUS) * 180.0f / (float)M_PI;
+    *longitude = atan2f(hitPoint.x, hitPoint.z) * 180.0f / (float)M_PI;
+
+    return true;
 }
 
 void GlobeRenderer::IsCameraIdle(float oldLongitude, float oldLatitude)

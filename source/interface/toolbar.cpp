@@ -324,7 +324,7 @@ class ToggleGlobeButton : public ToolbarButton
     }
     void MouseUp()
     {
-        g_app->m_globeMode = !g_app->m_globeMode;
+        g_app->SetGlobeMode( !g_app->m_globeMode );
     }
 };
 

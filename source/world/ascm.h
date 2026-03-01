@@ -17,6 +17,8 @@ public:
     bool    Update          () override;
     void    RunAI           () override;
     void    SetState        ( int state ) override;
+    void    AutoTargetShips ();
+    int     FindNearestShipTarget( const LList<int> *excludeIds );
 
     bool    UsingNukes      () override { return false; }
     int     GetAttackOdds   ( int _defenderType ) override;

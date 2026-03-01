@@ -55,6 +55,12 @@ void ASCM::Action( int targetObjectId, Fixed longitude, Fixed latitude )
                 m_lastSeenTime[team->m_teamId] = m_ghostFadeTime;
                 m_seen[team->m_teamId] = true;
             }
+
+            if( targetObjectId != -1 && BurstFireOnFired( targetObjectId ) )
+            {
+                m_retargetTimer = 0;
+                BurstFireResetShotCount();
+            }
         }
         WorldObject::Action( targetObjectId, longitude, latitude );
     }
@@ -74,35 +80,25 @@ bool ASCM::Update()
             m_states[0]->m_numTimesPermitted++;
     }
 
+    if( m_retargetTimer <= 0 && m_actionQueue.Size() == 0 )
+    {
+        m_retargetTimer = 10;
+        AutoTargetShips();
+    }
+
     // Skip Silo::Update (would access m_states[1] and return-to-standby logic)
     return WorldObject::Update();
 }
 
 
-void ASCM::RunAI()
+int ASCM::FindNearestShipTarget( const LList<int> *excludeIds )
 {
-    START_PROFILE("ASCMAI");
     Team *team = g_app->GetWorld()->GetTeam( m_teamId );
-    if( !team ) { END_PROFILE("ASCMAI"); return; }
+    if( !team ) return -1;
 
-    if( g_app->GetWorld()->GetDefcon() > 3 )
-    {
-        END_PROFILE("ASCMAI");
-        return;
-    }
-
-    bool haveAmmo = ( m_states[0]->m_numTimesPermitted - (int)m_actionQueue.Size() > 0 );
-    if( !haveAmmo || m_stateTimer > 0 )
-    {
-        END_PROFILE("ASCMAI");
-        return;
-    }
-
-    // Auto-find nearest non-ceasefire ship in range
-    Fixed maxRange = GetNukeLaunchRange();
-    Fixed maxRangeSqd = maxRange * maxRange;
-    WorldObject *nearestShip = nullptr;
-    Fixed nearestSqd = Fixed::MAX;
+    Fixed maxRangeSqd = GetNukeLaunchRange() * GetNukeLaunchRange();
+    int bestId = -1;
+    Fixed bestSqd = Fixed::MAX;
 
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -111,26 +107,75 @@ void ASCM::RunAI()
         if( g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) ) continue;
         if( team->m_ceaseFire[obj->m_teamId] ) continue;
         if( !obj->m_seen[m_teamId] ) continue;
-        bool isShip = obj->IsTargetableSurfaceNavy();
-        if( !isShip ) continue;
+        if( !obj->IsTargetableSurfaceNavy() ) continue;
+
+        if( excludeIds )
+        {
+            bool excluded = false;
+            for( int e = 0; e < excludeIds->Size(); ++e )
+            {
+                if( const_cast<LList<int>*>(excludeIds)->GetData(e) == obj->m_objectId ) { excluded = true; break; }
+            }
+            if( excluded ) continue;
+        }
+
         Fixed dSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
         if( dSqd >= maxRangeSqd ) continue;
-        if( dSqd < nearestSqd )
+        if( dSqd < bestSqd )
         {
-            nearestSqd = dSqd;
-            nearestShip = obj;
+            bestSqd = dSqd;
+            bestId = obj->m_objectId;
         }
     }
 
-    if( nearestShip )
+    return bestId;
+}
+
+
+void ASCM::AutoTargetShips()
+{
+    if( g_app->GetWorld()->GetDefcon() > 3 )
+        return;
+
+    Team *team = g_app->GetWorld()->GetTeam( m_teamId );
+    if( !team ) return;
+
+    bool haveAmmo = ( m_states[0]->m_numTimesPermitted - (int)m_actionQueue.Size() > 0 );
+    if( !haveAmmo || m_stateTimer > 0 )
+        return;
+
+    LList<int> burstExcluded;
+    BurstFireGetExcludedIds( burstExcluded );
+
+    LList<int> fullExcluded;
+    for( int i = 0; i < burstExcluded.Size(); ++i )
+        fullExcluded.PutData( burstExcluded[i] );
+    team->GetRecentlyEngagedIds( fullExcluded );
+
+    int targetId = FindNearestShipTarget( fullExcluded.Size() > 0 ? &fullExcluded : nullptr );
+    if( targetId != -1 )
     {
+        WorldObject *target = g_app->GetWorld()->GetWorldObject( targetId );
         ActionOrder *action = new ActionOrder();
-        action->m_longitude = nearestShip->m_longitude;
-        action->m_latitude = nearestShip->m_latitude;
-        action->m_targetObjectId = nearestShip->m_objectId;
+        action->m_longitude = target->m_longitude;
+        action->m_latitude = target->m_latitude;
+        action->m_targetObjectId = targetId;
         RequestAction( action );
+        team->RegisterEngagedTarget( targetId );
+        return;
     }
-    END_PROFILE("ASCMAI");
+
+    int engagedId = FindNearestShipTarget( burstExcluded.Size() > 0 ? &burstExcluded : nullptr );
+    if( engagedId != -1 )
+    {
+        m_retargetTimer = Fixed::Hundredths(50);
+    }
+}
+
+
+void ASCM::RunAI()
+{
+    AutoTargetShips();
 }
 
 

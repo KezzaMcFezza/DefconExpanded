@@ -176,6 +176,7 @@ public:
     void    SetCameraPosition( float longitude, float latitude, float distance );
     void    IsCameraIdle     (float oldLongitude, float oldLatitude);
     bool    IsDraggingCamera() const { return m_draggingCamera; }
+    bool    ScreenToLongLat  (float screenX, float screenY, float *longitude, float *latitude);
     
     float   GetZoomFactor();
     float   GetDrawScale();

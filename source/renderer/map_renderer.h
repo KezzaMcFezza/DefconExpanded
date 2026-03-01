@@ -226,6 +226,7 @@ public:
     void    CenterViewport( float longitude, float latitude, int zoom = 20, int camSpeed = 200 );
     void    CenterViewport( int objectId, int zoom = 20, int camSpeed = 200 );
     void    CameraCut     ( float longitude, float latitude, int zoom = 10 );
+    void    SetCameraImmediate( float longitude, float latitude, float zoomFactor );
 
     void    FindScreenEdge( Vector3<float> const &_line, float *_posX, float *_posY );
 

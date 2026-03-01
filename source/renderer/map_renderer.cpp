@@ -5174,6 +5174,18 @@ void MapRenderer::CameraCut( float longitude, float latitude, int zoom )
     m_cameraZoom = zoom;
 }
 
+void MapRenderer::SetCameraImmediate( float longitude, float latitude, float zoomFactor )
+{
+    const float minZoomFactor = 0.001f;
+    zoomFactor = fmaxf(minZoomFactor, fminf(1.0f, zoomFactor));
+
+    m_middleX = longitude;
+    m_middleY = latitude;
+    m_zoomFactor = zoomFactor;
+    m_totalZoom = logf(zoomFactor) / logf(0.9f);
+    m_cameraZoom = (int)m_totalZoom;
+}
+
 void MapRenderer::FindScreenEdge( Vector3<float> const &_line, float *_posX, float *_posY )
 {
 //    y = mx + c

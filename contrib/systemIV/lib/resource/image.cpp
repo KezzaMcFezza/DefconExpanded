@@ -27,20 +27,8 @@ Image::Image( char *filename )
 	}
 	else
 	{
-		// Failed to load the bitmap, so create an obvious ERROR bitmap
-		m_bitmap = new Bitmap( 32, 32 );
-		m_bitmap->Clear( Colour( 255, 0, 0 ) );
-
-		for ( int x = 1; x < 30; ++x )
-		{
-			m_bitmap->PutPixel( x, x, Colour( 0, 255, 0 ) );
-			m_bitmap->PutPixel( x - 1, x, Colour( 0, 255, 0 ) );
-			m_bitmap->PutPixel( x + 1, x, Colour( 0, 255, 0 ) );
-
-			m_bitmap->PutPixel( 31 - x, x, Colour( 0, 255, 0 ) );
-			m_bitmap->PutPixel( 31 - x - 1, x, Colour( 0, 255, 0 ) );
-			m_bitmap->PutPixel( 31 - x + 1, x, Colour( 0, 255, 0 ) );
-		}
+		m_bitmap = new Bitmap( 4, 4 );
+		m_bitmap->Clear( Colour( 0, 0, 0, 0 ) );
 	}
 }
 

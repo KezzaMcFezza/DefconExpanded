@@ -16,6 +16,7 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 #include "interface/fleet_placement_icon.h"
@@ -147,8 +148,18 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
     float longitude = 0.0f;
     float latitude = 0.0f;
     
-    g_app->GetMapRenderer()->ConvertPixelsToAngle( g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
-    if( !team->m_fleets[m_fleetId]->ValidFleetPlacement( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) ) )
+    bool gotCoords = true;
+    if( g_app->IsGlobeMode() )
+    {
+        gotCoords = g_app->GetGlobeRenderer()->ScreenToLongLat( 
+            g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
+    }
+    else
+    {
+        g_app->GetMapRenderer()->ConvertPixelsToAngle( 
+            g_inputManager->m_mouseX, g_inputManager->m_mouseY, &longitude, &latitude );
+    }
+    if( !gotCoords || !team->m_fleets[m_fleetId]->ValidFleetPlacement( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) ) )
     {
         colour = Colour(50,50,50,200);
 
@@ -212,9 +223,21 @@ void FleetPlacementIconButton::MouseUp()
 	float longitude, latitude;
 	Fixed exactLongitude, exactLatitude;
 
-    g_app->GetMapRenderer()->ConvertPixelsToAngle( g_inputManager->m_mouseX, 
-                                                   g_inputManager->m_mouseY, 
-                                                   &longitude, &latitude );
+	if( g_app->IsGlobeMode() )
+	{
+		if( !g_app->GetGlobeRenderer()->ScreenToLongLat( 
+				g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+				&longitude, &latitude ) )
+		{
+			return;
+		}
+	}
+	else
+	{
+		g_app->GetMapRenderer()->ConvertPixelsToAngle( 
+			g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+			&longitude, &latitude );
+	}
 	exactLongitude = Fixed::FromDouble(longitude);
 	exactLatitude = Fixed::FromDouble(latitude);
 
@@ -240,9 +263,18 @@ void FleetPlacementIconButton::MouseUp()
         
         for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
         {
-            g_app->GetMapRenderer()->ConvertPixelsToAngle( g_inputManager->m_mouseX, 
-                                                           g_inputManager->m_mouseY, 
-                                                           &longitude, &latitude );
+            if( g_app->IsGlobeMode() )
+            {
+                g_app->GetGlobeRenderer()->ScreenToLongLat( 
+                    g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+                    &longitude, &latitude );
+            }
+            else
+            {
+                g_app->GetMapRenderer()->ConvertPixelsToAngle( 
+                    g_inputManager->m_mouseX, g_inputManager->m_mouseY, 
+                    &longitude, &latitude );
+            }
             Fixed thisLong = exactLongitude;
             Fixed thisLat = exactLatitude;
 

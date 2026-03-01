@@ -125,6 +125,7 @@ public:
     
     void    InitStatusIcon();
     bool    IsGlobeMode();
+    void    SetGlobeMode( bool globeMode );
     void    InitFonts();
     void    InitialiseTestBed();
 	void    RestartAmbienceMusic();                 // Restart the Ambience sounds and Music if necessary (call after applying mods)
