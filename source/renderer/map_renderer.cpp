@@ -98,6 +98,7 @@ MapRenderer::MapRenderer()
     m_lastRightClickY(0.0f),
     m_lmbClickStartTime(0.0f),
     m_lmbAircraftActionDispatched(false),
+    m_lmbTankerRefuelDeferred(false),
     m_lmbClickedTargetId(-1),
     m_tooltip(NULL),
     m_tooltipTimer(0.0f),
@@ -4499,6 +4500,7 @@ void MapRenderer::Update()
         {
             m_lmbClickStartTime = GetHighResTime();
             m_lmbAircraftActionDispatched = false;
+            m_lmbTankerRefuelDeferred = false;
             m_lmbClickedTargetId = -1;
 
             bool hasSelection = g_app->GetWorldRenderer()->GetSelectionCount() > 0;
@@ -4567,9 +4569,38 @@ void MapRenderer::Update()
                 }
                 if( hasSelectedAircraft )
                 {
-                    HandleObjectAction( longitude, latitude, aircraftTargetId );
-                    m_lmbAircraftActionDispatched = true;
-                    m_lmbClickedTargetId = aircraftTargetId;
+                    bool tankerRefuelDefer = false;
+                    for( int si = 0; si < selCount; ++si )
+                    {
+                        int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                        WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                        if( obj && obj->m_type == WorldObject::TypeTanker &&
+                            aircraftTarget->IsAircraft() &&
+                            g_app->GetWorld()->IsFriend( obj->m_teamId, aircraftTarget->m_teamId ) )
+                        {
+                            Fixed dist = g_app->GetWorld()->GetDistance(
+                                obj->m_longitude, obj->m_latitude,
+                                aircraftTarget->m_longitude, aircraftTarget->m_latitude );
+                            Tanker *tanker = (Tanker *)obj;
+                            if( dist <= tanker->GetRefuelRange() )
+                            {
+                                tankerRefuelDefer = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if( tankerRefuelDefer )
+                    {
+                        m_lmbTankerRefuelDeferred = true;
+                        m_lmbClickedTargetId = aircraftTargetId;
+                    }
+                    else
+                    {
+                        HandleObjectAction( longitude, latitude, aircraftTargetId );
+                        m_lmbAircraftActionDispatched = true;
+                        m_lmbClickedTargetId = aircraftTargetId;
+                    }
                 }
             }
 
@@ -4670,7 +4701,36 @@ void MapRenderer::Update()
 
             if( !consumedByMarquee )
             {
-                if( m_lmbAircraftActionDispatched )
+                if( m_lmbTankerRefuelDeferred )
+                {
+                    float clickDuration = GetHighResTime() - m_lmbClickStartTime;
+                    int targetId = m_lmbClickedTargetId;
+
+                    if( clickDuration > 0.5f && targetId != -1 )
+                    {
+                        HandleObjectAction( longitude, latitude, targetId );
+                    }
+                    else if( targetId != -1 )
+                    {
+                        int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+                        for( int si = 0; si < selCount; ++si )
+                        {
+                            int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                            if( obj && obj->m_type == WorldObject::TypeTanker )
+                            {
+                                g_app->GetClientToServer()->RequestSpecialAction(
+                                    recId, targetId, World::SpecialActionRefuelAssign );
+                            }
+                        }
+                        g_soundSystem->TriggerEvent( "Interface", "SetCombatTarget" );
+                        g_app->GetWorldRenderer()->ClearSelection();
+                        UpdateSelectionAnimation(-1);
+                    }
+                    m_lmbTankerRefuelDeferred = false;
+                    m_lmbClickedTargetId = -1;
+                }
+                else if( m_lmbAircraftActionDispatched )
                 {
                     float clickDuration = GetHighResTime() - m_lmbClickStartTime;
                     int releaseAircraftId = m_lmbClickedTargetId;

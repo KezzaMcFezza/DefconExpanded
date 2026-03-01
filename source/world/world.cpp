@@ -42,6 +42,7 @@
 #include "world/saucer.h"
 #include "world/fleet.h"
 #include "world/bomber.h"
+#include "world/tanker.h"
 #include "world/earthdata.h"
 
 #include "interface/interface.h"
@@ -2119,6 +2120,14 @@ void World::ObjectSpecialAction( int objectId, int targetObjectId, int specialAc
                     mobj->m_isLanding = -1;
                     mobj->ClearActionQueue();
                     wobj->m_targetObjectId = targetObjectId;
+                }
+                break;
+
+            case SpecialActionRefuelAssign:
+                if( wobj->m_type == WorldObject::TypeTanker )
+                {
+                    Tanker *tanker = (Tanker *)wobj;
+                    tanker->RefuelAssign( targetObjectId );
                 }
                 break;
         }

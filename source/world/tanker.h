@@ -32,6 +32,8 @@ public:
     void    RefuelTargets   ( Fixed timeStep );
     int     FindBestRefuelTarget();
     bool    IsRefuelingTarget( int objectId ) const;
+    void    RefuelAssign    ( int targetObjectId );
+    Fixed   GetRefuelRange  () const;
 };
 
 

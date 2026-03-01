@@ -93,6 +93,7 @@ protected:
 
     float   m_lmbClickStartTime;
     bool    m_lmbAircraftActionDispatched;
+    bool    m_lmbTankerRefuelDeferred;
     int     m_lmbClickedTargetId;
 
     float   m_tooltipTimer;

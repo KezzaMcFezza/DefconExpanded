@@ -91,7 +91,8 @@ public:
     {
         SpecialActionLandingAircraft,
         SpecialActionFormingSquad,
-        SpecialActionForceAttack
+        SpecialActionForceAttack,
+        SpecialActionRefuelAssign
     };
 
     enum

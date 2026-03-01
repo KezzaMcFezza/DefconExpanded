@@ -413,6 +413,41 @@ bool Tanker::IsRefuelingTarget( int objectId ) const
     return ( m_refuelSlot[0] == objectId || m_refuelSlot[1] == objectId );
 }
 
+Fixed Tanker::GetRefuelRange() const
+{
+    return m_refuelRange;
+}
+
+void Tanker::RefuelAssign( int targetObjectId )
+{
+    WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
+    if( target &&
+        g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+        target->IsAircraft() )
+    {
+        if( m_isLanding == targetObjectId )
+            m_isLanding = -1;
+
+        bool isLarge = target->IsBomberClass() || target->IsAEWClass() ||
+                       target->m_type == TypeTanker;
+        ManualAssignSlot( targetObjectId, isLarge );
+
+        MovingObject *receiver = (MovingObject *)target;
+        receiver->m_isLanding = m_objectId;
+
+        if( target->m_type == TypeTanker )
+        {
+            Tanker *otherTanker = (Tanker *)target;
+            if( otherTanker->m_isEscorting == m_objectId )
+            {
+                otherTanker->m_isEscorting = -1;
+                otherTanker->m_targetObjectId = -1;
+                otherTanker->ClearSlot( m_objectId );
+            }
+        }
+    }
+}
+
 int Tanker::FindBestRefuelTarget()
 {
     int bestId = -1;
