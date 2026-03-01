@@ -44,6 +44,7 @@ public:
 
     Image           *GetImage           ( const char *_filename );
     Image           *GetImage           ( const char *_filename, float uvAdjustX, float uvAdjustY );
+    bool            HasImage            ( const char *_filename );
     void            UnloadImage         ( const char *_filename );
     void            UnloadImage         ( const char *_filename, float uvAdjustX, float uvAdjustY );
     BitmapFont      *GetBitmapFont      ( const char *_filename );

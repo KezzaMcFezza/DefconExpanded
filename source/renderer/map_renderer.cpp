@@ -1909,16 +1909,16 @@ void MapRenderer::RenderMouse()
 					char caption[128];
                     strcpy( caption, LANGUAGEPHRASE("dialog_mapr_defcon_x_required") );
 					LPREPLACEINTEGERFLAG( 'D', defconRequired, caption );
-                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, caption );
+                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2.0f * zoomShrink, caption );
                     break;
                 }
 
                 case WorldObject::TargetTypeOutOfRange:
-                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
+                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2.0f * zoomShrink, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
                     break;
 
                 case WorldObject::TargetTypeOutOfStock:
-                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_empty") );
+                    g_renderer2d->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2.0f * zoomShrink, LANGUAGEPHRASE("dialog_mapr_empty") );
                     break;
             }
             g_renderer->SetFont();
@@ -2059,7 +2059,7 @@ void MapRenderer::RenderMouse()
             if( numRemaining >= 0 )
             {
                 g_renderer->SetFont( "kremlin", true );
-                g_renderer2d->Text( actionCursorLongitude-2, actionCursorLatitude, White, 2, "%d", numRemaining );
+                g_renderer2d->Text( actionCursorLongitude - 2.0f * zoomShrink, actionCursorLatitude, White, 2.0f * zoomShrink, "%d", numRemaining );
                 g_renderer->SetFont();
             }
         }
@@ -2404,6 +2404,8 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 {
 #ifndef NON_PLAYABLE
     bool isFirstSeamIteration = ( m_seamIteration == 0 );
+    float zfTargets = fmaxf( GetZoomFactor(), 0.001f );
+    float zoomShrinkTargets = 2.0f * powf( zfTargets, 0.75f );
 
     if( wobj->m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
@@ -2489,7 +2491,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
             Colour actionCursorCol = ( (wobj->UsingNukes() && !wobj->UsesConventionalBallistic()) || wobj->m_type == WorldObject::TypeLANM ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
-            float actionCursorSize = 2.0f;
+            float actionCursorSize = 2.0f * zoomShrinkTargets;
             float actionCursorAngle = g_gameTime * -1.0f;
             float targetLineWidth = 1.0f;
 
@@ -2560,7 +2562,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 else
                 {
                 Colour actionCursorCol( 0, 0, 255, 150 );
-                float actionCursorSize = 2.0f;
+                float actionCursorSize = 2.0f * zoomShrinkTargets;
                 float actionCursorAngle = 0;
                 bool suppressMovementLine = false;
 
@@ -2640,7 +2642,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
         if( wobj->m_actionQueue.Size() )
         {
             Image *img = NULL;
-            float size = 1.0f;
+            float size = 1.0f * zoomShrinkTargets;
 
             switch( wobj->m_classType )
             {

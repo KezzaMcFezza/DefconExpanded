@@ -1803,6 +1803,7 @@ void LobbyOptionsWindow::Create()
 
         if( stricmp( param->m_name, "MaxTeams" ) != 0 &&
             stricmp( param->m_name, "ServerName" ) != 0 &&
+            stricmp( param->m_name, "ScenarioMode" ) != 0 &&
             stricmp( param->m_name, "GameMode" ) != 0 &&
             stricmp( param->m_name, "ScoreMode" ) != 0 &&
             stricmp( param->m_name, "VictoryMode" ) != 0 )
@@ -2200,6 +2201,7 @@ void LobbyWindow::Create()
     m_gameOptions.SetAll( NULL );
 
     int serverNameIndex = g_app->GetGame()->GetOptionIndex("ServerName");
+    int scenarioModeIndex = g_app->GetGame()->GetOptionIndex("ScenarioMode");
     int gameModeIndex = g_app->GetGame()->GetOptionIndex("GameMode");
     int scoreModeIndex = g_app->GetGame()->GetOptionIndex("ScoreMode");
     int victoryModeIndex = g_app->GetGame()->GetOptionIndex("VictoryMode");
@@ -2211,7 +2213,8 @@ void LobbyWindow::Create()
     }
 
     RegisterGameOptionButton( this, boxX, boxY, boxW+10, 17, 100, serverNameIndex, m_gameOptions, false, true, true, 20 );
-    RegisterGameOptionButton( this, boxX, boxY+=40, boxW+10, 17, 100, gameModeIndex, m_gameOptions, false, false, false, 0 );
+    RegisterGameOptionButton( this, boxX, boxY+=40, boxW+10, 17, 100, scenarioModeIndex, m_gameOptions, false, false, false, 0 );
+    RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, gameModeIndex, m_gameOptions, false, false, false, 0 );
     RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, scoreModeIndex, m_gameOptions, false, false, false, 0 );
     RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, victoryModeIndex, m_gameOptions, false, false, false, 0 );
 
@@ -2568,8 +2571,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		{
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
-		g_renderer2d->TextSimple( text1X, m_y+302, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer2d->TextCentreSimple( text2X, m_y+302, White, 11, caption );
+		g_renderer2d->TextSimple( text1X, m_y+322, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+322, White, 11, caption );
 
         char localIp[256];
         GetLocalHostIP( localIp, 256 );
@@ -2579,8 +2582,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
   
-		g_renderer2d->TextSimple( text1X, m_y+322, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer2d->TextCentreSimple( text2X, m_y+322, White, 11, caption );   
+		g_renderer2d->TextSimple( text1X, m_y+342, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+342, White, 11, caption );   
     }
     else
     {
@@ -2595,8 +2598,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', serverIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', serverPort, caption );
 
-        g_renderer2d->TextSimple( text1X, m_y+292, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
-        g_renderer2d->TextCentreSimple( text2X, m_y+292, White, 11, caption );       
+        g_renderer2d->TextSimple( text1X, m_y+312, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
+        g_renderer2d->TextCentreSimple( text2X, m_y+312, White, 11, caption );       
 
     }
 

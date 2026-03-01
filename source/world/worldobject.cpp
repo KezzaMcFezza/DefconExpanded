@@ -459,7 +459,10 @@ const char *WorldObject::GetResolvedBmpImageFilename()
     Team *team = g_app->GetWorld()->GetTeam( m_teamId );
     if ( !team || team->m_territories.Size() == 0 ) return bmpImageFilename;
     int primaryTerritory = team->m_territories[0];
-    return GetUnitGraphicForTerritory( primaryTerritory, m_type, bmpImageFilename );
+    const char *resolved = GetUnitGraphicForTerritory( primaryTerritory, m_type, bmpImageFilename );
+    if ( resolved != bmpImageFilename && !g_resource->HasImage( resolved ) )
+        return bmpImageFilename;
+    return resolved;
 }
 
 char *WorldObject::GetBmpBlurFilename()
@@ -469,6 +472,13 @@ char *WorldObject::GetBmpBlurFilename()
     char *dot = strrchr( blurFilename, '.' );
     if( dot ) sprintf( dot, "_blur.bmp" );
     return blurFilename;
+}
+
+static Image *SafeGetOutlineImage( const char *path )
+{
+    if( !g_resource->HasImage( path ) )
+        return NULL;
+    return g_resource->GetImage( path );
 }
 
 Image *WorldObject::GetOutlineImage()
@@ -506,40 +516,40 @@ Image *WorldObject::GetOutlineImage()
 
         if( isBlufor )
         {
-            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_battleship.bmp" );
-            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_carrier.bmp" );
+            if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_battleship.bmp" );
+            else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_carrier.bmp" );
             else if( IsSubmarine() )
             {
-                if( m_type == TypeSub ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subn_surfaced.bmp" : "graphics/outline_blufor_subn.bmp" );
-                else if( m_type == TypeSubC ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subc_surfaced.bmp" : "graphics/outline_blufor_subc.bmp" );
-                else if( m_type == TypeSubG ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subg_surfaced.bmp" : "graphics/outline_blufor_subg.bmp" );
-                else if( m_type == TypeSubK ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subk_surfaced.bmp" : "graphics/outline_blufor_subk.bmp" );
-                else outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
+                if( m_type == TypeSub ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subn_surfaced.bmp" : "graphics/outline_blufor_subn.bmp" );
+                else if( m_type == TypeSubC ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subc_surfaced.bmp" : "graphics/outline_blufor_subc.bmp" );
+                else if( m_type == TypeSubG ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subg_surfaced.bmp" : "graphics/outline_blufor_subg.bmp" );
+                else if( m_type == TypeSubK ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subk_surfaced.bmp" : "graphics/outline_blufor_subk.bmp" );
+                else outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
             }
-            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_airbase.bmp" );
-            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
-            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_radarstation.bmp" );
-            else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = g_resource->GetImage( outlinePath ); }
+            else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_airbase.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_silo.bmp" );
+            else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_radarstation.bmp" );
+            else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = SafeGetOutlineImage( outlinePath ); }
         }
         else if( isNeutral )
         {
-            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_battleship.bmp" );
-            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_carrier.bmp" );
-            else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
-            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_airbase.bmp" );
-            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
-            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
+            if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_battleship.bmp" );
+            else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_carrier.bmp" );
+            else if( IsSubmarine() ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
+            else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_airbase.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_silo.bmp" );
+            else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_radarstation.bmp" );
+            else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = SafeGetOutlineImage( outlinePath ); }
         }
         else
         {
-            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_battleship.bmp" );
-            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
-            else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
-            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
-            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
-            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
+            if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_battleship.bmp" );
+            else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_carrier.bmp" );
+            else if( IsSubmarine() ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
+            else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_airbase.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_silo.bmp" );
+            else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_radarstation.bmp" );
+            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = SafeGetOutlineImage( outlinePath ); }
         }
     }
     else
@@ -549,41 +559,41 @@ Image *WorldObject::GetOutlineImage()
         {
             if( myTeam->m_allianceId == team->m_allianceId )
             {
-                if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_battleship.bmp" );
-                else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_carrier.bmp" );
+                if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_battleship.bmp" );
+                else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_carrier.bmp" );
                 else if( IsSubmarine() )
                 {
-                    if( m_type == TypeSub ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subn_surfaced.bmp" : "graphics/outline_blufor_subn.bmp" );
-                    else if( m_type == TypeSubC ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subc_surfaced.bmp" : "graphics/outline_blufor_subc.bmp" );
-                    else if( m_type == TypeSubG ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subg_surfaced.bmp" : "graphics/outline_blufor_subg.bmp" );
-                    else if( m_type == TypeSubK ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_subk_surfaced.bmp" : "graphics/outline_blufor_subk.bmp" );
-                    else outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
+                    if( m_type == TypeSub ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subn_surfaced.bmp" : "graphics/outline_blufor_subn.bmp" );
+                    else if( m_type == TypeSubC ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subc_surfaced.bmp" : "graphics/outline_blufor_subc.bmp" );
+                    else if( m_type == TypeSubG ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subg_surfaced.bmp" : "graphics/outline_blufor_subg.bmp" );
+                    else if( m_type == TypeSubK ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_subk_surfaced.bmp" : "graphics/outline_blufor_subk.bmp" );
+                    else outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_blufor_sub_surfaced.bmp" : "graphics/outline_blufor_sub.bmp" );
                 }
-                else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_airbase.bmp" );
-                else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_silo.bmp" );
-                else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_blufor_radarstation.bmp" );
-                else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = g_resource->GetImage( outlinePath ); }
+                else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_airbase.bmp" );
+                else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_silo.bmp" );
+                else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_blufor_radarstation.bmp" );
+                else { const char *ob = (m_type == TypeLANM) ? "lanm.bmp" : outlineBase; sprintf( outlinePath, "graphics/outline_blufor_%s", ob ); outlineimage = SafeGetOutlineImage( outlinePath ); }
             }
             else
             {
-                if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_battleship.bmp" );
-                else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_carrier.bmp" );
-                else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
-                else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_airbase.bmp" );
-                else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_silo.bmp" );
-                else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_radarstation.bmp" );
-                else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
+                if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_battleship.bmp" );
+                else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_carrier.bmp" );
+                else if( IsSubmarine() ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_sub_surfaced.bmp" : "graphics/outline_sub.bmp" );
+                else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_airbase.bmp" );
+                else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_silo.bmp" );
+                else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_radarstation.bmp" );
+                else { sprintf( outlinePath, "graphics/outline_%s", outlineBase ); outlineimage = SafeGetOutlineImage( outlinePath ); }
             }
         }
         else
         {
-            if( IsBattleShipClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_battleship.bmp" );
-            else if( IsCarrierClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_carrier.bmp" );
-            else if( IsSubmarine() ) outlineimage = g_resource->GetImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
-            else if( IsAirbaseClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_airbase.bmp" );
-            else if( IsSiloClass() && !useOwnOutline ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_silo.bmp" );
-            else if( IsRadarClass() ) outlineimage = g_resource->GetImage( "graphics/outline_opfor_radarstation.bmp" );
-            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = g_resource->GetImage( outlinePath ); }
+            if( IsBattleShipClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_battleship.bmp" );
+            else if( IsCarrierClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_carrier.bmp" );
+            else if( IsSubmarine() ) outlineimage = SafeGetOutlineImage( surfaced ? "graphics/outline_opfor_sub_surfaced.bmp" : "graphics/outline_opfor_sub.bmp" );
+            else if( IsAirbaseClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_airbase.bmp" );
+            else if( IsSiloClass() && !useOwnOutline ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_silo.bmp" );
+            else if( IsRadarClass() ) outlineimage = SafeGetOutlineImage( "graphics/outline_opfor_radarstation.bmp" );
+            else { sprintf( outlinePath, "graphics/outline_opfor_%s", outlineBase ); outlineimage = SafeGetOutlineImage( outlinePath ); }
         }
     }
     return outlineimage;
@@ -662,8 +672,12 @@ void WorldObject::Render2D()
 
         if( ( selected || sameFleet ) && !IsBlip() )
         {
-            bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-            g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );
+            char *blurFile = GetBmpBlurFilename();
+            if( g_resource->HasImage( blurFile ) )
+            {
+                bmpImage = g_resource->GetImage( blurFile );
+                g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );
+            }
         }
         colour.m_a /= 2;
     }
@@ -745,9 +759,13 @@ void WorldObject::Render3D()
 
             if( ( selected || sameFleet ) && !IsBlip() )
             {
-                bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z,
-                                              spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                char *blurFile = GetBmpBlurFilename();
+                if( g_resource->HasImage( blurFile ) )
+                {
+                    bmpImage = g_resource->GetImage( blurFile );
+                    g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z,
+                                                  spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                }
             }
             colour.m_a /= 2;
         }
@@ -818,6 +836,8 @@ Fixed WorldObject::GetSize3D()
     {
         size *= 1;
     }
+
+    size *= Fixed::FromDouble(GLOBE_OBJECT_SIZE);
 
     Fixed gameScale = g_app->GetWorld()->GetUnitScaleFactor();
     size /= gameScale;

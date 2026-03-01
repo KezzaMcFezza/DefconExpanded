@@ -751,9 +751,13 @@ void MovingObject::Render3D()
 
             if( drawHighlight )
             {
-                bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
-                                                size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+                char *blurFile = GetBmpBlurFilename();
+                if( g_resource->HasImage( blurFile ) )
+                {
+                    bmpImage = g_resource->GetImage( blurFile );
+                    g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
+                                                    size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+                }
             }
             colour.m_a *= 0.5f;
         }

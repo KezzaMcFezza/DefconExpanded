@@ -9,6 +9,7 @@
 #include "lib/resource/tinygltf/model_builder.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
+#include "lib/filesys/filesys_utils.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -372,6 +373,32 @@ Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjust
 	m_imageCache.PutData( cacheKey, image );
 
 	return image;
+}
+
+
+bool Resource::HasImage( const char *filename )
+{
+	if ( !filename )
+		return false;
+
+	char fullFilename[512];
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
+
+	if ( m_imageCache.GetData( fullFilename ) )
+		return true;
+
+	if ( g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized() )
+	{
+		if ( g_spriteAtlasManager->IsAtlasSprite( fullFilename ) )
+			return true;
+	}
+
+	return DoesFileExist( fullFilename );
 }
 
 

@@ -95,7 +95,7 @@ VariableUnitCounts      0       1       1           0
     Disabled
     Enabled
 
-WorldScale              50      1600    600        10
+WorldScale              50      1200    600        10
 
 ScaleUnitStats          0       1       1           0
     Disabled
