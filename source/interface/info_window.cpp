@@ -192,6 +192,8 @@ void InfoWindow::Render( bool _hasFocus )
         
         WorldObject *obj = g_app->GetWorld()->GetWorldObject(m_objectId);
         Team *team = obj ? g_app->GetWorld()->GetTeam(obj->m_teamId) : NULL;
+        if( !team )
+            team = g_app->GetWorld()->GetMyTeam();
         int primaryTerritory = -1;
         if( team && team->m_territories.Size() > 0 )
             primaryTerritory = team->m_territories[0];

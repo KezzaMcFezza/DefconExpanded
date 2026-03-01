@@ -124,6 +124,7 @@ Raitos Goals:
 - aircraft non-combat pursuit waypoint handling           - DONE
 
 TODO:
+ - ascm autotarget
 - unit stats rebalance
 - refine burstfire
 - ammunition revamp

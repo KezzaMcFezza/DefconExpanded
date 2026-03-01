@@ -1791,10 +1791,9 @@ void MapRenderer::RenderMouse()
         float predictedLongitude = selection->m_longitude.DoubleValue() + selection->m_vel.x.DoubleValue() * g_predictionTime * timeScale;
         float predictedLatitude = selection->m_latitude.DoubleValue() + selection->m_vel.y.DoubleValue() * g_predictionTime  * timeScale;
         float size = 3.6f;
-        if( GetZoomFactor() <= 0.25f )
-        {
-            size *= GetZoomFactor() * 4;
-        }
+        float zf = fmaxf( GetZoomFactor(), 0.001f );
+        float zoomShrink = 2.0f * powf( zf, 0.75f );
+        size *= zoomShrink;
 
         Team *team = g_app->GetWorld()->GetTeam(selection->m_teamId);
         Colour col(128,128,128);
@@ -1808,16 +1807,10 @@ void MapRenderer::RenderMouse()
         float actionCursorLongitude = longitude;
         float actionCursorLatitude = latitude;
         Colour actionCursorCol( 50,50,50,100 );
-        float actionCursorSize = 2.0f;
+        float actionCursorSize = 2.0f * zoomShrink;
         float actionCursorAngle = 0;
         Colour spawnUnitCol( 100,100,100,100 );
-        float spawnUnitSize = 3.0f;
-
-        if( GetZoomFactor() <=0.25f )
-        {
-            actionCursorSize *= GetZoomFactor() * 4;
-            spawnUnitSize *= GetZoomFactor() * 4;
-        }
+        float spawnUnitSize = 3.0f * zoomShrink;
 
         int validCombatTarget = selection->IsValidCombatTarget( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
         int validMovementTarget = selection->IsValidMovementTarget( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
@@ -1944,25 +1937,37 @@ void MapRenderer::RenderMouse()
             switch( spawnType )
             {
                 case WorldObject::TargetTypeLaunchFighter:
+                {
+                    int fType;
+                    const char *fTip;
                     if( selection->IsCarrierClass() )
                     {
-                        if( selection->m_currentState <= 1 )      { img = g_resource->GetImage( "graphics/fighter.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter") ); }
-                        else                                      { img = g_resource->GetImage( "graphics/f35c.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_navy_stealth") ); }
+                        if( selection->m_currentState <= 1 )      { fType = WorldObject::TypeFighter;             fTip = "tooltip_spawnfighter"; }
+                        else                                      { fType = WorldObject::TypeFighterNavyStealth;   fTip = "tooltip_spawnfighter_navy_stealth"; }
                     }
                     else
                     {
-                        if( selection->m_currentState <= 1 )      { img = g_resource->GetImage( "graphics/f16.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_light") ); }
-                        else if( selection->m_currentState <= 3 ) { img = g_resource->GetImage( "graphics/fighter.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter") ); }
-                        else if( selection->m_currentState <= 5 ) { img = g_resource->GetImage( "graphics/f35c.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_navy_stealth") ); }
-                        else                                      { img = g_resource->GetImage( "graphics/f22.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnfighter_stealth") ); }
+                        if( selection->m_currentState <= 1 )      { fType = WorldObject::TypeFighterLight;         fTip = "tooltip_spawnfighter_light"; }
+                        else if( selection->m_currentState <= 3 ) { fType = WorldObject::TypeFighter;              fTip = "tooltip_spawnfighter"; }
+                        else if( selection->m_currentState <= 5 ) { fType = WorldObject::TypeFighterNavyStealth;   fTip = "tooltip_spawnfighter_navy_stealth"; }
+                        else                                      { fType = WorldObject::TypeFighterStealth;       fTip = "tooltip_spawnfighter_stealth"; }
                     }
+                    img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( fType, selection->m_teamId ) );
+                    tooltip->PutData( LANGUAGEPHRASE(fTip) );
                     break;
+                }
 
                 case WorldObject::TargetTypeLaunchBomber:
-                    if( selection->m_currentState <= 9 )       { img = g_resource->GetImage( "graphics/bomber.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber") ); }
-                    else if( selection->m_currentState <= 11 ) { img = g_resource->GetImage( "graphics/b1b.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber_fast") ); }
-                    else                                       { img = g_resource->GetImage( "graphics/stealthbomber.bmp" );  tooltip->PutData( LANGUAGEPHRASE("tooltip_spawnbomber_stealth") ); }
+                {
+                    int bType;
+                    const char *bTip;
+                    if( selection->m_currentState <= 9 )       { bType = WorldObject::TypeBomber;         bTip = "tooltip_spawnbomber"; }
+                    else if( selection->m_currentState <= 11 ) { bType = WorldObject::TypeBomberFast;     bTip = "tooltip_spawnbomber_fast"; }
+                    else                                       { bType = WorldObject::TypeBomberStealth;  bTip = "tooltip_spawnbomber_stealth"; }
+                    img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( bType, selection->m_teamId ) );
+                    tooltip->PutData( LANGUAGEPHRASE(bTip) );
                     break;
+                }
                                                                 
                 case WorldObject::TargetTypeLaunchNuke:
                     img = g_resource->GetImage( "graphics/nuke.bmp" );
@@ -2109,9 +2114,9 @@ void MapRenderer::RenderMouse()
         float predictedLongitude = highlight->m_longitude.DoubleValue() + highlight->m_vel.x.DoubleValue() * g_predictionTime * timeScale;
         float predictedLatitude = highlight->m_latitude.DoubleValue() + highlight->m_vel.y.DoubleValue() * g_predictionTime  * timeScale;
         float size = 3.0f;
-        if( GetZoomFactor() <= 0.25f )
         {
-            size *= GetZoomFactor() * 4;
+            float hzf = fmaxf( GetZoomFactor(), 0.001f );
+            size *= 2.0f * powf( hzf, 0.75f );
         }
 
         Team *team = g_app->GetWorld()->GetTeam(highlight->m_teamId);
@@ -2483,7 +2488,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 									   targetObject->m_vel.y.DoubleValue() * g_predictionTime * 
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
-            Colour actionCursorCol = ( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
+            Colour actionCursorCol = ( (wobj->UsingNukes() && !wobj->UsesConventionalBallistic()) || wobj->m_type == WorldObject::TypeLANM ) ? Colour( 255, 0, 0, 150 ) : Colour( 255, 165, 0, 150 );  // Red: nuke / Orange: LACM, CBM
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
             float targetLineWidth = 1.0f;
@@ -2563,6 +2568,14 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 {
                     actionCursorCol.Set( 255, mobj->IsNuke() ? 0 : 165, 0, 150 );   // Red: nuke ballistic / Orange: non-nuke ballistic (future)
                 }
+                else if( mobj->m_type == WorldObject::TypeLANM )
+                {
+                    actionCursorCol.Set( 255, 0, 0, 150 );   // Red: nuclear cruise missile (LANM)
+                }
+                else if( mobj->IsCruiseMissileClass() )
+                {
+                    actionCursorCol.Set( 255, 165, 0, 150 );   // Orange: conventional cruise missile (LACM)
+                }
                 else if( mobj->IsAircraft() && mobj->m_isLanding != -1 )
                 {
                     WorldObject *landTarget = g_app->GetWorld()->GetWorldObject( mobj->m_isLanding );
@@ -2584,7 +2597,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 else if( mobj->IsBomberClass() && mobj->m_currentState == 1 )
                 {
                     if( mobj->m_actionQueue.Size() > 0 )
-                        actionCursorCol.Set( 255, 100, 130, 150 );   // Pink: nuke bomber with queued target
+                        actionCursorCol.Set( 255, 0, 255, 150 );     // Pink: nuke/LANM bomber heading to target
                     else
                         actionCursorCol.Set( 187, 127, 255, 150 );   // Lavender: nuke bomber, no target
                 }
@@ -2622,7 +2635,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
 
         //
-        // Render our action queue (red = nuke ballistic, orange = LACM/non-nuke ballistic, gray = standby, blue = waypoint)
+        // Render our action queue (pink = active nuke/LANM target, salmon = queued nuke/LANM, orange = LACM/conventional, gray = standby, blue = launch to location)
 
         if( wobj->m_actionQueue.Size() )
         {
@@ -2632,12 +2645,33 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             switch( wobj->m_classType )
             {
                 case WorldObject::ClassTypeAirbase:
-                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
-                    if( wobj->m_currentState == 2 || wobj->m_currentState == 3 ) img = g_resource->GetImage( "graphics/bomber.bmp" );
+                {
+                    int abState = wobj->m_currentState;
+                    int launchType = -1;
+                    if( abState <= 1 )       launchType = WorldObject::TypeFighterLight;
+                    else if( abState <= 3 )  launchType = WorldObject::TypeFighter;
+                    else if( abState <= 5 )  launchType = WorldObject::TypeFighterNavyStealth;
+                    else if( abState <= 7 )  launchType = WorldObject::TypeFighterStealth;
+                    else if( abState <= 9 )  launchType = WorldObject::TypeBomber;
+                    else if( abState <= 11 ) launchType = WorldObject::TypeBomberFast;
+                    else if( abState <= 13 ) launchType = WorldObject::TypeBomberStealth;
+                    else if( abState == 14 ) launchType = WorldObject::TypeAEW;
+                    else if( abState == 15 ) launchType = WorldObject::TypeTanker;
+                    if( launchType >= 0 )
+                        img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( launchType, wobj->m_teamId ) );
                     break;
+                }
                 case WorldObject::ClassTypeCarrier:
-                    if( wobj->m_currentState == 0 || wobj->m_currentState == 1 ) img = g_resource->GetImage( "graphics/fighter.bmp" );
+                {
+                    int crState = wobj->m_currentState;
+                    int launchType = -1;
+                    if( crState <= 1 )       launchType = WorldObject::TypeFighter;
+                    else if( crState <= 3 )  launchType = WorldObject::TypeFighterNavyStealth;
+                    else if( crState == 4 )  launchType = WorldObject::TypeAEW;
+                    if( launchType >= 0 )
+                        img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( launchType, wobj->m_teamId ) );
                     break;
+                }
 
                 case WorldObject::ClassTypeSilo:
                     if( wobj->m_currentState == 0 || wobj->m_currentState == 1 )
@@ -2673,7 +2707,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     WorldObject *orderTarget = g_app->GetWorld()->GetWorldObject( order->m_targetObjectId );
                     Image *orderImg = img;
                     if( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
-                        wobj->m_currentState == 1 && orderTarget &&
+                        ( wobj->m_currentState & 1 ) == 1 && wobj->m_currentState <= 7 && orderTarget &&
                         !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() )
                     {
                         orderImg = g_resource->GetImage( "graphics/lacm.bmp" );
@@ -2699,18 +2733,19 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( lineY < 0.0f ) angle += M_PI;
                 
                     bool isActiveTarget = ( i == 0 );
-                    // Gray only for standby; nuke/CBM/LACM launchers with orders use colored lines (red/orange/blue).
-                    // ASCM has no standby mode - always launch, so never grey.
-                    // SiloMobileCon in state 0 (transport) uses grey; state 1 (erected) uses orange.
-                    // Bomber LACM (state 2), Airbase bomber LACM (state 3), Strike fighter LACM (airbase/carrier state 1 + ship/building target).
+                    bool isNukeLaunchMode = wobj->UsingNukes() && !wobj->UsesConventionalBallistic();
+                    bool isBomberLanm = ( wobj->m_classType == WorldObject::ClassTypeBomber && wobj->m_currentState == 1 );
+                    bool isAirbaseBomberLanm = ( wobj->m_classType == WorldObject::ClassTypeAirbase &&
+                        wobj->m_currentState >= 8 && wobj->m_currentState <= 12 && ( wobj->m_currentState & 1 ) == 0 );
+                    bool isNukeOrder = ( isNukeLaunchMode || isBomberLanm || isAirbaseBomberLanm );
                     bool strikeFighterLacmOrder = ( ( wobj->m_classType == WorldObject::ClassTypeAirbase || wobj->m_classType == WorldObject::ClassTypeCarrier ) &&
-                        wobj->m_currentState == 1 && orderTarget &&
-                        !orderTarget->IsAircraft() && !orderTarget->IsCruiseMissileClass() && !orderTarget->IsBallisticMissileClass() );
+                        ( wobj->m_currentState & 1 ) == 1 && wobj->m_currentState <= 7 );
+                    bool isAirbaseBomberLacm = ( wobj->m_classType == WorldObject::ClassTypeAirbase &&
+                        wobj->m_currentState >= 9 && wobj->m_currentState <= 13 && ( wobj->m_currentState & 1 ) == 1 );
                     bool isLacmOrCruiseLaunch = ( ( wobj->m_classType == WorldObject::ClassTypeBomber && wobj->m_currentState == 2 ) ||
-                        ( wobj->m_classType == WorldObject::ClassTypeAirbase && wobj->m_currentState == 3 ) ||
-                        strikeFighterLacmOrder );
+                        strikeFighterLacmOrder || isAirbaseBomberLacm );
                     bool isStandbyQueue = ( ( wobj->m_type == WorldObject::TypeSiloMobileCon && wobj->m_currentState == 0 ) ||
-                        ( wobj->IsActionQueueable() && !wobj->UsingNukes() && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM && !isLacmOrCruiseLaunch ) );
+                        ( wobj->IsActionQueueable() && !isNukeOrder && !wobj->UsesConventionalBallistic() && wobj->m_type != WorldObject::TypeASCM && !isLacmOrCruiseLaunch ) );
                     Colour iconCol = isActiveTarget ? Colour( 255, 255, 255, 180 ) : Colour( 180, 180, 180, 100 );
                     if( isStandbyQueue )
                         iconCol = isActiveTarget ? Colour( 140, 140, 140, 150 ) : Colour( 100, 100, 100, 100 );
@@ -2718,12 +2753,12 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     Colour lineCol;
                     if( isStandbyQueue )
                         lineCol = isActiveTarget ? Colour( 128, 128, 128, 150 ) : Colour( 100, 100, 100, 100 );   // Gray: standby queue
-                    else if( wobj->UsingNukes() && !wobj->UsesConventionalBallistic() )
-                        lineCol = isActiveTarget ? Colour( 255, 0, 0, 180 ) : Colour( 200, 50, 50, 180 );        // Red: nuke ballistic
+                    else if( isNukeOrder )
+                        lineCol = isActiveTarget ? Colour( 255, 0, 255, 180 ) : Colour( 255, 102, 140, 150 );    // Pink: active nuke/LANM target, Salmon: queued
                     else if( wobj->IsAircraftLauncher() && order->m_targetObjectId == -1 )
-                        lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue (launch to location)
+                        lineCol = isActiveTarget ? Colour( 0, 0, 255, 180 ) : Colour( 100, 100, 255, 150 );     // Blue: launch to location
                     else
-                        lineCol = isActiveTarget ? Colour( 255, 165, 0, 180 ) : Colour( 255, 200, 80, 180 );    // Orange/yellow: LACM, non-nuke ballistic
+                        lineCol = isActiveTarget ? Colour( 255, 165, 0, 180 ) : Colour( 255, 200, 80, 180 );    // Orange: LACM, conventional
 
                     g_renderer2d->RotatingSprite( orderImg, targetLongitude, targetLatitude,
                                                   size, size, iconCol, angle );
@@ -2776,9 +2811,9 @@ void MapRenderer::RenderUnitHighlight( int _objectId )
 							      obj->m_vel.y.DoubleValue() * g_predictionTime  * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         
         float size = 5.0f;
-        if( GetZoomFactor() <=0.25f )
         {
-            size *= GetZoomFactor() * 4;
+            float uzf = fmaxf( GetZoomFactor(), 0.001f );
+            size *= 2.0f * powf( uzf, 0.75f );
         }
 
         Colour col = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetTeamColour();
@@ -3048,7 +3083,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, -iconSize, col, 0 );
 
                     if( wobj->m_numNukesInQueue )
                     {
@@ -3078,7 +3113,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, -iconSize, col, 0 );
 
                     if( wobj->m_numLACMInQueue )
                     {
@@ -3212,10 +3247,8 @@ void MapRenderer::RenderCities()
             {
                 float size = sqrtf( sqrtf((float) city->m_population) ) / 25.0f;
                 float textSize = size;
-                if( m_zoomFactor <= 0.2f )
-                {
-                    size *= m_zoomFactor * 5;
-                }
+                if( m_zoomFactor < 1.0f )
+                    size *= powf( m_zoomFactor, 0.15f );
 
                 Colour col(100,100,100,100);
                 if( city->m_teamId > -1 ) 
@@ -3244,7 +3277,7 @@ void MapRenderer::RenderCities()
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
+                    g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() + iconSize/2, iconSize, -iconSize, col );
 
                     if( city->m_numNukesInQueue )
                     {
@@ -3274,7 +3307,7 @@ void MapRenderer::RenderCities()
                     if( city->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
+                    g_renderer2d->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() + iconSize/2, iconSize, -iconSize, col );
 
                     if( city->m_numLACMInQueue )
                     {
@@ -3326,7 +3359,10 @@ void MapRenderer::RenderCities()
                     if( showCityNames )
                     {                                                  
                         textSize *= textSize * 0.5;
-                        textSize *= sqrtf( sqrtf( m_zoomFactor ) ) * 0.8f;
+                        {
+                            float czf = fmaxf( m_zoomFactor, 0.001f );
+                            textSize *= sqrtf( sqrtf( czf ) ) * 0.8f;
+                        }
 
                         g_renderer2d->TextCentreSimple( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), cityColour, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
                     }                
@@ -3628,7 +3664,8 @@ void MapRenderer::UpdateCameraControl( float longitude, float latitude )
         float factor2 = 1.0f - factor1;
         m_zoomFactor = zoomFactor * factor1 + m_zoomFactor * factor2;
 
-        float factor3 = g_advanceTime * 0.5f;
+        float panStrength = fminf( 1.0f, m_zoomFactor / 0.01f );
+        float factor3 = g_advanceTime * 0.5f * panStrength;
         float factor4 = 1.0f - factor3;
 
         int x = longitude;
@@ -3744,11 +3781,8 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
         nearest = 2;
     }
 
-    float zf = g_app->GetMapRenderer()->GetZoomFactor();
-    if( zf <= 0.25f )
-    {
-        nearest *= Fixed::FromDouble(zf * 4);
-    }
+    float zf = fmaxf( g_app->GetMapRenderer()->GetZoomFactor(), 0.001f );
+    nearest *= Fixed::FromDouble( 2.0 * pow( (double)zf, 0.75 ) );
 
     float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
     if( gameScale > 1.0f )
@@ -4202,6 +4236,9 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                     if( obj->IsValidMovementTarget( targetLong, targetLat ) < WorldObject::TargetTypeValid )
                         canAction = false;
                 }
+                if( obj->IsAircraft() &&
+                    obj->IsValidMovementTarget( targetLong, targetLat ) <= WorldObject::TargetTypeInvalid )
+                    canAction = false;
             }
         }
         else
@@ -4213,11 +4250,9 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 
         if( !canAction )
         {
-            if( obj->IsAircraft() )
+            if( obj->IsAircraft() && obj->IsFighterClass() )
             {
-                g_app->GetClientToServer()->RequestSetWaypoint( recId, targetLong, targetLat );
-                if( obj->IsFighterClass() )
-                    g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
+                g_app->GetClientToServer()->RequestAction( recId, -1, targetLong, targetLat );
                 anyOrderGiven = true;
             }
             else if( obj->IsAircraftLauncher() )
@@ -4485,8 +4520,10 @@ void MapRenderer::Update()
                 {
                     Fixed nearDist(5);
                     if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 ) nearDist = 2;
-                    if( GetZoomFactor() <= 0.25f )
-                        nearDist *= Fixed::FromDouble( GetZoomFactor() * 4 );
+                    {
+                        float nzf = fmaxf( GetZoomFactor(), 0.001f );
+                        nearDist *= Fixed::FromDouble( 2.0f * powf( nzf, 0.75f ) );
+                    }
                     Fixed mLon = Fixed::FromDouble(longitude);
                     Fixed mLat = Fixed::FromDouble(latitude);
                     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
@@ -4645,8 +4682,10 @@ void MapRenderer::Update()
                             Fixed dist = g_app->GetWorld()->GetDistance(
                                 clickedObj->m_longitude, clickedObj->m_latitude, mLon, mLat );
                             Fixed threshold(2);
-                            if( GetZoomFactor() <= 0.25f )
-                                threshold *= Fixed::FromDouble( GetZoomFactor() * 4 );
+                            {
+                                float tzf = fmaxf( GetZoomFactor(), 0.001f );
+                                threshold *= Fixed::FromDouble( 2.0f * powf( tzf, 0.75f ) );
+                            }
                             if( dist < threshold )
                                 releaseAircraftId = m_lmbClickedTargetId;
                             else
@@ -4687,12 +4726,14 @@ void MapRenderer::Update()
                     int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
                     bool hasValidCombatTarget = false;
                     bool hasLandTarget = false;
+                    bool hasSelectedBomber = false;
                     for( int si = 0; si < selCount; ++si )
                     {
                         int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
                         WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
                         if( obj )
                         {
+                            if( obj->IsBomberClass() ) hasSelectedBomber = true;
                             int combatResult = obj->IsValidCombatTarget( underMouseId );
                             if( ( combatResult == WorldObject::TargetTypeLand ||
                                   combatResult == WorldObject::TargetTypePursue ) && obj->IsAircraft() )
@@ -4708,11 +4749,18 @@ void MapRenderer::Update()
                             }
                         }
                     }
-                    if( hasValidCombatTarget || hasLandTarget )
+                    float clickDuration = GetHighResTime() - m_lmbClickStartTime;
+                    bool longClickOnAirbase = ( clickDuration > 0.5f && hasSelectedBomber &&
+                        hasLandTarget && underMouse->IsAircraftLauncher() &&
+                        g_app->GetWorld()->IsFriend( g_app->GetWorld()->m_myTeamId, underMouse->m_teamId ) );
+                    if( longClickOnAirbase )
+                    {
+                        HandleObjectAction( longitude, latitude, -1 );
+                    }
+                    else if( hasValidCombatTarget || hasLandTarget )
                     {
                         if( (SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasStandbyNukeUnit()) && underMouse->IsMovingObject() )
                         {
-                            // CBM can track moving ships - pass ship id. Nukes target static only - resolve to city/building.
                             int targetId = SelectionHasCBMLaunchUnit()
                                 ? underMouseId
                                 : ResolveNukeTargetForStatic( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
@@ -4730,18 +4778,7 @@ void MapRenderer::Update()
                     }
                     else
                     {
-                        bool hasSelectedAircraft = false;
-                        for( int si = 0; si < selCount; ++si )
-                        {
-                            int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
-                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
-                            if( obj && obj->IsAircraft() ) { hasSelectedAircraft = true; break; }
-                        }
-                        if( hasSelectedAircraft || SelectionHasLaunchableUnit() )
-                        {
-                            HandleObjectAction(longitude, latitude, underMouseId);
-                        }
-                        else if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
+                        if( underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )
                         {
                             HandleSelectObject(underMouseId);
                         }
@@ -4751,10 +4788,20 @@ void MapRenderer::Update()
                 {
                     if( g_app->GetWorldRenderer()->GetSelectionCount() > 0 )
                     {
-                        if( SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() || SelectionHasLaunchableUnit() || SelectionHasStandbyNukeUnit() )
+                        bool canAction = SelectionHasNukingUnit() || SelectionHasCBMLaunchUnit() ||
+                                         SelectionHasLaunchableUnit() || SelectionHasStandbyNukeUnit();
+                        if( !canAction )
+                        {
+                            int sc = g_app->GetWorldRenderer()->GetSelectionCount();
+                            for( int si = 0; si < sc; ++si )
+                            {
+                                WorldObject *obj = g_app->GetWorld()->GetWorldObject(
+                                    g_app->GetWorldRenderer()->GetSelectedId( si ) );
+                                if( obj && obj->IsAircraft() ) { canAction = true; break; }
+                            }
+                        }
+                        if( canAction )
                             HandleObjectAction(longitude, latitude, -1);
-                        else
-                            HandleSetWaypoint( longitude, latitude, false );
                     }
                     else
                     {

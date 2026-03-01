@@ -7,4 +7,5 @@ BattleShip3::BattleShip3()
 {
     SetType( WorldObject::TypeBattleShip3 );
     strcpy( bmpImageFilename, "graphics/lcs.bmp" );
+    m_life = 2;
 }

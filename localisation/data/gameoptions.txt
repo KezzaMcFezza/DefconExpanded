@@ -114,6 +114,10 @@ ToggleCPU               0       1       0           0
     Disabled
     Enabled
 
+ScenarioMode            0       1       0           0
+    None
+    nato_vs_russia
+
 ServerPassword          0       16      0           -1
      
      

@@ -5,32 +5,88 @@
 
 **Unit stats reference** (goatcon): [Google Sheets](https://docs.google.com/spreadsheets/d/1-H62mTA2QfVusg6o__63ntxi6qa7lSKGxBhz7t7S-lM/edit?gid=1935469833#gid=1935469833) — Life Points, Stealth Type, Speed, Turn Rate, Prepare/Reload Time, Action/Fuel Range, Nuke/LACM supply, Max Fighters, per-airbase launch options
 
-territory-specific modifications to unit stats/launch modes
+unit-specific modifications to stats/launch modes to each territory/player that uses the followin unique subunits:
 
-USA:
-bomber_fast: always 0 nukes, airbases always 0 bomber_fast nuke launch, m_range 130, m_stealthType = 30
-bomber: m_range = 150
-fighter: state 0 action range = 11
-fighter_stealth: always 0 lacm, airbases always 0 fighter_stealth strike launch
-fighter_stealth: m_range = 60
-
-Russia:
-bomber: m_range = 145, m_speed = 4
-bomber_fast: m_stealthtype = 110
-fighter: m_turnRate = 5
-figher_stealth: m_stealthType = 40, m_range = 50
-
-China:
-bomber: m_range = 75, m_stealthtype = 110
-fighter: m_turnRate = 5
-fighter_stealth: always 0 lacm, airbases always 0 fighter_stealth strike launch
-figher_stealth: m_stealthType = 30, m_range = 55
-
-NATO:
-India:
-Egypt:
-Saudi:
-fighter: state 0 action range = 11
+bomber_b52: m_range = 150
+bomber_tu95: m_range = 145, m_speed = 4
+bomber_h6: m_range = 75, m_stealthtype = 110
+bomber_fast_b1b: m_range 130, m_stealthType = 30, always 0 nukes, airbases always 0 bomber_fast nuke launch
+bomber_fast_tu22m: m_stealthtype = 110
+bomber_stealth_b2: m_range = 60
+fighter_f18: state 0 action range = 11
+fighter_rafale: state 0 action range = 11
+fighter_flanker: m_turnRate = 5
+fighter_f14: m_speed = 11, m_range = 40, state 0 action range = 9
+fighter_light_f16: m_turnRate = 5, m_range = 25, state 0 action range = 8
+fighter_light_j10: m_turnrate = 5, m_range = 35
+fighter_stealth_f22: m_range = 60, state 0 action range = 12
+fighter_stealth_su57: m_range = 60, always 0 lacm, airbases always 0 fighter_stealth strike launch
+fighter_stealth_j20: m_turnrate = 5, m_stealthType = 30, m_range = 55, state 0 action range = 15, always 0 lacm, airbases always 0 fighter_stealth strike launch
+fighter_navy_stealth_f35: m_stealthtype = 15, state 0 action range = 12
+fighter_navy_stealth_j35: m_turnRate = 5, m_range = 50
+carrier_degaulle: m_life = 4
+carrier_queen: m_life = 4
+carrier_kuznetsov: m_life = 2, m_speed = 2
+carrier_light_kuznetsov: m_life = 2, m_speed = 2
+carrier_super_nimitz: all states prepare time = 50, reload time = 20
+carrier_kuznetsov: all states prepare time = 70, reload time = 35
+carrier_light_wasp: all states prepare time = 60
+carrier_light_queen: all states prepare time = 60
+battleship_ticonderoga:
+  state 0: prepare time = 50, reload time = 5, action range = 10
+  state 1: prepare time = 50, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 10, action range = 3
+battleship_slava:
+  state 0: prepare time = 60, reload time = 10, action range = 10
+  state 1: prepare time = 60, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 20, action range = 2
+battleship_type055:
+  state 0: prepare time = 60, reload time = 5, action range = 10
+  state 1: prepare time = 50, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 15, action range = 2
+battleship2_arleigh:
+  state 0: prepare time = 50, reload time = 5, action range = 10
+  state 1: prepare time = 50, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 15, action range = 3
+battleship2_horizon:
+  state 0: prepare time = 55, reload time = 5, action range = 10
+  state 1: prepare time = 55, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 15, action range = 2
+battleship2_udaloy:
+  state 0: prepare time = 65, reload time = 10, action range = 10
+  state 1: prepare time = 60, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 20, action range = 2
+battleship2_type052:
+  state 0: prepare time = 50, reload time = 5, action range = 10
+  state 1: prepare time = 50, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 15, action range = 2
+battleship3_independence: m_stealthtype = 80, m_speed = 4, m_turnrate = 2
+  state 0: prepare time = 55, reload time = 5, action range = 3
+  state 1: prepare time = 60, reload time = 5, action range = 3
+  state 2: prepare time = 100, reload time = 25, action range = 3
+  state 3: prepare time = 60, reload time = 20, action range = 3
+battleship3_fremm: m_life = 3
+  state 0: prepare time = 55, reload time = 5, action range = 10
+  state 1: prepare time = 55, reload time = 5, action range = 25
+  state 2: prepare time = 100, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 15, action range = 2
+battleship3_grigorovich:
+  state 0: prepare time = 65, reload time = 5, action range = 10
+  state 1: prepare time = 60, reload time = 5, action range = 25
+  state 2: prepare time = 110, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 20, action range = 2
+battleship3_type054:
+  state 0: prepare time = 60, reload time = 5, action range = 5
+  state 1: prepare time = 60, reload time = 5, action range = 20
+  state 2: prepare time = 110, reload time = 25, action range = 10
+  state 3: prepare time = 60, reload time = 20, action range = 2
 
 territory-specific unit names
 

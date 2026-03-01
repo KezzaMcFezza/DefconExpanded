@@ -95,7 +95,8 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             return;
         }
         WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( targetObjectId );
-        if( targetObj && g_app->GetWorld()->IsFriend( m_teamId, targetObj->m_teamId ) )
+        if( targetObj && g_app->GetWorld()->IsFriend( m_teamId, targetObj->m_teamId ) &&
+            ( targetObj->IsAircraftLauncher() || targetObj->m_type == TypeTanker || targetObj->IsAircraft() ) )
         {
             m_targetObjectId = -1;
             m_isLanding = -1;
@@ -103,7 +104,7 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             ClearActionQueue();
             if( targetObj->IsAircraftLauncher() || targetObj->m_type == TypeTanker )
                 Land( targetObjectId );
-            else if( targetObj->IsAircraft() )
+            else
             {
                 SetWaypoint( targetObj->m_longitude, targetObj->m_latitude );
                 m_isEscorting = targetObjectId;
@@ -157,30 +158,22 @@ void Bomber::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 
     if( m_currentState == 1 )
     {
-        if( targetObjectId == -1 )
+        WorldObject *friendCheck = g_app->GetWorld()->GetWorldObject( targetObjectId );
+        if( friendCheck && g_app->GetWorld()->IsFriend( m_teamId, friendCheck->m_teamId ) &&
+            ( friendCheck->IsAircraftLauncher() || friendCheck->m_type == TypeTanker || friendCheck->IsAircraft() ) )
         {
             m_targetObjectId = -1;
             m_isLanding = -1;
             m_isEscorting = -1;
-            return;
-        }
-        {
-            WorldObject *friendCheck = g_app->GetWorld()->GetWorldObject( targetObjectId );
-            if( friendCheck && g_app->GetWorld()->IsFriend( m_teamId, friendCheck->m_teamId ) )
+            ClearActionQueue();
+            if( friendCheck->IsAircraftLauncher() || friendCheck->m_type == TypeTanker )
+                Land( targetObjectId );
+            else
             {
-                m_targetObjectId = -1;
-                m_isLanding = -1;
-                m_isEscorting = -1;
-                ClearActionQueue();
-                if( friendCheck->IsAircraftLauncher() || friendCheck->m_type == TypeTanker )
-                    Land( targetObjectId );
-                else if( friendCheck->IsAircraft() )
-                {
-                    SetWaypoint( friendCheck->m_longitude, friendCheck->m_latitude );
-                    m_isEscorting = targetObjectId;
-                }
-                return;
+                SetWaypoint( friendCheck->m_longitude, friendCheck->m_latitude );
+                m_isEscorting = targetObjectId;
             }
+            return;
         }
         if( m_states[1]->m_numTimesPermitted <= 0 )
             return;
@@ -668,6 +661,8 @@ int Bomber::IsValidMovementTarget( Fixed longitude, Fixed latitude )
 
 int Bomber::IsValidCombatTarget( int _objectId )
 {
+    if( _objectId == m_objectId ) return TargetTypeInvalid;
+
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
@@ -774,7 +769,8 @@ void Bomber::RequestAction( ActionOrder *_action )
             delete _action;
             return;
         }
-        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+            ( target->IsAircraftLauncher() || target->m_type == TypeTanker || target->IsAircraft() ) )
         {
             m_targetObjectId = -1;
             m_isLanding = -1;
@@ -782,7 +778,7 @@ void Bomber::RequestAction( ActionOrder *_action )
             ClearActionQueue();
             if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
                 Land( _action->m_targetObjectId );
-            else if( target->IsAircraft() )
+            else
             {
                 SetWaypoint( target->m_longitude, target->m_latitude );
                 m_isEscorting = _action->m_targetObjectId;
@@ -791,20 +787,14 @@ void Bomber::RequestAction( ActionOrder *_action )
             return;
         }
         bool wasQueueEmpty = ( m_actionQueue.Size() == 0 );
+
         WorldObject::RequestAction( _action );
-        if( wasQueueEmpty && m_currentState == 1 )
+        if( wasQueueEmpty && ( m_currentState == 1 || m_currentState == 2 ) )
         {
             if( _action->m_targetObjectId != -1 && target )
                 SetWaypoint( target->m_longitude, target->m_latitude );
             else if( _action->m_longitude != 0 || _action->m_latitude != 0 )
                 SetWaypoint( _action->m_longitude, _action->m_latitude );
-        }
-        if( wasQueueEmpty && m_currentState == 2 )
-        {
-            if( _action->m_targetObjectId != -1 && target )
-            {
-                SetWaypoint( target->m_longitude, target->m_latitude );
-            }
         }
     }
     else
@@ -849,7 +839,7 @@ void Bomber::Render3D()
 bool Bomber::SetWaypointOnAction()
 {
     if( m_currentState == 0 )
-        return ( m_actionQueue.Size() == 0 );
+        return false;
     if( m_currentState == 2 )
     {
         if( m_actionQueue.Size() > 0 )

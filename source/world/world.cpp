@@ -20,6 +20,9 @@
 #include "network/Server.h"
 #include "network/network_defines.h"
 
+#include "lib/filesys/file_system.h"
+#include "lib/filesys/text_stream_readers.h"
+
 #include "world/world.h"
 #include "world/explosion.h"
 #include "world/silo.h"
@@ -751,6 +754,202 @@ void World::AssignCities()
 #ifdef ENABLE_SANTA_EASTEREGG
     GenerateSantaPath();
 #endif
+}
+
+
+int World::GetTypeFromTypeName( const char *_typeName )
+{
+    for( int i = 0; i < WorldObject::NumObjectTypes; ++i )
+    {
+        if( stricmp( WorldObject::GetTypeName(i), _typeName ) == 0 )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+int World::GetTerritoryIdFromName( const char *_name )
+{
+    static const struct { const char *name; int id; } s_territories[] =
+    {
+        { "USA",            TerritoryUSA },
+        { "NATO",           TerritoryNATO },
+        { "Russia",         TerritoryRussia },
+        { "China",          TerritoryChina },
+        { "India",          TerritoryIndia },
+        { "Pakistan",       TerritoryPakistan },
+        { "Japan",          TerritoryJapan },
+        { "Korea",          TerritoryKorea },
+        { "Australia",      TerritoryAustralia },
+        { "Taiwan",         TerritoryTaiwan },
+        { "Ukraine",        TerritoryUkraine },
+        { "Philippines",    TerritoryPhilippines },
+        { "Thailand",       TerritoryThailand },
+        { "Indonesia",      TerritoryIndonesia },
+        { "NorthKorea",     TerritoryNorthKorea },
+        { "Iran",           TerritoryIran },
+        { "Israel",         TerritoryIsrael },
+        { "Saudi",          TerritorySaudi },
+        { "Egypt",          TerritoryEgypt },
+        { "Vietnam",        TerritoryVietnam },
+        { "Brazil",         TerritoryBrazil },
+        { "SouthAfrica",    TerritorySouthAfrica },
+    };
+
+    for( int i = 0; i < (int)(sizeof(s_territories) / sizeof(s_territories[0])); ++i )
+    {
+        if( stricmp( s_territories[i].name, _name ) == 0 )
+        {
+            return s_territories[i].id;
+        }
+    }
+    return -1;
+}
+
+
+int World::GetTeamIdForTerritory( int territoryId )
+{
+    for( int i = 0; i < m_teams.Size(); ++i )
+    {
+        Team *team = m_teams[i];
+        for( int j = 0; j < team->m_territories.Size(); ++j )
+        {
+            if( team->m_territories[j] == territoryId )
+            {
+                return team->m_teamId;
+            }
+        }
+    }
+    return -1;
+}
+
+
+int World::ScenarioPlacement( int teamId, int unitType, float longitude, float latitude, int fleetId )
+{
+    Team *team = GetTeam( teamId );
+    if( !team ) return -1;
+
+    WorldObject *newUnit = WorldObject::CreateObject( unitType );
+    if( !newUnit ) return -1;
+
+    newUnit->SetTeamId( teamId );
+    int id = AddWorldObject( newUnit );
+    newUnit->SetPosition( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+
+    if( team->m_unitsAvailable[unitType] > 0 )
+    {
+        team->m_unitsAvailable[unitType]--;
+    }
+
+    if( fleetId != 255 )
+    {
+        if( team->m_fleets.ValidIndex( fleetId ) )
+        {
+            team->m_fleets[fleetId]->m_fleetMembers.PutData( newUnit->m_objectId );
+            newUnit->m_fleetId = fleetId;
+        }
+    }
+    return id;
+}
+
+
+void World::LoadScenarioUnits()
+{
+    int scenarioMode = g_app->GetGame()->GetOptionValue( "ScenarioMode" );
+    if( scenarioMode == 0 ) return;
+
+    GameOption *option = g_app->GetGame()->GetOption( "ScenarioMode" );
+    if( !option ) return;
+    if( scenarioMode < 0 || scenarioMode >= option->m_subOptions.Size() ) return;
+
+    char *scenarioName = option->m_subOptions[scenarioMode];
+
+    char filename[512];
+    snprintf( filename, sizeof(filename), "data/scenarios/%s.txt", scenarioName );
+
+    for( int i = 0; filename[i]; ++i )
+    {
+        if( filename[i] == ' ' ) filename[i] = '_';
+    }
+
+    TextReader *in = g_fileSystem->GetTextReader( filename );
+    if( !in || !in->IsOpen() )
+    {
+        AppDebugOut( "Scenario file not found: %s\n", filename );
+        delete in;
+        return;
+    }
+
+    int numPlaced = 0;
+    int numFleets = 0;
+
+    while( in->ReadLine() )
+    {
+        if( !in->TokenAvailable() ) continue;
+
+        char *firstToken = in->GetNextToken();
+
+        if( firstToken[0] == '#' ) continue;
+
+        if( stricmp( firstToken, "FLEET" ) == 0 )
+        {
+            char *territoryName = in->GetNextToken();
+            int territoryId = GetTerritoryIdFromName( territoryName );
+            int teamId = ( territoryId != -1 ) ? GetTeamIdForTerritory( territoryId ) : -1;
+            Team *team = GetTeam( teamId );
+            if( team )
+            {
+                team->CreateFleet();
+                numFleets++;
+            }
+            else
+            {
+                AppDebugOut( "Scenario: no team controls territory '%s' for FLEET\n", territoryName );
+            }
+            continue;
+        }
+
+        char *territoryName = firstToken;
+        char *typeName = in->GetNextToken();
+        float longitude = (float)atof( in->GetNextToken() );
+        float latitude = (float)atof( in->GetNextToken() );
+
+        int fleetId = 255;
+        if( in->TokenAvailable() )
+        {
+            fleetId = atoi( in->GetNextToken() );
+        }
+
+        int territoryId = GetTerritoryIdFromName( territoryName );
+        if( territoryId == -1 )
+        {
+            AppDebugOut( "Scenario: unknown territory '%s'\n", territoryName );
+            continue;
+        }
+
+        int teamId = GetTeamIdForTerritory( territoryId );
+        if( teamId == -1 )
+        {
+            AppDebugOut( "Scenario: no team controls territory '%s', skipping unit\n", territoryName );
+            continue;
+        }
+
+        int unitType = GetTypeFromTypeName( typeName );
+        if( unitType == -1 )
+        {
+            AppDebugOut( "Scenario: unknown unit type '%s'\n", typeName );
+            continue;
+        }
+
+        ScenarioPlacement( teamId, unitType, longitude, latitude, fleetId );
+        numPlaced++;
+    }
+
+    delete in;
+
+    AppDebugOut( "Scenario loaded: %d units placed, %d fleets created\n", numPlaced, numFleets );
 }
 
 
@@ -3575,8 +3774,8 @@ void World::GetNumNukers( int objectId, int *inFlight, int *queued )
                     }
                 }
 
-                // In flight: nuke ballistic + future nuke cruise
-                if( obj->IsNuke() )
+                // In flight: nuke ballistic + nuclear cruise (LANM)
+                if( obj->IsNuke() || obj->m_type == WorldObject::TypeLANM )
                 {
                     MovingObject *nuke = (MovingObject *)obj;
                     Fixed longitude = nuke->m_targetLongitude;

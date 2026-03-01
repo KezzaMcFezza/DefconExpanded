@@ -526,6 +526,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/world/radarstation.cpp
     ${ROOT_PATH}/source/world/radar_ew.cpp
     ${ROOT_PATH}/source/world/unit_graphics.cpp
+    ${ROOT_PATH}/source/world/unit_stats.cpp
     ${ROOT_PATH}/source/world/territory_roster.cpp
     ${ROOT_PATH}/source/world/aircraft_loads.cpp
     ${ROOT_PATH}/source/world/movingobject.cpp

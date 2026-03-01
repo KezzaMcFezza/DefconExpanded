@@ -775,8 +775,10 @@ void MovingObject::RenderHistory2D()
     float zf = g_app->GetMapRenderer() ? g_app->GetMapRenderer()->GetZoomFactor() : 1.0f;
     float gameScale = World::GetGameScale().DoubleValue();
     if( gameScale < 0.01f ) gameScale = 1.0f;
-    int sizeCap = (int)(80.0f * zf / gameScale);
-    if( sizeCap < 2 ) sizeCap = 2;
+    float trailMult = 2.0f - zf;
+    int trailMin = (int)(2.0f * trailMult + 0.5f);
+    int sizeCap = (int)(80.0f * zf * trailMult / gameScale);
+    if( sizeCap < trailMin ) sizeCap = trailMin;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
@@ -784,8 +786,8 @@ void MovingObject::RenderHistory2D()
         {
             case TypeNuke:
             {
-                int nukeCap = (int)(12.0f * zf / gameScale);
-                if( nukeCap < 2 ) nukeCap = 2;
+                int nukeCap = (int)(12.0f * zf * trailMult / gameScale);
+                if( nukeCap < trailMin ) nukeCap = trailMin;
                 sizeCap = nukeCap;
                 break;
             }
@@ -883,8 +885,10 @@ void MovingObject::RenderHistory3D()
     float zf3d = g_app->GetMapRenderer() ? g_app->GetMapRenderer()->GetZoomFactor() : 1.0f;
     float gameScale3d = World::GetGameScale().DoubleValue();
     if( gameScale3d < 0.01f ) gameScale3d = 1.0f;
-    int sizeCap = (int)(80.0f * zf3d / gameScale3d);
-    if( sizeCap < 2 ) sizeCap = 2;
+    float trailMult3d = 2.0f - zf3d;
+    int trailMin3d = (int)(2.0f * trailMult3d + 0.5f);
+    int sizeCap = (int)(80.0f * zf3d * trailMult3d / gameScale3d);
+    if( sizeCap < trailMin3d ) sizeCap = trailMin3d;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
@@ -892,8 +896,8 @@ void MovingObject::RenderHistory3D()
         {
             case TypeNuke:
             {
-                int nukeCap3d = (int)(12.0f * zf3d / gameScale3d);
-                if( nukeCap3d < 2 ) nukeCap3d = 2;
+                int nukeCap3d = (int)(12.0f * zf3d * trailMult3d / gameScale3d);
+                if( nukeCap3d < trailMin3d ) nukeCap3d = trailMin3d;
                 sizeCap = nukeCap3d;
                 break;
             }

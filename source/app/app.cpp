@@ -1755,6 +1755,7 @@ void App::StartGame()
 
     GetWorld()->LoadNodes();
     GetWorld()->AssignCities();
+    GetWorld()->LoadScenarioUnits();
 
     if( GetGame()->GetOptionValue("GameMode") == GAMEMODE_OFFICEMODE )
     {

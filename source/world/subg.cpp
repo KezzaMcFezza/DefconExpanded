@@ -29,16 +29,21 @@ SubG::SubG()
 
     strcpy( bmpImageFilename, "graphics/subg.bmp" );
 
+    m_states[0]->m_timeToPrepare = 45;
+    m_states[1]->m_timeToPrepare = 60;
+    m_states[0]->m_timeToReload = 15;
+    m_states[1]->m_timeToReload = 30;
+
     Fixed gameScale = World::GetUnitScaleFactor();
     m_states[0]->m_actionRange = Fixed(2) / gameScale;
     m_states[1]->m_actionRange = Fixed(3) / gameScale;
     // LACM mode (state 3): 40 ammo instead of 20
     if( m_states.Size() > 3 )
     {
-        m_states[3]->m_numTimesPermitted = 40;
+        m_states[3]->m_timeToReload = 5;
+        m_states[2]->m_numTimesPermitted = 30;
+        m_states[3]->m_numTimesPermitted = 30;
     }
-
-    InitialiseTimers();
 }
 
 bool SubG::Update()

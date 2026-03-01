@@ -299,6 +299,7 @@
     <ClCompile Include="..\..\source\world\territory_roster.cpp" />
     <ClCompile Include="..\..\source\world\tornado.cpp" />
     <ClCompile Include="..\..\source\world\unit_graphics.cpp" />
+    <ClCompile Include="..\..\source\world\unit_stats.cpp" />
     <ClCompile Include="..\..\source\world\aircraft_loads.cpp" />
     <ClCompile Include="..\..\source\world\votingsystem.cpp" />
     <ClCompile Include="..\..\source\world\whiteboard.cpp" />

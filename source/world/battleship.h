@@ -14,6 +14,7 @@ public:
 
     BattleShip();
 
+    void    SetTeamId       ( int teamId ) override;
     void    RequestAction   ( ActionOrder *_action );
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
     void    AcquireTargetFromAction( ActionOrder *action ) override;

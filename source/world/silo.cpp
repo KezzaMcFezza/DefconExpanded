@@ -31,7 +31,7 @@ Silo::Silo()
 
     strcpy( bmpImageFilename, "graphics/silo.bmp" );
 
-    m_radarRange = 20;
+    m_radarRange = 3;
     m_selectable = true;
 
     m_currentState = 0;
@@ -39,8 +39,8 @@ Silo::Silo()
 
     m_nukeSupply = 10;
 
-    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 10, Fixed::MAX, true, 10, 5 );
-    AddState( LANGUAGEPHRASE("state_silonuke"), 30, 0, 10, Fixed::MAX, true, 10, 1 );
+    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, m_radarRange, Fixed::MAX, true, 10, 5 );
+    AddState( LANGUAGEPHRASE("state_silonuke"), 30, 0, m_radarRange, Fixed::MAX, true, 10, 1 );
 
     m_states[0]->m_numTimesPermitted = m_states[1]->m_numTimesPermitted;
 

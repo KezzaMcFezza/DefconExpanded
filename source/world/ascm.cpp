@@ -26,11 +26,12 @@ ASCM::ASCM()
     SetType( TypeASCM );
     strcpy( bmpImageFilename, "graphics/ascmbattery.bmp" );
 
+    m_life = 3;
+    m_stealthType = 50;
+
     // Replace parent states with single launch-only state. No standby.
     m_states.EmptyAndDelete();
-    Fixed gameScale = World::GetUnitScaleFactor();
-    Fixed range45 = Fixed( 45 ) / gameScale;
-    AddState( LANGUAGEPHRASE("state_ascmlaunch"), 60, 3, 10, range45, true, 60, 3 );
+    AddState( LANGUAGEPHRASE("state_ascmlaunch"), 60, 3, 2, 25, true, 50, 3 );
 
     m_currentState = 0;
     m_nukeSupply = -1;   // LACM, not nukes - do not use m_nukeSupply

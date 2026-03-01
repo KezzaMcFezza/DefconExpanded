@@ -16,6 +16,8 @@ ABM::ABM()
 {
     SetType( TypeABM );
     strcpy( bmpImageFilename, "graphics/abm.bmp" );
+    m_life = 5;
+    m_states[0]->m_actionRange = Fixed(30) / World::GetUnitScaleFactor();
 }
 
 void ABM::FireGun( Fixed range )

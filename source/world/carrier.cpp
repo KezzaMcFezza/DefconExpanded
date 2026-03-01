@@ -17,6 +17,7 @@
 #include "world/world.h"
 #include "world/carrier.h"
 #include "world/aircraft_loads.h"
+#include "world/unit_stats.h"
 #include "world/team.h"
 #include "world/fighter.h"
 #include "world/fighter_navystealth.h"
@@ -47,11 +48,11 @@ Carrier::Carrier()
 
     m_ghostFadeTime = 150;
 
-    AddState( LANGUAGEPHRASE("state_navyfighterlaunch"), 60, 30, 10, 45, true, 5, 3 );       // 0: Fighter CAP
-    AddState( LANGUAGEPHRASE("state_navystrikefighterlaunch"), 60, 30, 10, 45, true, 5, 3 ); // 1: Fighter Strike
-    AddState( LANGUAGEPHRASE("state_navystealthfighterlaunch"), 60, 30, 10, 45, true, 0, 3 ); // 2: NavyStealth CAP
-    AddState( LANGUAGEPHRASE("state_navystealthstrikefighterlaunch"), 60, 30, 10, 45, true, 0, 3 ); // 3: NavyStealth Strike
-    AddState( LANGUAGEPHRASE("state_aewlaunch"), 60, 30, 10, 140, true, 2, 3 );             // 4: AEW
+    AddState( LANGUAGEPHRASE("state_navyfighterlaunch"), 55, 25, 10, 45, true, 5, 3 );       // 0: Fighter CAP
+    AddState( LANGUAGEPHRASE("state_navystrikefighterlaunch"), 55, 25, 10, 45, true, 5, 3 ); // 1: Fighter Strike
+    AddState( LANGUAGEPHRASE("state_navystealthfighterlaunch"), 55, 25, 10, 45, true, 0, 3 ); // 2: NavyStealth CAP
+    AddState( LANGUAGEPHRASE("state_navystealthstrikefighterlaunch"), 55, 25, 10, 45, true, 0, 3 ); // 3: NavyStealth Strike
+    AddState( LANGUAGEPHRASE("state_aewlaunch"), 55, 25, 10, 140, true, 2, 3 );             // 4: AEW
 
     m_states[1]->m_numTimesPermitted = m_states[0]->m_numTimesPermitted;
     m_states[3]->m_numTimesPermitted = m_states[2]->m_numTimesPermitted;
@@ -66,7 +67,10 @@ void Carrier::SetTeamId( int teamId )
     {
         Team *team = g_app->GetWorld()->GetTeam( teamId );
         if ( team && team->m_territories.Size() > 0 )
+        {
             ApplyTerritoryAircraftLoads( this, team->m_territories[0] );
+            ApplyTerritoryStatOverrides( this, team->m_territories[0] );
+        }
     }
 
     for( int i = 0; i < m_states.Size(); ++i )

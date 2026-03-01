@@ -23,9 +23,9 @@ SiloMed::SiloMed()
     m_states[1]->m_numTimesPermitted = 6;
 
     Fixed gameScale = World::GetUnitScaleFactor();
-    Fixed range45 = Fixed( 45 ) / gameScale;
-    m_states[0]->m_actionRange = range45;
-    m_states[1]->m_actionRange = range45;
+    Fixed range90 = Fixed( 90 ) / gameScale;
+    m_states[0]->m_actionRange = range90;
+    m_states[1]->m_actionRange = range90;
 }
 
 Fixed SiloMed::GetNukeLaunchRange() const

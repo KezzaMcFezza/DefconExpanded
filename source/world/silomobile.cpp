@@ -26,6 +26,7 @@ SiloMobile::SiloMobile()
 
     // Launch state (state 1): reduced radar range
     Fixed gameScale = World::GetUnitScaleFactor();
+    m_states[0]->m_radarRange = Fixed( 1 ) / gameScale;
     m_states[1]->m_radarRange = Fixed( 1 ) / gameScale;
     m_states[1]->m_radarearly1Range = m_states[1]->m_radarRange * Fixed::FromDouble( 1.5 );
     m_states[1]->m_radarearly2Range = m_states[1]->m_radarRange * Fixed::FromDouble( 2.0 );

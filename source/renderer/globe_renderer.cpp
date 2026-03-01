@@ -1489,7 +1489,7 @@ void GlobeRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.005f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( wobj->m_numNukesInQueue )
                     {
@@ -1519,7 +1519,7 @@ void GlobeRenderer::RenderObjects()
                     if( wobj->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.005f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( wobj->m_numLACMInQueue )
                     {
@@ -2261,7 +2261,7 @@ void GlobeRenderer::RenderCities()
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.0035f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( city->m_numNukesInQueue )
                     {
@@ -2291,7 +2291,7 @@ void GlobeRenderer::RenderCities()
                     if( city->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.0035f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( city->m_numLACMInQueue )
                     {

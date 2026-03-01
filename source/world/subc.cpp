@@ -31,21 +31,19 @@ SubC::SubC()
 
     // Replace state 3 (nuke) with LACM; state 2 (standby) stays
     m_states[0]->m_timeToPrepare = 30;
-    m_states[0]->m_timeToReload = 20;
     m_states[1]->m_timeToPrepare = 30;
+    m_states[0]->m_timeToReload = 15;
     m_states[1]->m_timeToReload = 20;
+    Fixed gameScale = World::GetUnitScaleFactor();
+    m_states[0]->m_actionRange = Fixed(4) / gameScale;
+    m_states[1]->m_actionRange = Fixed(3) / gameScale;
 
     if( m_states.Size() > 3 )
     {
         m_states[3]->m_stateName = newStr( LANGUAGEPHRASE("state_sublacm") );
-        m_states[3]->m_timeToPrepare = 60;
-        m_states[3]->m_timeToReload = 6;
-        m_states[3]->m_numTimesPermitted = 20;
         m_states[3]->m_defconPermitted = 3;
-        m_states[3]->m_actionRange = Fixed(90);
+        m_states[3]->m_actionRange = Fixed(25) / gameScale;
     }
-
-    InitialiseTimers();
 }
 
 void SubC::Action( int targetObjectId, Fixed longitude, Fixed latitude )
@@ -104,10 +102,11 @@ bool SubC::Update()
         strcpy( bmpImageFilename, surfaced ? "graphics/subc_surfaced.bmp" : "graphics/subc.bmp" );
     }
 
+    Fixed gs = World::GetUnitScaleFactor();
     if( m_currentState == 0 )
-        m_speed = Fixed::Hundredths(2);
+        m_speed = Fixed::Hundredths(2) / gs;
     else if( m_currentState == 1 )
-        m_speed = Fixed::Hundredths(3);
+        m_speed = Fixed::Hundredths(3) / gs;
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
     if( fleet )

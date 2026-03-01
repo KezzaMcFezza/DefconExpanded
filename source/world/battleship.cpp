@@ -19,6 +19,8 @@
 #include "world/depthcharge.h"
 #include "world/fleet.h"
 #include "world/lacm.h"
+#include "world/unit_stats.h"
+#include "world/team.h"
 
 
 BattleShip::BattleShip()
@@ -41,15 +43,26 @@ BattleShip::BattleShip()
     m_ghostFadeTime = 150;
 
     // 0: Air Defense (vs aircraft and missiles)
-    AddState( LANGUAGEPHRASE("state_airdefense"), 60, 10, 10, 30, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_airdefense"), 60, 5, 10, 10, true, -1, 3 );
     // 1: LACM Launch (LACM vs buildings, LACM anti-ship vs surface ships)
-    AddState( LANGUAGEPHRASE("state_sublacm"), 60, 6, 10, 45, true, 40, 3 );
+    AddState( LANGUAGEPHRASE("state_sublacm"), 60, 5, 10, 25, true, 25, 3 );
     // 2: Anti-Sub (depth charges)
-    AddState( LANGUAGEPHRASE("state_antisub"), 120, 30, 10, 5, false, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_antisub"), 100, 25, 10, 10, false, -1, 3 );
     // 3: Naval Gun (vs surface ships only)
-    AddState( LANGUAGEPHRASE("state_navaldefense"), 60, 20, 10, 10, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_navaldefense"), 60, 20, 10, 2, true, -1, 3 );
 
     InitialiseTimers();
+}
+
+void BattleShip::SetTeamId( int teamId )
+{
+    MovingObject::SetTeamId( teamId );
+    if( teamId >= 0 )
+    {
+        Team *team = g_app->GetWorld()->GetTeam( teamId );
+        if( team && team->m_territories.Size() > 0 )
+            ApplyTerritoryStatOverrides( this, team->m_territories[0] );
+    }
 }
 
 void BattleShip::Action( int targetObjectId, Fixed longitude, Fixed latitude )

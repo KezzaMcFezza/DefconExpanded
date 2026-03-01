@@ -796,18 +796,13 @@ Fixed WorldObject::GetSize()
 {
 	Fixed size = 2;
 
-    if( IsAircraft() )
+    if( g_app->GetMapRenderer() )
     {
-        size *= 1;
+        float zf = g_app->GetMapRenderer()->GetZoomFactor();
+        double zfClamped = fmax( (double)zf, 0.001 );
+        size *= Fixed::FromDouble( 2.0 * pow( zfClamped, 0.75 ) );
     }
 
-    if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
-    {
-        size *= Fixed::FromDouble(g_app->GetMapRenderer()->GetZoomFactor()) * 4;
-    }
-
-    // Scale visual size gently with world scale: e.g. 100→1600 (16x) → look 25% smaller (1/sqrt(16)).
-    // Linear would be 16x smaller; no scaling would be same size; sqrt gives in-between.
     Fixed gameScale = g_app->GetWorld()->GetGameScale();
     if( gameScale > Fixed::Hundredths(1) )
         size /= Fixed::FromDouble(sqrt(gameScale.DoubleValue()));
@@ -1455,7 +1450,7 @@ bool WorldObject::LaunchBomber( int targetObjectId, Fixed longitude, Fixed latit
 
 bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
-    if( targetObjectId >= OBJECTID_CITYS )
+    if( targetObjectId >= OBJECTID_CITYS && aircraftMode != 2 )
     {
         targetObjectId = -1;
     }
@@ -1472,7 +1467,7 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
             fighter->m_lacmLoadout = true;
             fighter->m_states[0]->m_numTimesPermitted = 2;
             fighter->m_states[1]->m_numTimesPermitted = 2;
-            fighter->SetState( 1 );  // Strike fighters start in state 1 (LACM mode)
+            fighter->SetState( 1 );
         }
         else
         {
@@ -1482,22 +1477,29 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
         }
 
 	    WorldObject *target = g_app->GetWorld()->GetWorldObject(targetObjectId);
-        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
+        if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
+            ( target->IsAircraftLauncher() || target->m_type == TypeTanker || target->IsAircraft() ) )
         {
             if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
             {
                 fighter->Land( targetObjectId );
             }
-            else if( target->IsAircraft() )
+            else
             {
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
                 fighter->m_isEscorting = targetObjectId;
             }
-            else
-            {
-                fighter->SetWaypoint( longitude, latitude );
-                fighter->m_playerSetWaypoint = true;
-            }
+        }
+        else if( aircraftMode == 2 && target &&
+                 ( (!target->IsMovingObject() && GetArchetypeForType(target->m_type) == ArchetypeBuilding) ||
+                   target->IsTargetableSurfaceNavy() ) )
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            fighter->RequestAction( order );
         }
         else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
@@ -1696,11 +1698,12 @@ static bool LaunchBomberFrom( WorldObject *wo, Bomber *bomber, int targetObjectI
     bomber->SetWaypoint( longitude, latitude );
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-    if( target && g_app->GetWorld()->IsFriend( wo->m_teamId, target->m_teamId ) )
+    if( target && g_app->GetWorld()->IsFriend( wo->m_teamId, target->m_teamId ) &&
+        ( target->IsAircraftLauncher() || target->m_type == WorldObject::TypeTanker || target->IsAircraft() ) )
     {
         if( target->IsAircraftLauncher() || target->m_type == WorldObject::TypeTanker )
             bomber->Land( targetObjectId );
-        else if( target->IsAircraft() )
+        else
         {
             bomber->SetWaypoint( target->m_longitude, target->m_latitude );
             bomber->m_isEscorting = targetObjectId;

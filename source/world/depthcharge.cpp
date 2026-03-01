@@ -30,6 +30,7 @@ DepthCharge::DepthCharge( Fixed range )
     m_speed = Fixed::Hundredths(6);
     m_speed /= g_app->GetWorld()->GetUnitScaleFactor();
     m_turnRate = Fixed::Hundredths(80);
+    m_turnRate /= g_app->GetWorld()->GetUnitScaleFactor();
     m_maxHistorySize = -1;
     m_movementType = MovementTypeSea;
     

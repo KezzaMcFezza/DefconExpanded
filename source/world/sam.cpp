@@ -24,9 +24,9 @@ SAM::SAM()
     m_selectable = true;
 
     m_currentState = 0;
-    m_life = 5;
+    m_life = 3;
 
-    AddState( LANGUAGEPHRASE("state_airdefense"), 60, 20, 10, 30, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_airdefense"), 60, 10, 10, 15, true, -1, 3 );
 
     InitialiseTimers();
 }

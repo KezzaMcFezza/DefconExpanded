@@ -91,6 +91,7 @@ public:
     void            PassivePing     ();       // passive sonar: detects non-hidden ships at 1.5x range, no ping, sub stays hidden
     void            SetSpeed        ( Fixed speed );
     Fixed           GetSpeed        () const { return m_speed; }
+    void            SetTurnRate     ( Fixed turnRate ) { m_turnRate = turnRate; }
 
     char            *LogState();
 

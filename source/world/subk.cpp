@@ -33,13 +33,13 @@ SubK::SubK()
 
     Fixed gameScale = World::GetUnitScaleFactor();
     m_states[0]->m_actionRange = Fixed(3) / gameScale;
-    m_states[1]->m_actionRange = Fixed(4) / gameScale;
+    m_states[1]->m_actionRange = Fixed(2) / gameScale;
 
     // Replace state 2: Recharge (was standby in Sub)
-    m_states[0]->m_timeToPrepare = 30;
-    m_states[0]->m_timeToReload = 20;
-    m_states[1]->m_timeToPrepare = 30;
-    m_states[1]->m_timeToReload = 20;
+    m_states[0]->m_timeToPrepare = 45;
+    m_states[1]->m_timeToPrepare = 60;
+    m_states[0]->m_timeToReload = 15;
+    m_states[1]->m_timeToReload = 25;
 
     if( m_states.Size() > 2 )
     {
@@ -51,13 +51,11 @@ SubK::SubK()
         m_states[2]->m_isActionable = false;
         m_states[2]->m_defconPermitted = 5;
     }
-    // Disable state 3 (nuke)
     if( m_states.Size() > 3 )
     {
-        m_states[3]->m_numTimesPermitted = 0;
+        delete m_states[3];
+        m_states.RemoveData(3);
     }
-
-    InitialiseTimers();
 }
 
 void SubK::Action( int targetObjectId, Fixed longitude, Fixed latitude )
@@ -157,10 +155,11 @@ bool SubK::Update()
         }
     }
 
+    Fixed gs = World::GetUnitScaleFactor();
     if( m_currentState == 0 )
-        m_speed = Fixed::Hundredths(2);
+        m_speed = Fixed::Hundredths(2) / gs;
     else if( m_currentState == 1 )
-        m_speed = Fixed::Hundredths(3);
+        m_speed = Fixed::Hundredths(3) / gs;
 
     if( m_currentState != 2 )
         MoveToWaypoint();

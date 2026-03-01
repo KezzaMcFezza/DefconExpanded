@@ -58,7 +58,7 @@ void Tanker::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
     if( target &&
         g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
-        ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
+        target->IsAircraftLauncher() )
     {
         Land( targetObjectId );
     }
@@ -73,6 +73,20 @@ void Tanker::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         bool isLarge = target->IsBomberClass() || target->IsAEWClass() ||
                        target->m_type == TypeTanker;
         ManualAssignSlot( targetObjectId, isLarge );
+
+        MovingObject *receiver = (MovingObject *)target;
+        receiver->m_isLanding = m_objectId;
+
+        if( target->m_type == TypeTanker )
+        {
+            Tanker *otherTanker = (Tanker *)target;
+            if( otherTanker->m_isEscorting == m_objectId )
+            {
+                otherTanker->m_isEscorting = -1;
+                otherTanker->m_targetObjectId = -1;
+                otherTanker->ClearSlot( m_objectId );
+            }
+        }
     }
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId && targetObjectId == -1 )
@@ -277,6 +291,8 @@ int Tanker::GetAttackState()
 
 int Tanker::IsValidCombatTarget( int _objectId )
 {
+    if( _objectId == m_objectId ) return TargetTypeInvalid;
+
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 
@@ -293,7 +309,7 @@ int Tanker::IsValidCombatTarget( int _objectId )
         ( obj->m_teamId == m_teamId ||
           g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] ) )
     {
-        return TargetTypePursue;
+        return TargetTypeLand;
     }
 
     return MovingObject::IsValidCombatTarget( _objectId );

@@ -7,4 +7,5 @@ CarrierLHD::CarrierLHD()
 {
     SetType( WorldObject::TypeCarrierLHD );
     strcpy( bmpImageFilename, "graphics/type075.bmp" );
+    m_life = 2;
 }

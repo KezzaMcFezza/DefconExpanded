@@ -184,6 +184,11 @@ public:
 
     void LoadNodes          ();
     void AssignCities       ();
+    void LoadScenarioUnits  ();
+    int  ScenarioPlacement  ( int teamId, int unitType, float longitude, float latitude, int fleetId );
+    static int GetTypeFromTypeName( const char *_typeName );
+    static int GetTerritoryIdFromName( const char *_name );
+    int  GetTeamIdForTerritory( int territoryId );
     void RandomObjects      ( int teamId );
     
     Team *GetTeam           ( int teamId );

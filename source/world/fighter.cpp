@@ -561,6 +561,8 @@ int Fighter::GetTarget( Fixed range, const LList<int> *excludeIds )
 
 int Fighter::IsValidCombatTarget( int _objectId )
 {
+    if( _objectId == m_objectId ) return TargetTypeInvalid;
+
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( !obj ) return TargetTypeInvalid;
 

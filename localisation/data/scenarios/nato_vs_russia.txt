@@ -1,0 +1,38 @@
+# SCENARIO: NATO vs Russia
+# Pre-placed unit definitions for scenario mode
+#
+# Lines starting with # are comments
+# Lines starting with FLEET define a new fleet: FLEET <territory>
+# Unit lines: <territory> <unitType> <longitude> <latitude> [fleetId]
+#
+# territory: name of the territory that owns these units. The game resolves
+#            which player controls that territory at runtime.
+#            Valid names: USA, NATO, Russia, China, India, Pakistan, Japan, Korea,
+#            Australia, Taiwan, Ukraine, Philippines, Thailand, Indonesia, NorthKorea,
+#            Iran, Israel, Saudi, Egypt, Vietnam, Brazil, SouthAfrica
+#
+# unitType:  uses GetTypeName strings: silo, radar, radarew, airbase, airbase2,
+#            airbase3, battleship, battleship_ddg, battleship_fg, carrier,
+#            carrier_light, carrier_super, carrier_lhd, sub, subc, subg, subk,
+#            sam, abm, silomed, silomobile, silomobilecon, ascm
+#
+# longitude/latitude: world coordinates (same as used in tutorial)
+# fleetId:   optional, for naval units. Use FLEET command first to create the fleet.
+#
+# Units placed here will be deducted from each team's available unit count.
+# Players can still place additional units with their remaining allocation.
+# If no team controls a listed territory, those units are silently skipped.
+
+# === NATO buildings ===
+NATO    silo        18.0    52.0
+NATO    silo        15.0    48.0
+NATO    radar       10.0    55.0
+NATO    radar       20.0    60.0
+NATO    airbase     12.0    45.0
+
+# === Russia buildings ===
+Russia  silo        42.0    54.0
+Russia  silo        45.0    50.0
+Russia  radar       38.0    58.0
+Russia  radar       48.0    52.0
+Russia  airbase     40.0    48.0

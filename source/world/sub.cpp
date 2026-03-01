@@ -47,10 +47,10 @@ Sub::Sub()
     
     m_ghostFadeTime = 150;
     
-    AddState( LANGUAGEPHRASE("state_passivesonar"), 60, 30, 0, 5, true, -1, 3 );
-    AddState( LANGUAGEPHRASE("state_activesonar"), 60, 30, 0, 5, false, -1, 3 );
-    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 0, 45, true, 5, 3 );
-    AddState( LANGUAGEPHRASE("state_subnuke"), 120, 10, 3, 45, true, 5, 1 );
+    AddState( LANGUAGEPHRASE("state_passivesonar"), 45, 15, 0, 2, true, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_activesonar"), 60, 30, 0, 1, false, -1, 3 );
+    AddState( LANGUAGEPHRASE("state_standby"), 0, 0, 0, 75, true, 8, 3 );
+    AddState( LANGUAGEPHRASE("state_subnuke"), 120, 10, 3, 75, true, 8, 1 );
 
     m_states[2]->m_numTimesPermitted = m_states[3]->m_numTimesPermitted;
 
@@ -163,10 +163,11 @@ bool Sub::Update()
         strcpy( bmpImageFilename, surfaced ? "graphics/subn_surfaced.bmp" : "graphics/subn.bmp" );
     }
 
+    Fixed gs = World::GetUnitScaleFactor();
     if( m_currentState == 0 || m_currentState >= 2 )
-        m_speed = Fixed::Hundredths(2);
+        m_speed = Fixed::Hundredths(2) / gs;
     else if( m_currentState == 1 )
-        m_speed = Fixed::Hundredths(3);
+        m_speed = Fixed::Hundredths(3) / gs;
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
     if( fleet && ( m_currentState == 0 || m_currentState == 1 ) )
