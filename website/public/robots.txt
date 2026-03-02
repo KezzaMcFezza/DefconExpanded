@@ -4,8 +4,6 @@ User-agent: *
 Allow: https://defconexpanded.com/
 Allow: https://defconexpanded.com/about
 Allow: https://defconexpanded.com/leaderboard
-Allow: https://defconexpanded.com/patchnotes
-Allow: https://defconexpanded.com/resources
 Allow: https://defconexpanded.com/dedcon-builds
 Allow: https://defconexpanded.com/replay-viewer
 Allow: https://defconexpanded.com/modlist
