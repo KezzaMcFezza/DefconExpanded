@@ -57,6 +57,7 @@
   <link rel="stylesheet" type="text/css" href="/CSS/scaling.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/dedcon-builds.css" />
+  <script type="module" src="/javaScript/main/navbar.js" defer></script>
   <script type="module" src="/javaScript/main/main.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -73,95 +74,7 @@
 </style>
 
 <body class="hide-scrollbar">
-  <div id="sidebar">
-    <div class="title">DEFCON Expanded</div>
-    <ul class="list-items">
-      <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings" class="steam-logo"
-            style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a>
-      </li>
-      <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo"
-            style="margin-right: 10px; width: 19px;">About</a></li>
-      <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo"
-            style="margin-right: 10px; width: 19px;">Dedcon</a></li>
-      <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
-      <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard"
-            class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
-      <li><a href="/smurfchecker" id="nav-smurfchecker"><i class="fas fa-search"
-            style="margin-right: 10px; width: 19px;"></i>Smurf Checker</a></li>
-      <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
-      <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo"
-            style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
-      <div id="discord-widget"></div>
-      <header class="mobile-header">
-        <nav class="header-content">
-          <div class="account-container">
-            <div class="user-actions">
-              <div class="logged-out-actions">
-                <a href="/login" class="login-signup" target="_blank">Login</a>
-                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
-              </div>
-
-              <div class="logged-in-actions" style="display: none;">
-                <div class="user-dropdown">
-                  <button class="dropbtn">
-                    <span id="logged-in-username">Logged-in User</span>
-                    <i class="fa fa-caret-down"></i>
-                  </button>
-                  <div class="dropdown-content-page">
-                    <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
-                    <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
-                  </div>
-                </div>
-                <button class="signout">Logout</button>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
-    </ul>
-    <div class="icons">
-      <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
-        <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
-      </a>
-      <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
-        <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
-      </a>
-      <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
-        <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
-      </a>
-      <a href="/privacypolicy" class="privacy-icon" target="_blank">
-        <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
-      </a>
-    </div>
-  </div>
   <main>
-    <header>
-      <nav class="header-content">
-        <div class="account-container">
-          <div class="user-actions">
-            <div class="logged-out-actions">
-              <a href="/login" class="login-signup" target="_blank">Login</a>
-              <a href="/signup" class="login-signup" target="_blank">Sign up</a>
-            </div>
-
-            <div class="logged-in-actions" style="display: none;">
-              <div class="user-dropdown">
-                <button class="dropbtn">
-                  <span id="logged-in-username">Logged-in User</span>
-                  <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content-page">
-                  <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
-                  <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
-                </div>
-              </div>
-              <button class="signout">Logout</button>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </header>
-
     <div class="dedcon-container">
       <div class="dedcon-header">
         <div class="dedcon-banner">

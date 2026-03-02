@@ -125,7 +125,6 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(to right, #4da6ff, #5eff00);
     opacity: 0.7;
 }
 
@@ -153,27 +152,27 @@
 }
 
 .downloads-card::before {
-    background: linear-gradient(to right, #fffb00, #0059ff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .beta-card::before {
-    background: linear-gradient(to right, #ff8400, #0059ff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .instructions-card::before {
-    background: linear-gradient(to right, #4da6ff, #5eff00);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .about-card::before {
-    background: linear-gradient(to right, #5eff00, #00e5ff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .recording-card::before {
-    background: linear-gradient(to right, #ff8400, #ffcc00);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .changelogs-card::before {
-    background: linear-gradient(to right, #e72de0, #ff4949);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .installation-section {
