@@ -20,11 +20,8 @@ const rootDir = path.join(__dirname, '..');
 const publicDir = path.join(rootDir, 'public');
 const demoDir = path.join(rootDir, 'demo_recordings');
 const replayViewerDir = path.join(rootDir, 'replay_viewer');
-const syncPracticeDir = path.join(rootDir, 'sync_practice');
 const defconDir = path.join(rootDir, 'defcon');
-const resourcesDir = path.join(publicDir, 'Files');
 const dedconBuildsDir = path.join(publicDir, 'Files');
-const replayBuildsDir = path.join(publicDir, 'Files');
 const uploadDir = publicDir;
 const gameLogsDir = path.join(rootDir, 'game_logs');
 const modlistDir = path.join(publicDir, 'modlist');
@@ -53,7 +50,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-[demoDir, resourcesDir, dedconBuildsDir, replayBuildsDir, uploadDir, gameLogsDir, modlistDir, modPreviewsDir].forEach(dir => {
+[demoDir, dedconBuildsDir, uploadDir, gameLogsDir, modlistDir, modPreviewsDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -65,12 +62,8 @@ const storage = multer.diskStorage({
             cb(null, demoDir);
         } else if (file.fieldname === 'jsonFile') {
             cb(null, gameLogsDir);
-        } else if (file.fieldname === 'resourceFile') {
-            cb(null, dedconBuildsDir);
         } else if (file.fieldname === 'dedconBuildsFile') {
-            cb(null, resourcesDir);
-        } else if (file.fieldname === 'replayBuildsFile') {
-            cb(null, replayBuildsDir);
+            cb(null, dedconBuildsDir);
         } else if (file.fieldname === 'modFile') {
             cb(null, modlistDir);
         } else if (file.fieldname === 'previewImage') {
@@ -102,11 +95,9 @@ const adminPages = [
     'demo-manage.html',
     'account-manage.html',
     'modmanagment.html',
-    'resourcemanagment.html',
     'server-console.html',
     'playerlookup.html',
     'dedconmanagment.html',
-    'replayviewermanagment.html',
     'servermanagment.html',
     'rcon-console.html'
 ];
@@ -155,9 +146,7 @@ module.exports = {
     pool,
     transporter,
     demoDir,
-    resourcesDir,
     dedconBuildsDir,
-    replayBuildsDir,
     uploadDir,
     gameLogsDir,
     modlistDir,
@@ -169,7 +158,6 @@ module.exports = {
     upload,
     rootDir,
     replayViewerDir,
-    syncPracticeDir,
     defconDir,
     publicDir,
     gameLogsDir

@@ -64,7 +64,6 @@ const {
     pool,
     demoDir,
     replayViewerDir,
-    syncPracticeDir,
     defconDir,
     adminPages,
     publicDir,
@@ -104,7 +103,6 @@ const debugUtils = require('./debug-utils');
 const adminPanelRoutes = require('./apis/admin/admin-panel');
 const blacklistRoutes = require('./apis/admin/blacklist');
 const dedconBuildsRoutes = require('./apis/admin/dedcon-builds');
-const replayBuildsRoutes = require('./apis/admin/replay-builds');
 const dedconConfigRoutes = require('./apis/admin/dedcon-config');
 const demoAdminRoutes = require('./apis/admin/demo');
 const modlistAdminRoutes = require('./apis/admin/modlist');
@@ -133,7 +131,6 @@ const requestRoutes = require('./apis/users/request');
 const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
 const replayViewerExtensionRoutes = require('./apis/replay-viewer/replay-viewer-extension');
 const replayViewerRoutes = require('./apis/replay-viewer/replay-viewer');
-const syncPracticeRoutes = require('./apis/sync-practice/sync-practice');
 const defconRoutes = require('./apis/defcon/defcon');
 
 // global error handler, created properly for the first time
@@ -211,7 +208,6 @@ app.use((req, res, next) => {
     
     // static resources we also set resource policy
     if (req.url.includes('/replay-viewer/') || 
-        req.url.includes('/sync-practice/') ||
         req.url.includes('/defcon/') ||
         req.url.endsWith('.wasm') || 
         req.url.endsWith('.wasm.map') || 
@@ -306,7 +302,6 @@ app.use((req, res, next) => {
 app.use(adminPanelRoutes);
 app.use(blacklistRoutes);
 app.use(dedconBuildsRoutes);
-app.use(replayBuildsRoutes);
 app.use(dedconConfigRoutes);
 app.use(demoAdminRoutes);
 app.use(modlistAdminRoutes);
@@ -335,7 +330,6 @@ app.use(requestRoutes);
 app.use(smurfCheckerRoutes);
 app.use(replayViewerExtensionRoutes);
 app.use(replayViewerRoutes);
-app.use(syncPracticeRoutes);
 app.use(defconRoutes);
 
 // added this here for when i need to verify my ssl certificate from zerossl 

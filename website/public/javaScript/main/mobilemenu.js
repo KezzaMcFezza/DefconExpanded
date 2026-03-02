@@ -78,7 +78,7 @@ function setActiveNavItem() {
   
   function getPageName() {
     const path = window.location.pathname;
-    const pages = ['index.html', 'about.html', 'resources.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
+    const pages = ['index.html', 'about.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
     let pageName = pages.find(page => path.endsWith(page));
   
     if (!pageName) {

@@ -22,8 +22,6 @@ function getCurrentPage() {
     if (path.includes('demomanage')) return 'demos';
     if (path.includes('playerlookup')) return 'player-lookup';
     if (path.includes('dedconmanagment')) return 'dedcon';
-    if (path.includes('replayviewermanagment')) return 'replay';
-    if (path.includes('resourcemanage')) return 'resources';
     if (path.includes('modlistmanage')) return 'mods';
     if (path.includes('accountmanage')) return 'accounts';
     if (path.includes('serverconsole')) return 'console';
@@ -81,12 +79,6 @@ async function initializeAdminPanel() {
             break;
         case 'dedcon':
             modulesToLoad.push('dedcon-builds');
-            break;
-        case 'replay':
-            modulesToLoad.push('replay-builds');
-            break;
-        case 'resources':
-            modulesToLoad.push('resources');
             break;
         case 'mods':
             modulesToLoad.push('mods');
@@ -150,16 +142,6 @@ async function initializeAdminPanel() {
         if (DedconBuildsModule) {
             DedconBuildsModule.loadDedconBuilds();
         }
-    } else if (currentPage === 'replay') {
-        const ReplayBuildsModule = await ModuleLoader.loadModule('replay-builds');
-        if (ReplayBuildsModule) {
-            ReplayBuildsModule.loadReplayBuilds();
-        }
-    } else if (currentPage === 'resources') {
-        const ResourcesModule = await ModuleLoader.loadModule('resources');
-        if (ResourcesModule) {
-            ResourcesModule.loadResources();
-        }
     } else if (currentPage === 'mods') {
         const ModsModule = await ModuleLoader.loadModule('mods');
         if (ModsModule) {
@@ -210,11 +192,6 @@ AdminApp.deleteDemo = async (...args) => (await getModuleFunction('demos', 'dele
 AdminApp.saveEditDemo = async (...args) => (await getModuleFunction('demos', 'saveEditDemo'))(...args);
 AdminApp.cancelEditDemo = async (...args) => (await getModuleFunction('demos', 'cancelEditDemo'))(...args);
 AdminApp.searchDemos = async (...args) => (await getModuleFunction('demos', 'searchDemos'))(...args);
-AdminApp.uploadResource = async (...args) => (await getModuleFunction('resources', 'uploadResource'))(...args);
-AdminApp.editResource = async (...args) => (await getModuleFunction('resources', 'editResource'))(...args);
-AdminApp.deleteResource = async (...args) => (await getModuleFunction('resources', 'deleteResource'))(...args);
-AdminApp.saveEditResource = async (...args) => (await getModuleFunction('resources', 'saveEditResource'))(...args);
-AdminApp.cancelEditResource = async (...args) => (await getModuleFunction('resources', 'cancelEditResource'))(...args);
 AdminApp.editUser = async (...args) => (await getModuleFunction('users', 'editUser'))(...args);
 AdminApp.deleteUser = async (...args) => (await getModuleFunction('users', 'deleteUser'))(...args);
 AdminApp.saveEditUser = async (...args) => (await getModuleFunction('users', 'saveEditUser'))(...args);
@@ -237,11 +214,6 @@ AdminApp.editDedconBuild = async (...args) => (await getModuleFunction('dedcon-b
 AdminApp.deleteDedconBuild = async (...args) => (await getModuleFunction('dedcon-builds', 'deleteDedconBuild'))(...args);
 AdminApp.saveEditDedconBuild = async (...args) => (await getModuleFunction('dedcon-builds', 'saveEditDedconBuild'))(...args);
 AdminApp.cancelEditDedcon = async (...args) => (await getModuleFunction('dedcon-builds', 'cancelEditDedcon'))(...args);
-AdminApp.uploadReplayBuild = async (...args) => (await getModuleFunction('replay-builds', 'uploadReplayBuild'))(...args);
-AdminApp.editReplayBuild = async (...args) => (await getModuleFunction('replay-builds', 'editReplayBuild'))(...args);
-AdminApp.deleteReplayBuild = async (...args) => (await getModuleFunction('replay-builds', 'deleteReplayBuild'))(...args);
-AdminApp.saveEditReplayBuild = async (...args) => (await getModuleFunction('replay-builds', 'saveEditReplayBuild'))(...args);
-AdminApp.cancelEditReplay = async (...args) => (await getModuleFunction('replay-builds', 'cancelEditReplay'))(...args);
 AdminApp.downloadLogs = async (...args) => (await getModuleFunction('console', 'downloadLogs'))(...args);
 AdminApp.scrollToTop = (...args) => UI.scrollToTop(...args);
 AdminApp.toggleSpectators = (...args) => UI.toggleSpectators(...args);
