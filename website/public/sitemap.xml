@@ -7,77 +7,67 @@
   </url>
   <url>
     <loc>https://defconexpanded.com/modlist</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/about</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://defconexpanded.com/resources</loc>
-    <lastmod>2025-08-04</lastmod>
-    <priority>0.3</priority>
-  </url>
-  <url>
     <loc>https://defconexpanded.com/dedcon-builds</loc>
-    <lastmod>2025-08-04</lastmod>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://defconexpanded.com/replay-viewer</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/modlist/maps</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/modlist/graphics</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/modlist/ai</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/modlist/moddingtools</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/modlist/overhauls</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/leaderboard</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/about/combined-servers</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/about/hours-played</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/about/popular-territories</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/about/1v1-setup-statistics</loc>
-    <lastmod>2025-08-04</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <priority>0.2</priority>
   </url>
 </urlset>
