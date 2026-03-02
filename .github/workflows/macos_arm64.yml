@@ -6,7 +6,7 @@ on:
 # MacOS Arm64 workflow
 jobs:
   build-macos-arm64:
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - uses: actions/checkout@v4
@@ -39,8 +39,6 @@ jobs:
           cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE="Release" \
-            -DCMAKE_CXX_STANDARD=14 \
-            -DCMAKE_OSX_ARCHITECTURES=arm64 \
             -DCMAKE_CXX_FLAGS="-w" \
             -DCMAKE_C_FLAGS="-w" \
             -DMACOS_FRAMEWORKS_DIR="${GITHUB_WORKSPACE}/contrib/systemIV/contrib/macosx/Frameworks"
