@@ -19,11 +19,11 @@
 }
 
 .mod-item {
-  flex: 1 1 490px;
+  flex: 1 1 598px;
   position: relative;
   display: flex;
-  max-width: 492px;
-  min-width: 492px;
+  max-width: 595px;
+  min-width: 595px;
   flex-direction: column;
   background-color: #1a1a1a;
   border-radius: 10px;
