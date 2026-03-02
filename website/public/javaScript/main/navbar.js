@@ -25,7 +25,18 @@ const NAVBAR_HTML = `
       <li><a href="/dedcon-builds" id="nav-dedcon-builds">Dedcon</a></li>
       <li><a href="/leaderboard" id="nav-leaderboard">Leaderboard</a></li>
       <li><a href="/smurfchecker" id="nav-smurfchecker">Smurf Checker</a></li>
-      <li><a href="/modlist" id="nav-modlist">Modlist</a></li>
+      <li class="modlist-dropdown">
+        <button type="button" class="nav-modlist-btn" id="nav-modlist" aria-haspopup="true" aria-expanded="false" aria-controls="modlist-dropdown-menu">
+          Modlist <i class="fa fa-caret-down nav-modlist-arrow" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown-content-page modlist-dropdown-content" id="modlist-dropdown-menu" role="menu">
+          <a href="/modlist/maps" role="menuitem">Maps</a>
+          <a href="/modlist/graphics" role="menuitem">Graphics</a>
+          <a href="/modlist/overhauls" role="menuitem">Overhauls</a>
+          <a href="/modlist/ai" role="menuitem">AI / Bot</a>
+          <a href="/modlist/moddingtools" role="menuitem">Modding Tools</a>
+        </div>
+      </li>
     </ul>
     <div class="nav-dropdown-account">
       <div class="user-actions">
@@ -37,7 +48,7 @@ const NAVBAR_HTML = `
           <div class="user-dropdown">
             <button class="dropbtn">
               <span class="logged-in-username">Logged-in User</span>
-              <i class="fa fa-caret-down"></i>
+              <i class="fa fa-caret-down user-dropdown-arrow" aria-hidden="true"></i>
             </button>
             <div class="dropdown-content-page">
               <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
@@ -63,11 +74,11 @@ const NAVBAR_HTML = `
         <div class="user-dropdown">
           <button class="dropbtn">
             <span id="logged-in-username" class="logged-in-username">Logged-in User</span>
-            <i class="fa fa-caret-down"></i>
+            <i class="fa fa-caret-down user-dropdown-arrow" aria-hidden="true"></i>
           </button>
           <div class="dropdown-content-page">
-            <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
-            <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+            <a href="#" class="profile-link">Profile</a>
+            <a href="/account-settings">Settings</a>
           </div>
         </div>
         <button class="signout">Logout</button>
@@ -77,6 +88,29 @@ const NAVBAR_HTML = `
 </div>
 `;
 
+function setupModlistDropdown() {
+  const modlistDropdown = document.querySelector('.modlist-dropdown');
+  if (!modlistDropdown) return;
+
+  const btn = modlistDropdown.querySelector('.nav-modlist-btn');
+  const menu = modlistDropdown.querySelector('.modlist-dropdown-content');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const isOpen = modlistDropdown.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!modlistDropdown.contains(e.target)) {
+      modlistDropdown.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
 function injectNavbar() {
   const main = document.querySelector('main');
   if (!main || main.querySelector('.top-nav')) return;
@@ -85,6 +119,7 @@ function injectNavbar() {
   header.className = 'top-nav';
   header.innerHTML = NAVBAR_HTML;
   main.insertBefore(header, main.firstChild);
+  setupModlistDropdown();
 }
 
 function initNavbar() {

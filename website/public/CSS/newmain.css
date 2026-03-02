@@ -119,8 +119,10 @@ input:focus {
 }
 
 .dropdown-content-page a {
-    color: rgb(255, 255, 255);
-    padding: 8px 16px;
+    color: #c5d4ff;
+    padding: 0 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-decoration: none;
     display: block;
     transition: background-color 0.2s;
@@ -144,6 +146,62 @@ input:focus {
 
 .user-dropdown.open .dropdown-content-page {
     display: block;
+}
+
+.user-dropdown .user-dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+
+.user-dropdown.open .user-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Modlist navbar dropdown */
+.top-nav .list-items .modlist-dropdown {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.top-nav .nav-modlist-btn {
+    color: #c5d4ff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-radius: 5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s, background-color 0.2s;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.top-nav .nav-modlist-btn:hover {
+    color: #4da6ff;
+    background-color: rgba(0, 114, 255, 0.08);
+}
+
+.top-nav .nav-modlist-arrow {
+    transition: transform 0.2s ease;
+}
+
+.top-nav .modlist-dropdown.open .nav-modlist-arrow {
+    transform: rotate(180deg);
+}
+
+.top-nav .modlist-dropdown.open .modlist-dropdown-content {
+    display: block;
+}
+
+.top-nav .modlist-dropdown-content a:last-child {
+    margin-bottom: 0;
 }
 
 .header-content {
