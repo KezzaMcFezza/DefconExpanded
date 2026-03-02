@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 19-09-2025
+* Last Edited 02-03-2026
 */
 
 html {
@@ -38,7 +38,7 @@ body {
 body::before {
     content: "";
     position: fixed;
-    left: 80px;
+    left: 0;
     width: 100%;
     height: 100%;
     background-image: url("/images/backgroundyes.png");
@@ -110,27 +110,39 @@ input:focus {
     min-width: 100%;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 1;
+    margin-top: 5px;
     border-radius: 10px;
     top: 100%;
     left: 0;
     white-space: nowrap;
+    overflow: hidden;
 }
 
 .dropdown-content-page a {
     color: rgb(255, 255, 255);
-    padding: 12px 16px;
+    padding: 8px 16px;
     text-decoration: none;
     display: block;
+    transition: background-color 0.2s;
+}
+
+.dropdown-content-page a:first-child {
+    border-radius: 10px 10px 0 0;
+}
+
+.dropdown-content-page a:last-child {
+    border-radius: 0 0 10px 10px;
+}
+
+.dropdown-content-page a:only-child {
     border-radius: 10px;
-    transition: all 500ms;
 }
 
 .dropdown-content-page a:hover {
-    background-color: rgb(51, 51, 51);
-    border-radius: 10px;
+    background-color: rgba(78, 78, 78, 0.2);
 }
 
-.user-dropdown:hover .dropdown-content-page {
+.user-dropdown.open .dropdown-content-page {
     display: block;
 }
 
@@ -159,6 +171,167 @@ input:focus {
     display: none;
 }
 
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #000000;
+    border-bottom: 1px solid #333;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.top-nav-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 1rem 0 0;
+    gap: 1.5rem;
+}
+
+.top-nav .nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #4da6ff;
+    text-decoration: none;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.top-nav .nav-brand-icon {
+    height: 1.5rem;
+    width: auto;
+    display: block;
+    vertical-align: middle;
+}
+
+.top-nav .nav-brand-text {
+    display: inline-block;
+}
+
+.top-nav .nav-brand:hover {
+    color: #6eb8ff;
+    border-radius: 5px;
+}
+
+.top-nav .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    border-radius: 5px;
+    color: #c5d4ff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.top-nav .nav-links {
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: stretch;
+}
+
+.top-nav .list-items {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    height: 100%;
+}
+
+.top-nav .list-items li {
+    border-bottom: none;
+    border-right: none;
+    height: 100%;
+}
+
+.top-nav .list-items li a {
+    color: #c5d4ff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-radius: 5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s, background-color 0.2s;
+    overflow: hidden;
+}
+
+.top-nav .list-items li a:hover {
+    color: #4da6ff;
+    background-color: rgba(0, 114, 255, 0.08);
+}
+
+.top-nav .list-items li.active a,
+.top-nav .list-items li.active a:hover {
+    color: #4da6ff;
+    border-radius: 5px;
+    background-color: #0072ff1c;
+    font-weight: bold;
+}
+
+.top-nav .nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top-nav .nav-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+.top-nav .nav-icons a:hover {
+    border-radius: 5px;
+    opacity: 1;
+}
+
+.top-nav .nav-icons .nav-icon {
+    font-size: 1.35rem;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-nav .nav-icons .nav-icon-github, .nav-icon-discord {
+    color: #e6edf3;
+}
+
+.top-nav .account-container {
+    flex-shrink: 0;
+}
+
+.top-nav .nav-dropdown-account {
+    display: none;
+}
+
+.top-nav .account-container .header-content {
+    padding: 0;
+}
+
+.top-nav .login-signup {
+    margin-left: 0.25rem;
+}
 
 header {
     height: 56px;
@@ -310,7 +483,8 @@ header {
 
 main {
     flex-grow: 1;
-    margin-left: 320px;
+    margin-left: 0;
+    padding-top: 106px;
 }
 
 .patchcontainer {
@@ -1257,126 +1431,13 @@ li {
     color: #ffffff;
 }
 
-
-#sidebar {
-    width: 320px;
-    background: radial-gradient(1200px 600px at 10% -10%, rgb(64 0 255 / 18%), #0c0c0c 60%), radial-gradient(900px 500px at 120% 10%, rgb(0 213 255 / 33%), #ff000024 60%), linear-gradient(0deg, #00d0ff17 0%, #060913 100%);
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-#sidebar .title {
-    line-height: 35px;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #4da6ff;
-    border-bottom: 1px solid #333;
-    font-family: 'Orbitron', sans-serif;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    padding: 3px 3px 7px 3px;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-#sidebar .list-items {
-    padding: 0;
-    list-style-type: none;
-    margin: 0;
-}
-
-#sidebar .list-items li {
-    border-bottom: 1px solid #333;
-    transition: background-color 0.3s;
-}
-
-#sidebar .list-items li a {
-    color: #c5d4ff;
-    text-decoration: none;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    font-weight: 400;
-    display: block;
-    padding: 1rem 1.5rem;
-    transition: color 0.3s, background-color 0.3s;
-}
-
-#sidebar .list-items li a i {
-    margin-right: 1rem;
-}
-
-#sidebar .list-items li:not(.active):hover>a {
-    color: #4da6ff;
-    background-color: #000000;
-}
-
-#sidebar .list-items li.active>a {
-    color: #4da6ff;
-    background-color: #0072ff1c;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-#sidebar .list-items .dropdown {
-    position: relative;
-}
-
-#sidebar .list-items .dropdown>a::after {
-    content: '\25BC';
-    float: right;
-    transition: transform 0.3s ease;
-}
-
-#sidebar .list-items .dropdown.active>a::after {
-    transform: rotate(180deg);
-}
-
-#sidebar .list-items .dropdown-content {
-    display: none;
-    background-color: #1a1a1a;
-    width: 100%;
-}
-
-#sidebar .list-items .dropdown-content.show {
-    display: block;
-    padding: 0;
-}
-
-#sidebar .list-items .dropdown-content li {
-    border-bottom: none;
-}
-
-#sidebar .list-items .dropdown-content a {
-    padding: 12px 16px 12px 48px;
-    font-size: 1rem;
-    background-color: transparent;
-}
-
-#sidebar .list-items .dropdown-content a:hover {
-    background-color: #26263a;
-    color: #4da6ff;
-}
-
-#sidebar .list-items .dropdown-content a.active {
-    background-color: #2e2e4a;
-    color: #4da6ff;
-}
-
-#sidebar .list-items .dropdown:hover>a {
-    background-color: #1a1a1a;
-}
-
 .user-dropdown .dropdown-content-page {
     display: none;
     background-color: #1a1a1a;
     min-width: 100%;
 }
 
-.user-dropdown:hover .dropdown-content-page {
+.user-dropdown.open .dropdown-content-page {
     display: block;
 }
 

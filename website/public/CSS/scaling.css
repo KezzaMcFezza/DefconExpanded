@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 19-09-2025 
+* Last Edited 02-03-2026 
 */
 
 @media (prefers-reduced-motion: reduce) {
@@ -569,9 +569,119 @@
         font-size: 1rem;
     }
 
+    .top-nav {
+        align-items: center;
+    }
+
+    .top-nav-inner {
+        flex-wrap: nowrap;
+        width: 100%;
+        align-items: center;
+        position: relative;
+    }
+
+    .top-nav .nav-brand {
+        display: none !important;
+    }
+
+    .top-nav .nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0;
+        min-width: 44px;
+        min-height: 44px;
+        order: -1;
+    }
+
+    .top-nav .account-container {
+        display: none !important;
+    }
+
+    .top-nav .nav-links {
+        position: absolute;
+        top: 100%;
+        left: -1rem;
+        right: -1rem;
+        background: #000000;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        z-index: 999;
+        display: block;
+    }
+
+    .top-nav .nav-links .list-items {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .top-nav .nav-links .list-items.show {
+        display: flex;
+        border-top: 1px solid #333;
+    }
+
+    .top-nav .nav-links .list-items li {
+        border-right: none;
+        border-bottom: 1px solid #333;
+        height: auto;
+    }
+
+    .top-nav .nav-links .list-items li:last-child {
+        border-bottom: none;
+    }
+
+    .top-nav .nav-links .list-items {
+        margin-left: 10px;
+    }
+
+    .top-nav .nav-links .list-items li a {
+        padding: 12px 15px;
+        height: auto;
+        display: block;
+        font-size: 1rem;
+        color: #c5d4ff;
+    }
+
+    .top-nav .nav-dropdown-account {
+        display: none;
+        border-top: 1px solid #333;
+        border-bottom: 1px solid #333;
+        padding: 12px 15px;
+        margin-left: 10px;
+        background: #000000;
+    }
+
+    .top-nav .nav-links:has(.list-items.show) .nav-dropdown-account {
+        display: block;
+    }
+
+    .top-nav .nav-dropdown-account .user-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .top-nav .nav-dropdown-account .logged-out-actions a,
+    .top-nav .nav-dropdown-account .login-signup {
+        margin: 0;
+        color: #c5d4ff;
+    }
+
+    .top-nav .nav-icons {
+        margin-left: auto;
+    }
+
     main {
         margin-left: 0;
         padding: 109px 15px 0;
+    }
+
+    main:has(.top-nav) {
+        padding: 60px 15px 0;
     }
 
     .card-actions {
@@ -654,6 +764,10 @@
 
     header {
         display: none !important;
+    }
+
+    header.top-nav {
+        display: flex !important;
     }
 
     .mobile-header {
