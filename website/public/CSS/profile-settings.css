@@ -43,11 +43,10 @@
 }
 
 .settings-info {
-    background-color: rgba(28, 28, 46, 0.3);
+    background-color: rgba(28, 28, 46, 0.2);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    border-left: 4px solid #4da6ff;
 }
 
 @keyframes pulse {
@@ -85,14 +84,26 @@
     overflow: hidden;
 }
 
-.settings-card::before {
+.settings-info,
+.account-actions,
+.pending-requests-card,
+.empty-state {
+    position: relative;
+    overflow: hidden;
+}
+
+.settings-card::before,
+.settings-info::before,
+.account-actions::before,
+.pending-requests-card::before,
+.empty-state::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(to right, #4da6ff, #5eff00);
+    background: linear-gradient(to right, #3d3d3d, #363636);
     opacity: 0.7;
 }
 
@@ -107,17 +118,6 @@
     letter-spacing: 1px;
     position: relative;
     padding-bottom: 0.5rem;
-}
-
-.settings-card h2::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 2px;
-    background-color: #5eff00;
 }
 
 .settings-form {
@@ -196,7 +196,6 @@
     border-radius: 10px;
     padding: 1.5rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    border-left: 4px solid #ff8400;
 }
 
 .account-actions h2 {
@@ -244,7 +243,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    border-left: 3px solid #ff9800;
 }
 
 .request-header {

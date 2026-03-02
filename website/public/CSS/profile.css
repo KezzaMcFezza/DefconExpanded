@@ -194,7 +194,6 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(to right, #4da6ff, #5eff00);
     opacity: 0.7;
 }
 
@@ -234,27 +233,27 @@
 }
 
 .social-links-card::before {
-    background: linear-gradient(to right, #7289da, #4da6ff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .defcon-stats-card::before {
-    background: linear-gradient(to right, #ff8400, #ffcc00);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .territory-stats-card::before {
-    background: linear-gradient(to right, #5eff00, #00e5ff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .recent-game-card::before {
-    background: linear-gradient(to right, #ff4949, #ff8400);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .contributions-card::before {
-    background: linear-gradient(to right, #e72de0, #ff4949);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .favorite-mods-card::before {
-    background: linear-gradient(to right, #00e5ff, #3d5cff);
+    background: linear-gradient(to right, #3d3d3d, #363636);
 }
 
 .social-links {
