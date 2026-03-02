@@ -38,6 +38,9 @@ jobs:
           mkdir -p build
           cd build
           cmake .. \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_CXX_FLAGS="-w" \
+            -DCMAKE_C_FLAGS="-w" \
             -DMACOS_FRAMEWORKS_DIR="${GITHUB_WORKSPACE}/contrib/systemIV/contrib/macosx/Frameworks"
 
     - name: Build Release
