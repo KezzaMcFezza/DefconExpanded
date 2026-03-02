@@ -10,15 +10,11 @@
 // 
 //Last Edited 19-09-2025
 
-import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
 import { initializeAuthentication } from './authentication.js';
 import { initializeNavigation } from './mobilemenu.js';
 import { initializeMods } from './mods.js';
 import { initializePopupSystem } from './popup.js';
-import { initializeLeaderboard } from '../leaderboard/leaderboard.js';
-import { initializeGraphs } from '../graph/graph.js';
-import { initializeSmurfChecker } from '../smurfchecker/smurf-checker.js';
 import { territoryMappingUI } from '../demos/constants.js';
 
 let soundVolume = 0.1;
@@ -521,25 +517,27 @@ async function displayDedconBetaBuilds() {
   }
 }
 
-function initializeApplication() {
+async function initializeApplication() {
   initializeViewportScaling();
   initializePopupSystem();
   initializeAuthentication();
   initializeNavigation();
-  initializeDiscordWidget();
   initializeReportHandlers();
   initializeMods();
 
   const isGraphPage = window.location.pathname.startsWith('/about');
   if (isGraphPage) {
+    const { initializeGraphs } = await import('../graph/graph.js');
     initializeGraphs();
   }
 
   if (window.location.pathname.includes('/leaderboard')) {
+    const { initializeLeaderboard } = await import('../leaderboard/leaderboard.js');
     initializeLeaderboard();
   }
 
   if (window.location.pathname.includes('/smurfchecker')) {
+    const { initializeSmurfChecker } = await import('../smurfchecker/smurf-checker.js');
     initializeSmurfChecker();
   }
 

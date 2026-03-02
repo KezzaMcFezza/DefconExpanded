@@ -15,6 +15,8 @@ import {
   getTimeAgo 
 } from '../main/main.js';
 
+import { getAuthState } from '../main/authentication.js';
+
 import { 
   territoryMapping,
   DEMO_CARD_TEMPLATE
@@ -26,39 +28,57 @@ import {
 
 let demoIdPermissionCache = null;
 let permissionCacheTime = 0;
-const CACHE_DURATION = 5 * 60 * 1000; 
+const CACHE_DURATION = 5 * 60 * 1000;
+let currentUserFetchPromise = null;
 
 async function canViewDemoId() {
+  const auth = await getAuthState();
+  if (!auth.isLoggedIn) {
+    demoIdPermissionCache = false;
+    permissionCacheTime = Date.now();
+    return false;
+  }
+
   const now = Date.now();
-  
+
   if (demoIdPermissionCache !== null && (now - permissionCacheTime) < CACHE_DURATION) {
     return demoIdPermissionCache;
   }
-  
-  try {
-    const response = await fetch('/api/current-user', { credentials: 'include' });
-    if (!response.ok) {
-      demoIdPermissionCache = false;
-      permissionCacheTime = now;
-      return false;
-    }
-    
-    const data = await response.json();
-    if (!data.user || !data.user.permissions) {
-      demoIdPermissionCache = false;
-      permissionCacheTime = now;
-      return false;
-    }
-    
-    const hasPermission = data.user.permissions.includes(204);
-    demoIdPermissionCache = hasPermission;
-    permissionCacheTime = now;
-    return hasPermission;
-  } catch (error) {
-    demoIdPermissionCache = false;
-    permissionCacheTime = now;
-    return false;
+
+  if (currentUserFetchPromise) {
+    return currentUserFetchPromise;
   }
+
+  currentUserFetchPromise = (async () => {
+    try {
+      const response = await fetch('/api/current-user', { credentials: 'include' });
+      if (!response.ok) {
+        demoIdPermissionCache = false;
+        permissionCacheTime = Date.now();
+        return false;
+      }
+
+      const data = await response.json();
+      if (!data.user || !data.user.permissions) {
+        demoIdPermissionCache = false;
+        permissionCacheTime = Date.now();
+        return false;
+      }
+
+      const hasPermission = data.user.permissions.includes(204);
+      demoIdPermissionCache = hasPermission;
+      permissionCacheTime = Date.now();
+      return hasPermission;
+    } catch (error) {
+      demoIdPermissionCache = false;
+      permissionCacheTime = Date.now();
+      return false;
+    } finally {
+      currentUserFetchPromise = null;
+    }
+  })();
+
+  return currentUserFetchPromise;
 }
 
 function generateTerritoryMap(demo, parsedPlayers, colorSystem, usingAlliances) {

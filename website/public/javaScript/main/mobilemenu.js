@@ -14,8 +14,21 @@
 function setActiveNavItem() {
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll('#sidebar .list-items li, .top-nav .list-items li');
-  
+
     navItems.forEach(item => {
+      if (item.classList.contains('modlist-dropdown')) {
+        item.classList.remove('active');
+        const dropdownLinks = item.querySelectorAll('.modlist-dropdown-content a');
+        dropdownLinks.forEach(a => {
+          a.classList.remove('active');
+          const href = a.getAttribute('href');
+          if (currentPath === href || (href !== '/' && currentPath.startsWith(href + '/'))) {
+            a.classList.add('active');
+          }
+        });
+        return;
+      }
+
       const link = item.querySelector('a');
       if (!link) return;
       item.classList.remove('active');

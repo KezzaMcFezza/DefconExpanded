@@ -29,27 +29,10 @@ function updateUIForLoginState(isLoggedIn, loggedInUsername) {
   }
 }
 
-function setupProfileLinks() {
+function setupProfileLinks(isLoggedIn, username) {
   const profileLinks = document.querySelectorAll('.profile-link');
-
   profileLinks.forEach(profileLink => {
-    fetch('/api/current-user')
-      .then(response => {
-        if (!response.ok) {
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.user && data.user.username) {
-          profileLink.href = `/profile/${data.user.username}`;
-        } else {
-          profileLink.href = '#';
-        }
-      })
-      .catch(error => {
-        console.error(error);
-      });
-
+    profileLink.href = isLoggedIn && username ? `/profile/${username}` : '#';
     profileLink.addEventListener('click', function (e) {
       if (!profileLink.href || profileLink.href === '#') {
         e.preventDefault();
@@ -60,14 +43,8 @@ function setupProfileLinks() {
   });
 
   const loggedInUsernameSpans = document.querySelectorAll('.logged-in-username');
-  if (loggedInUsernameSpans.length > 0) {
-    fetch('/api/current-user')
-      .then(response => response.json())
-      .then(data => {
-        if (data.user && data.user.username) {
-          loggedInUsernameSpans.forEach(span => { span.textContent = data.user.username; });
-        }
-      });
+  if (loggedInUsernameSpans.length > 0 && isLoggedIn && username) {
+    loggedInUsernameSpans.forEach(span => { span.textContent = username; });
   }
 }
 
@@ -122,22 +99,29 @@ async function checkAuthStatus() {
   try {
     const response = await fetch('/api/checkAuth');
     const data = await response.json();
-    
+
     if (data.isLoggedIn) {
-      localStorage.setItem('token', data.token);
+      if (data.token) localStorage.setItem('token', data.token);
     }
-    
+
     updateUIForLoginState(data.isLoggedIn, data.username);
-    return data.isLoggedIn;
+    return { isLoggedIn: !!data.isLoggedIn, username: data.username || null };
   } catch (error) {
     console.error('Error checking auth status:', error);
-    return false;
+    return { isLoggedIn: false, username: null };
   }
 }
 
+let authStatePromise = null;
+
+function getAuthState() {
+  if (!authStatePromise) authStatePromise = checkAuthStatus();
+  return authStatePromise;
+}
+
 async function initializeAuthentication() {
-  await checkAuthStatus();
-  setupProfileLinks();
+  const auth = await getAuthState();
+  setupProfileLinks(auth.isLoggedIn, auth.username);
   setupProfileDropdown();
   setupSignout();
 }
@@ -148,5 +132,6 @@ export {
   setupProfileLinks,
   setupSignout,
   checkAuthStatus,
+  getAuthState,
   initializeAuthentication
 };
