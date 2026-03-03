@@ -45,7 +45,7 @@ function displayMods(mods) {
 
     const headerImagePath = mod.preview_image_path
       ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
-      : '/modpreviews/icon3.png';
+      : '/modpreviews/Icon3expanded.png';
 
     modItem.innerHTML = `
       <div class="mod-header">
