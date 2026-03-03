@@ -69,7 +69,13 @@ router.get(/^\/replay-viewer\/files\/.+\.dcrec$/, checkAuthToken, async (req, re
 router.get('/replay-viewer/:filename', checkAuthToken, async (req, res) => {
     const startTime = debug.enter('serveReplayViewer', [req.params.filename], 1);
     const filename = req.params.filename;
-    
+
+    // Old Discord/links point to /replay-viewer/:filename — forward through /api/watch to increment count, then back with ?watched=1 to avoid loop
+    if (req.query.watched !== '1') {
+        debug.level2('Replay viewer hit without watched=1, redirecting to api/watch for count:', filename);
+        return res.redirect(302, `/api/watch/${encodeURIComponent(filename)}`);
+    }
+
     debug.apiRequest('GET', req.originalUrl, req.user, 1);
     debug.level2('Requested replay viewer for:', filename);
     

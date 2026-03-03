@@ -474,4 +474,36 @@ router.post('/api/watch/:demoName', async (req, res) => {
   }
 });
 
+router.get('/api/watch/:demoName', async (req, res) => {
+  const startTime = debug.enter('watchDemoRedirect', [req.params.demoName], 1);
+  const demoName = req.params.demoName;
+  debug.level2('Demo watch redirect request:', { demoName });
+
+  try {
+    debug.dbQuery('SELECT * FROM demos WHERE name = ?', [demoName], 2);
+    const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoName]);
+    debug.dbResult(rows, 2);
+
+    if (rows.length === 0) {
+      debug.level1('Demo not found in database:', demoName);
+      debug.exit('watchDemoRedirect', startTime, 'not_found', 1);
+      return res.status(404).send('Demo not found');
+    }
+
+    debug.level3('Incrementing watch count for demo (redirect):', demoName);
+    await pool.query('UPDATE demos SET watch_count = watch_count + 1 WHERE name = ?', [demoName]);
+
+    debug.level2('Watch count incremented, redirecting to replay viewer:', demoName);
+    debug.exit('watchDemoRedirect', startTime, 'success', 1);
+
+    res.redirect(302, `/replay-viewer/${encodeURIComponent(demoName)}?watched=1`);
+  } catch (error) {
+    debug.error('watchDemoRedirect', error, 1);
+    debug.exit('watchDemoRedirect', startTime, 'error', 1);
+    if (!res.headersSent) {
+      res.status(500).send('Unable to open replay');
+    }
+  }
+});
+
 module.exports = router;
