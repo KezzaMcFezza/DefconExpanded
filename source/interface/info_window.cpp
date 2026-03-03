@@ -31,10 +31,12 @@ class ToggleCPUButton : public InterfaceButton
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
-        InterfaceButton::Render( realX, realY, highlighted, clicked );
-
         World *world = g_app->GetWorld();
-        if( world && world->GetAIToggleCPU() )
+        bool cpuActive = world && world->GetAIToggleCPU();
+
+        InterfaceButton::Render( realX, realY, cpuActive, clicked );
+
+        if( cpuActive )
         {
             FadingWindow *parentWin = (FadingWindow *)m_parent;
             float alpha = parentWin ? parentWin->m_alpha : 1.0f;

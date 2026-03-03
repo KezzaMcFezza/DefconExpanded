@@ -1850,7 +1850,10 @@ void App::StartGame()
     }
 
     //
-    // Set radar sharing and ceasefire defaults for allies (human and CPU)
+    // Set radar sharing and ceasefire defaults
+    // Allies always start in ceasefire. When CPU disabled (human-centric), all teams start in ceasefire
+    // so players must choose who to fight. When CPU enabled, only allies have ceasefire (CPU won't change it).
+    int toggleCPU = GetGame()->GetOptionValue("ToggleCPU");
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
     {
         Team *firstTeam = g_app->GetWorld()->m_teams[i];
@@ -1860,15 +1863,20 @@ void App::StartGame()
             if( i != j )
             {
                 Team *secondTeam = g_app->GetWorld()->m_teams[j];
-            
-                if( g_app->GetWorld()->IsFriend(firstTeam->m_teamId, secondTeam->m_teamId) )
+                bool isFriend = g_app->GetWorld()->IsFriend(firstTeam->m_teamId, secondTeam->m_teamId);
+
+                if( isFriend )
                 {
                     firstTeam->m_sharingRadar[secondTeam->m_teamId] = true;
-                    // Allies always start in ceasefire (applies to human and CPU)
                     firstTeam->m_ceaseFire[secondTeam->m_teamId] = true;
                     firstTeam->m_alwaysSolo = false;
                 }
-            }            
+                else if( toggleCPU != 1 )
+                {
+                    // CPU disabled: human-centric game, everyone starts in ceasefire
+                    firstTeam->m_ceaseFire[secondTeam->m_teamId] = true;
+                }
+            }
         }
     }
 

@@ -59,7 +59,7 @@ PermitDefection         0       1       1           0
     No
     Yes
 
-RadarSharing            0       3       1           0
+RadarSharing            0       3       2           0
     AlwaysOff
     Alliance
     Selective
@@ -102,7 +102,7 @@ WorldScale              50      1200    600        10
 
 TeamUnitScale           5       400     17          1
 
-ScaleUnitStats          0       1       1           0
+ScaleUnitStats          0       1       0           0
     Disabled
     Enabled
 

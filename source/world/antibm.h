@@ -11,6 +11,7 @@ public:
 
     AntiBM( Fixed range );
 
+    void    Render3D() override;
     void    GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLongitude, Fixed *interceptLatitude ) override;
 };
 

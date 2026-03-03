@@ -1021,7 +1021,7 @@ tooltip_gameoption_serverpassword           Set this to restrict access to only 
 
 tooltip_gamemode_default                    Score points by Nuking your opponents Cities.\nDefcon will play at the slowest requested speed.
 tooltip_gamemode_office_mode                Defcon will run in a Window with no Sound, and will run in Realtime for no more than 6 hours.\nIf the boss appears press Esc twice to hide the Window.
-tooltip_gamemode_speed_defcon               Defcon will run at full speed and will last no longer than 15 minutes. Pausing is disabled.  Instinctive and Brutal.
+tooltip_gamemode_speed_defcon               Defcon will run at full speed and will last no longer than 60 minutes. Pausing is disabled.  Instinctive and Brutal.
 tooltip_gamemode_diplomacy                  All Players will start as a member of the Green alliance, with Radar Sharing turned on. How long will the Alliance last?\nThree or more Human Players recommended.
 tooltip_gamemode_bigworld                   The World is twice as big!  Each player has twice as many units, but each unit is half the normal size and has half the radar range, weapon range and speed.\nFor those who love a long game.
 tooltip_gamemode_tournament                 Default rules are enforced, except Spectators can't communicate with Players and players are assigned Random Territories.
@@ -1852,7 +1852,7 @@ demo_top1                           Buy the game now to experience Defcon proper
 demo_middle1                        No player limits: 6 player genocidal mayhem!
 demo_middle2                        Alternative Game modes including:
 demo_middle3                        Office Mode: Play Defcon in Realtime over an entire day
-demo_middle4                        Speed Defcon: It's all over in 15 minutes - instinctive and brutal
+demo_middle4                        Speed Defcon: It's all over in 60 minutes - instinctive and brutal
 demo_middle5                        Diplomacy: All players start on the same Alliance - how long will it last?
 demo_middle6                        Big World: The world is twice as large - for those who love a long game
 demo_bottom1                        Immediate Activation for just

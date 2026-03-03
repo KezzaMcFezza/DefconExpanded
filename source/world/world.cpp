@@ -72,11 +72,11 @@ World::World()
     }
     
     m_defconTime.Initialise(6);
-    m_defconTime[5] = 0;
-    m_defconTime[4] = 6;
-    m_defconTime[3] = 12;
-    m_defconTime[2] = 20;
-    m_defconTime[1] = 30;
+    m_defconTime[5] = 0;   // DEFCON 5: 0-19 min (20 min)
+    m_defconTime[4] = 20;  // DEFCON 4: 20-34 min (15 min)
+    m_defconTime[3] = 35;  // DEFCON 3: 35-44 min (10 min)
+    m_defconTime[2] = 45;  // DEFCON 2: 45-49 min (5 min)
+    m_defconTime[1] = 50;  // DEFCON 1: 50+ min
     m_defconTime[0] = -1;
 
     for( int i = 0; i < NumAchievementCities; ++i )
@@ -2626,6 +2626,8 @@ void World::Update()
 
     //
     // Update everyones ceasefire status (skip when CPU toggle enabled - players control ceasefire manually)
+    // When CPU disabled: all teams stay in ceasefire (human-centric - players choose who to fight)
+    // When CPU enabled: only allies have ceasefire (CPU won't change status, so non-allies must be able to fight)
 
     int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
     int toggleCPU = g_app->GetGame()->GetOptionValue("ToggleCPU");
@@ -2638,8 +2640,8 @@ void World::Update()
             {
                 int ourTeamId = m_teams[i]->m_teamId;
                 int theirTeamid = m_teams[j]->m_teamId;
-
-                m_teams[i]->m_ceaseFire[ theirTeamid ] = (i != j && IsFriend(ourTeamId, theirTeamid) );
+                // CPU disabled: everyone stays in ceasefire
+                m_teams[i]->m_ceaseFire[ theirTeamid ] = (i != j);
             }
         }
     }
@@ -3281,22 +3283,16 @@ int World::GetDefcon()
 {    
     //return 1;
 
-    if ( m_theDate.GetDays() > 0 ||
-         m_theDate.GetHours() > 0 || 
-         m_theDate.GetMinutes() >= 30 )
+    int minutes = m_theDate.GetMinutes();
+    if ( m_theDate.GetDays() > 0 || m_theDate.GetHours() > 0 )
     {
         return 1;
     }
-    else if(m_theDate.GetDays() > 0 ||
-            m_theDate.GetHours() > 0 || 
-            m_theDate.GetMinutes() > 12 )
-    {
-        return 4 - m_theDate.GetMinutes() / 10;
-    }
-    else
-    {
-        return 5 - m_theDate.GetMinutes() / 6;
-    }   
+    if ( minutes >= 50 ) return 1;   // DEFCON 2 lasts 5 min
+    if ( minutes >= 45 ) return 2;   // DEFCON 3 lasts 10 min
+    if ( minutes >= 35 ) return 3;   // DEFCON 4 lasts 15 min
+    if ( minutes >= 20 ) return 4;   // DEFCON 5 lasts 20 min
+    return 5;
 }
 
 void World::SetTimeScaleFactor( Fixed factor )

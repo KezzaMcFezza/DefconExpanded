@@ -218,7 +218,7 @@ void Game::SetGameMode( int _mode )
 
         case GAMEMODE_SPEEDDEFCON:
             SetOptionValue( "GameSpeed", 4 );
-            SetOptionValue( "MaxGameRealTime", 15 );
+            SetOptionValue( "MaxGameRealTime", 60 );
             SetOptionValue( "SlowestSpeed", 4 );
             break;
 
@@ -326,9 +326,11 @@ void Game::CountNukes()
                     m_nukeCount[obj->m_teamId] += obj->m_states[3]->m_numTimesPermitted;           
                     break;
 
-                case WorldObject::TypeAirBase:      
+                case WorldObject::TypeAirBase:
+                case WorldObject::TypeAirBase2:
+                case WorldObject::TypeAirBase3:
                     // count bombers in base with nukes (each bomber carries 2 nukes)
-                    m_nukeCount[obj->m_teamId] += obj->m_states[1]->m_numTimesPermitted * 2;
+                    m_nukeCount[obj->m_teamId] += obj->GetBomberCount() * 2;
                     break;
                 case WorldObject::TypeCarrier:
                     // Carrier: fighters only, no bombers

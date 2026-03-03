@@ -89,6 +89,12 @@ public:
     float          CalculateNukeProgressFromPosition     (Nuke* nuke, const Vector3<Fixed>& pos);
     float          CalculateNukePredictedProgress        (Nuke* nuke);
 
+    /** Ballistic arc for non-Nuke projectiles (e.g. AntiBM). Same great-circle + arc as nukes. */
+    Vector3<float> CalculateBallisticProjectile3DPosition(float launchLon, float launchLat,
+                                                          float targetLon, float targetLat,
+                                                          float currentLon, float currentLat,
+                                                          Fixed totalDistance);
+
     struct Star3D {
         Vector3<float> position;
         float size;

@@ -1117,7 +1117,7 @@ const char *WorldObject::GetTypeName (int _type)
         case TypeSubC:          return "subc";
         case TypeSubK:          return "subk";
         case TypeRadarStation:  return "radar";
-        case TypeRadarEW:       return "radarew";
+        case TypeRadarEW:       return "radar_ew";
         case TypeBattleShip:    return "battleship";
         case TypeBattleShip2:   return "battleship_ddg";
         case TypeBattleShip3:   return "battleship_fg";

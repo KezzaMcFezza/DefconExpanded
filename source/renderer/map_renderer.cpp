@@ -3778,7 +3778,9 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
     }
 
     float zf = fmaxf( g_app->GetMapRenderer()->GetZoomFactor(), 0.001f );
-    nearest *= Fixed::FromDouble( 2.0 * pow( (double)zf, 0.75 ) );
+    float t = fminf( 1.0f, (1.0f - zf) / 0.999f );
+    float sizeMult = 0.75f + 2.25f * t;
+    nearest *= Fixed::FromDouble( zf * sizeMult );
 
     float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
     if( gameScale > 1.0f )

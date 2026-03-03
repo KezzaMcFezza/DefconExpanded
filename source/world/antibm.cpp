@@ -9,9 +9,11 @@
 #include "app/app.h"
 #include "app/globals.h"
 
+#include "renderer/globe_renderer.h"
 #include "world/world.h"
 #include "world/antibm.h"
 #include "world/movingobject.h"
+#include "world/team.h"
 
 
 AntiBM::AntiBM( Fixed range )
@@ -26,6 +28,96 @@ AntiBM::AntiBM( Fixed range )
     m_movementType = MovementTypeAir;
 
     strcpy( bmpImageFilename, "graphics/laser.bmp" );
+}
+
+void AntiBM::Render3D()
+{
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( !g_app->IsGlobeMode() || !globeRenderer || !globeRenderer->ShouldUse3DNukeTrajectories() )
+    {
+        GunFire::Render3D();
+        return;
+    }
+
+    WorldObject *origin = g_app->GetWorld()->GetWorldObject( m_origin );
+    if( !origin )
+    {
+        GunFire::Render3D();
+        return;
+    }
+
+    float launchLon = origin->m_longitude.DoubleValue();
+    float launchLat = origin->m_latitude.DoubleValue();
+    float targetLon = m_targetLongitude.DoubleValue();
+    float targetLat = m_targetLatitude.DoubleValue();
+    Fixed totalDistance = g_app->GetWorld()->GetDistance(
+        origin->m_longitude, origin->m_latitude, m_targetLongitude, m_targetLatitude );
+
+    if( totalDistance <= 0 )
+    {
+        GunFire::Render3D();
+        return;
+    }
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLon = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLat = (m_latitude + m_vel.y * predictionTime).DoubleValue();
+
+    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+    Colour colour = team ? team->GetTeamColour() : Colour(255, 255, 255, 255);
+    float maxSize = 10;
+
+    for( int i = 1; i < m_history.Size(); ++i )
+    {
+        Vector3<Fixed> lastPos = *m_history[i-1];
+        Vector3<Fixed> thisPos = *m_history[i];
+        float lastX = lastPos.x.DoubleValue(), lastY = lastPos.y.DoubleValue();
+        float thisX = thisPos.x.DoubleValue(), thisY = thisPos.y.DoubleValue();
+
+        if( lastX < -170 && thisX > 170 )
+            thisX = -180 - ( 180 - thisX );
+        if( lastX > 170 && thisX < -170 )
+            thisX = 180 + ( 180 - fabsf(thisX) );
+
+        Vector3<float> lastPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+            launchLon, launchLat, targetLon, targetLat, lastX, lastY, totalDistance );
+        Vector3<float> thisPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+            launchLon, launchLat, targetLon, targetLat, thisX, thisY, totalDistance );
+
+        colour.m_a = (unsigned char)(255 - 255 * (float)i / maxSize);
+        g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+    }
+
+    if( m_history.Size() > 0 )
+    {
+        Vector3<Fixed> lastPos = *m_history[0];
+        float lastX = lastPos.x.DoubleValue(), lastY = lastPos.y.DoubleValue();
+
+        if( lastX < -170 && predictedLon > 170 )
+            predictedLon = -180 - ( 180 - predictedLon );
+        if( lastX > 170 && predictedLon < -170 )
+            predictedLon = 180 + ( 180 - fabsf(predictedLon) );
+
+        Vector3<float> lastPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+            launchLon, launchLat, targetLon, targetLat, lastX, lastY, totalDistance );
+        Vector3<float> thisPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+            launchLon, launchLat, targetLon, targetLat, predictedLon, predictedLat, totalDistance );
+
+        colour.m_a = 255;
+        g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+    }
+
+    float endX = predictedLon - m_vel.x.DoubleValue();
+    float endY = predictedLat - m_vel.y.DoubleValue();
+    Vector3<float> startPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+        launchLon, launchLat, targetLon, targetLat, predictedLon, predictedLat, totalDistance );
+    Vector3<float> endPos3D = globeRenderer->CalculateBallisticProjectile3DPosition(
+        launchLon, launchLat, targetLon, targetLat, endX, endY, totalDistance );
+
+    g_renderer3d->Line3D( startPos3D.x, startPos3D.y, startPos3D.z,
+                          endPos3D.x, endPos3D.y, endPos3D.z, colour );
 }
 
 void AntiBM::GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLongitude, Fixed *interceptLatitude )

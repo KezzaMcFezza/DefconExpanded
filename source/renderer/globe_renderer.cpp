@@ -158,19 +158,13 @@ Vector3<float> GlobeRenderer::SlerpNormal(const Vector3<float>& fromNormal, cons
 }
 
 //
-// Get nuke launch position from history or current position
+// Get nuke launch position - use stored launch coordinates to match 2D map trajectory
 
 void GlobeRenderer::GetNukeLaunchPosition(Nuke* nuke, float& outLon, float& outLat)
 {
-    LList<Vector3<Fixed> *>& history = nuke->GetHistory();
-    if (history.Size() > 0) {
-        Vector3<Fixed> *launchPos = history[history.Size() - 1];
-        outLon = launchPos->x.DoubleValue();
-        outLat = launchPos->y.DoubleValue();
-    } else {
-        outLon = nuke->m_longitude.DoubleValue();
-        outLat = nuke->m_latitude.DoubleValue();
-    }
+    // Use m_launchposition_x/y (set at SetWaypoint) to match 2D map and simulation
+    outLon = nuke->m_launchposition_x.DoubleValue();
+    outLat = nuke->m_launchposition_y.DoubleValue();
 }
 
 //
@@ -211,9 +205,11 @@ void GlobeRenderer::CalculateCartesianCoordinates(float lat, float lon, float& o
 
 float GlobeRenderer::CalculateTrajectoryHeightScale(float distanceRadians)
 {
+    // Ballistic arc: missiles fly above the surface. Scale with distance for realistic suborbital profile.
+    // Long-range missiles reach ~40-50% above globe surface at apogee for visible 3D arc.
     float normalizedDistance = distanceRadians / M_PI;
     float scaledDistance = sqrtf(normalizedDistance);
-    return 0.03f + (0.19f * scaledDistance);
+    return 0.08f + (0.42f * scaledDistance);
 }
 
 //
@@ -332,8 +328,9 @@ float GlobeRenderer::CalculateNukeProgressFromPosition(Nuke* nuke, const Vector3
         return 0.0f;
     }
     
-    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
-    Fixed remainingDistance = (target - pos).Mag();
+    // Use World::GetDistance (with seam handling) to match simulation's fractionDistance
+    Fixed remainingDistance = g_app->GetWorld()->GetDistance(
+        pos.x, pos.y, nuke->m_targetLongitude, nuke->m_targetLatitude);
     return fmaxf(0.0f, fminf(1.0f, (1 - remainingDistance / nuke->m_totalDistance).DoubleValue()));
 }
 
@@ -393,6 +390,29 @@ Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, cons
     
     float progress = CalculateNukeProgressFromPosition(nuke, historicalPos);
     return CalculateNukeTrajectoryPoint(nuke, progress);
+}
+
+//
+// Calculate 3D position for ballistic projectile (AntiBM etc) - same great circle + arc as nukes
+
+Vector3<float> GlobeRenderer::CalculateBallisticProjectile3DPosition(float launchLon, float launchLat,
+                                                                     float targetLon, float targetLat,
+                                                                     float currentLon, float currentLat,
+                                                                     Fixed totalDistance)
+{
+    if (!g_app->IsGlobeMode() || totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(currentLon, currentLat);
+    }
+
+    GreatCircleConstants constants;
+    CalculateGreatCircleConstants(launchLon, launchLat, targetLon, targetLat, constants);
+
+    Fixed remainingDistance = g_app->GetWorld()->GetDistance(
+        Fixed::FromDouble(currentLon), Fixed::FromDouble(currentLat),
+        Fixed::FromDouble(targetLon), Fixed::FromDouble(targetLat));
+    float progress = fmaxf(0.0f, fminf(1.0f, (1 - remainingDistance / totalDistance).DoubleValue()));
+
+    return CalculateTrajectoryPointFromConstants(constants, progress);
 }
 
 //
