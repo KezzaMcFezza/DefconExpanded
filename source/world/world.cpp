@@ -221,7 +221,9 @@ void World::LoadNodes()
             for( int dy = -1; dy <= 1; ++dy )
             {
                 int nx = cx + dx, ny = cy + dy;
-                if( nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H ) continue;
+                if( ny < 0 || ny >= GRID_H ) continue;
+                // Wrap nx for seam: cells at date line (0 and GRID_W-1) are adjacent
+                nx = ((nx % GRID_W) + GRID_W) % GRID_W;
                 for( int k = 0; k < grid[nx][ny].Size(); ++k )
                 {
                     int j = grid[nx][ny][k];
@@ -3365,15 +3367,11 @@ bool World::IsSailable( Fixed const &fromLongitude, Fixed const &fromLatitude, F
     Fixed actualToLongitude = toLongitude;
     Fixed actualToLatitude = toLatitude;
 
-    if( actualToLongitude < -180 )
-    {
-        actualToLongitude = -180;
-    }
-    else if( actualToLongitude > 180 )
-    {
-        actualToLongitude = 180;
-    }
-   
+    // Wrap target longitude for shortest path across date line (seam)
+    if( actualToLongitude - fromLongitude > 180 )
+        actualToLongitude -= 360;
+    else if( actualToLongitude - fromLongitude < -180 )
+        actualToLongitude += 360;
 
     Vector3<Fixed> vel = (Vector3<Fixed>( actualToLongitude, actualToLatitude, 0 ) -
                           Vector3<Fixed>( longitude, latitude, 0 ));
@@ -3422,15 +3420,11 @@ bool World::IsSailableSlow( Fixed const &fromLongitude, Fixed const &fromLatitud
     Fixed actualToLongitude = toLongitude;
     Fixed actualToLatitude = toLatitude;
 
-    if( actualToLongitude < -180 )
-    {
-        actualToLongitude = -180;
-    }
-    else if( actualToLongitude > 180 )
-    {
-        actualToLongitude = 180;
-    }
-
+    // Wrap target longitude for shortest path across date line (seam)
+    if( actualToLongitude - fromLongitude > 180 )
+        actualToLongitude -= 360;
+    else if( actualToLongitude - fromLongitude < -180 )
+        actualToLongitude += 360;
 
     Vector3<Fixed> vel;
     while(true)
@@ -3636,9 +3630,8 @@ Fixed World::GetSailDistanceSlow( Fixed const &fromLongitude, Fixed const &fromL
     while( true )
     {
         Fixed wrappedLong = toLongitude;
-
-        if( fromLongitude > 90 && wrappedLong < -90 )       wrappedLong += 360;       
-        if( fromLongitude < -90 && wrappedLong > 90 )       wrappedLong -= 360;        
+        if( wrappedLong - currentLong > 180 )  wrappedLong -= 360;
+        else if( wrappedLong - currentLong < -180 )  wrappedLong += 360;
 
         if( g_app->GetWorld()->IsSailable( currentLong, currentLat, wrappedLong, toLatitude ) )
         {
@@ -3710,8 +3703,8 @@ Fixed World::GetSailDistance( Fixed const &fromLongitude, Fixed const &fromLatit
     // If its possible to sail in a straight line, do so
 
     Fixed wrappedLong = toLongitude;
-    if( fromLongitude > 90 && toLongitude < -90 )       wrappedLong += 360;       
-    if( fromLongitude < -90 && toLongitude > 90 )       wrappedLong -= 360;        
+    if( wrappedLong - fromLongitude > 180 )  wrappedLong -= 360;
+    else if( wrappedLong - fromLongitude < -180 )  wrappedLong += 360;
 
     if( IsSailable( fromLongitude, fromLatitude, wrappedLong, toLatitude ) )
     {

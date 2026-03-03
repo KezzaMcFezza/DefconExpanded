@@ -277,14 +277,11 @@ bool WorldRenderer::IsValidTerritory( int teamId, Fixed longitude, Fixed latitud
         return false;
     }
 
-    if( longitude < -180 )
-    {
-        longitude = -180;
-    }
-    else if( longitude > 180 )
-    {
-        longitude = 179;
-    }    
+    // Wrap longitude to [-180, 180) for correct pixel lookup when path crosses date line
+    while( longitude >= 180 )
+        longitude -= 360;
+    while( longitude < -180 )
+        longitude += 360;    
     if( teamId == -1 )
     {
         int pixelX = ( m_bmpSailableWater->Width() * (longitude+180)/360 ).IntValue();
