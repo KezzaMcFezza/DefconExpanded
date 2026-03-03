@@ -10,5 +10,5 @@
 **/private.key
 /node_modules
 /node.js/crashpad-dumps
-/website/node.js/database-backups
-/website/node.js/debug.txt
+/node.js/database-backups
+/node.js/debug.txt
