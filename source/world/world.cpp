@@ -1,5 +1,9 @@
 #include "lib/universal_include.h"
 
+#ifdef OPENMP
+#include <omp.h>
+#endif
+
 #include "lib/hi_res_time.h"
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
@@ -165,47 +169,157 @@ void World::LoadNodes()
         }
     }
 
-    int numNodes = 0;
-    for( int i = 0; i < candidateNodes.Size(); ++i )
+    if( candidateNodes.Size() == 0 )
     {
-        Node *node = candidateNodes[i];
-        node->m_objectId = numNodes++;
-        m_nodes.PutData( node );
+        AppDebugOut( "LoadNodes: no valid travel nodes found\n" );
+        candidateNodes.EmptyAndDelete();
+        return;
     }
 
-    // Go through all nodes in the world
-    for( int i = 0; i < m_nodes.Size(); ++i)
+    int n = candidateNodes.Size();
+    const double INF = 1e30;
+
+    // Spatial grid: 36x20 cells over lon [-180,180] x lat [-100,100]
+    const int GRID_W = 36;
+    const int GRID_H = 20;
+    LList<int> grid[36][20];
+    for( int i = 0; i < n; ++i )
     {
-        for( int n = 0; n < m_nodes.Size(); ++n )
+        Node *node = candidateNodes[i];
+        double lon = node->m_longitude.DoubleValue();
+        double lat = node->m_latitude.DoubleValue();
+        int cx = (int)( (lon + 180) / 360 * GRID_W );
+        int cy = (int)( (lat + 100) / 200 * GRID_H );
+        if( cx < 0 ) cx = 0; else if( cx >= GRID_W ) cx = GRID_W - 1;
+        if( cy < 0 ) cy = 0; else if( cy >= GRID_H ) cy = GRID_H - 1;
+        grid[cx][cy].PutData( i );
+    }
+
+    // Build direct edges using spatial partitioning (only check nearby nodes)
+    double *dist = new double[n * n];
+    int *nextNode = new int[n * n];
+    for( int i = 0; i < n * n; ++i )
+    {
+        dist[i] = INF;
+        nextNode[i] = -1;
+    }
+    for( int i = 0; i < n; ++i ) dist[i * n + i] = 0;
+
+#ifdef OPENMP
+#pragma omp parallel for schedule(dynamic) if(n > 50)
+#endif
+    for( int i = 0; i < n; ++i )
+    {
+        Node *nodeA = candidateNodes[i];
+        int cx = (int)( (nodeA->m_longitude.DoubleValue() + 180) / 360 * GRID_W );
+        int cy = (int)( (nodeA->m_latitude.DoubleValue() + 100) / 200 * GRID_H );
+        if( cx < 0 ) cx = 0; else if( cx >= GRID_W ) cx = GRID_W - 1;
+        if( cy < 0 ) cy = 0; else if( cy >= GRID_H ) cy = GRID_H - 1;
+
+        for( int dx = -1; dx <= 1; ++dx )
         {
-            Node *startNode = m_nodes[n];
-            for( int s = 0; s < m_nodes.Size(); ++s )
+            for( int dy = -1; dy <= 1; ++dy )
             {
-                Node *targetNode = m_nodes[s];
-                if( IsSailable( startNode->m_longitude, startNode->m_latitude, targetNode->m_longitude, targetNode->m_latitude ) )
+                int nx = cx + dx, ny = cy + dy;
+                if( nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H ) continue;
+                for( int k = 0; k < grid[nx][ny].Size(); ++k )
                 {
-                    Fixed distance = GetDistance( startNode->m_longitude, startNode->m_latitude, targetNode->m_longitude, targetNode->m_latitude);
-                    startNode->AddRoute( n, s, distance );
-
-                    for( int e = 0; e < targetNode->m_routeTable.Size(); ++e )
+                    int j = grid[nx][ny][k];
+                    if( i == j ) continue;
+                    if( IsSailable( nodeA->m_longitude, nodeA->m_latitude,
+                        candidateNodes[j]->m_longitude, candidateNodes[j]->m_latitude ) )
                     {
-                        Node *nextNode = m_nodes[ targetNode->m_routeTable[e]->m_targetNodeId ];
-                        Fixed totalDistance = distance + targetNode->m_routeTable[e]->m_totalDistance;                                                           
-
-                        startNode->AddRoute( nextNode->m_objectId, targetNode->m_objectId, totalDistance );
+                        Fixed d = GetDistance( nodeA->m_longitude, nodeA->m_latitude,
+                            candidateNodes[j]->m_longitude, candidateNodes[j]->m_latitude );
+                        double distVal = d.DoubleValue();
+                        if( distVal < dist[i * n + j] )
+                        {
+                            dist[i * n + j] = distVal;
+                            nextNode[i * n + j] = j;
+                        }
                     }
                 }
             }
         }
     }
 
-    for( int i = 0; i < m_nodes.Size(); ++i )
+    // Floyd-Warshall for transitive closure
+    for( int k = 0; k < n; ++k )
     {
-        if( m_nodes[i]->m_routeTable.Size() != m_nodes.Size() )
+        for( int i = 0; i < n; ++i )
         {
-            AppReleaseAssert( false, "Node route size mismatch" );
+            for( int j = 0; j < n; ++j )
+            {
+                double via = dist[i * n + k] + dist[k * n + j];
+                if( via < dist[i * n + j] )
+                {
+                    dist[i * n + j] = via;
+                    nextNode[i * n + j] = nextNode[i * n + k];
+                }
+            }
         }
     }
+
+    // Find largest connected component (nodes reachable from some start)
+    BoundedArray<bool> inLargest;
+    inLargest.Initialise( n );
+    inLargest.SetAll( false );
+    int bestSize = 0;
+    int bestStart = 0;
+    for( int start = 0; start < n; ++start )
+    {
+        int count = 0;
+        for( int j = 0; j < n; ++j )
+            if( dist[start * n + j] < INF ) ++count;
+        if( count > bestSize ) { bestSize = count; bestStart = start; }
+    }
+    for( int j = 0; j < n; ++j )
+        if( dist[bestStart * n + j] < INF ) inLargest[j] = true;
+
+    int dropped = n - bestSize;
+    if( dropped > 0 )
+        AppDebugOut( "LoadNodes: dropped %d travel nodes (disconnected or on land)\n", dropped );
+
+    // Build m_nodes from largest component only
+    m_nodes.EmptyAndDelete();
+    BoundedArray<int> oldToNew;
+    oldToNew.Initialise( n );
+    for( int i = 0; i < n; ++i ) oldToNew[i] = -1;
+    int newIdx = 0;
+    for( int i = 0; i < n; ++i )
+    {
+        if( inLargest[i] )
+        {
+            oldToNew[i] = newIdx++;
+            Node *node = candidateNodes[i];
+            node->m_objectId = oldToNew[i];
+            m_nodes.PutData( node );
+        }
+        else
+        {
+            delete candidateNodes[i];
+        }
+    }
+
+    // Build route tables from Floyd-Warshall result (using new indices)
+    for( int i = 0; i < n; ++i )
+    {
+        if( !inLargest[i] ) continue;
+        Node *node = m_nodes[oldToNew[i]];
+        for( int j = 0; j < n; ++j )
+        {
+            if( !inLargest[j] || dist[i * n + j] >= INF ) continue;
+            int nextIdx = nextNode[i * n + j];
+            if( nextIdx < 0 ) continue;
+            int targetNew = oldToNew[j];
+            int nextNew = oldToNew[nextIdx];
+            Fixed totalDist = Fixed::FromDouble( dist[i * n + j] );
+            node->AddRoute( targetNew, nextNew, totalDist );
+        }
+    }
+
+    delete[] dist;
+    delete[] nextNode;
 
     // load ai markers
     Image *aiMarkers = g_resource->GetImage( "earth/ai_markers.bmp" );
