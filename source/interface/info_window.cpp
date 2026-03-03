@@ -6,6 +6,7 @@
 #include "lib/gucci/window_manager.h"
 
 #include "interface/info_window.h"
+#include "interface/fading_window.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -28,6 +29,20 @@
 
 class ToggleCPUButton : public InterfaceButton
 {
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        InterfaceButton::Render( realX, realY, highlighted, clicked );
+
+        World *world = g_app->GetWorld();
+        if( world && world->GetAIToggleCPU() )
+        {
+            FadingWindow *parentWin = (FadingWindow *)m_parent;
+            float alpha = parentWin ? parentWin->m_alpha : 1.0f;
+            g_renderer2d->RectFill( realX - 2, realY - 2, m_w + 4, m_h + 4, Colour( 255, 255, 255, 50.0f * alpha ) );
+            g_renderer2d->Rect( realX - 2, realY - 2, m_w + 4, m_h + 4, Colour( 255, 255, 255, 180.0f * alpha ) );
+        }
+    }
+
     void MouseUp()
     {
         World *world = g_app->GetWorld();
@@ -42,24 +57,11 @@ class ToggleCPUButton : public InterfaceButton
 InfoCPUToggleWindow::InfoCPUToggleWindow()
 :   FadingWindow( "InfoCPUToggle" )
 {
-    SetSize( 300, 150 );
-    m_minW = 50;
-    m_minH = 50;
+    SetSize( 120, 46 );
+    m_minW = 120;
+    m_minH = 46;
 
-    const int infoH = 150;
-    const int gap = 10;
-    int x, y;
-    if( g_windowManager->WindowH() > 480 )
-    {
-        x = g_windowManager->WindowW() - m_w;
-        y = g_windowManager->WindowH() - m_h - 70;
-    }
-    else
-    {
-        x = g_windowManager->WindowW() - m_w - 85;
-        y = g_windowManager->WindowH() - m_h - 70;
-    }
-    SetPosition( x, y - ( infoH + gap ) );
+    SetPosition( 10, 10 );
 }
 
 
@@ -73,7 +75,6 @@ void InfoCPUToggleWindow::Create()
 
 void InfoCPUToggleWindow::Render( bool _hasFocus )
 {
-    m_alpha = 1.0f;
     FadingWindow::Render( _hasFocus );
 }
 
@@ -198,7 +199,7 @@ void InfoWindow::Render( bool _hasFocus )
         if( team && team->m_territories.Size() > 0 )
             primaryTerritory = team->m_territories[0];
         const char *objName = WorldObject::GetTerritoryName( m_infoType, primaryTerritory );
-		const char *objTypeName = WorldObject::GetTypeName( m_infoType );
+		const char *objTypeName = WorldObject::GetTerritoryUnitInfoSuffix( m_infoType, primaryTerritory );
         const char *teamName = team ? team->GetTeamName() : "";
 
         char unitName[256];

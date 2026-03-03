@@ -3,6 +3,7 @@
 *.map
 
 # Visual Studio user files
+.vs/
 /targets/msvc/.vs/
 /targets/msvc/Win32
 /targets/msvc/x64

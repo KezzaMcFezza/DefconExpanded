@@ -140,6 +140,7 @@ public:
     int     m_panicKey;
     int     m_keyboardLayout;
     int     m_language;
+    int     m_unitInfoToolbar;
 
 public:
     ControlOptionsWindow();

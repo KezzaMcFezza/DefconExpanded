@@ -114,41 +114,63 @@ void World::Init()
 
 void World::LoadNodes()
 {
-    // create travel nodes
+    // Create travel nodes - uses same dimensions and coordinate mapping as sailable
+    // so travel_nodes can be overlaid on sailable for precise modding
 
     Image *nodeImage = g_resource->GetImage( "earth/travel_nodes.bmp" );
-    int pixelX = 0;
-    int pixelY = 0;
-    int numNodes = 0;
+    Image *sailableImage = g_app->GetWorldRenderer()->GetSailableImage();
+    if( !nodeImage || !sailableImage )
+    {
+        AppDebugOut( "LoadNodes: travel_nodes or sailable image not found\n" );
+        return;
+    }
+
+    int nodeWidth = nodeImage->Width();
+    int nodeHeight = nodeImage->Height();
+    int sailableWidth = sailableImage->Width();
+    int sailableHeight = sailableImage->Height();
+
+    if( nodeWidth != sailableWidth || nodeHeight != sailableHeight )
+    {
+        AppDebugOut( "LoadNodes: travel_nodes (%dx%d) must match sailable (%dx%d) - resize travel_nodes for correct placement\n",
+            nodeWidth, nodeHeight, sailableWidth, sailableHeight );
+        return;
+    }
 
     m_nodes.EmptyAndDelete();
-    
-    for ( int x = 0; x < 800; ++x )
+    LList<Node *> candidateNodes;
+
+    for( int x = 0; x < nodeWidth; ++x )
     {
-        for( int y = 0; y < 400; ++y )
+        for( int y = 0; y < nodeHeight; ++y )
         {
-            Colour col = nodeImage->GetColour( x, 400-y );
+            Colour col = nodeImage->GetColour( x, y );
             if( col.m_r > 240 &&
                 col.m_g > 240 &&
                 col.m_b > 240 )
             {
+                // Same coordinate mapping as IsValidTerritory in world_renderer
+                Fixed longitude = Fixed::FromDouble( 360.0 * x / nodeWidth - 180.0 );
+                Fixed latitude  = Fixed::FromDouble( 200.0 * y / nodeHeight - 100.0 );
+
+                // Validate: node must be on sailable water
+                if( !g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, true ) )
+                    continue;
+
                 Node *node = new Node();
-
-                Fixed width = 360;
-                Fixed aspect = Fixed(600) / Fixed(800);
-                Fixed height = (360 * aspect);
-
-                Fixed longitude = width * (x-800) / 800 - width/2 + 360;
-                Fixed latitude = height * (600-y) / 600 - 180;
-
                 node->m_longitude = longitude;
                 node->m_latitude = latitude;
-                node->m_objectId = numNodes;
-                ++numNodes;
-
-                m_nodes.PutData( node );
+                candidateNodes.PutData( node );
             }
         }
+    }
+
+    int numNodes = 0;
+    for( int i = 0; i < candidateNodes.Size(); ++i )
+    {
+        Node *node = candidateNodes[i];
+        node->m_objectId = numNodes++;
+        m_nodes.PutData( node );
     }
 
     // Go through all nodes in the world
@@ -271,11 +293,30 @@ Fixed World::GetUnitScaleFactor()
     return GetGameScale();
 }
 
-Fixed World::GetGameUnitScale()
+Fixed World::GetTeamUnitScale()
 {
-    GameOption *option = g_app->GetGame()->GetOption( "WorldUnitScale" );
-    if( !option || option->m_default == 0 ) return Fixed::FromDouble(1.0);
-    return Fixed::FromDouble( (double)option->m_currentValue / (double)option->m_default );
+    static Fixed s_cachedTeamUnitScale = Fixed(0);
+    static bool s_cacheValid = false;
+
+    if( g_app->m_gameRunning && s_cacheValid )
+        return s_cachedTeamUnitScale;
+
+    GameOption *option = g_app->GetGame()->GetOption( "TeamUnitScale" );
+    if( !option )
+        return Fixed::FromDouble(1.0);
+    Fixed scale = Fixed::FromDouble( (double)option->m_currentValue / 100.0 );
+
+    if( g_app->m_gameRunning )
+    {
+        s_cachedTeamUnitScale = scale;
+        s_cacheValid = true;
+    }
+    else
+    {
+        s_cacheValid = false;
+    }
+
+    return scale;
 }
 
 //
@@ -401,7 +442,7 @@ void World::AssignCities()
     int territoriesPerTeam = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
     int variableTeamUnits = g_app->GetGame()->GetOptionValue("VariableUnitCounts");
     Fixed worldScale = GetGameScale();
-    Fixed worldUnitScale = GetUnitScaleFactor();
+    Fixed teamUnitScale = GetTeamUnitScale();
 
     if( variableTeamUnits == 0 )
     {
@@ -424,52 +465,51 @@ void World::AssignCities()
 
                 if( i == WorldObject::TypeAirBase || i == WorldObject::TypeAirBase2 || i == WorldObject::TypeAirBase3 )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (4 * territoriesPerTeam * worldScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (4 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeRadarStation )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeRadarEW )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSilo )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSAM )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (6 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeABM )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSiloMed )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeASCM )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (3 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSiloMobile )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeSiloMobileCon )
                 {
-                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * worldUnitScale).IntValue();
+                    m_teams[j]->m_unitsAvailable[i] = (2 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
                 else if( i == WorldObject::TypeBattleShip || i == WorldObject::TypeBattleShip2 || i == WorldObject::TypeBattleShip3 ||
                         i == WorldObject::TypeCarrier || i == WorldObject::TypeCarrierLight ||
                         i == WorldObject::TypeCarrierSuper || i == WorldObject::TypeCarrierLHD ||
                         i == WorldObject::TypeSub || i == WorldObject::TypeSubG || i == WorldObject::TypeSubC || i == WorldObject::TypeSubK )
                 {
-                    Fixed shipsAvailable = 12 * territoriesPerTeam * sqrt(worldScale*worldScale*worldScale);
-                    // Round before truncating to int, to eliminate floating point error
-                    m_teams[j]->m_unitsAvailable[i] = int( shipsAvailable.DoubleValue() + 0.5f );
+                    // Use worldScale (not sqrt(worldScale³)) so TeamUnitScale applies consistently across all unit types
+                    m_teams[j]->m_unitsAvailable[i] = (12 * territoriesPerTeam * worldScale * teamUnitScale).IntValue();
                 }
             }
         }
@@ -546,8 +586,7 @@ void World::AssignCities()
         lowestPop[i] = 999999999;
     }
 
-    
-    int randomCityPops = g_app->GetGame()->GetOptionValue( "CityPopulations" );    
+    int randomCityPops = g_app->GetGame()->GetOptionValue( "CityPopulations" );
 
     for( int i = 0; i < g_app->GetEarthData()->m_cities.Size(); ++i )
     {
@@ -563,7 +602,8 @@ void World::AssignCities()
             {
                 City *thisCity = tempList[territoryId][j];
 
-                if( randomCityPops == 3 )
+                // Totally Random: randomize population for city selection comparison
+                if( randomCityPops == 4 )
                 {
                     Fixed population = thisCity->m_population;
                     population *= ( 1 + syncsfrand(1) );
@@ -574,7 +614,10 @@ void World::AssignCities()
                 Fixed distanceSqd = (Vector3<Fixed>(city->m_longitude, city->m_latitude,0) -
                                   Vector3<Fixed>(thisCity->m_longitude, thisCity->m_latitude,0)).MagSquared();
 
-                int minCityDist = g_app->GetGame()->GetOptionValue("MinCityPlacementDistance");
+                // Option index: 0=0, 1=0.1, 2=0.5, 3=1, 4=2 degrees
+                static const Fixed minCityDistValues[] = { 0, Fixed::FromDouble(0.1), Fixed::FromDouble(0.5), 1, 2 };
+                int minCityDistIdx = g_app->GetGame()->GetOptionValue("MinCityPlacementDistance");
+                Fixed minCityDist = minCityDistValues[minCityDistIdx >= 0 && minCityDistIdx < 5 ? minCityDistIdx : 1];
                 if( minCityDist > 0 && distanceSqd < minCityDist * minCityDist )
                 {
                     // Too near - discard lowest pop
@@ -657,7 +700,8 @@ void World::AssignCities()
 
     // calculate the total population for each team
     // Add radar coverage
-    // Multiply populations by a random factor if requested (to stop standard city distribution)
+    // Apply population distribution based on CityPopulations option
+    // 0=Default (hardcoded), 1=Proportional, 2=Equalised, 3=Random, 4=Totally Random
 
     Fixed targetPopulation = density * territoriesPerTeam;
 
@@ -673,17 +717,23 @@ void World::AssignCities()
             
             if( city->m_teamId == team->m_teamId )
             {
-                if( randomCityPops )
+                if( randomCityPops == 1 )
                 {
+                    // Proportional: will be scaled below to match targetPopulation
+                }
+                else if( randomCityPops >= 2 )
+                {
+                    // Equalised (2), Random (3), or Totally Random (4)
                     Fixed averageCityPop = targetPopulation / (cityLimit * territoriesPerTeam);
                     Fixed thisCityPop = averageCityPop;
-                    if( randomCityPops == 2 || randomCityPops == 3 ) 
+                    if( randomCityPops == 3 || randomCityPops == 4 ) 
                     {
                         Fixed randomFactor = RandomNormalNumber( 0, 30 ).abs();  
                         thisCityPop = (thisCityPop * randomFactor).IntValue();                                   
                     }
                     city->m_population = thisCityPop.IntValue();   
                 }
+                // 0=Default: keep hardcoded value from data file
 
                 populations[i] += city->m_population;
                 m_radarGrid.AddCoverage( city->m_longitude, city->m_latitude, city->GetRadarRange(), city->m_teamId );
@@ -695,25 +745,24 @@ void World::AssignCities()
         }
     }
 
-
-
-
-    // scale populations
-
-    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
+    // Proportional (1): scale city populations so team total matches targetPopulation
+    if( randomCityPops == 1 )
     {
-        if( populations[i] != targetPopulation )
+        for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
         {
-            Team *team = g_app->GetWorld()->m_teams[i];
-            Fixed scaleFactor = targetPopulation / populations[i];
-            for( int j = 0; j < m_cities.Size(); ++j )
+            if( populations[i] != 0 && populations[i] != targetPopulation )
             {
-                City *city = m_cities[j];
-                if( city->m_teamId == team->m_teamId )
+                Team *team = g_app->GetWorld()->m_teams[i];
+                Fixed scaleFactor = targetPopulation / populations[i];
+                for( int j = 0; j < m_cities.Size(); ++j )
                 {
-                    Fixed population = city->m_population;
-                    population *= scaleFactor;
-                    city->m_population = population.IntValue();                    
+                    City *city = m_cities[j];
+                    if( city->m_teamId == team->m_teamId )
+                    {
+                        Fixed population = city->m_population;
+                        population *= scaleFactor;
+                        city->m_population = population.IntValue();                    
+                    }
                 }
             }
         }
@@ -1772,7 +1821,8 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
 
         case WorldObject::ArchetypeNavy:
         {
-            if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, true ) )
+            // Ships can be placed anywhere sailable; no territory overlap required
+            if( g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, true ) )
             {
                 int nearestIndex = GetNearestObject( teamId, longitude, latitude );
                 if( nearestIndex == -1 ) return true;

@@ -248,15 +248,16 @@ int Team::GetRemainingPopulation()
 int Team::GetPlacementPriority()
 {
     Fixed gameScale = World::GetGameScale();
+    Fixed teamUnitScale = World::GetTeamUnitScale();
 
     int territoriesPerTeam = g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
 
-    int numRadar = (7 * gameScale * territoriesPerTeam).IntValue();
+    int numRadar = (7 * gameScale * territoriesPerTeam * teamUnitScale).IntValue();
     int radarType = PickAvailableOfClass( this, WorldObject::ClassTypeRadar );
     if( radarType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeRadar ) < numRadar )
         return radarType;
 
-    int numSilos = (6 * gameScale).IntValue();
+    int numSilos = (6 * gameScale * teamUnitScale).IntValue();
     if( g_app->GetGame()->GetOptionValue("VariableUnitCounts") == 1 )
     {
         numSilos = numSilos / float(5.0f / m_aggression);
@@ -267,7 +268,7 @@ int Team::GetPlacementPriority()
     if( siloType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeSilo ) < numSilos )
         return siloType;
 
-    int numSams = (6 * territoriesPerTeam * gameScale).IntValue();
+    int numSams = (6 * territoriesPerTeam * gameScale * teamUnitScale).IntValue();
     int samType = PickAvailableOfClass( this, WorldObject::ClassTypeSAM );
     if( samType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeSAM ) < numSams )
         return samType;
@@ -276,7 +277,7 @@ int Team::GetPlacementPriority()
     if( abmType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeABM ) < numSams )
         return abmType;
 
-    int numAirbases = (4 * territoriesPerTeam * gameScale).IntValue();
+    int numAirbases = (4 * territoriesPerTeam * gameScale * teamUnitScale).IntValue();
     int airbaseType = PickAvailableOfClass( this, WorldObject::ClassTypeAirbase );
     if( airbaseType >= 0 && CountInPlayByClass( this, WorldObject::ClassTypeAirbase ) < numAirbases )
         return airbaseType;
@@ -559,7 +560,8 @@ void Team::PlacementAI()
                 for( int i = 0; i < g_app->GetWorld()->m_aiPlacementPoints.Size(); ++i )
                 {
                     Vector3<Fixed> *point = g_app->GetWorld()->m_aiPlacementPoints[i];
-                    if( g_app->GetWorldRenderer()->IsValidTerritory( m_teamId, point->x, point->y, true ) )
+                    // Ships can be placed anywhere sailable; no territory overlap required
+                    if( g_app->GetWorldRenderer()->IsValidTerritory( -1, point->x, point->y, true ) )
                     {
                         validPointsList.PutData(i);
                     }

@@ -526,6 +526,11 @@ Image *WorldRenderer::GetTravelNodesImage()
     return m_bmpTravelNodes;
 }
 
+Image *WorldRenderer::GetSailableImage()
+{
+    return m_bmpSailableWater;
+}
+
 const char *WorldRenderer::GetImageFile( int objectType, int teamId )
 {
     const char *defaultPath = m_imageFiles[objectType];

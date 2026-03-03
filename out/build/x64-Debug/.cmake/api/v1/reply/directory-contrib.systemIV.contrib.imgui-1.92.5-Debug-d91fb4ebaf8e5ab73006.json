@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "contrib/systemIV/contrib/imgui-1.92.5",
+		"source" : "contrib/systemIV/contrib/imgui-1.92.5"
+	}
+}

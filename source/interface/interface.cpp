@@ -919,8 +919,11 @@ void Interface::OpenGameWindows()
         EclRegisterWindow( chat );
     }
 
-    //
-    // Unit Info window starts closed by default; user can open via toolbar button
+    if( g_preferences->GetInt( PREFS_INTERFACE_UNITINFO_TOOLBAR, 1 ) )
+    {
+        EclRegisterWindow( new InfoCPUToggleWindow() );
+        EclRegisterWindow( new InfoWindow() );
+    }
 #endif
 
 

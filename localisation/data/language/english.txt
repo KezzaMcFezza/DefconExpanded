@@ -332,6 +332,7 @@ dialog_sidescrolling                Mouse Scrolling
 dialog_zoomspeed                    Zoom Speed
 dialog_camdragging                  Camera Dragging
 dialog_tooltips                     Show Tooltips
+dialog_unitinfotoolbar              UnitInfo Toolbar
 dialog_popupscale                   Popup Scale
 dialog_panickey                     Panic Key
 dialog_advancedcontrols             Advanced Unit Controls
@@ -988,9 +989,9 @@ tooltip_gameoption_advertiseonlan           If enabled your game will be visible
 tooltip_gameoption_maxteams                 The maximum number of Players that can participate in your game.
 tooltip_gameoption_territoriesperteam       The number of Territories each player will own during the game.
 tooltip_gameoption_citiesperterritory       The number of Cities generated per player-owned territory
-tooltip_gameoption_mincityplacementdistance Minimum distance (in degrees) between cities when selecting which cities to include per territory. 0 = no minimum.
+tooltip_gameoption_mincityplacementdistance Minimum distance (in degrees) between cities when selecting which cities to include per territory. 0 = no minimum. 0.1 = very small buffer to prevent stacking.
 tooltip_gameoption_populationperterritory   The number of people (in millions) in each territory.\nCity populations will be scaled accordingly
-tooltip_gameoption_citypopulations          Controls how your population is distributed across your Cities.\n\n- Default: City populations are based on real world populations\n\n- Equalised: All cities within a territory have the same population\n\n- Random: Each cities population is random, however the standard cities are chosen so your cities will still be in the same place each game\n\n- Totally Random: Each cities population is random, but in addition random cities will be chosen from the database, meaning the position of your cities will also be random
+tooltip_gameoption_citypopulations          Controls how your population is distributed across your Cities.\n\n- Default: City populations use hardcoded values from the data file\n\n- Proportional: Territory population is distributed across cities by their proportion relative to each other\n\n- Equalised: All cities within a territory have the same population\n\n- Random: Each cities population is random, however the standard cities are chosen so your cities will still be in the same place each game\n\n- Totally Random: Each cities population is random, but in addition random cities will be chosen from the database, meaning the position of your cities will also be random
 tooltip_gameoption_randomterritories        If enabled players will be assigned randomly chosen territories at the start of the game.\n\nUseful for solving arguments over who gets to be Europe.
 tooltip_gameoption_maxspectators            Maximum number of people who can watch the game.\nWarning: each spectator uses up Server bandwidth.\n\n0=none\n100=unlimited.
 tooltip_gameoption_spectatorchatchannel     Controls if Players can read the Chat messages of game Spectators.  You may wish to make the Spectator channel Private to prevent Spectators from helping players.\n\n- Public: All players will be able to hear what the Spectators are saying. (default)\n\n- Private: Only Spectators will be able to read messages in the Spectator channel.  In this mode there is no way for a Player and a Spectator to communicate.
@@ -1008,9 +1009,9 @@ tooltip_gameoption_victorytimer             Once the Victory Timer has started t
 tooltip_gameoption_maxgamerealtime          The maximum real-world time for the game in minutes.\n\n0 = unlimited real-world time available - the game will not end until the Victory Timer completes.
 tooltip_gameoption_variableunitcounts       Enables Credit mode\nEach player gets a number of credits to spend on their units, and may customise their forces as they like
 tooltip_gameoption_worldscale               NOTE: Experimental.\n\nThis variable effectively makes the world larger, and hence the game will last longer.\n\nAt 100 the world scale is normal.\n\nAt the highest value (200), each team has twice as many units, but each units has half the radar range and half the combat range.\n\nHighly experimental.\nRequires a powerful CPU.\nWe recommend you disable Rendering Object Trails for a clearer view.
+tooltip_gameoption_teamunitscale            Multiplier for the number of units each team can place.\n\n100 = normal (100%).\n50 = half the units (50%).\n200 = double the units (200%).\n\nThe default of 17 (approx 1/6) offsets the default World Scale of 600, giving each team the same unit count as original Defcon at World Scale 100.\n\nDoes not affect Variable Unit Counts mode.
 tooltip_gameoption_scaleunitstats           When Enabled, unit ranges, speeds and placement distances are scaled by World Scale (bigger world = shorter ranges). When Disabled, unit stats remain fixed regardless of World Scale.
 tooltip_gameoption_togglecpu               When Enabled at game start, AI teams begin with CPU active. Use the Info panel CPU Toggle button during play to turn AI on or off.
-tooltip_gameoption_worldunitscale           NOTE: Experimental.\n\nThis variable control unit numbers.\n\nAt 100 the world scale is normal.\n\nAt the value (50) each team has half as many units.\n\nCombined with World Scale 200 the globe will be twice as big but you will have the normal amount of units, since 50% will cancel out the doubling of units from BigWorld.
 tooltip_gameoption_emptybomberlaunch        Allows Bombers to be launched without carrying an available nuke on board. The unused nuke is returned to its base's stockpile.
 tooltip_gameoption_firststrikebonus			The player who lands the first direct hit on an enemy city will gain bonus points equal to the number set. Good for incentivizing aggressive play and speeding up Diplomacy games.
 tooltip_gameoption_citybuffer				Distance at which cities can generate away from each other. Above 3, small territories may lose cities or have them placed inside the buffer.
@@ -1213,6 +1214,7 @@ gameoption_1                       1
 gameoption_2                       2
 gameoption_PopulationPerTerritory   Population Per Territory
 gameoption_CityPopulations          City Populations
+gameoption_Proportional             Proportional
 gameoption_Equalised                Equalised
 gameoption_Random                   Random
 gameoption_TotallyRandom            Totally Random
@@ -1245,9 +1247,9 @@ gameoption_VictoryTimer             Victory Timer
 gameoption_MaxGameRealTime          Max Game Real Time
 gameoption_VariableUnitCounts       Variable Unit Counts
 gameoption_WorldScale               World Scale
+gameoption_TeamUnitScale            Team Unit Scale
 gameoption_ScaleUnitStats           Scale Unit Stats
 gameoption_ToggleCPU                Toggle CPU
-gameoption_WorldUnitScale           Unit Number Scale
 gameoption_EmptyBomberLaunch        Nukeless Bomber Launch
 gameoption_FirstStrikeBonus			First Strike Bonus
 gameoption_CityBuffer				City Buffer

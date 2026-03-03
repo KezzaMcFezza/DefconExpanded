@@ -1,0 +1,1028 @@
+{
+	"archive" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/machine:x64 /IGNORE:4006",
+				"role" : "flags"
+			}
+		]
+	},
+	"artifacts" : 
+	[
+		{
+			"path" : "lib/Unrar.lib"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"add_definitions",
+			"target_compile_definitions",
+			"include_directories",
+			"target_precompile_headers",
+			"set_target_properties"
+		],
+		"files" : 
+		[
+			"contrib/systemIV/contrib/unrar/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 65,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 31,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 266,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 265,
+				"parent" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 73,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 269,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 263,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 264,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 84,
+				"parent" : 2
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 89,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 84,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc -openmp /MP /EHsc /Zm2000 /Zf /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS /NODEFAULTLIB:LIBCMT /wd4530 /wd4018 /wd4267 /wd4244 /wd4305 /wd4101 /wd4099 /wd26495 /wd4005 /wd4006 /wd4996 /wd4800 /wd4251 /arch:AVX2 /Zi /Ob0 /Od /RTC1 /MP /Od /Zi /MDd /RTC1 /GS /EHsc /FC /analyze /Z7 /MDd -D_DEBUG -DTARGET_MSVC -std:c++latest -MDd"
+				},
+				{
+					"fragment" : "/YcC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.hxx /FpC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/./cmake_pch.cxx.pch /FIC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "OPENMP"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "RENDERER_DIRECTX11"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "RENDERER_OPENGL"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "TARGET_MSVC"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "TOGGLE_SOUND"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_NONSTDC_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_SECURE_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "_WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_WINSOCK_DEPRECATED_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source/app"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/binreloc"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/gucci"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/netlib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/eclipse"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include/third_party/mini_chromium/mini_chromium"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/glad/desktop/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/highway-1.3.0"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/tinygltf-2.9.7"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5/backends"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					12
+				],
+				"standard" : "23"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 11,
+					"header" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar/rar.hpp"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc -openmp /MP /EHsc /Zm2000 /Zf /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS /NODEFAULTLIB:LIBCMT /wd4530 /wd4018 /wd4267 /wd4244 /wd4305 /wd4101 /wd4099 /wd26495 /wd4005 /wd4006 /wd4996 /wd4800 /wd4251 /arch:AVX2 /Zi /Ob0 /Od /RTC1 /MP /Od /Zi /MDd /RTC1 /GS /EHsc /FC /analyze /Z7 /MDd -D_DEBUG -DTARGET_MSVC -std:c++latest -MDd"
+				},
+				{
+					"fragment" : "/YuC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.hxx /FpC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/./cmake_pch.cxx.pch /FIC:/DefconExpanded/out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.hxx"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "OPENMP"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "RENDERER_DIRECTX11"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "RENDERER_OPENGL"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "TARGET_MSVC"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "TOGGLE_SOUND"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_NONSTDC_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_SECURE_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "_WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_WINSOCK_DEPRECATED_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source/app"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/binreloc"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/gucci"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/netlib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/eclipse"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include/third_party/mini_chromium/mini_chromium"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/glad/desktop/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/highway-1.3.0"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/tinygltf-2.9.7"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5/backends"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					12
+				],
+				"standard" : "23"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 11,
+					"header" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar/rar.hpp"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc -openmp /MP /EHsc /Zm2000 /Zf /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS /NODEFAULTLIB:LIBCMT /wd4530 /wd4018 /wd4267 /wd4244 /wd4305 /wd4101 /wd4099 /wd26495 /wd4005 /wd4006 /wd4996 /wd4800 /wd4251 /arch:AVX2 /Zi /Ob0 /Od /RTC1 /MP /Od /Zi /MDd /RTC1 /GS /EHsc /FC /analyze /Z7 /MDd -D_DEBUG -DTARGET_MSVC -std:c++latest -MDd"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "OPENMP"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "RENDERER_DIRECTX11"
+				},
+				{
+					"backtrace" : 5,
+					"define" : "RENDERER_OPENGL"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "TARGET_MSVC"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "TOGGLE_SOUND"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_NONSTDC_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_CRT_SECURE_NO_DEPRECATE"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "_WIN32"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_WINSOCK_DEPRECATED_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/./source/app"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/binreloc"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/gucci"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/netlib"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/lib/eclipse"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/crashpad/linux/include/third_party/mini_chromium/mini_chromium"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/glad/desktop/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/highway-1.3.0"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/tinygltf-2.9.7"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "C:/DefconExpanded/contrib/systemIV/contrib/imgui-1.92.5/backends"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					12
+				],
+				"standard" : "23"
+			},
+			"precompileHeaders" : 
+			[
+				{
+					"backtrace" : 11,
+					"header" : "C:/DefconExpanded/contrib/systemIV/contrib/unrar/rar.hpp"
+				}
+			],
+			"sourceIndexes" : 
+			[
+				19
+			]
+		}
+	],
+	"id" : "Unrar::@8f21b6517e25c90f81e0",
+	"name" : "Unrar",
+	"nameOnDisk" : "Unrar.lib",
+	"paths" : 
+	{
+		"build" : "contrib/systemIV/contrib/unrar",
+		"source" : "contrib/systemIV/contrib/unrar"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54
+			]
+		},
+		{
+			"name" : "Precompile Header File",
+			"sourceIndexes" : 
+			[
+				55
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"path" : "out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.cxx",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rarpch.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/archive.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/arcread.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/blake2s.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/cmddata.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/consio.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/crc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/crypt.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/encname.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/errhnd.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/extinfo.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/extract.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/filcreat.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/file.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/filefn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/filestr.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/find.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/getbits.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 2,
+			"path" : "contrib/systemIV/contrib/unrar/global.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/hash.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/headers.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/largepage.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/list.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/log.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/match.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/options.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/pathfn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/qopen.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rar.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rarvm.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rawread.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rdwrfn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/recvol.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/resourcerar.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rijndael.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rs.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/rs16.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/scantree.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/secpassword.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/sha1.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/sha256.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/smallfn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/strfn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/strlist.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/system.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/threadpool.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/timefn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/ui.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/unicode.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/unpack.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/unrar.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/volume.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/isnt.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "contrib/systemIV/contrib/unrar/motw.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"path" : "out/build/x64-Debug/contrib/systemIV/contrib/unrar/CMakeFiles/Unrar.dir/cmake_pch.hxx",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

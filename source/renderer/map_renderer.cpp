@@ -2067,7 +2067,15 @@ void MapRenderer::RenderMouse()
         
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
-        RenderWorldObjectTargets(selection);
+        // Render order lines for all selected units, not just primary selection and its fleet
+        for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
+        {
+            WorldObject *selObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
+            if( selObj )
+            {
+                RenderWorldObjectTargets( selObj, false );
+            }
+        }
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         bool animateActionLine = !fleet || fleetValidMovement || validCombatTarget >= WorldObject::TargetTypeValid;
@@ -2079,21 +2087,6 @@ void MapRenderer::RenderMouse()
         if( highlight && validCombatTarget )
         {
             RenderWorldObjectDetails( highlight );
-        }
-
-        if( selection->m_fleetId != -1 )
-        {
-            Fleet *fleet = team->GetFleet(selection->m_fleetId);
-            for( int i = 0; i < fleet->m_fleetMembers.Size(); ++i )
-            {
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
-                if( obj &&
-                    obj->m_objectId != selection->m_objectId )
-                {
-                    RenderWorldObjectTargets( obj, false );
-                }
-            }
-            g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         }
 
 
@@ -4322,7 +4315,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 }
 
 
-void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubleClick )
+void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubleClick, bool _convergeAll )
 {
     Fixed mouseX = Fixed::FromDouble(_mouseX);
     Fixed mouseY = Fixed::FromDouble(_mouseY);
@@ -4330,6 +4323,70 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
     LList<int> fleetsMoved;
 
     int selCount = g_app->GetWorldRenderer()->GetSelectionCount();
+
+    // For formation-preserving move: collect non-fleet moving objects and compute center of mass
+    LList<int> nonFleetIds;
+    Fixed comX = 0, comY = 0;
+    int nonFleetCount = 0;
+    // For formation-preserving fleet move: collect fleet positions and compute center of mass
+    Fixed fleetComX = 0, fleetComY = 0;
+    int fleetCount = 0;
+    LList<int> fleetIdsSeen;
+
+    if( !_convergeAll && selCount > 1 )
+    {
+        for( int s = 0; s < selCount; ++s )
+        {
+            int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
+            WorldObject *wobj = g_app->GetWorld()->GetWorldObject( recId );
+            if( !wobj || !wobj->IsMovingObject() ) continue;
+            MovingObject *obj = (MovingObject *) wobj;
+            if( obj->m_fleetId != -1 )
+            {
+                // Collect unique fleets for fleet center of mass
+                bool alreadySeen = false;
+                for( int f = 0; f < fleetIdsSeen.Size(); ++f )
+                {
+                    if( fleetIdsSeen.GetData(f) == obj->m_fleetId ) { alreadySeen = true; break; }
+                }
+                if( !alreadySeen )
+                {
+                    Fleet *fleet = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
+                    if( fleet )
+                    {
+                        fleetIdsSeen.PutData( obj->m_fleetId );
+                        fleetComX += fleet->m_longitude;
+                        fleetComY += fleet->m_latitude;
+                        fleetCount++;
+                    }
+                }
+                continue;
+            }
+            nonFleetIds.PutData( recId );
+            comX += wobj->m_longitude;
+            comY += wobj->m_latitude;
+            nonFleetCount++;
+        }
+        if( nonFleetCount > 0 )
+        {
+            comX /= nonFleetCount;
+            comY /= nonFleetCount;
+        }
+        else
+        {
+            nonFleetCount = 0;
+        }
+        if( fleetCount > 0 )
+        {
+            fleetComX /= fleetCount;
+            fleetComY /= fleetCount;
+        }
+        else
+        {
+            fleetCount = 0;
+        }
+    }
+
     for( int s = 0; s < selCount; ++s )
     {
         int recId = g_app->GetWorldRenderer()->GetSelectedId( s );
@@ -4351,11 +4408,21 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
             if( alreadyMoved ) continue;
 
             Fleet *fleet = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetFleet( obj->m_fleetId );
-            if( fleet &&
-                fleet->IsValidFleetPosition( mouseX, mouseY ) &&
-                g_app->GetWorld()->GetClosestNode( mouseX, mouseY ) != -1 )
+            if( !fleet ) continue;
+
+            Fixed waypointX = mouseX;
+            Fixed waypointY = mouseY;
+            if( fleetCount > 1 )
             {
-                g_app->GetClientToServer()->RequestFleetMovement( obj->m_teamId, obj->m_fleetId, mouseX, mouseY, _isDoubleClick );
+                // Formation-preserving: waypoint = click + (fleet_pos - center_of_mass of fleets)
+                waypointX = mouseX + (fleet->m_longitude - fleetComX);
+                waypointY = mouseY + (fleet->m_latitude - fleetComY);
+            }
+
+            if( fleet->IsValidFleetPosition( waypointX, waypointY ) &&
+                g_app->GetWorld()->GetClosestNode( waypointX, waypointY ) != -1 )
+            {
+                g_app->GetClientToServer()->RequestFleetMovement( obj->m_teamId, obj->m_fleetId, waypointX, waypointY, _isDoubleClick );
                 fleetsMoved.PutData( obj->m_fleetId );
                 anySuccess = true;
 
@@ -4364,10 +4431,10 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
                     WorldObject *thisShip = g_app->GetWorld()->GetWorldObject( fleet->m_fleetMembers[i] );
                     if( thisShip )
                     {
-                        Fixed offsetX = 0, offsetY = 0;
-                        fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &offsetX, &offsetY );
+                        Fixed markerLong = waypointX, markerLat = waypointY;
+                        fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &markerLong, &markerLat );
                         int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, thisShip->m_objectId,
-                                 _mouseX+offsetX.DoubleValue(), _mouseY+offsetY.DoubleValue() );
+                                 markerLong.DoubleValue(), markerLat.DoubleValue() );
                         ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
                         marker->m_targetType = WorldObject::TargetTypeValid;
                     }
@@ -4377,10 +4444,20 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY, bool _isDoubl
         }
         else
         {
-            g_app->GetClientToServer()->RequestSetWaypoint( recId, mouseX, mouseY, _isDoubleClick );
+            Fixed waypointX = mouseX;
+            Fixed waypointY = mouseY;
+
+            if( nonFleetCount > 1 )
+            {
+                // Formation-preserving: waypoint = click + (unit_pos - center_of_mass)
+                waypointX = mouseX + (wobj->m_longitude - comX);
+                waypointY = mouseY + (wobj->m_latitude - comY);
+            }
+
+            g_app->GetClientToServer()->RequestSetWaypoint( recId, waypointX, waypointY, _isDoubleClick );
             if( wobj->IsFighterClass() )
-                g_app->GetClientToServer()->RequestAction( recId, -1, mouseX, mouseY );
-            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, _mouseX, _mouseY );
+                g_app->GetClientToServer()->RequestAction( recId, -1, waypointX, waypointY );
+            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, recId, waypointX.DoubleValue(), waypointY.DoubleValue() );
             ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
             marker->m_targetType = WorldObject::TargetTypeValid;
             g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
@@ -4946,9 +5023,10 @@ void MapRenderer::Update()
                     }
                     else if( SelectionHasMovingUnit() )
                     {
+                        bool convergeAll = ( g_keys[KEY_CONTROL] != 0 );
                         if( isDoubleClick && underMouseId == -1 )
                         {
-                            HandleSetWaypoint( longitude, latitude, true );
+                            HandleSetWaypoint( longitude, latitude, true, convergeAll );
                         }
                         else
                         {
@@ -4962,7 +5040,7 @@ void MapRenderer::Update()
                             }
                             else
                             {
-                                HandleSetWaypoint( longitude, latitude, false );
+                                HandleSetWaypoint( longitude, latitude, false, convergeAll );
                             }
                         }
                     }
@@ -5781,14 +5859,14 @@ bool MapRenderer::UpdatePlanning( float longitude, float latitude )
 		return false;
 	}
 
+	WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ myTeam->m_teamId ];
+
 	if ( !IsMouseInMapRenderer() )
 	{
 		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
 		g_app->GetWorldRenderer()->SetErasingPlanning( false );
 		return true;
 	}
-
-	WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ myTeam->m_teamId ];
 
 	if( longitude < -180.0f ) longitude += 360.0f;
     if( longitude > 180.0f ) longitude -= 360.0f;
@@ -5942,8 +6020,6 @@ void MapRenderer::RenderWhiteBoard()
 		     effectiveTeam->m_teamId == team->m_teamId )
 		{
 			WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ team->m_teamId ];
-			char whiteboardname[32];
-			snprintf( whiteboardname, sizeof(whiteboardname), "WhiteBoard%d", team->m_teamId );
 
 			Colour colourBoard = team->GetTeamColour();
 
@@ -5958,9 +6034,6 @@ void MapRenderer::RenderWhiteBoard()
 				{
 					WhiteBoardPoint *currPt = points->GetData( j );
                     float lineWidth = 2.0f;
-
-                    //
-					// if this is a start point, skip the line from previous point
 
 					if ( currPt->m_startPoint )
 					{

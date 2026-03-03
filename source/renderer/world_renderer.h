@@ -18,6 +18,7 @@ class Team;
 #define    PREFS_INTERFACE_STYLE                      "InterfaceStyle"
 #define    PREFS_INTERFACE_KEYBOARDLAYOUT             "InterfaceKeyboard"
 #define    PREFS_INTERFACE_ZOOM_SPEED                 "InterfaceZoomSpeed"
+#define    PREFS_INTERFACE_UNITINFO_TOOLBAR           "InterfaceUnitInfoToolbar"
 
 #define    STYLE_POPUP_BACKGROUND                     "PopupBackground"
 #define    STYLE_POPUP_TITLEBAR                       "PopupTitleBar"
@@ -116,6 +117,7 @@ public:
     bool    IsCoastline          ( Fixed longitude, Fixed latitude );
     Image   *GetTerritoryImage   ( int territoryId );
     Image   *GetTravelNodesImage ();
+    Image   *GetSailableImage   ();
     const char *GetImageFile     ( int objectType, int teamId = -1 );
 
     int     GetCurrentSelectionId();

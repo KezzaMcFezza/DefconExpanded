@@ -661,7 +661,7 @@ void Toolbar::Create()
     RegisterButton( nukes );
 
 #ifndef NON_PLAYABLE
-    // enable whiteboard for non spectators in live games OR during replay mode
+    // enable whiteboard for non-spectators in live games OR during replay mode
     if( isSpectator == -1 || isReplayMode )
     {
         bool supportWhiteBoard = VersionManager::DoesSupportWhiteBoard( g_app->GetClientToServer()->m_serverVersion );

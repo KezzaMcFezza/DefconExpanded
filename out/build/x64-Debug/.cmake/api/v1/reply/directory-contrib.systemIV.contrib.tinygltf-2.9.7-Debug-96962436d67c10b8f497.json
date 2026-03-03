@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "contrib/systemIV/contrib/tinygltf-2.9.7",
+		"source" : "contrib/systemIV/contrib/tinygltf-2.9.7"
+	}
+}

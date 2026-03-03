@@ -1519,7 +1519,7 @@ void App::Render()
                 !m_interface->UsingChatWindow() && !m_interface->UsingAnyInputField() )
             {
                 SDL_SetClipboardText( coordText );
-                s_clipboardFlashTimer = 1.0f;
+                s_clipboardFlashTimer = 0.5f;
             }
 
             if( s_clipboardFlashTimer > 0.0f )
@@ -1534,7 +1534,7 @@ void App::Render()
             if( textY + 20  > screenH ) textY = g_inputManager->m_mouseY - 30.0f;
 
             g_renderer->SetFont( "zerothre" );
-            Colour coordCol = snapped ? Colour(0,255,255,220) : Colour(255,255,255,220);
+            Colour coordCol = snapped ? Colour(255,255,255,220) : Colour(255,255,255,220);
             if( s_clipboardFlashTimer > 0.0f )
                 coordCol = Colour(255,255,0,220);
             g_renderer2d->TextSimple( textX, textY, coordCol, 12.0f, coordText );

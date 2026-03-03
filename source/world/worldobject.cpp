@@ -644,31 +644,20 @@ void WorldObject::Render2D()
             bool sameFleet = false;
             if( i == 0 )
             {
+                // Only highlight explicitly selected units - not whole fleet on partial multi-selection
                 selected = g_app->GetWorldRenderer()->IsSelected( m_objectId );
-            if( !selected && m_fleetId != -1 )
+            }
+            else
             {
-                for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
+                WorldObject *highlight = g_app->GetWorld()->GetWorldObject( highlightId );
+                if( highlight )
                 {
-                    WorldObject *sel = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
-                    if( sel && sel->m_teamId == m_teamId && sel->m_fleetId == m_fleetId )
-                    {
-                        sameFleet = true;
-                        break;
-                    }
+                    selected = ( highlight == this );
+                    sameFleet = highlight->m_teamId == m_teamId &&
+                                highlight->m_fleetId != -1 &&
+                                highlight->m_fleetId == m_fleetId;
                 }
             }
-        }
-        else
-        {
-            WorldObject *highlight = g_app->GetWorld()->GetWorldObject( highlightId );
-            if( highlight )
-            {
-                selected = ( highlight == this );
-                sameFleet = highlight->m_teamId == m_teamId &&
-                            highlight->m_fleetId != -1 &&
-                            highlight->m_fleetId == m_fleetId;
-            }
-        }
 
         if( ( selected || sameFleet ) && !IsBlip() )
         {
@@ -731,19 +720,8 @@ void WorldObject::Render3D()
             bool sameFleet = false;
             if( i == 0 )
             {
+                // Only highlight explicitly selected units - not whole fleet on partial multi-selection
                 selected = g_app->GetWorldRenderer()->IsSelected( m_objectId );
-                if( !selected && m_fleetId != -1 )
-                {
-                    for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
-                    {
-                        WorldObject *sel = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
-                        if( sel && sel->m_teamId == m_teamId && sel->m_fleetId == m_fleetId )
-                        {
-                            sameFleet = true;
-                            break;
-                        }
-                    }
-                }
             }
             else
             {
@@ -1072,6 +1050,42 @@ const char *WorldObject::GetTerritoryName( int _type, int _territory )
     }
 
     return GetName( _type );
+}
+
+
+const char *WorldObject::GetTerritoryUnitInfoSuffix( int _type, int _territory )
+{
+    const char *langKey = NULL;
+
+    if( _territory >= 0 )
+    {
+        for( int i = 0; i < s_numNameOverrides; ++i )
+        {
+            if( s_nameOverrides[i].territory == _territory &&
+                s_nameOverrides[i].unitType == _type )
+            {
+                langKey = s_nameOverrides[i].langKey;
+                break;
+            }
+        }
+    }
+
+    if( !langKey )
+    {
+        for( int i = 0; i < s_numGenericNameDefaults; ++i )
+        {
+            if( s_genericNameDefaults[i].unitType == _type )
+            {
+                langKey = s_genericNameDefaults[i].langKey;
+                break;
+            }
+        }
+    }
+
+    if( langKey && strncmp( langKey, "unit_", 5 ) == 0 )
+        return langKey + 5;
+
+    return GetTypeName( _type );
 }
 
 

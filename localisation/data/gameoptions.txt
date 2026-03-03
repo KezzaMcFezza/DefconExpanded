@@ -34,16 +34,19 @@ GameMode                0       6       6           0
     
 MaxTeams                1       26      26          1
 TerritoriesPerTeam      1       26      1           1
-CitiesPerTerritory      1       50      25          1
-MinCityPlacementDistance 0       2       0           0
+CitiesPerTerritory      1       400     200         10
+MinCityPlacementDistance 0       4       1           0
     0
+    0.1
+    0.5
     1
     2
 
 PopulationPerTerritory  10      200     100         10
 
-CityPopulations         0       3       0           0
+CityPopulations         0       4       0           0
     Default
+    Proportional
     Equalised
     Random
     TotallyRandom
@@ -96,6 +99,8 @@ VariableUnitCounts      0       1       1           0
     Enabled
 
 WorldScale              50      1200    600        10
+
+TeamUnitScale           5       400     17          1
 
 ScaleUnitStats          0       1       1           0
     Disabled

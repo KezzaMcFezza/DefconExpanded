@@ -151,7 +151,7 @@ public:
     bool    UpdatePlanning          ( float _mouseX, float _mouseY );
     int     GetNearestObjectToMouse ( float _mouseX, float _mouseY );
     void    HandleObjectAction      ( float _mouseX, float _mouseY, int _underMouseId );
-    void    HandleSetWaypoint       ( float _mouseX, float _mouseY, bool _isDoubleClick = false );
+    void    HandleSetWaypoint       ( float _mouseX, float _mouseY, bool _isDoubleClick = false, bool _convergeAll = false );
     void    HandleSelectObject      ( int _underMouseId );
     void    HandleClickStateMenu    ();
 

@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
+# Set toolset before project() so VS 2022 uses v143 (compatible with VS 2022 Community)
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(CMAKE_GENERATOR_TOOLSET "v143" CACHE STRING "Platform toolset for VS 2022" FORCE)
+endif()
 project(Defcon VERSION 1.0)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

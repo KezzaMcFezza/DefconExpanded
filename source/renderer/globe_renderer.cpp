@@ -2184,8 +2184,6 @@ void GlobeRenderer::RenderWhiteBoard()
 		     effectiveTeam->m_teamId == team->m_teamId )
 		{
 			WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ team->m_teamId ];
-			char whiteboardname[32];
-			snprintf( whiteboardname, sizeof(whiteboardname), "WhiteBoard%d", team->m_teamId );
 
 			Colour colourBoard = team->GetTeamColour();
 
@@ -2200,9 +2198,6 @@ void GlobeRenderer::RenderWhiteBoard()
 				for ( int j = 1; j < sizePoints; j++ )
 				{
 					WhiteBoardPoint *currPt = points->GetData( j );
-
-                    //
-					// if this is a start point, skip the line from previous point
 
 					if ( currPt->m_startPoint )
 					{

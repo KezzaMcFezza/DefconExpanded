@@ -78,6 +78,7 @@ RecordingAutoSaveBehaviour = 0
 RecordingEndBehaviour = 0
 
 InterfaceTooltips = 1
+InterfaceUnitInfoToolbar = 1
 InterfacePopupScale = 7.0
 InterfaceSideScrolling = 1
 InterfaceCameraDragging = 1
