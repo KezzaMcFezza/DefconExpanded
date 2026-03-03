@@ -41,10 +41,10 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("/images/backgroundyes.png");
+    background-image: url("/images/backgroundgrey.png");
     background-repeat: no-repeat;
     background-size: cover;
-    opacity: 0.05;
+    opacity: 0.15;
     z-index: -1;
 }
 
@@ -122,6 +122,7 @@ input:focus {
     color: #c5d4ff;
     padding: 0 16px;
     font-weight: 600;
+    font-size: 1.1rem;
     letter-spacing: 0.5px;
     text-decoration: none;
     display: block;
@@ -167,7 +168,7 @@ input:focus {
 .top-nav .nav-modlist-btn {
     color: #c5d4ff;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     border-radius: 5px;
     font-weight: 600;
     letter-spacing: 0.5px;
@@ -256,20 +257,22 @@ input:focus {
     gap: 0.35rem;
     margin-left: 10px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.35rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #4da6ff;
     text-decoration: none;
-    letter-spacing: 1px;
+    letter-spacing: 0.1px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     white-space: nowrap;
 }
 
 .top-nav .nav-brand-icon {
-    height: 1.5rem;
-    width: auto;
+    height: 2rem;
+    width: 2rem;
+    min-width: 2rem;
     display: block;
     vertical-align: middle;
+    object-fit: contain;
 }
 
 .top-nav .nav-brand-text {
@@ -318,7 +321,7 @@ input:focus {
 .top-nav .list-items li a {
     color: #c5d4ff;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     border-radius: 5px;
     font-weight: 600;
     letter-spacing: 0.5px;
