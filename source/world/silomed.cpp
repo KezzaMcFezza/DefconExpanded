@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "lib/resource/resource.h"
+#include "lib/string_utils.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -26,12 +27,15 @@ SiloMed::SiloMed()
     Fixed range90 = Fixed( 90 ) / gameScale;
     m_states[0]->m_actionRange = range90;
     m_states[1]->m_actionRange = range90;
+
+    
+    m_states[1]->m_stateName = newStr( LANGUAGEPHRASE("state_silomednuke") );
 }
 
 Fixed SiloMed::GetNukeLaunchRange() const
 {
     Fixed gameScale = World::GetUnitScaleFactor();
-    return Fixed( 45 ) / gameScale;
+    return Fixed( 90 ) / gameScale;
 }
 
 int SiloMed::IsValidCombatTarget( int _objectId )

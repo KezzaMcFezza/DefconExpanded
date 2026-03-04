@@ -442,32 +442,32 @@ int World::GetTerritoryPopulation( int territoryId )
 {
     switch( territoryId )
     {
-        case TerritoryUSA:              return 322730596;
-        case TerritoryNATO:              return 465337674;
-        case TerritoryAustralia:         return 27723120;
-        case TerritoryBrazil:            return 194510538;
-        case TerritoryChina:             return 963747522;
-        case TerritoryEgypt:             return 48411691;
-        case TerritoryIndia:             return 543094109;
-        case TerritoryIndonesia:         return 170289856;
-        case TerritoryIran:              return 67742160;
-        case TerritoryIsrael:             return 8698703;
-        case TerritoryKorea:              return 42573631;
-        case TerritoryJapan:              return 114609338;
-        case TerritoryNeutralAfrica:      return 540362512;
-        case TerritoryNeutralAmerica:     return 360844333;
-        case TerritoryNeutralAsia:        return 144746636;
-        case TerritoryNeutralEurope:      return 255933579;
-        case TerritoryNorthKorea:         return 16819465;
-        case TerritoryPakistan:           return 87795526;
-        case TerritoryPhilippines:        return 57575972;
-        case TerritoryRussia:             return 115592021;
-        case TerritorySaudi:              return 41036883;
-        case TerritorySouthAfrica:        return 43121714;
-        case TerritoryTaiwan:             return 19414746;
-        case TerritoryThailand:           return 38316626;
-        case TerritoryUkraine:            return 29936928;
-        case TerritoryVietnam:            return 42061790;
+        case TerritoryUSA:            return 387036510;
+        case TerritoryNATO:           return 601468018;
+        case TerritoryAustralia:      return 32160700;
+        case TerritoryBrazil:         return 212583750;
+        case TerritoryChina:          return 1413196000;
+        case TerritoryEgypt:          return 109262178;
+        case TerritoryIndia:          return 1463865536;
+        case TerritoryIndonesia:      return 280000000;
+        case TerritoryIran:           return 88620000;
+        case TerritoryIsrael:         return 10019000;
+        case TerritoryKorea:          return 51220000;
+        case TerritoryJapan:          return 124100000;
+        case TerritoryNeutralAfrica:  return 1195253778;
+        case TerritoryNeutralAmerica: return 451629595;
+        case TerritoryNeutralAsia:    return 399712527;
+        case TerritoryNeutralEurope:  return 347962000;
+        case TerritoryNorthKorea:     return 26200000;
+        case TerritoryPakistan:       return 241490000;
+        case TerritoryPhilippines:    return 117337368;
+        case TerritoryRussia:         return 160250789;
+        case TerritorySaudi:          return 66517025;
+        case TerritorySouthAfrica:    return 62027503;
+        case TerritoryTaiwan:         return 23400000;
+        case TerritoryThailand:       return 71801279;
+        case TerritoryUkraine:        return 29580000;
+        case TerritoryVietnam:        return 100300000;
         default:                         return 50000000;
     }
 }
@@ -730,10 +730,10 @@ void World::AssignCities()
                 Fixed distanceSqd = (Vector3<Fixed>(city->m_longitude, city->m_latitude,0) -
                                   Vector3<Fixed>(thisCity->m_longitude, thisCity->m_latitude,0)).MagSquared();
 
-                // Option index: 0=0, 1=0.1, 2=0.5, 3=1, 4=2 degrees
-                static const Fixed minCityDistValues[] = { 0, Fixed::FromDouble(0.1), Fixed::FromDouble(0.5), 1, 2 };
+                // Option index: 0=0, 1=0.1, 2=0.2, 3=0.5, 4=1, 5=2 degrees
+                static const Fixed minCityDistValues[] = { 0, Fixed::FromDouble(0.1), Fixed::FromDouble(0.2), Fixed::FromDouble(0.5), 1, 2 };
                 int minCityDistIdx = g_app->GetGame()->GetOptionValue("MinCityPlacementDistance");
-                Fixed minCityDist = minCityDistValues[minCityDistIdx >= 0 && minCityDistIdx < 5 ? minCityDistIdx : 1];
+                Fixed minCityDist = minCityDistValues[minCityDistIdx >= 0 && minCityDistIdx < 6 ? minCityDistIdx : 2];
                 if( minCityDist > 0 && distanceSqd < minCityDist * minCityDist )
                 {
                     // Too near - discard lowest pop
@@ -1758,7 +1758,7 @@ void World::LaunchCBM( int teamId, int objId, Fixed longitude, Fixed latitude, F
         cbm->LockTarget();
     else
         cbm->SetTargetObjectId( targetObjectId );
-    cbm->m_range = range;
+    cbm->m_range = Fixed::MAX;  // CBM uses miss time like LACM, not fuel range
 
     AddWorldObject( cbm );
 
@@ -2053,9 +2053,42 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
     
 
     //
-    // Only nuclear explosions damage other units (match Thundy: intensity > 90).
-    // Unit-death explosions (gunfire, LACM, depth charge visual) must not cause cascade damage.
-    if( intensity > 90 )
+    // Nuclear (intensity > 90): splash damage. Conventional (20-90): direct impact damage for LACM/CBM.
+    // Unit-death explosions (gunfire) use intensity 10 - no area damage.
+    if( intensity >= 20 && intensity <= 90 && !isNuclear )
+    {
+        // LACM/CBM: point-blank only - effectively the struck unit (intensity 30 = range 0.15)
+        Fixed range = intensity / Fixed(200);
+        if( range < Fixed::Hundredths(10) ) range = Fixed::Hundredths(10);
+        for( int i = 0; i < m_objects.Size(); ++i )
+        {
+            if( !m_objects.ValidIndex(i) ) continue;
+            WorldObject *wobj = m_objects[i];
+            // LACM/CBM never damage missiles - only surface targets (buildings, ships)
+            if( !wobj->IsBallisticMissileClass() && !wobj->IsCruiseMissileClass() && !wobj->IsAircraft() &&
+                wobj->m_type != WorldObject::TypeExplosion &&
+                wobj->m_life > 0 &&
+                GetDistance( longitude, latitude, wobj->m_longitude, wobj->m_latitude ) <= range )
+            {
+                int damage = 1;
+                if( wobj->IsTargetableSurfaceNavy() ) damage = 3;  // CBM vs ships
+                wobj->m_life -= damage;
+                wobj->m_life = ( wobj->m_life > 0 ) ? wobj->m_life : 0;
+                wobj->m_lastHitByTeamId = teamId;
+                if( wobj->IsAircraftLauncher() )
+                    wobj->MaybeRemoveRandomStoredAircraft();
+                if( wobj->m_life <= 0 && !wobj->IsCruiseMissileClass() )
+                    AddDestroyedMessage( expId, wobj->m_objectId, false );
+            }
+        }
+        for( int i = 0; i < m_cities.Size(); ++i )
+        {
+            City *city = m_cities[i];
+            if( GetDistance( longitude, latitude, city->m_longitude, city->m_latitude ) <= range )
+                city->NuclearStrike( teamId, Fixed(10), Fixed(0), true );  // Light conventional strike (~2.5% pop)
+        }
+    }
+    else if( intensity > 90 )
     {
         for( int i = 0; i < m_objects.Size(); ++i )
         {
@@ -2063,6 +2096,7 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
             {
                 WorldObject *wobj = m_objects[i];
 
+                // Nuke splash damages LACM but not CBM (IsBallisticMissileClass = Nuke, CBM)
                 if( !wobj->IsBallisticMissileClass() &&
                     wobj->m_type != WorldObject::TypeExplosion &&
                     wobj->m_life > 0 &&
@@ -2075,7 +2109,13 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
                             damageDone = 0;  // submerged (hidden) subs take no nuke splash damage
                         if( damageDone > 0 )
                         {
-                            wobj->m_life = 0;
+                            if( wobj->IsTargetableSurfaceNavy() )
+                            {
+                                wobj->m_life -= damageDone;  // Ships take 1 damage (CBM does 3)
+                                wobj->m_life = max( wobj->m_life, 0 );
+                            }
+                            else
+                                wobj->m_life = 0;  // Aircraft, LACM: instant kill
                             wobj->m_lastHitByTeamId = teamId;
                         }
                     }
@@ -2089,6 +2129,7 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
                     }
 
                     if( !wobj->IsMovingObject() &&
+                        !wobj->IsCruiseMissileClass() &&
                         wobj->m_life <= 0 )
                     {
                         AddDestroyedMessage( expId, wobj->m_objectId, true );
@@ -2424,6 +2465,10 @@ void World::AddDestroyedMessage( int attackerId, int defenderId, bool explosion 
 {    
     WorldObject *attacker = NULL;
     WorldObject *defender = GetWorldObject( defenderId );
+
+    // Only announce destruction of buildings, not cruise missiles or other mobile units
+    if( !defender || !defender->IsBuilding() )
+        return;
 
     if( explosion )
     {
@@ -3591,6 +3636,61 @@ Fixed World::GetDistance( Fixed const &fromLongitude, Fixed const &fromLatitude,
 }
 
 
+Fixed World::GetGreatCircleDistance( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude )
+{
+    Fixed lon1 = fromLongitude, lon2 = toLongitude;
+    SanitiseTargetLongitude( fromLongitude, lon2 );
+    double lat1 = fromLatitude.DoubleValue() * M_PI / 180.0;
+    double lat2 = toLatitude.DoubleValue() * M_PI / 180.0;
+    double lon1r = lon1.DoubleValue() * M_PI / 180.0;
+    double lon2r = lon2.DoubleValue() * M_PI / 180.0;
+    double dlat = lat2 - lat1;
+    double dlon = lon2r - lon1r;
+    double a = sin(dlat/2)*sin(dlat/2) + cos(lat1)*cos(lat2)*sin(dlon/2)*sin(dlon/2);
+    double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
+    return Fixed::FromDouble( c * 180.0 / M_PI );
+}
+
+
+void World::GetGreatCirclePosition( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude,
+                                    Fixed progress, Fixed &outLongitude, Fixed &outLatitude )
+{
+    Fixed lon2 = toLongitude;
+    SanitiseTargetLongitude( fromLongitude, lon2 );
+    double lat1 = fromLatitude.DoubleValue() * M_PI / 180.0;
+    double lat2 = toLatitude.DoubleValue() * M_PI / 180.0;
+    double lon1 = fromLongitude.DoubleValue() * M_PI / 180.0;
+    double lon2r = lon2.DoubleValue() * M_PI / 180.0;
+    double t = progress.DoubleValue();
+    if( t <= 0.0 ) { outLongitude = fromLongitude; outLatitude = fromLatitude; return; }
+    if( t >= 1.0 ) { outLongitude = toLongitude; outLatitude = toLatitude; return; }
+    double x1 = cos(lat1)*cos(lon1), y1 = cos(lat1)*sin(lon1), z1 = sin(lat1);
+    double x2 = cos(lat2)*cos(lon2r), y2 = cos(lat2)*sin(lon2r), z2 = sin(lat2);
+    double dot = x1*x2 + y1*y2 + z1*z2;
+    if( dot > 0.99999 ) {
+        outLongitude = Fixed::FromDouble( fromLongitude.DoubleValue() + t * (lon2.DoubleValue() - fromLongitude.DoubleValue()) );
+        outLatitude = Fixed::FromDouble( fromLatitude.DoubleValue() + t * (toLatitude.DoubleValue() - fromLatitude.DoubleValue()) );
+        return;
+    }
+    if( dot < -0.99999 ) {
+        outLongitude = Fixed::FromDouble( fromLongitude.DoubleValue() + t * (lon2.DoubleValue() - fromLongitude.DoubleValue()) );
+        outLatitude = Fixed::FromDouble( fromLatitude.DoubleValue() + t * (toLatitude.DoubleValue() - fromLatitude.DoubleValue()) );
+        return;
+    }
+    double omega = acos( dot );
+    double sinOm = sin( omega );
+    double a = sin((1.0-t)*omega) / sinOm;
+    double b = sin(t*omega) / sinOm;
+    double x = a*x1 + b*x2, y = a*y1 + b*y2, z = a*z1 + b*z2;
+    double outLat = atan2( z, sqrt(x*x + y*y) );
+    double outLon = atan2( y, x );
+    outLongitude = Fixed::FromDouble( outLon * 180.0 / M_PI );
+    outLatitude = Fixed::FromDouble( outLat * 180.0 / M_PI );
+    while( outLongitude < Fixed(-180) ) outLongitude += Fixed(360);
+    while( outLongitude > Fixed(180) ) outLongitude -= Fixed(360);
+}
+
+
 void World::SanitiseTargetLongitude( Fixed const &fromLongitude, Fixed &toLongitude )
 {
     // Pick shortest path across seam for euclidean steering
@@ -3843,8 +3943,25 @@ void World::GetNumLACMs( int objectId, int *inFlight, int *queued )
         WorldObject *obj = m_objects[i];
         if( obj->m_teamId == m_myTeamId )
         {
-            // Queued: battleship LACM (state 1), future conventional ballistic
-            if( obj->IsBattleShipClass() && obj->m_currentState == 1 )
+            // Queued: battleship LACM (state 1), bomber/fighter/sub LACM, airbase/carrier in LACM launch mode, SiloMobileCon CBM
+            bool launcherInLACMMode = false;
+            if( obj->IsAircraftLauncher() && obj->m_states.Size() > 0 )
+            {
+                int s = obj->m_currentState;
+                bool stateIsLACM = false;
+                if( obj->IsAirbaseClass() )
+                    stateIsLACM = (s >= 1 && s <= 13 && (s & 1));  // Strike fighters 1,3,5,7; ALCM bombers 9,11,13
+                else if( obj->IsCarrierClass() )
+                    stateIsLACM = (s == 1 || s == 3);  // Strike fighters only
+                if( stateIsLACM && obj->m_states.ValidIndex(s) && obj->m_states[s]->m_numTimesPermitted > 0 )
+                    launcherInLACMMode = true;
+            }
+            bool hasLACMQueue = ( obj->IsBattleShipClass() && obj->m_currentState == 1 ) ||
+                ( obj->IsBomberClass() && obj->m_states.Size() > 2 && obj->m_states[2]->m_numTimesPermitted > 0 ) ||
+                ( obj->IsFighterClass() && obj->m_states.Size() > 1 && obj->m_states[1]->m_numTimesPermitted > 0 ) ||
+                ( obj->m_type == WorldObject::TypeSubC && obj->m_states.Size() > 3 && obj->m_states[3]->m_numTimesPermitted > 0 ) ||
+                launcherInLACMMode;
+            if( hasLACMQueue )
             {
                 for( int j = 0; j < obj->m_actionQueue.Size(); ++j )
                 {
@@ -3864,8 +3981,17 @@ void World::GetNumLACMs( int objectId, int *inFlight, int *queued )
                     }
                 }
             }
+            if( obj->m_type == WorldObject::TypeSiloMobileCon )
+            {
+                for( int j = 0; j < obj->m_actionQueue.Size(); ++j )
+                {
+                    ActionOrder *action = obj->m_actionQueue[j];
+                    if( action->m_targetObjectId == objectId )
+                        (*queued)++;
+                }
+            }
 
-            // In flight: LACM, future conventional ballistic
+            // In flight: LACM, CBM (conventional ballistic - use LACM icon)
             if( obj->m_type == WorldObject::TypeLACM )
             {
                 if( obj->m_targetObjectId == objectId )
@@ -3881,6 +4007,10 @@ void World::GetNumLACMs( int objectId, int *inFlight, int *queued )
                     if( longitude == tgtLong && mov->m_targetLatitude == wobj->m_latitude )
                         (*inFlight)++;
                 }
+            }
+            if( obj->m_type == WorldObject::TypeCBM && obj->m_targetObjectId == objectId )
+            {
+                (*inFlight)++;
             }
         }
     }

@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "lib/resource/resource.h"
+#include "lib/string_utils.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
 
@@ -32,6 +33,9 @@ SiloMobile::SiloMobile()
     m_states[1]->m_radarearly2Range = m_states[1]->m_radarRange * Fixed::FromDouble( 2.0 );
     m_states[1]->m_radarstealth1Range = m_states[1]->m_radarRange * Fixed::FromDouble( 0.33 );
     m_states[1]->m_radarstealth2Range = m_states[1]->m_radarRange * Fixed::FromDouble( 0.66 );
+
+    
+    m_states[1]->m_stateName = newStr( LANGUAGEPHRASE("state_silonuke") );
 }
 
 

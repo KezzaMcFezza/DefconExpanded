@@ -2068,12 +2068,15 @@ void MapRenderer::RenderMouse()
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         // Render order lines for all selected units, not just primary selection and its fleet
+        // Show action range (maxRanges) for primary selection so user can see limit when placing orders
+        int primarySelectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
         for( int s = 0; s < g_app->GetWorldRenderer()->GetSelectionCount(); ++s )
         {
             WorldObject *selObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetSelectedId( s ) );
             if( selObj )
             {
-                RenderWorldObjectTargets( selObj, false );
+                bool showRanges = ( selObj->m_objectId == primarySelectionId );
+                RenderWorldObjectTargets( selObj, showRanges );
             }
         }
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -3079,7 +3082,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, -iconSize, col, 0 );
+                    g_renderer2d->StaticSprite( img, wobj->m_longitude.DoubleValue() - iconSize/2, wobj->m_latitude.DoubleValue() + iconSize/2, iconSize, -iconSize, col );
 
                     if( wobj->m_numNukesInQueue )
                     {
@@ -3109,7 +3112,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer2d->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, -iconSize, col, 0 );
+                    g_renderer2d->StaticSprite( img, wobj->m_longitude.DoubleValue() - iconSize/2, wobj->m_latitude.DoubleValue() + iconSize/2, iconSize, -iconSize, col );
 
                     if( wobj->m_numLACMInQueue )
                     {
@@ -3779,7 +3782,7 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
 
     float zf = fmaxf( g_app->GetMapRenderer()->GetZoomFactor(), 0.001f );
     float t = fminf( 1.0f, (1.0f - zf) / 0.999f );
-    float sizeMult = 0.75f + 2.25f * t;
+    float sizeMult = 0.66f + 3.00f * t;
     nearest *= Fixed::FromDouble( zf * sizeMult );
 
     float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
@@ -4868,6 +4871,7 @@ void MapRenderer::Update()
                     bool hasValidCombatTarget = false;
                     bool hasLandTarget = false;
                     bool hasSelectedBomber = false;
+                    bool hasSelectedStrikeFighter = false;
                     for( int si = 0; si < selCount; ++si )
                     {
                         int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
@@ -4875,6 +4879,9 @@ void MapRenderer::Update()
                         if( obj )
                         {
                             if( obj->IsBomberClass() ) hasSelectedBomber = true;
+                            if( obj->IsFighterClass() && obj->m_states.Size() > 1 &&
+                                obj->m_states[1]->m_numTimesPermitted > 0 )
+                                hasSelectedStrikeFighter = true;
                             int combatResult = obj->IsValidCombatTarget( underMouseId );
                             if( ( combatResult == WorldObject::TargetTypeLand ||
                                   combatResult == WorldObject::TargetTypePursue ) && obj->IsAircraft() )
@@ -4891,12 +4898,55 @@ void MapRenderer::Update()
                         }
                     }
                     float clickDuration = GetHighResTime() - m_lmbClickStartTime;
-                    bool longClickOnAirbase = ( clickDuration > 0.5f && hasSelectedBomber &&
+                    bool longClickOnFriendlyCarrierWithBombers = ( clickDuration >= 0.35f && hasSelectedBomber &&
+                        underMouse->IsCarrierClass() &&
+                        g_app->GetWorld()->IsFriend( g_app->GetWorld()->m_myTeamId, underMouse->m_teamId ) );
+                    bool longClickOnAirbase = ( clickDuration >= 0.35f && hasSelectedBomber &&
+                        hasLandTarget && underMouse->IsAirbaseClass() &&
+                        g_app->GetWorld()->IsFriend( g_app->GetWorld()->m_myTeamId, underMouse->m_teamId ) );
+                    bool longClickOnLandingPadWithStrikeFighters = ( clickDuration >= 0.35f && hasSelectedStrikeFighter &&
                         hasLandTarget && underMouse->IsAircraftLauncher() &&
                         g_app->GetWorld()->IsFriend( g_app->GetWorld()->m_myTeamId, underMouse->m_teamId ) );
-                    if( longClickOnAirbase )
+                    bool longClickOnEnemyLandingPadWithStrikeFighters = ( clickDuration >= 0.35f && hasSelectedStrikeFighter &&
+                        underMouse->IsAircraftLauncher() &&
+                        !g_app->GetWorld()->IsFriend( g_app->GetWorld()->m_myTeamId, underMouse->m_teamId ) );
+                    if( longClickOnFriendlyCarrierWithBombers )
+                    {
+                        for( int si = 0; si < selCount; ++si )
+                        {
+                            int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                            if( obj && obj->IsBomberClass() )
+                            {
+                                g_app->GetClientToServer()->RequestSpecialAction(
+                                    recId, underMouseId, World::SpecialActionForceAttack );
+                            }
+                        }
+                        g_soundSystem->TriggerEvent( "Interface", "SetCombatTarget" );
+                    }
+                    else if( longClickOnAirbase )
                     {
                         HandleObjectAction( longitude, latitude, -1 );
+                    }
+                    else if( longClickOnEnemyLandingPadWithStrikeFighters )
+                    {
+                        HandleObjectAction( longitude, latitude, underMouseId );
+                    }
+                    else if( longClickOnLandingPadWithStrikeFighters )
+                    {
+                        // Attack the friendly airbase/carrier (same as bomber on carrier)
+                        for( int si = 0; si < selCount; ++si )
+                        {
+                            int recId = g_app->GetWorldRenderer()->GetSelectedId( si );
+                            WorldObject *obj = g_app->GetWorld()->GetWorldObject( recId );
+                            if( obj && obj->IsFighterClass() && obj->m_states.Size() > 1 &&
+                                obj->m_states[1]->m_numTimesPermitted > 0 )
+                            {
+                                g_app->GetClientToServer()->RequestSpecialAction(
+                                    recId, underMouseId, World::SpecialActionForceAttack );
+                            }
+                        }
+                        g_soundSystem->TriggerEvent( "Interface", "SetCombatTarget" );
                     }
                     else if( hasValidCombatTarget || hasLandTarget )
                     {

@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "lib/resource/resource.h"
+#include "lib/string_utils.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"

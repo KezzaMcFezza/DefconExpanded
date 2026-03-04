@@ -2292,6 +2292,8 @@ void App::SetGlobeMode( bool globeMode )
 
         globe->SetCameraPosition(map->m_middleX, map->m_middleY, distance);
         globe->m_targetCameraDistance = distance;
+        globe->m_cameraTilt = 0.0f;
+        globe->m_cameraTiltEW = 0.0f;  // Reset to top-down when switching from 2D
     }
     else
     {

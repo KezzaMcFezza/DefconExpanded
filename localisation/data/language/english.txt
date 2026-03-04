@@ -1306,7 +1306,7 @@ style_FontPopup                     Font Popup
 unit_silo                           ICBM SILO
 unit_silomed                        MRBM SILO
 unit_silomobile                     ICBM TEL
-unit_silomobilecon                  CONV. MRBM TEL
+unit_silomobilecon                  MRBM TEL
 unit_ascm                           ASCM BATTERY
 unit_sam                            SAM
 unit_abm                            ABM

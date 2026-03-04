@@ -75,7 +75,7 @@ void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float 
 }
 
 
-void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush )
+void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush, bool flipVertical )
 {
 	FlushRotatingSprite3DIfFull( 6 );
 
@@ -92,6 +92,12 @@ void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float 
 	float u1, v1, u2, v2;
 
 	g_renderer->GetImageUVCoords( src, u1, v1, u2, v2 );
+	if ( flipVertical )
+	{
+		float tmp = v1;
+		v1 = v2;
+		v2 = tmp;
+	}
 
 	Vector3<float> position( x, y, z );
 	Vertex3DTextured billboardVertices[6];

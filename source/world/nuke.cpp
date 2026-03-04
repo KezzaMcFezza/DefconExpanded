@@ -99,14 +99,9 @@ void Nuke::SetWaypoint( Fixed longitude, Fixed latitude )
     m_launchposition_x = m_longitude;
     m_launchposition_y = m_latitude;
 
-    // Latitude-corrected distance for projection (great circle approximation on flat map)
-    Vector3<Fixed> target( m_targetLongitude, m_targetLatitude, 0 );
-    Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
-    Fixed latFactor = Fixed(90) - ((m_latitude.abs() + m_targetLatitude.abs()) / 2);
-    if( latFactor < Fixed(15) ) latFactor = Fixed(15);
-    Fixed dx = (target.x - pos.x) * (Fixed(90) / latFactor);
-    Fixed dy = target.y - pos.y;
-    m_totalDistance = Fixed::FromDouble(sqrt((dx*dx + dy*dy).DoubleValue()));
+    // True great circle arc length (degrees) - missile follows this exactly for fixed targets
+    m_totalDistance = g_app->GetWorld()->GetGreatCircleDistance(
+        m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
 
     // Curve direction (east/west)
     m_curveDirection = (m_targetLongitude >= m_longitude) ? Fixed(1) : Fixed(-1);
@@ -187,47 +182,6 @@ bool Nuke::Update()
 
     Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
 
-    //
-    // Move towards target along great circle path (shortest distance on globe)
-    // Use wrapped target longitude for direction so (target - pos) points the short way across the date line.
-    // Use GetDistance for remaining distance so fractionDistance and impact check are correct.
-    //
-
-    Fixed wrappedTargetLon = m_targetLongitude;
-    g_app->GetWorld()->SanitiseTargetLongitude( m_longitude, wrappedTargetLon );
-
-    // Direction target = waypoint + lead (CBM sets lead for interception; impact remains at waypoint)
-    Vector3<Fixed> target( wrappedTargetLon + m_directionLeadLon, m_targetLatitude + m_directionLeadLat, 0 );
-    Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
-    Vector3<Fixed> front = (target - pos).Normalise();
-
-    Fixed remainingDistance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
-    Fixed fractionDistance = m_totalDistance > 0 ? 1 - remainingDistance / m_totalDistance : Fixed::Hundredths(50);
-
-    // Great circle curve: rotate direction toward pole based on hemisphere.
-    // m_curveDirection is preserved when near longitude crossing (in UpdateWaypoint) so the path
-    // continues smoothly instead of oscillating or snapping straight.
-    Fixed latCurveFactor = Fixed(5) * m_latitude.abs() / Fixed(90);
-    if( latCurveFactor < Fixed(3) ) latCurveFactor = Fixed(3);
-    front.RotateAroundZ( Fixed::PI / (latCurveFactor * m_curveDirection * m_curveLatitude) );
-    front.RotateAroundZ( fractionDistance * (-m_curveDirection * m_curveLatitude * Fixed::PI / latCurveFactor) );
-
-    // Smoothly curve toward desired direction using m_turnRate. When crossing equal longitude
-    // (N-S approach), blend more slowly so the path follows the great-circle curve instead of
-    // snapping and oscillating east-west.
-    Vector3<Fixed> desiredFront = front;
-    if( m_vel.MagSquared() > Fixed::Hundredths(1) )
-    {
-        Vector3<Fixed> currentDir = m_vel.Normalized();
-        Fixed lonDiff = (m_targetLongitude - m_longitude).abs();
-        Fixed turnMult = (lonDiff < Fixed(2)) ? Fixed(5) : Fixed(20);  // Slower turn when N-S
-        Fixed factor1 = m_turnRate * timePerUpdate * turnMult;
-        if( factor1 > Fixed(1) ) factor1 = Fixed(1);
-        Fixed factor2 = Fixed(1) - factor1;
-        front = ( desiredFront * factor1 ) + ( currentDir * factor2 );
-        front.Normalise();
-    }
-
     // Latitude speed: near poles, same real speed = more map degrees per tick
     Fixed latitudeFactor = Fixed(90) - m_latitude.abs();
     if( latitudeFactor < Fixed(10) ) latitudeFactor = Fixed(10);
@@ -243,11 +197,90 @@ bool Nuke::Update()
         actualSpeed = m_speed * boostFactor;
     }
 
-    m_vel = front * (actualSpeed * speedMultiplier);
+    Fixed remainingDistance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
 
-    Fixed newLongitude = m_longitude + m_vel.x * timePerUpdate;
-    Fixed newLatitude = m_latitude + m_vel.y * timePerUpdate;
-    Fixed newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude);
+    Fixed newLongitude, newLatitude, newDistance;
+    Fixed arcThisTick;
+    // Use great circle for fixed targets: no object, or object doesn't move (city, silo, etc)
+    WorldObject *targetObj = (m_targetObjectId != -1) ? g_app->GetWorld()->GetWorldObject( m_targetObjectId ) : 0;
+    bool targetIsFixed = (m_targetObjectId == -1) || (targetObj && !targetObj->IsMovingObject());
+
+    // CBM: treat stationary ships as fixed - use great circle for accurate hit (steering path overshoots)
+    if( m_type == WorldObject::TypeCBM && targetObj && targetObj->IsTargetableSurfaceNavy() )
+    {
+        MovingObject *mo = static_cast<MovingObject *>(targetObj);
+        if( mo->m_vel.MagSquared() < Fixed::Hundredths(1) )
+            targetIsFixed = true;
+    }
+
+    bool useGreatCircle = targetIsFixed && (m_totalDistance > Fixed::Hundredths(1));
+
+    if( useGreatCircle )
+    {
+        // Fixed target: move along true great circle. Position is exact, no steering drift.
+        arcThisTick = actualSpeed * speedMultiplier * timePerUpdate;
+        Fixed newTraveled = m_distanceTraveled + arcThisTick;
+        Fixed progress = (m_totalDistance > 0) ? (newTraveled / m_totalDistance) : Fixed(1);
+        if( progress >= Fixed(1) )
+        {
+            // Arrived exactly at waypoint on great circle - impact immediately
+            m_longitude = m_targetLongitude;
+            m_latitude = m_targetLatitude;
+            m_targetLongitude = 0;
+            m_targetLatitude = 0;
+            m_vel.Zero();
+            OnImpact();
+#ifdef TOGGLE_SOUND
+            g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
+#endif
+            return true;
+        }
+        else
+        {
+            g_app->GetWorld()->GetGreatCirclePosition(
+                m_launchposition_x, m_launchposition_y,
+                m_targetLongitude, m_targetLatitude,
+                progress, newLongitude, newLatitude );
+            newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude );
+        }
+        // Velocity for rendering: tangent direction
+        if( arcThisTick > Fixed::Hundredths(1) )
+        {
+            m_vel.x = (newLongitude - m_longitude) / timePerUpdate;
+            m_vel.y = (newLatitude - m_latitude) / timePerUpdate;
+        }
+    }
+    else
+    {
+        // Moving target (CBM vs ship): steer toward waypoint + lead
+        Fixed wrappedTargetLon = m_targetLongitude;
+        g_app->GetWorld()->SanitiseTargetLongitude( m_longitude, wrappedTargetLon );
+        Vector3<Fixed> target( wrappedTargetLon + m_directionLeadLon, m_targetLatitude + m_directionLeadLat, 0 );
+        Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
+        Vector3<Fixed> front = (target - pos).Normalise();
+        Fixed fractionDistance = m_totalDistance > 0 ? 1 - remainingDistance / m_totalDistance : Fixed::Hundredths(50);
+        Fixed latCurveFactor = Fixed(5) * m_latitude.abs() / Fixed(90);
+        if( latCurveFactor < Fixed(3) ) latCurveFactor = Fixed(3);
+        front.RotateAroundZ( Fixed::PI / (latCurveFactor * m_curveDirection * m_curveLatitude) );
+        front.RotateAroundZ( fractionDistance * (-m_curveDirection * m_curveLatitude * Fixed::PI / latCurveFactor) );
+        Vector3<Fixed> desiredFront = front;
+        if( m_vel.MagSquared() > Fixed::Hundredths(1) )
+        {
+            Vector3<Fixed> currentDir = m_vel.Normalized();
+            Fixed lonDiff = (m_targetLongitude - m_longitude).abs();
+            Fixed turnMult = (lonDiff < Fixed(2)) ? Fixed(5) : Fixed(20);
+            Fixed factor1 = m_turnRate * timePerUpdate * turnMult;
+            if( factor1 > Fixed(1) ) factor1 = Fixed(1);
+            Fixed factor2 = Fixed(1) - factor1;
+            front = ( desiredFront * factor1 ) + ( currentDir * factor2 );
+            front.Normalise();
+        }
+        m_vel = front * (actualSpeed * speedMultiplier);
+        newLongitude = m_longitude + m_vel.x * timePerUpdate;
+        newLatitude = m_latitude + m_vel.y * timePerUpdate;
+        newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude );
+        arcThisTick = Vector3<Fixed>( m_vel.x * Fixed(timePerUpdate), m_vel.y * Fixed(timePerUpdate), 0 ).Mag();
+    }
 
     if( newLongitude <= -180 ||
         newLongitude >= 180 )
@@ -266,7 +299,7 @@ bool Nuke::Update()
         Fixed distToWaypoint = g_app->GetWorld()->GetDistance( newLongitude, newLatitude,
             m_targetLongitude, m_targetLatitude );
         bool overshot = newDistance >= remainingDistance;
-        if( distToWaypoint < 1 && overshot )
+        if( distToWaypoint < Fixed::Hundredths(20) && overshot )
         {
             m_longitude = m_targetLongitude;
             m_latitude  = m_targetLatitude;
@@ -282,12 +315,13 @@ bool Nuke::Update()
     }
 
     // Impact when we've reached or overshot the waypoint.
-    bool reachedWaypoint = newDistance < 1;
+    // Use tight threshold (0.2) so missile must get close before impacting - lands at waypoint.
+    bool reachedWaypoint = newDistance < Fixed::Hundredths(20);
     bool overshot = newDistance >= remainingDistance;
     if( reachedWaypoint && overshot )
     {
-        m_longitude = newLongitude;
-        m_latitude = newLatitude;
+        m_longitude = m_targetLongitude;
+        m_latitude = m_targetLatitude;
         m_targetLongitude = 0;
         m_targetLatitude = 0;
         m_vel.Zero();
@@ -306,7 +340,7 @@ bool Nuke::Update()
 			m_lastHitByTeamId = -1;
             g_app->GetWorld()->AddOutOfFueldMessage( m_objectId );
         }
-        m_distanceTraveled += Vector3<Fixed>( m_vel.x * Fixed(timePerUpdate), m_vel.y * Fixed(timePerUpdate), 0 ).Mag();
+        m_distanceTraveled += arcThisTick;
         m_longitude = newLongitude;
         m_latitude = newLatitude;
     }
@@ -500,7 +534,18 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
 
 void Nuke::OnImpact()
 {
-    g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 100, -1, true );
+    // Position already set to waypoint by Update() before calling - explosion at target (consistent with CBM/LACM)
+    int targetTeamId = -1;
+    if( m_targetObjectId != -1 )
+    {
+        WorldObject *targetObj = g_app->GetWorld()->GetWorldObject( m_targetObjectId );
+        if( targetObj && targetObj->m_life > 0 )
+        {
+            targetTeamId = targetObj->m_teamId;
+            targetObj->Retaliate( -1 );
+        }
+    }
+    g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 100, targetTeamId, true );
 }
 
 void Nuke::CeaseFire( int teamId )

@@ -454,7 +454,7 @@ public:
     void FlushStaticSprites3DIfFull(int verticesNeeded);
     
     void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, bool immediateFlush = false);
-    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush = false);
+    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush = false, bool flipVertical = false);
     void BeginRotatingSpriteBatch3D ();
     void EndRotatingSpriteBatch3D   ();
     void FlushRotatingSprite3DIfFull(int verticesNeeded);

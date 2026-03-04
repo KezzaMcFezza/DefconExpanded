@@ -26,31 +26,86 @@ OBJECT Bunker
 		RELEASE            PARAMETER TypeFixedValue        4.84  UpdateConstantly
 		LOOPDELAY          PARAMETER TypeRangedRandom      9.10    15.10     0.00  UpdateOncePerLoop
 	END
+	EVENT StartAmbience       
+		SOUNDNAME          customeffect
+		SOURCETYPE         1
+		POSITIONTYPE       4
+		INSTANCETYPE       0
+		LOOPTYPE           2
+		MINDISTANCE        92.27
+		VOLUME             PARAMETER TypeFixedValue        6.00  UpdateConstantly
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateConstantly
+		ATTACK             PARAMETER TypeFixedValue        3.68  UpdateConstantly
+		SUSTAIN            PARAMETER TypeFixedValue       -4.84  UpdateConstantly
+		RELEASE            PARAMETER TypeFixedValue        4.84  UpdateConstantly
+		LOOPDELAY          PARAMETER TypeRangedRandom      30.00    9.10    0.00  UpdateOncePerLoop
+	END
+	EVENT StartAmbience       
+		SOUNDNAME          fighteramb
+		SOURCETYPE         1
+		POSITIONTYPE       4
+		INSTANCETYPE       0
+		LOOPTYPE           2
+		MINDISTANCE        60.10
+		VOLUME             PARAMETER TypeFixedValue        6.00  UpdateConstantly
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateConstantly
+		ATTACK             PARAMETER TypeFixedValue        3.68  UpdateConstantly
+		SUSTAIN            PARAMETER TypeFixedValue       -4.84  UpdateConstantly
+		RELEASE            PARAMETER TypeFixedValue        4.84  UpdateConstantly
+		LOOPDELAY          PARAMETER TypeRangedRandom      22.00    10.10    0.00  UpdateOncePerLoop
+	END
+	EVENT StartAmbience       
+		SOUNDNAME          siloamb
+		SOURCETYPE         1
+		POSITIONTYPE       4
+		INSTANCETYPE       0
+		LOOPTYPE           2
+		MINDISTANCE        92.27
+		VOLUME             PARAMETER TypeFixedValue        8.00  UpdateConstantly
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateConstantly
+		ATTACK             PARAMETER TypeFixedValue        3.68  UpdateConstantly
+		SUSTAIN            PARAMETER TypeFixedValue       -4.84  UpdateConstantly
+		RELEASE            PARAMETER TypeFixedValue        4.84  UpdateConstantly
+		LOOPDELAY          PARAMETER TypeRangedRandom      600.00    120.00    0.00  UpdateOncePerLoop
+	END
 END
 
 
 # =========================================================
 OBJECT Object_carrier
+	EVENT StartAmbience       
+		SOUNDNAME          carrieramb
+		SOURCETYPE         1
+		POSITIONTYPE       4
+		INSTANCETYPE       0
+		LOOPTYPE           2
+		MINDISTANCE        92.27
+		VOLUME             PARAMETER TypeFixedValue        2.00  UpdateConstantly
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateConstantly
+		ATTACK             PARAMETER TypeFixedValue        3.68  UpdateConstantly
+		SUSTAIN            PARAMETER TypeFixedValue       -4.84  UpdateConstantly
+		RELEASE            PARAMETER TypeFixedValue        4.84  UpdateConstantly
+		LOOPDELAY          PARAMETER TypeRangedRandom      20.00    9.10    15.10     0.00  UpdateOncePerLoop
+	END
 	EVENT SonarPing           
 		SOUNDNAME          sonar
 		SOURCETYPE         1
 		POSITIONTYPE       1
 		INSTANCETYPE       0
 		LOOPTYPE           0
-		MINDISTANCE        1.00
-		VOLUME             PARAMETER TypeFixedValue        8.00  UpdateConstantly
+		MINDISTANCE        5.00
+		VOLUME             PARAMETER TypeFixedValue        9.00  UpdateConstantly
 	END
 	EVENT DepthCharge         
 		SOUNDNAME          depthcharge
 		SOURCETYPE         1
 		POSITIONTYPE       1
 		INSTANCETYPE       0
-		LOOPTYPE           0
+		LOOPTYPE           3
 		MINDISTANCE        6.70
 		VOLUME             PARAMETER TypeFixedValue        8.97  UpdateConstantly
 	END
 END
-
 
 # =========================================================
 OBJECT Music
@@ -61,7 +116,7 @@ OBJECT Music
 		INSTANCETYPE       0
 		LOOPTYPE           2
 		MINDISTANCE        100.00
-		VOLUME             PARAMETER TypeLinked          100.00     8.00     0.00     9.52     0.80  Team_Survivors  UpdateConstantly
+		VOLUME             PARAMETER TypeFixedValue        0  UpdateConstantly
 		FREQUENCY          PARAMETER TypeLinked            0.00     0.30    99.60     1.00     0.85  Team_Survivors  UpdateConstantly
 		ATTACK             PARAMETER TypeFixedValue        5.03  UpdateConstantly
 		SUSTAIN            PARAMETER TypeFixedValue       -3.87  UpdateConstantly
@@ -80,7 +135,7 @@ OBJECT Interface
 		LOOPTYPE           0
 		MINDISTANCE        100.00
 		VOLUME             PARAMETER TypeFixedValue        2.42  UpdateConstantly
-		FREQUENCY          PARAMETER TypeFixedValue        0.59  UpdateOncePerLoop
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateOncePerLoop
 	END
 	EVENT DefconChange        
 		SOUNDNAME          defconstage
@@ -181,7 +236,7 @@ OBJECT Interface
 		LOOPTYPE           0
 		MINDISTANCE        100.00
 		VOLUME             PARAMETER TypeFixedValue        8.97  UpdateConstantly
-		FREQUENCY          PARAMETER TypeFixedValue        0.55  UpdateConstantly
+		FREQUENCY          PARAMETER TypeFixedValue        1.00  UpdateConstantly
 	END
 	EVENT ReceiveChatMessage  
 		SOUNDNAME          chat
@@ -222,8 +277,8 @@ OBJECT Object_sub
 		POSITIONTYPE       1
 		INSTANCETYPE       0
 		LOOPTYPE           0
-		MINDISTANCE        1.00
-		VOLUME             PARAMETER TypeFixedValue        8.00  UpdateConstantly
+		MINDISTANCE        5.00
+		VOLUME             PARAMETER TypeFixedValue        9.00  UpdateConstantly
 		FREQUENCY          PARAMETER TypeFixedValue        0.90  UpdateConstantly
 	END
 END
@@ -237,17 +292,17 @@ OBJECT Object_nuke
 		POSITIONTYPE       1
 		INSTANCETYPE       0
 		LOOPTYPE           0
-		MINDISTANCE        15.23
-		VOLUME             PARAMETER TypeFixedValue        6.00  UpdateConstantly
+		MINDISTANCE        100.00
+		VOLUME             PARAMETER TypeFixedValue        20.00  UpdateOncePerLoop
 	END
 	EVENT Detonate            
 		SOUNDNAME          fallout
-		SOURCETYPE         1
+		SOURCETYPE         0
 		POSITIONTYPE       1
 		INSTANCETYPE       0
 		LOOPTYPE           0
 		MINDISTANCE        5.05
-		VOLUME             PARAMETER TypeFixedValue       6.00  UpdateConstantly
+		VOLUME             PARAMETER TypeFixedValue       5.00  UpdateConstantly
 		FREQUENCY          PARAMETER TypeRangedRandom      0.67     0.99     0.67  UpdateOncePerLoop
 	END
 END
@@ -379,8 +434,37 @@ END
 # =========================================================
 SAMPLEGROUP newsamplegroup1
 END
-
-
+# =========================================================
+SAMPLEGROUP customeffect
+	SAMPLE	eam_skyking
+	SAMPLE	eam_skyking_rev
+	SAMPLE	eam_gcs
+	SAMPLE	eam_gcs_rev
+	SAMPLE	eam_newscast
+	SAMPLE	eam_newscast_rev
+	SAMPLE	eam_male
+END
+# =========================================================
+SAMPLEGROUP carrieramb
+	SAMPLE	eam_skyking
+	SAMPLE	eam_skyking_rev
+END
+# =========================================================
+SAMPLEGROUP fighteramb
+	SAMPLE	fighter_amb1
+	SAMPLE	fighter_amb2
+	SAMPLE	fighter_amb3
+	SAMPLE	fighter_amb3_rev
+	SAMPLE	fighter_amb4
+	SAMPLE	fighter_amb5
+	SAMPLE	fighter_amb6
+	SAMPLE	fighter_amb7
+END
+# =========================================================
+SAMPLEGROUP siloamb
+	SAMPLE	minuteman_female
+	SAMPLE	minuteman_male
+END
 # =========================================================
 SAMPLEGROUP depthcharge
 	SAMPLE  depthcharge

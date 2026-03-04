@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "lib/resource/resource.h"
+#include "lib/string_utils.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -27,8 +28,15 @@ SiloMobileCon::SiloMobileCon()
     Fixed range45 = Fixed( 45 ) / gameScale;
     m_states[0]->m_actionRange = range45;
     m_states[1]->m_actionRange = range45;
+    m_states[1]->m_stateName = newStr( LANGUAGEPHRASE("state_silomednuke") );
 }
 
+
+Fixed SiloMobileCon::GetNukeLaunchRange() const
+{
+    Fixed gameScale = World::GetUnitScaleFactor();
+    return Fixed( 45 ) / gameScale;
+}
 
 void SiloMobileCon::Action( int targetObjectId, Fixed longitude, Fixed latitude )
 {
@@ -81,6 +89,9 @@ int SiloMobileCon::IsValidCombatTarget( int _objectId )
         m_states[1]->m_numTimesPermitted > 0 &&
         ( attackOdds > 0 || ( isFriend && !obj->IsMovingObject() ) ) )
     {
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
+        Fixed rangeSqd = GetNukeLaunchRange() * GetNukeLaunchRange();
+        if( distSqd > rangeSqd ) return TargetTypeOutOfRange;
         return TargetTypeLaunchCBM;
     }
     return TargetTypeInvalid;
@@ -95,6 +106,9 @@ int SiloMobileCon::IsValidMovementTarget( Fixed longitude, Fixed latitude )
     if( ( m_currentState == 0 || m_currentState == 1 ) &&
         m_states[1]->m_numTimesPermitted > 0 )
     {
+        Fixed distSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, longitude, latitude );
+        Fixed rangeSqd = GetNukeLaunchRange() * GetNukeLaunchRange();
+        if( distSqd > rangeSqd ) return TargetTypeOutOfRange;
         return TargetTypeLaunchCBM;
     }
     return TargetTypeInvalid;

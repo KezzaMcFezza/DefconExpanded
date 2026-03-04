@@ -60,7 +60,9 @@ GlobeRenderer::GlobeRenderer()
     m_cameraLatitude(0.0f),
     m_cameraDistance(3.0f),
     m_targetCameraDistance(3.0f),
-    m_cameraIdleTime(0.0f)
+    m_cameraIdleTime(0.0f),
+    m_cameraTilt(0.0f),
+    m_cameraTiltEW(0.0f)
 {
     SetCameraPosition(m_cameraLongitude, m_cameraLatitude, m_cameraDistance);
     m_targetCameraDistance = m_cameraDistance;
@@ -205,11 +207,11 @@ void GlobeRenderer::CalculateCartesianCoordinates(float lat, float lon, float& o
 
 float GlobeRenderer::CalculateTrajectoryHeightScale(float distanceRadians)
 {
-    // Ballistic arc: missiles fly above the surface. Scale with distance for realistic suborbital profile.
-    // Long-range missiles reach ~40-50% above globe surface at apogee for visible 3D arc.
+    // Ballistic arc: missiles fly above the surface. Scale with distance for suborbital profile.
+    // Toned down from earlier values - visible arc without excessive height.
     float normalizedDistance = distanceRadians / M_PI;
     float scaledDistance = sqrtf(normalizedDistance);
-    return 0.08f + (0.42f * scaledDistance);
+    return 0.05f + (0.15f * scaledDistance);
 }
 
 //
@@ -328,8 +330,9 @@ float GlobeRenderer::CalculateNukeProgressFromPosition(Nuke* nuke, const Vector3
         return 0.0f;
     }
     
-    // Use World::GetDistance (with seam handling) to match simulation's fractionDistance
-    Fixed remainingDistance = g_app->GetWorld()->GetDistance(
+    // Must use GetGreatCircleDistance to match m_totalDistance (arc length).
+    // GetDistance is Euclidean lon/lat - causes sprite to lag for most of flight then catch up at impact.
+    Fixed remainingDistance = g_app->GetWorld()->GetGreatCircleDistance(
         pos.x, pos.y, nuke->m_targetLongitude, nuke->m_targetLatitude);
     return fmaxf(0.0f, fminf(1.0f, (1 - remainingDistance / nuke->m_totalDistance).DoubleValue()));
 }
@@ -346,7 +349,8 @@ float GlobeRenderer::CalculateNukePredictedProgress(Nuke* nuke)
     Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
     float currentProgress = CalculateNukeProgressFromPosition(nuke, pos);
     
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float clampedPrediction = fmaxf(0.0f, g_predictionTime);
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     Fixed currentSpeed = nuke->m_vel.Mag();
     Fixed distanceTraveled = currentSpeed * predictionTime;
     float progressIncrement = (distanceTraveled / nuke->m_totalDistance).DoubleValue();
@@ -365,7 +369,8 @@ Vector3<float> GlobeRenderer::CalculateNuke3DPosition(Nuke* nuke)
     
     Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
     if (nuke->m_totalDistance <= 0) {
-        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float clampedPrediction = fmaxf(0.0f, g_predictionTime);
+        Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (nuke->m_longitude + nuke->m_vel.x * predictionTime).DoubleValue();
         float predictedLatitude = (nuke->m_latitude + nuke->m_vel.y * predictionTime).DoubleValue();
         return ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
@@ -407,7 +412,7 @@ Vector3<float> GlobeRenderer::CalculateBallisticProjectile3DPosition(float launc
     GreatCircleConstants constants;
     CalculateGreatCircleConstants(launchLon, launchLat, targetLon, targetLat, constants);
 
-    Fixed remainingDistance = g_app->GetWorld()->GetDistance(
+    Fixed remainingDistance = g_app->GetWorld()->GetGreatCircleDistance(
         Fixed::FromDouble(currentLon), Fixed::FromDouble(currentLat),
         Fixed::FromDouble(targetLon), Fixed::FromDouble(targetLat));
     float progress = fmaxf(0.0f, fminf(1.0f, (1 - remainingDistance / totalDistance).DoubleValue()));
@@ -435,11 +440,8 @@ bool GlobeRenderer::ShouldUse3DNukeTrajectories()
 {
     if (!g_app->IsGlobeMode()) return false;
     
-    if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
-        return true;
-    }
-    
-    return (g_app->GetWorld()->m_myTeamId == -1);
+    // Use 3D ballistic arc and trajectory-based orientation for all players in globe mode
+    return true;
 }
 
 void GlobeRenderer::GenerateStarField()
@@ -1153,11 +1155,41 @@ void GlobeRenderer::GetCameraPosition( float &longitude, float &latitude, float 
     distance = m_cameraDistance;
 }
 
+Vector3<float> GlobeRenderer::GetCameraLookAtPoint()
+{
+    return ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+}
+
 Vector3<float> GlobeRenderer::GetCameraPosition()
 {
-    Vector3<float> camSpherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
-    Vector3<float> cameraPos = camSpherePoint * m_cameraDistance;
-    return cameraPos;
+    // Camera orbits around the surface point P (fixed - does not move with tilt)
+    // Tilt changes viewing angle only, not location over the map
+    Vector3<float> P = GetCameraLookAtPoint();  // Surface point we're focused on
+    Vector3<float> up = P;
+    up.Normalise();  // Outward normal from globe at P
+
+    Vector3<float> north(0.0f, 1.0f, 0.0f);
+    Vector3<float> east = north ^ P;
+    float eastLen = east.Mag();
+    if (eastLen < 0.0001f)
+        return P * (m_cameraDistance / GLOBE_RADIUS);  // At pole, camera directly above
+
+    east.Normalise();
+    Vector3<float> northTangent = P ^ east;  // Tangent at P pointing toward north pole
+    northTangent.Normalise();
+
+    // Orbit distance = height above surface (zoom)
+    float orbitDistance = fmaxf(0.01f, m_cameraDistance - GLOBE_RADIUS);
+
+    // Tilt angles: elevation (0=above, 90=horizon) and azimuth (orbit around P)
+    float elevRad = m_cameraTilt * (float)M_PI / 180.0f;
+    float azRad = m_cameraTiltEW * (float)M_PI / 180.0f;
+
+    // Direction from P to camera: spherical coords in tangent space
+    Vector3<float> horizontal = northTangent * cosf(azRad) + east * sinf(azRad);
+    Vector3<float> orbitDir = up * cosf(elevRad) + horizontal * sinf(elevRad);
+
+    return P + orbitDir * orbitDistance;
 }
 
 float GlobeRenderer::GetZoomFactor()
@@ -1205,10 +1237,10 @@ bool GlobeRenderer::ScreenToLongLat(float screenX, float screenY, float *longitu
     float ndcX = (2.0f * screenX / screenW) - 1.0f;
     float ndcY = 1.0f - (2.0f * screenY / screenH);
 
-    Vector3<float> spherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
-    Vector3<float> cameraPos = spherePoint * m_cameraDistance;
+    Vector3<float> cameraPos = GetCameraPosition();
+    Vector3<float> lookAt = GetCameraLookAtPoint();
 
-    Vector3<float> forward = Vector3<float>(0,0,0) - cameraPos;
+    Vector3<float> forward = lookAt - cameraPos;
     forward.Normalise();
 
     Vector3<float> north(0.0f, 1.0f, 0.0f);
@@ -1259,24 +1291,40 @@ void GlobeRenderer::IsCameraIdle(float oldLongitude, float oldLatitude)
     }
 }
 
-void GlobeRenderer::DragCamera()
+void GlobeRenderer::TiltCamera()
 {
     if( g_inputManager->m_mmb )
     {
-        g_app->SetMousePointerVisible ( false );
-        
-        float dragSensitivity = 0.15f * (m_zoomFactor / m_maxZoomFactor);
-        m_cameraLongitude -= g_inputManager->m_mouseVelX * dragSensitivity;
-        m_cameraLatitude  += g_inputManager->m_mouseVelY * dragSensitivity;
-        Clamp( m_cameraLatitude, -89.0f, 89.0f );
-        
+        g_app->SetMousePointerVisible( false );
+
+        float tiltSensitivity = 0.2f;
+        m_cameraTilt += g_inputManager->m_mouseVelY * tiltSensitivity;
+        m_cameraTiltEW += g_inputManager->m_mouseVelX * tiltSensitivity;
+        Clamp( m_cameraTilt, -85.0f, 85.0f );   // Full elevation: past zenith to opposite side
+        Clamp( m_cameraTiltEW, -180.0f, 180.0f );  // Full 360° orbit around point
+
         m_draggingCamera = true;
     }
     else
     {
+        // Smooth transition back to top-down in under a second
+        float blendFactor = g_advanceTime * 3.0f;
+        blendFactor = fminf(blendFactor, 1.0f);
+        if( fabsf(m_cameraTilt) > 0.1f )
+        {
+            m_cameraTilt *= (1.0f - blendFactor);
+            if( fabsf(m_cameraTilt) < 0.1f )
+                m_cameraTilt = 0.0f;
+        }
+        if( fabsf(m_cameraTiltEW) > 0.1f )
+        {
+            m_cameraTiltEW *= (1.0f - blendFactor);
+            if( fabsf(m_cameraTiltEW) < 0.1f )
+                m_cameraTiltEW = 0.0f;
+        }
         if( !g_app->MousePointerIsVisible() )
         {
-            g_app->SetMousePointerVisible ( true );
+            g_app->SetMousePointerVisible( true );
         }
         m_draggingCamera = false;
     }
@@ -1335,20 +1383,10 @@ void GlobeRenderer::UpdateCameraControl()
 
     IsCameraIdle(oldLongitude, oldLatitude);
 
-    if( g_preferences->GetInt( PREFS_INTERFACE_CAMDRAGGING ) == 1 )
-    {
-        DragCamera();
-    }
-    else
-    {
-        if( !g_app->MousePointerIsVisible() )
-        {
-            g_app->SetMousePointerVisible ( true );
-        }
-    }
-    
+    TiltCamera();  // MMB hold = tilt angle, MMB release = reset to top-down
+
     //
-    // Handle rotation with WASD (rotate around globe)
+    // Handle panning with WASD (rotate around globe)
     
     float rotationSpeed = 48.0f * g_advanceTime; // degrees per second
     
@@ -1396,17 +1434,11 @@ void GlobeRenderer::GameCamera()
     g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
 
     //
-    // Convert longitude/latitude to 3D position on sphere
-    // Camera orbits around globe center at distance m_cameraDistance
-    
-    Vector3<float> spherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
-    
+    // Camera orbits around surface point P - tilt changes viewing angle, not map location
     //
-    // Camera position is spherePoint scaled by distance
-    // Looking at origin (globe center)
     
-    Vector3<float> cameraPos = spherePoint * m_cameraDistance;
-    Vector3<float> lookAt(0.0f, 0.0f, 0.0f);
+    Vector3<float> cameraPos = GetCameraPosition();
+    Vector3<float> lookAt = GetCameraLookAtPoint();  // Fixed point we're focused on
     
     //
     // Calculate up vector (always point "north" relative to camera)
@@ -1536,7 +1568,9 @@ void GlobeRenderer::RenderObjects()
             {
                 if(myTeamId == -1 || wobj->m_teamId == myTeamId )                
                 {
-                    RenderWorldObjectTargets(wobj, false);                // This shows ALL object orders on screen at once
+                    // Show action range when this unit is selected (primary selection)
+                    bool showRanges = ( wobj->m_objectId == g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+                    RenderWorldObjectTargets(wobj, showRanges);                // This shows ALL object orders on screen at once
                 }
             }
 
@@ -1563,7 +1597,7 @@ void GlobeRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.005f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( wobj->m_numNukesInQueue )
                     {
@@ -1593,7 +1627,7 @@ void GlobeRenderer::RenderObjects()
                     if( wobj->m_numLACMInFlight ) iconSize += sinf(g_gameTime*10) * 0.005f;
 
                     Image *img = g_resource->GetImage( "graphics/lacmsymbol.bmp" );
-                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, -iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
+                    g_renderer3d->RotatingSprite3D( img, renderPos.x, renderPos.y, renderPos.z, iconSize, iconSize, col, 0, BILLBOARD_SURFACE_ALIGNED );
 
                     if( wobj->m_numLACMInQueue )
                     {
@@ -1684,7 +1718,7 @@ void GlobeRenderer::Render3DNukes()
         if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             
-            if (!wobj->IsNuke()) continue;
+            if (!wobj->IsBallisticMissileClass()) continue;
             if (!wobj->IsMovingObject()) continue;
             
             Nuke* nuke = (Nuke*)wobj;
@@ -1712,15 +1746,16 @@ void GlobeRenderer::Render3DNukes()
             if (nuke->m_totalDistance > 0) {
 
                 //
-                // Get predicted progress and sample slightly ahead for direction
-                
+                // Direction of travel = tangent to trajectory (sample behind and ahead)
+                //
                 float predictedProgress = CalculateNukePredictedProgress(nuke);
-                float deltaProgress = 0.01f;
+                float deltaProgress = 0.03f;
+                float behindProgress = fmaxf(0.0f, predictedProgress - deltaProgress);
                 float aheadProgress = fminf(1.0f, predictedProgress + deltaProgress);
                 
+                Vector3<float> behindPos = CalculateNukeTrajectoryPoint(nuke, behindProgress);
                 Vector3<float> aheadPos = CalculateNukeTrajectoryPoint(nuke, aheadProgress);
-                
-                direction = aheadPos - unitPos;
+                direction = aheadPos - behindPos;
                 direction.Normalise();
             } else {
 
@@ -1822,9 +1857,9 @@ void GlobeRenderer::Render3DNukeTrajectories()
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             
             //
-            // Make sure to only process nukes
+            // Make sure to only process ballistic missiles (nuke, CBM)
 
-            if (!wobj->IsNuke()) continue;
+            if (!wobj->IsBallisticMissileClass()) continue;
             if (!wobj->IsMovingObject()) continue;
             
             MovingObject *mobj = (MovingObject*)wobj;
@@ -2106,10 +2141,11 @@ void GlobeRenderer::RenderUnitHighlight( int _objectId )
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( obj )
     {
+        float clampedPrediction = fmaxf(0.0f, g_predictionTime);
         float predictedLongitude = obj->m_longitude.DoubleValue() + 
-								   obj->m_vel.x.DoubleValue() * g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
+								   obj->m_vel.x.DoubleValue() * clampedPrediction * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float predictedLatitude = obj->m_latitude.DoubleValue() + 
-							      obj->m_vel.y.DoubleValue() * g_predictionTime  * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
+							      obj->m_vel.y.DoubleValue() * clampedPrediction * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         
         Vector3<float> unitPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
         Vector3<float> cameraPos = GetCameraPosition();
@@ -2377,7 +2413,7 @@ void GlobeRenderer::RenderCities()
                         char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_lacm_in_flight") );
                         LPREPLACEINTEGERFLAG( 'N', city->m_numLACMInFlight, caption );
-                        g_renderer3d->TextCentreSimple3D( textPos.x, textPos.y, textPos.z, col, textSize, caption, BILLBOARD_SURFACE_ALIGNED );
+                        g_renderer3d->TextCentreSimple3D( textPos.x, textPos.y, textPos.z, col, -textSize, caption, BILLBOARD_SURFACE_ALIGNED );
                     }
                 }
             }
@@ -2624,10 +2660,11 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
     if( wobj->m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 )
     {
+        float clampedPrediction = fmaxf(0.0f, g_predictionTime);
         float predictedLongitude = wobj->m_longitude.DoubleValue() +
-								   wobj->m_vel.x.DoubleValue() * g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
+								   wobj->m_vel.x.DoubleValue() * clampedPrediction * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
         float predictedLatitude = wobj->m_latitude.DoubleValue() +
-								  wobj->m_vel.y.DoubleValue() * g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
+								  wobj->m_vel.y.DoubleValue() * clampedPrediction * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
         Vector3<float> predictedPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
         Vector3<float> predictedRenderPos = GetElevatedPosition(predictedPos);
@@ -2685,11 +2722,12 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
         WorldObject *targetObject = g_app->GetWorld()->GetWorldObject( targetObjectId );
         if( targetObject )
         {
+            float clampedPrediction = fmaxf(0.0f, g_predictionTime);
             float TpredictedLongitude = targetObject->m_longitude.DoubleValue() + 
-										targetObject->m_vel.x.DoubleValue() * g_predictionTime *
+										targetObject->m_vel.x.DoubleValue() * clampedPrediction *
 										g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
             float TpredictedLatitude = targetObject->m_latitude.DoubleValue() + 
-									   targetObject->m_vel.y.DoubleValue() * g_predictionTime * 
+									   targetObject->m_vel.y.DoubleValue() * clampedPrediction * 
 									   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
 
             Vector3<float> targetPos = ConvertLongLatTo3DPosition(TpredictedLongitude, TpredictedLatitude);
@@ -2828,11 +2866,12 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                     WorldObject *targetObject = orderTarget;
                     if( targetObject )
                     {
+                        float clampedPrediction = fmaxf(0.0f, g_predictionTime);
                         targetLongitude = targetObject->m_longitude.DoubleValue() +
-										   targetObject->m_vel.x.DoubleValue() * g_predictionTime *
+										   targetObject->m_vel.x.DoubleValue() * clampedPrediction *
 										   g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
                         targetLatitude = targetObject->m_latitude.DoubleValue() +
-										 targetObject->m_vel.y.DoubleValue() * g_predictionTime *
+										 targetObject->m_vel.y.DoubleValue() * clampedPrediction *
 										 g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
                     }
 

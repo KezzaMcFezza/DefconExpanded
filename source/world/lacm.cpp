@@ -252,7 +252,7 @@ bool LACM::Update()
     Vector3<Fixed> pos( m_longitude, m_latitude, 0 );
     Vector3<Fixed> front = (target - pos).Normalise();
 
-    Fixed remainingDistance = (target - pos).Mag();
+    Fixed remainingDistance = g_app->GetWorld()->GetDistance( m_longitude, m_latitude, m_targetLongitude, m_targetLatitude );
     Fixed fractionDistance = m_totalDistance > 0 ? 1 - remainingDistance / m_totalDistance : Fixed::Hundredths(50);
 
     Fixed latCurveFactor = Fixed(5) * m_latitude.abs() / Fixed(90);
@@ -304,9 +304,12 @@ bool LACM::Update()
 
     Fixed newDistance = g_app->GetWorld()->GetDistance( newLongitude, newLatitude, m_targetLongitude, m_targetLatitude);
 
-    if( newDistance < 2 &&
-        newDistance >= remainingDistance )
+    // Impact only when we've overshot (reached/passed target) and are close - must overshoot to avoid premature detonation
+    bool arrived = (newDistance < Fixed(2)) && (newDistance >= remainingDistance);
+    if( arrived )
     {
+        m_longitude = m_targetLongitude;   // Land at target for explosion/damage
+        m_latitude = m_targetLatitude;
         m_targetLongitude = 0;
         m_targetLatitude = 0;
         m_vel.Zero();

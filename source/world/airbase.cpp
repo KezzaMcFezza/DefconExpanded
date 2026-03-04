@@ -622,6 +622,10 @@ int AirBase::IsValidCombatTarget( int _objectId )
         {
             if( obj->IsTargetableSurfaceNavy() )
                 return TargetTypeLaunchLACM;
+            if( obj->IsCityClass() )
+                return TargetTypeLaunchLACM;
+            if( obj->IsAircraftLauncher() && !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId ) )
+                return TargetTypeLaunchLACM;
             if( !obj->IsMovingObject() && WorldObject::GetArchetypeForType(obj->m_type) == WorldObject::ArchetypeBuilding )
                 return TargetTypeLaunchLACM;
         }

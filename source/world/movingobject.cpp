@@ -122,6 +122,12 @@ bool MovingObject::Update()
             {
                 Land( GetClosestLandingPad() );
             }
+            else if( IsFighterClass() && ( m_type == TypeFighterLight || m_type == TypeFighterStealth ) &&
+                     home->IsCarrierClass() )
+            {
+                // Stealth and light fighters cannot land on carriers
+                Land( GetClosestLandingPad() );
+            }
             else if( ( IsFighterClass() &&
                 home->GetFighterCount() >= home->m_maxFighters ) ||
                 ( IsBomberClass() &&
@@ -133,7 +139,7 @@ bool MovingObject::Update()
             {
                 Land( GetClosestLandingPad() );
             }            
-            else if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, home->m_longitude, home->m_latitude ) < 2 * 2 )
+            else if( g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, home->m_longitude, home->m_latitude ) < ( Fixed( 2 ) / World::GetGameScale() ) * ( Fixed( 2 ) / World::GetGameScale() ) )
             {
                 if( home->m_teamId == m_teamId )
                 {
@@ -631,7 +637,8 @@ void MovingObject::Render2D()
         float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
         if( m_vel.y < 0 ) angle += M_PI;
         
-        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+        Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
         float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
         float size = GetSize().DoubleValue();
@@ -711,7 +718,8 @@ void MovingObject::Render3D()
         float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
         if( m_vel.y < 0 ) angle += M_PI;
         
-        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+        Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
         float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
         float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
         float size = GetSize3D().DoubleValue();
@@ -770,7 +778,8 @@ void MovingObject::Render3D()
 
 void MovingObject::RenderHistory2D()
 {
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue(); 
 
@@ -880,7 +889,8 @@ void MovingObject::RenderHistory3D()
         }
     }
 
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
 
@@ -1209,6 +1219,11 @@ int MovingObject::GetClosestLandingPad()
             {
                 if( obj->IsAircraftLauncher() )
                 {
+                    // Stealth and light fighters cannot land on carriers - only airbases
+                    if( IsFighterClass() && ( m_type == TypeFighterLight || m_type == TypeFighterStealth ) &&
+                        obj->IsCarrierClass() )
+                        continue;
+
                     int roomInside = 0;
                     if( IsFighterClass() ) roomInside = obj->m_maxFighters - obj->GetFighterCount();
                     if( IsBomberClass() )
@@ -1561,7 +1576,7 @@ int MovingObject::GetTarget( Fixed range, const LList<int> *excludeIds )
                 }
                 if( !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
                     g_app->GetWorld()->GetAttackOdds( m_type, obj->m_type ) > 0 &&
-                    obj->m_visible[m_teamId] &&
+                    ( obj->m_visible[m_teamId] || ( obj->IsBuilding() && obj->m_seen[m_teamId] ) ) &&
                     !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ] )
                 {
                     Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
@@ -1650,7 +1665,7 @@ char *MovingObject::LogState()
 
 void MovingObject::CombatIntercept( WorldObject *target )
 {
-    if( target->m_visible[m_teamId] )
+    if( target->m_visible[m_teamId] || ( target->IsBuilding() && target->m_seen[m_teamId] ) )
     {
         Fixed interceptLongitude, interceptLatitude;
         GetCombatInterceptionPoint( target, &interceptLongitude, &interceptLatitude );

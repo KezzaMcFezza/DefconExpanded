@@ -419,7 +419,7 @@ bool WorldObject::Update()
         }
     }
 
-    if( !IsMovingObject() )
+    if( !IsMovingObject() || IsTargetableSurfaceNavy() )
     {
         float realTimeNow = GetHighResTime();
         if( realTimeNow > m_nukeCountTimer )
@@ -602,9 +602,11 @@ Image *WorldObject::GetOutlineImage()
 
 void WorldObject::Render2D()
 {
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    // Clamp to avoid extrapolating backward (negative causes sprite to lag behind)
+    float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
-    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue();
 
     Team *team = g_app->GetWorld()->GetTeam(m_teamId);
     Colour colour = team->GetTeamColour();            
@@ -674,9 +676,11 @@ void WorldObject::Render2D()
 
 void WorldObject::Render3D()
 {
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    // Clamp to avoid extrapolating backward (negative causes sprite to lag behind)
+    float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
-    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue();
 
     Team *team = g_app->GetWorld()->GetTeam(m_teamId);
     Colour colour = team->GetTeamColour();            
@@ -757,7 +761,8 @@ void WorldObject::RenderCounter( int counter )
     sprintf( count, "%u", counter );
 
     float size = GetSize().DoubleValue();
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
+    Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = ( m_longitude + m_vel.x * predictionTime ).DoubleValue();
     float predictedLatitude = ( m_latitude + m_vel.y * predictionTime ).DoubleValue();
 
@@ -1526,7 +1531,8 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
         }
         else if( aircraftMode == 2 && target &&
                  ( (!target->IsMovingObject() && GetArchetypeForType(target->m_type) == ArchetypeBuilding) ||
-                   target->IsTargetableSurfaceNavy() ) )
+                   target->IsTargetableSurfaceNavy() || target->IsCityClass() ||
+                   ( target->IsAircraftLauncher() && !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) ) ) )
         {
             fighter->SetWaypoint( longitude, latitude );
             ActionOrder *order = new ActionOrder();
@@ -1565,7 +1571,7 @@ bool WorldObject::LaunchFighter( int targetObjectId, Fixed longitude, Fixed lati
 
 bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
-    if( targetObjectId >= OBJECTID_CITYS )
+    if( targetObjectId >= OBJECTID_CITYS && aircraftMode != 1 )
     {
         targetObjectId = -1;
     }
@@ -1587,7 +1593,13 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
         if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
             if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
-                fighter->Land( targetObjectId );
+            {
+                // FighterLight cannot land on carriers - only airbases
+                if( target->IsCarrierClass() )
+                    fighter->Land( fighter->GetClosestLandingPad() );
+                else
+                    fighter->Land( targetObjectId );
+            }
             else if( target->IsAircraft() )
             {
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
@@ -1599,10 +1611,30 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
                 fighter->m_playerSetWaypoint = true;
             }
         }
+        else if( aircraftMode == 1 && target &&
+                 ( (!target->IsMovingObject() && GetArchetypeForType(target->m_type) == ArchetypeBuilding) ||
+                   target->IsTargetableSurfaceNavy() || target->IsCityClass() ||
+                   ( target->IsAircraftLauncher() && !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) ) ) )
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            fighter->RequestAction( order );
+        }
         else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            if( aircraftMode == 1 )
+            {
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = target->m_longitude;
+                order->m_latitude = target->m_latitude;
+                fighter->RequestAction( order );
+            }
         }
         else
         {
@@ -1621,7 +1653,7 @@ bool WorldObject::LaunchFighterLight( int targetObjectId, Fixed longitude, Fixed
 
 bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
-    if( targetObjectId >= OBJECTID_CITYS )
+    if( targetObjectId >= OBJECTID_CITYS && aircraftMode != 1 )
     {
         targetObjectId = -1;
     }
@@ -1652,10 +1684,30 @@ bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude,
                 fighter->m_playerSetWaypoint = true;
             }
         }
+        else if( aircraftMode == 1 && target &&
+                 ( (!target->IsMovingObject() && GetArchetypeForType(target->m_type) == ArchetypeBuilding) ||
+                   target->IsTargetableSurfaceNavy() || target->IsCityClass() ||
+                   ( target->IsAircraftLauncher() && !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) ) ) )
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            fighter->RequestAction( order );
+        }
         else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            if( aircraftMode == 1 )
+            {
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = target->m_longitude;
+                order->m_latitude = target->m_latitude;
+                fighter->RequestAction( order );
+            }
         }
         else
         {
@@ -1674,7 +1726,7 @@ bool WorldObject::LaunchNavyStealthFighter( int targetObjectId, Fixed longitude,
 
 bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fixed latitude, int aircraftMode )
 {
-    if( targetObjectId >= OBJECTID_CITYS )
+    if( targetObjectId >= OBJECTID_CITYS && aircraftMode != 1 )
     {
         targetObjectId = -1;
     }
@@ -1693,7 +1745,13 @@ bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fix
         if( target && g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         {
             if( target->IsAircraftLauncher() || target->m_type == TypeTanker )
-                fighter->Land( targetObjectId );
+            {
+                // FighterStealth cannot land on carriers - only airbases
+                if( target->IsCarrierClass() )
+                    fighter->Land( fighter->GetClosestLandingPad() );
+                else
+                    fighter->Land( targetObjectId );
+            }
             else if( target->IsAircraft() )
             {
                 fighter->SetWaypoint( target->m_longitude, target->m_latitude );
@@ -1705,10 +1763,30 @@ bool WorldObject::LaunchStealthFighter( int targetObjectId, Fixed longitude, Fix
                 fighter->m_playerSetWaypoint = true;
             }
         }
+        else if( aircraftMode == 1 && target &&
+                 ( (!target->IsMovingObject() && GetArchetypeForType(target->m_type) == ArchetypeBuilding) ||
+                   target->IsTargetableSurfaceNavy() || target->IsCityClass() ||
+                   ( target->IsAircraftLauncher() && !g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) ) ) )
+        {
+            fighter->SetWaypoint( longitude, latitude );
+            ActionOrder *order = new ActionOrder();
+            order->m_targetObjectId = targetObjectId;
+            order->m_longitude = longitude;
+            order->m_latitude = latitude;
+            fighter->RequestAction( order );
+        }
         else if( target && fighter->GetAttackOdds( target->m_type ) > 0 )
         {
             fighter->SetTargetObjectId(targetObjectId);
             fighter->SetWaypoint(target->m_longitude, target->m_latitude);
+            if( aircraftMode == 1 )
+            {
+                ActionOrder *order = new ActionOrder();
+                order->m_targetObjectId = targetObjectId;
+                order->m_longitude = target->m_longitude;
+                order->m_latitude = target->m_latitude;
+                fighter->RequestAction( order );
+            }
         }
         else
         {

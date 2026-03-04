@@ -469,7 +469,7 @@ void Bomber::RunAI()
                     WorldObject *obj = g_app->GetWorld()->m_objects[i];
                     if( obj && !obj->IsMovingObject() &&
                         !g_app->GetWorld()->IsFriend( m_teamId, obj->m_teamId ) &&                        
-                        obj->m_visible[m_teamId] &&
+                        ( obj->m_visible[m_teamId] || ( obj->IsBuilding() && obj->m_seen[m_teamId] ) ) &&
                         g_app->GetWorld()->GetDistance( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude ) < m_range - 15 )
                     {
                         if( m_lacmLoadout && WorldObject::GetArchetypeForType(obj->m_type) != WorldObject::ArchetypeBuilding )
@@ -677,6 +677,9 @@ int Bomber::IsValidCombatTarget( int _objectId )
         if( obj->m_teamId == m_teamId ||
             g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] )
         {
+            // Bombers can only land on airbases, not carriers (m_maxBombers=0)
+            if( obj->IsCarrierClass() )
+                return TargetTypeInvalid;  // Cannot land; long-click uses SpecialActionForceAttack
             return TargetTypeLand;
         }
     }

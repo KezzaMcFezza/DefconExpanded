@@ -50,6 +50,7 @@ public:
     void           GetSurfaceTangents        (const Vector3<float>& normal, Vector3<float>
                                               & tangent1, Vector3<float>& tangent2);
     Vector3<float> GetCameraPosition();
+    Vector3<float> GetCameraLookAtPoint();  // Surface point camera orbits around (fixed during tilt)
 
     Model *GetNukeModel() { return nukeModel; }
 
@@ -125,12 +126,14 @@ public:
     float   m_cameraDistance;
     float   m_targetCameraDistance;
     float   m_cameraIdleTime;
+    float   m_cameraTilt;       // Elevation: 0 = top-down, positive = tilt toward horizon (mouse Y)
+    float   m_cameraTiltEW;     // Azimuth: orbit around fixed point for different viewing angle (mouse X)
 
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
 
 protected:
-    void DragCamera();
+    void TiltCamera();
     void UpdateCameraControl();
     void RenderDragIcon();
 

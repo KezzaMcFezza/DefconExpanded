@@ -267,6 +267,11 @@ public:
     Fixed GetDistanceAcrossSeamSqd  ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude );
     Fixed GetDistance               ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude, bool ignoreSeam = false );
     Fixed GetDistanceSqd            ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude, bool ignoreSeam = false );
+    /** Great circle arc distance in degrees (for ballistic missile path length). */
+    Fixed GetGreatCircleDistance    ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude );
+    /** Position on great circle at progress [0,1]. Uses shortest path across date line. */
+    void  GetGreatCirclePosition    ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude,
+                                      Fixed progress, Fixed &outLongitude, Fixed &outLatitude );
     static void SanitiseTargetLongitude( Fixed const &fromLongitude, Fixed &toLongitude );
     Fixed GetSailDistance           ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude );
     Fixed GetSailDistanceSlow       ( Fixed const &fromLongitude, Fixed const &fromLatitude, Fixed const &toLongitude, Fixed const &toLatitude );

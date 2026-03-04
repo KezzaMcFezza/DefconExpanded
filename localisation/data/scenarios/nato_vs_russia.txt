@@ -1,4 +1,4 @@
-# SCENARIO: NATO vs Russia
+# SCENARIO: USNA Persistent
 # Pre-placed unit definitions for scenario mode
 #
 # Lines starting with # are comments
@@ -23,16 +23,158 @@
 # Players can still place additional units with their remaining allocation.
 # If no team controls a listed territory, those units are silently skipped.
 
+# === USA buildings ===
+USA    silo        -111.1834    47.5044    # MALMSTROM AFB MISSILE FIELD (REFERENCE: MALMSTROM AFB)
+USA    silo        -109.2088    45.8307    # MALMSTROM AFB MISSILE FIELD (EASTERN SECTOR, REPRESENTATIVE)
+USA    silo        -101.7996    47.6531    # MINOT AFB MISSILE FIELD (REFERENCE: MINOT AFB)
+USA    silo        -99.3636     46.7058    # MINOT AFB MISSILE FIELD (SOUTHERN SECTOR, REPRESENTATIVE)
+USA    silo        -104.8620    41.1557    # F.E. WARREN AFB MISSILE FIELD (REFERENCE: F.E. WARREN AFB)
+USA    silo        -102.1591    39.6319    # F.E. WARREN AFB MISSILE FIELD (EASTERN SECTOR, REPRESENTATIVE)
+
+USA    airbase2    -100.4814    47.5501    # MINOT AFB
+USA    airbase2    -103.1036    44.1450    # ELLSWORTH AFB
+USA    airbase2    -99.8546     32.4208    # DYESS AFB
+USA    airbase2    -93.6627     32.5018    # BARKSDALE AFB
+USA    airbase2    144.9300     13.5840    # ANDERSEN AFB
+USA    airbase2    145.6190     14.9993    # NORTH FIELD, TINIAN
+USA    airbase2    72.4111      -7.3133    # DIEGO GARCIA
+USA    airbase2    35.4259      37.0021    # INCIRLIK AB
+
+USA    radar       -159.7854    22.0228    # PMRF BARKING SANDS
+USA    radar       -164.4216    62.4410    # ALASKA LRRS SITE (REPRESENTATIVE)
+USA    radar       -165.1667    68.4500    # ARCTIC RADAR SITE (REPRESENTATIVE)
+USA    radar       -128.7935    69.7430    # NORTH WARNING SYSTEM SITE (REPRESENTATIVE)
+USA    radar       -109.7114    67.6650    # NORTH WARNING SYSTEM SITE (REPRESENTATIVE)
+USA    radar       -82.7442     68.0371    # NORTH WARNING SYSTEM SITE (REPRESENTATIVE)
+USA    radar       -65.2659     63.4125    # NORTH WARNING SYSTEM SITE (REPRESENTATIVE)
+USA    radar       -59.5109     54.0052    # LABRADOR / EASTERN APPROACH SITE (REPRESENTATIVE)
+USA    radar       -81.8702     31.1321    # SOUTHEAST COAST RADAR SITE (REPRESENTATIVE)
+USA    radar       -80.6081     28.2349    # CAPE CANAVERAL / SPACE COAST RADAR SITE
+USA    radar       -128.1300    50.6403    # CFS HOLBERG
+USA    radar       -162.7211    55.1858    # COLD BAY RADAR STATION
+
+USA    radarew     -121.437     39.1361    # BEALE AFB / EARLY WARNING SITE
+USA    radarew     -97.8792     48.7284    # CAVALIER SPACE FORCE STATION
+USA    radarew     -149.121     64.2906    # CLEAR SPACE FORCE STATION
+USA    radarew     -70.5391     41.7545    # CAPE COD SPACE FORCE STATION
+USA    radarew     -68.7032     76.5312    # PITUFFIK SPACE BASE
+USA    radarew     174.0914     52.7373    # COBRA DANE
+
+USA    airbase     -76.3605     37.0829    # JOINT BASE LANGLEY-EUSTIS
+USA    airbase     -74.5772     39.4576    # ATLANTIC CITY ANG BASE
+USA    airbase     -73.1533     44.4719    # BURLINGTON ANG BASE
+USA    airbase     -89.3375     43.1399    # TRUAX FIELD
+USA    airbase     -111.9738    41.1230    # HILL AFB
+USA    airbase     -76.8668     38.8065    # JOINT BASE ANDREWS
+USA    airbase     -106.0998    32.8483    # HOLLOMAN AFB
+USA    airbase     -147.1008    64.6593    # EIELSON AFB
+USA    airbase     127.7678     26.3556    # KADENA AB
+USA    airbase     -157.9225    21.3187    # JOINT BASE PEARL HARBOR-HICKAM
+USA    airbase     51.3144      25.1173    # AL UDEID AB
+USA    airbase     0.5610       52.4095    # RAF LAKENHEATH
+USA    airbase     6.6925       49.9727    # SPANGDAHLEM AB
+
+USA    airbase3    -117.215     32.6992    # NAS NORTH ISLAND
+USA    airbase3    -122.657     48.3518    # NAS WHIDBEY ISLAND
+USA    airbase3    -76.0319     36.8227    # NAS OCEANA
+USA    airbase3    -65.6306     18.2453    # NS ROOSEVELT ROADS / CEIBA
+USA    airbase3    132.2473     34.1439    # MCAS IWAKUNI
+USA    airbase3    139.4498     35.4546    # NAF ATSUGI
+
+USA    abm         -145.7322    63.9587    # FORT GREELY GMD FIELD
+USA    abm         -145.7322    63.9587    # FORT GREELY GMD FIELD
+USA    abm         -75.4580     43.3372    # FORT DRUM AREA ABM SITE
+USA    abm         127.7678     26.3556    # OKINAWA THAAD / KADENA AREA
+
+USA    airbase2    -101.3577    48.4156    # MINOT AFB (B-52H / AFGSC)
+USA    airbase2    -93.5422     38.7248    # WHITEMAN AFB
+
+USA    airbase     -149.7933    61.2528    # JOINT BASE ELMENDORF-RICHARDSON (JBER)
+USA    airbase3    -119.9522    36.3331    # NAS LEMOORE
+
 # === NATO buildings ===
-NATO    silo        18.0    52.0
-NATO    silo        15.0    48.0
-NATO    radar       10.0    55.0
-NATO    radar       20.0    60.0
-NATO    airbase     12.0    45.0
+NATO   radar       -22.6056    63.9850     # KEFLAVIK AB (RADAR)
+NATO   radar       -14.2797    65.9553     # GUNNOLFSVIK RADAR
+NATO   radar       10.5980     57.7210     # SKAGEN RADAR
+NATO   radar       5.1520      61.9960     # VAGSOY RADAR
+NATO   radar       23.4140     52.0750     # ROSKOSZ RADAR
+NATO   radar       25.2320     59.3030     # KELLAVERE RADAR
+NATO   radar       31.0390     70.3710     # VARDO RADAR
+NATO   radar       24.3526     41.4183     # DIDYMOTEICHO RADAR
+NATO   radar       39.9728     40.9185     # PAZAR RADAR
+NATO   radar       14.9202     37.4062     # NAS SIGONELLA
+NATO   radar       -8.7986     41.4752     # PILAR RADAR
+NATO   radar       -8.7919     38.1838     # FOIA RADAR
+
+NATO   radarew     -0.6700     54.3617     # RAF FYLINGDALES
+NATO   radarew     37.7937     38.3497     # KURECIK EWR
+
+NATO   airbase2    -3.3392     57.7052     # RAF LOSSIEMOUTH
+NATO   airbase2    -0.1660     53.0930     # RAF CONINGSBY
+NATO   airbase     6.2517      48.6920     # NANCY-OCHEY AB
+NATO   airbase2    9.6003      63.6989     # ORLAND MAS
+NATO   airbase2    16.6780     68.4913     # EVENES AS
+NATO   airbase2    16.9628     52.3310     # 31ST AB POLAND (KRZESINY)
+NATO   airbase2    24.2085     59.2603     # AMARI AB
+NATO   airbase2    25.8308     66.5648     # ROVANIEMI AB
+NATO   airbase2    28.4883     44.3622     # 57TH AB ROMANIA (MIHAIL KOGALNICEANU)
+NATO   airbase2    27.2769     45.9651     # 95TH AB ROMANIA (BACAU)
+NATO   airbase2    32.5619     37.9790     # KONYA AB
+NATO   airbase2    32.9879     34.5904     # RAF AKROTIRI
+NATO   airbase2    15.7139     41.5414     # AMENDOLA AB
+NATO   airbase2    12.5965     45.6484     # AVIANO AB
+NATO   airbase     4.9247      43.5225     # ISTRES-LE-TUBE AB
+NATO   airbase2    -3.4459     40.4893     # TORREJON AB
+NATO   airbase2    -58.4473    -51.8228    # RAF MOUNT PLEASANT
+NATO   airbase     166.4663    -22.0146    # LA TONTOUTA
+
+NATO   abm         17.1063     54.4784     # REDZIKOWO AEGIS ASHORE
+NATO   abm         24.3829     44.0614     # DEVESLU AEGIS ASHORE
 
 # === Russia buildings ===
-Russia  silo        42.0    54.0
-Russia  silo        45.0    50.0
-Russia  radar       38.0    58.0
-Russia  radar       48.0    52.0
-Russia  airbase     40.0    48.0
+Russia  silo        31.3903     69.4149    # MURMANSK SILO
+Russia  silo        41.0351	60.2506    # TEYKOVO SILO
+Russia  silo        45.2425     58.5562    # YOSHKAR-OLA SILO
+Russia  silo        44.8433     56.2077    # TATISHCHEVO SILO
+Russia  silo        69.0032     58.7029    # DOMBAROVSKIY SILO
+Russia  silo        88.5852     52.9786    # BARNAUL SILO
+Russia  silo        97.4757     58.9934    # UZHUR SILO
+Russia  silo        104.3995    55.9473    # IRKUTSK SILO
+
+Russia  radar       30.8391     66.6321    # MURMANSK RADAR
+Russia  radar       29.1199     58.5621    # SOLTSY RADAR
+Russia  radar       39.2000     51.6700    # KORENOVSK RADAR
+Russia  radar       40.4551     46.1406    # NOVOROSSIYSK RADAR
+Russia  radar       65.1656     55.5055    # CHELYABINSK RADAR
+Russia  radar       97.1499     51.6547    # ERZIN RADAR
+Russia  radar       137.2402    47.2317    # VLADIVOSTOK RADAR
+Russia  radar       157.7811    53.5575    # PETROPAVLOVSK RADAR
+Russia  radar       150.1730    71.4863    # TIKSI RADAR
+Russia  radar       109.8405    76.7012    # ROGACHEVO RADAR
+Russia  radar       -171.5162   66.6832    # BERING RADAR
+
+Russia  radarew     21.8816     54.7125    # KALININGRAD EWR
+Russia  radarew     36.2769     63.8415    # MUKACHEVO EWR
+Russia  radarew     42.5652     44.2505    # VORONEZH EWR
+Russia  radarew     55.2566     52.0853    # ORSK EWR
+Russia  radarew     68.4259     67.4155    # PECHORA EWR
+Russia  radarew     85.4472     53.2301    # BALKHASH EWR
+Russia  radarew     100.1655    53.8838    # MISHELEVKA EWR
+
+Russia  airbase     33.4639     68.1518    # OLENYA AB
+Russia  airbase     30.3281     58.1381    # SOLTSY AB
+Russia  airbase     46.2063     51.4753    # ENGELS-2 AB
+Russia  airbase     103.576     52.9150    # BELAYA AB
+Russia  airbase     38.8365     55.3686    # SHAYKOVKA AB
+
+Russia  airbase2    37.3448     45.0047    # KRYMSK AB
+Russia  airbase2    41.8698     48.1221    # MOROZOVSK AB
+Russia  airbase2    61.5030     55.3050    # CHELYABINSK AB
+Russia  airbase2    118.5767    54.8525    # DOMNA AB
+Russia  airbase2    132.0583    43.3483    # CENTRALNAYA UGLOVAYA AB
+Russia  airbase2    158.4533    53.1683    # YELIZOVO AB
+
+Russia  abm         38.7263     58.2570    # SOFRINO ABM
+Russia  abm         43.3960     59.6889    # KOROLEV ABM
+Russia  abm         42.4027     57.1090    # LYTKARINO ABM
+Russia  abm         42.6994     54.6736    # VNUKOVO ABM

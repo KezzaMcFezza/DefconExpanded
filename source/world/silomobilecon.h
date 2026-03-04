@@ -12,6 +12,7 @@ public:
     SiloMobileCon();
 
     void Action( int targetObjectId, Fixed longitude, Fixed latitude ) override;
+    Fixed GetNukeLaunchRange() const override;
     int  GetAttackOdds( int _defenderType ) override;
     int  IsValidCombatTarget( int _objectId ) override;
     int  IsValidMovementTarget( Fixed longitude, Fixed latitude ) override;

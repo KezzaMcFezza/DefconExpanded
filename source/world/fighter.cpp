@@ -66,7 +66,9 @@ void Fighter::AcquireTargetFromAction( ActionOrder *action )
 {
     if( action->m_targetObjectId == -1 ) return;
     WorldObject *target = g_app->GetWorld()->GetWorldObject( action->m_targetObjectId );
-    if( !target || !target->m_visible[m_teamId] ) return;
+    if( !target ) return;
+    // Static buildings remain targetable without visibility once seen
+    if( !target->m_visible[m_teamId] && !( target->IsBuilding() && target->m_seen[m_teamId] ) ) return;
     if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) )
         return;
     if( m_currentState == 1 && GetAttackOdds( target->m_type ) > 0 )
@@ -89,13 +91,17 @@ void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
             if( landCheck && g_app->GetWorld()->IsFriend( m_teamId, landCheck->m_teamId ) &&
                 ( landCheck->IsAircraftLauncher() || landCheck->m_type == TypeTanker ) )
             {
-                m_targetObjectId = -1;
-                m_isLanding = -1;
-                m_isEscorting = -1;
-                m_opportunityFireOnly = false;
-                ClearActionQueue();
-                Land( targetObjectId );
-                return;
+                // In Strike mode, friendly carrier = attack target (queued from airbase). Only land on airbase/tanker.
+                if( !landCheck->IsCarrierClass() )
+                {
+                    m_targetObjectId = -1;
+                    m_isLanding = -1;
+                    m_isEscorting = -1;
+                    m_opportunityFireOnly = false;
+                    ClearActionQueue();
+                    Land( targetObjectId );
+                    return;
+                }
             }
             if( landCheck && g_app->GetWorld()->IsFriend( m_teamId, landCheck->m_teamId ) &&
                 landCheck->IsAircraft() )
@@ -178,7 +184,7 @@ void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     ClearActionQueue();
 
     WorldObject *target = g_app->GetWorld()->GetWorldObject( targetObjectId );
-    if( target && target->m_visible[m_teamId] )
+    if( target && ( target->m_visible[m_teamId] || ( target->IsBuilding() && target->m_seen[m_teamId] ) ) )
     {
         if( g_app->GetWorld()->IsFriend( m_teamId, target->m_teamId ) &&
             ( target->IsAircraftLauncher() || target->m_type == TypeTanker ) )
@@ -240,11 +246,15 @@ bool Fighter::Update()
             if( g_app->GetWorld()->IsFriend( m_teamId, targetObject->m_teamId ) &&
                 ( targetObject->IsAircraftLauncher() || targetObject->m_type == TypeTanker ) )
             {
-                Land( m_targetObjectId );
-                m_targetObjectId = -1;
-                m_opportunityFireOnly = false;
+                // In Strike mode, friendly carrier = attack target. Only land on airbase/tanker.
+                if( !targetObject->IsCarrierClass() )
+                {
+                    Land( m_targetObjectId );
+                    m_targetObjectId = -1;
+                    m_opportunityFireOnly = false;
+                }
             }
-            else
+            if( m_targetObjectId != -1 )
             {
                 if( !m_isRetaliating && !m_opportunityFireOnly )
                 {
@@ -254,7 +264,8 @@ bool Fighter::Update()
            
                 if( arrived )
                 {
-                    if( !targetObject->m_visible[m_teamId] )
+                    // Static buildings remain targetable without visibility
+                    if( !targetObject->IsBuilding() && !targetObject->m_visible[m_teamId] )
                     {
                         m_targetObjectId = -1;
                         m_opportunityFireOnly = false;
@@ -264,7 +275,7 @@ bool Fighter::Update()
 
                 if( m_stateTimer <= 0 )
                 {
-                    if( targetObject->m_visible[m_teamId] )
+                    if( targetObject->m_visible[m_teamId] || ( targetObject->IsBuilding() && targetObject->m_seen[m_teamId] ) )
                     {
                         Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, targetObject->m_longitude, targetObject->m_latitude);
 
@@ -530,7 +541,7 @@ int Fighter::GetTarget( Fixed range, const LList<int> *excludeIds )
                 }
                 if( !g_app->GetWorld()->IsFriend( obj->m_teamId, m_teamId ) &&
                     GetAttackOdds( obj->m_type ) > 0 &&
-                    obj->m_visible[m_teamId] &&
+                    ( obj->m_visible[m_teamId] || ( obj->IsBuilding() && obj->m_seen[m_teamId] ) ) &&
                     !g_app->GetWorld()->GetTeam( m_teamId )->m_ceaseFire[ obj->m_teamId ] )
                 {
                     Fixed distanceSqd = g_app->GetWorld()->GetDistanceSqd( m_longitude, m_latitude, obj->m_longitude, obj->m_latitude );
@@ -570,6 +581,10 @@ int Fighter::IsValidCombatTarget( int _objectId )
         obj->IsAirbaseClass() ||
         obj->m_type == TypeTanker )
     {
+        // Stealth and light fighters cannot land on carriers - only airbases
+        if( obj->IsCarrierClass() && ( m_type == TypeFighterLight || m_type == TypeFighterStealth ) )
+            return TargetTypeInvalid;
+
         if( obj->m_teamId == m_teamId ||
             g_app->GetWorld()->GetTeam(m_teamId)->m_ceaseFire[obj->m_teamId] )
         {
