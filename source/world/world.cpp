@@ -2668,28 +2668,7 @@ void World::Update()
         }
     }
 
-    //
-    // Update everyones ceasefire status (skip when CPU toggle enabled - players control ceasefire manually)
-    // When CPU disabled: all teams stay in ceasefire (human-centric - players choose who to fight)
-    // When CPU enabled: only allies have ceasefire (CPU won't change status, so non-allies must be able to fight)
-
-    int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
-    int toggleCPU = g_app->GetGame()->GetOptionValue("ToggleCPU");
-
-    if( toggleCPU != 1 )
-    {
-        for(int i = 0; i < m_teams.Size(); ++i )
-        {
-            for(int j = 0; j < m_teams.Size(); ++j )
-            {
-                int ourTeamId = m_teams[i]->m_teamId;
-                int theirTeamid = m_teams[j]->m_teamId;
-                // CPU disabled: everyone stays in ceasefire
-                m_teams[i]->m_ceaseFire[ theirTeamid ] = (i != j);
-            }
-        }
-    }
-
+    // Ceasefire is set once at game start (app.cpp StartGame). Players control it via alliance window.
 
 
     //

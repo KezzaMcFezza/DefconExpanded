@@ -1876,6 +1876,11 @@ void App::StartGame()
                     // CPU disabled: human-centric game, everyone starts in ceasefire
                     firstTeam->m_ceaseFire[secondTeam->m_teamId] = true;
                 }
+                else
+                {
+                    // CPU enabled: only allies have ceasefire, non-allies start at war
+                    firstTeam->m_ceaseFire[secondTeam->m_teamId] = false;
+                }
             }
         }
     }

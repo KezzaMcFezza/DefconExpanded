@@ -514,6 +514,9 @@ public:
                 g_app->GetGame()->GetOption("MaxTeams")->m_currentValue = 3;
                 g_app->GetGame()->GetOption("TeamSwitching")->m_currentValue = 1;
                 g_app->GetGame()->GetOption("MaxSpectators")->m_currentValue = 0;
+                g_app->GetGame()->GetOption("ScenarioMode")->m_currentValue = 1;  // nato_vs_russia
+                g_app->GetGame()->GetOption("ToggleCPU")->m_currentValue = 1;     // CPU enabled
+                g_app->GetGame()->GetOption("VariableUnitCounts")->m_currentValue = 0;  // disabled
                 
                 MessageDialog *dialog = new MessageDialog( "Preparing Game...", 
                                                            "dialog_game_starting", true, 
@@ -902,11 +905,6 @@ void MainMenu::Create()
 
     if( !g_app->m_gameRunning )
     {
-#ifndef NON_PLAYABLE
-        button = new ShowTutorialMenuButton();
-        button->SetProperties( "Tutorial", 10, y+=h+g, m_w-20, h, "tutorial", " ", true, false );
-        RegisterButton( button );
-#endif
         DemoModeButton *demo = new DemoModeButton();
         demo->SetProperties( "Rolling Demo", 10, y+=h+g, m_w-20, h, "dialog_rolling_demo", " ", true, false );
         RegisterButton( demo );

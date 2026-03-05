@@ -156,6 +156,11 @@ void GunFire::Render3D()
     Colour colour = team->GetTeamColour();            
     float maxSize = 10;
     
+    float gameScale = World::GetGameScale().DoubleValue();
+    if( gameScale < 0.01f ) gameScale = 1.0f;
+    float lineWidth = 1.0f / gameScale;
+    if( lineWidth < 0.25f ) lineWidth = 0.25f;
+    
     GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
     
     for( int i = 1; i < m_history.Size(); ++i )
@@ -188,7 +193,7 @@ void GunFire::Render3D()
         
         colour.m_a = 255 - 255 * (float) i / (float) maxSize;
         g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z, 
-                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour, lineWidth );
     }
 
     if( m_history.Size() > 0 )
@@ -221,7 +226,7 @@ void GunFire::Render3D()
         
         colour.m_a = 255;
         g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z, 
-                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour, lineWidth );
     }
 
     Vector3<float> endPos = Vector3<float>( predictedLongitude-m_vel.x.DoubleValue(), 
@@ -238,7 +243,7 @@ void GunFire::Render3D()
     endPos3D += endNormal * GLOBE_ELEVATION;
     
     g_renderer3d->Line3D( startPos3D.x, startPos3D.y, startPos3D.z, 
-                          endPos3D.x, endPos3D.y, endPos3D.z, colour );
+                          endPos3D.x, endPos3D.y, endPos3D.z, colour, lineWidth );
 }
 
 bool GunFire::MoveToWaypoint()

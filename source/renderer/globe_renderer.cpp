@@ -1740,7 +1740,7 @@ void GlobeRenderer::Render3DNukes()
             
             //
             // Calculate orientation using trajectory derivative
-            
+            //
             Vector3<float> direction(0, 0, 1);
             
             if (nuke->m_totalDistance > 0) {

@@ -634,8 +634,8 @@ void MovingObject::Render2D()
 
     if( m_movementType == MovementTypeAir )
     {
-        float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
-        if( m_vel.y < 0 ) angle += M_PI;
+        float angle = (float)atan2( (double)(-m_vel.x.DoubleValue()), (double)m_vel.y.DoubleValue() );
+        if( IsBallisticMissileClass() ) angle += (float)M_PI;  // nuke sprite faces opposite way
         
         float clampedPrediction = (g_predictionTime > 0.0f) ? g_predictionTime : 0.0f;
         Fixed predictionTime = Fixed::FromDouble(clampedPrediction) * g_app->GetWorld()->GetTimeScaleFactor();

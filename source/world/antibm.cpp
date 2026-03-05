@@ -32,6 +32,11 @@ AntiBM::AntiBM( Fixed range )
 
 void AntiBM::Render3D()
 {
+    float gameScale = World::GetGameScale().DoubleValue();
+    if( gameScale < 0.01f ) gameScale = 1.0f;
+    float lineWidth = 1.0f / gameScale;
+    if( lineWidth < 0.25f ) lineWidth = 0.25f;
+    
     GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
     if( !g_app->IsGlobeMode() || !globeRenderer || !globeRenderer->ShouldUse3DNukeTrajectories() )
     {
@@ -86,7 +91,7 @@ void AntiBM::Render3D()
 
         colour.m_a = (unsigned char)(255 - 255 * (float)i / maxSize);
         g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z,
-                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour, lineWidth );
     }
 
     if( m_history.Size() > 0 )
@@ -106,7 +111,7 @@ void AntiBM::Render3D()
 
         colour.m_a = 255;
         g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z,
-                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour, lineWidth );
     }
 
     float endX = predictedLon - m_vel.x.DoubleValue();
@@ -117,7 +122,7 @@ void AntiBM::Render3D()
         launchLon, launchLat, targetLon, targetLat, endX, endY, totalDistance );
 
     g_renderer3d->Line3D( startPos3D.x, startPos3D.y, startPos3D.z,
-                          endPos3D.x, endPos3D.y, endPos3D.z, colour );
+                          endPos3D.x, endPos3D.y, endPos3D.z, colour, lineWidth );
 }
 
 void AntiBM::GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLongitude, Fixed *interceptLatitude )
@@ -170,15 +175,15 @@ void AntiBM::GetCombatInterceptionPoint( WorldObject *target, Fixed *interceptLo
 
     if( timeLeft < 0 ) timeLeft = 0;
 
-    // Base lead: 95-110% - ballistic missiles accelerate in terminal descent so constant-velocity
-    // extrapolation undershoots; we need extra lead to compensate for target speeding up.
+    // Base lead: 85-95% - nukes are slower now; old 95-110% was for faster missiles with terminal
+    // acceleration. Reduced lead prevents ABM overshooting slower ballistic targets.
     Fixed closeDist = Fixed(2);
     Fixed farDist   = Fixed(20);
     Fixed leadRange = farDist - closeDist;
     Fixed distFactor = ( distanceMag - closeDist ) / leadRange;
     if( distFactor < 0 ) distFactor = 0;
     if( distFactor > 1 ) distFactor = 1;
-    Fixed leadFactor = Fixed::Hundredths(95) + distFactor * Fixed::Hundredths(15);
+    Fixed leadFactor = Fixed::Hundredths(85) + distFactor * Fixed::Hundredths(10);
 
     // Reduce lead as latitude increases: steeper curve so extreme polar lat gets strong reduction.
     // Quadratic: most drop happens near poles. 100% at equator, ~40% at poles.

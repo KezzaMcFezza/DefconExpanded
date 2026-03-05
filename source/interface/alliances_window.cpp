@@ -689,14 +689,6 @@ public:
                     g_renderer2d->StaticSprite( img, realX+235, realY+8, 15, 15, White, true );
                 }
 
-                int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
-                if( permitDefection == 0 && 
-                    g_app->GetWorld()->GetMyTeam() &&
-                    g_app->GetWorld()->GetMyTeam()->m_ceaseFire[teamId] )
-                {
-                    g_renderer2d->StaticSprite( img, realX+320, realY+8, 15, 15, White, true );
-                }
-
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             }
 
