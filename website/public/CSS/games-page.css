@@ -331,13 +331,83 @@
   border-radius: 10px;
 }
 
+.territory-overlay-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.territory-overlay-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  opacity: 1;
+  font-family: 'Kremlin', 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.9);
+  mix-blend-mode: normal;
+  text-align: center;
+  padding: 0 8px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.territory-overlay.territory-northamerica .territory-overlay-label {
+  transform: translate(-50%, -50%) translate(8%, -10%);
+}
+
+.territory-overlay.territory-southamerica .territory-overlay-label {
+  transform: translate(-50%, -50%) translate(17%, -30%);
+}
+
+.territory-overlay.territory-europe .territory-overlay-label {
+  transform: translate(-50%, -50%) translate(18%, 0%);
+}
+
+.territory-overlay.territory-africa .territory-overlay-label {
+  transform: translate(-50%, -50%) translate(0%, -80%);
+}
+
+.territory-overlay.territory-asia .territory-overlay-label {
+  transform: translate(-50%, -50%) translate(-20%, -70%);
+}
+
+.territory-overlay.territory-russia .territory-overlay-label {
+  top: 19% !important;
+  left: 76% !important;
+  transform: translate(-50%, -50%);
+}
+
+.demo-card .time-info {
+  color: #b8b8b8;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.demo-card table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+  margin-bottom: 1rem;
+}
+
 .territory-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 2;
-  opacity: 0.7;
+  height: 100%;
 }
 
 .filter-container {

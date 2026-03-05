@@ -152,8 +152,10 @@ const DEMO_CARD_TEMPLATE = {
     `,
     
     TERRITORY_OVERLAY: `
-        <img src="{{OVERLAY_IMAGE}}" class="territory-overlay" alt="{{TERRITORY}} Overlay" 
-             style="position: absolute; top: 0; left: 0; width: 100%; z-index: {{Z_INDEX}};">
+        <div class="territory-overlay territory-{{TERRITORY_KEY}}" data-territory="{{TERRITORY_KEY}}">
+            <img src="{{OVERLAY_IMAGE}}" class="territory-overlay-image" alt="{{TERRITORY}} Overlay">
+            <div class="territory-overlay-label">{{PLAYER_NAME}}</div>
+        </div>
     `,
     
     RESULTS_TABLE: `

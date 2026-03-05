@@ -81,6 +81,66 @@ async function canViewDemoId() {
   return currentUserFetchPromise;
 }
 
+function centerLabelOnOverlay(overlayElement) {
+  if (!overlayElement) return;
+
+  const img = overlayElement.querySelector('.territory-overlay-image');
+  const label = overlayElement.querySelector('.territory-overlay-label');
+
+  if (!img || !label) return;
+
+  const computeCenter = () => {
+    if (!img.naturalWidth || !img.naturalHeight) return;
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const { data, width, height } = imageData;
+
+      let minX = width, minY = height, maxX = -1, maxY = -1;
+      const alphaThreshold = 10;
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = (y * width + x) * 4;
+          const alpha = data[idx + 3];
+          if (alpha > alphaThreshold) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (maxX < 0 || maxY < 0) return;
+
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+
+      const percentX = (centerX / width) * 100;
+      const percentY = (centerY / height) * 100;
+
+      label.style.left = `${percentX}%`;
+      label.style.top = `${percentY}%`;
+    } catch (e) {
+      // bollocks
+    }
+  }
+
+  if (img.complete && img.naturalWidth) {
+    computeCenter();
+  } else {
+    img.addEventListener('load', computeCenter, { once: true });
+  }
+}
+
 function generateTerritoryMap(demo, parsedPlayers, colorSystem, usingAlliances) {
   const parsedGameData = typeof demo.players === 'string' ? JSON.parse(demo.players) : demo.players;
   const isUKMod = parsedGameData?.mapMod === 'UK' || 
@@ -91,15 +151,18 @@ function generateTerritoryMap(demo, parsedPlayers, colorSystem, usingAlliances) 
   let territoryOverlays = '';
   parsedPlayers.forEach((player, index) => {
     if (territoryMapping[player.territory]) {
+      const territoryKey = territoryMapping[player.territory];
       const groupId = usingAlliances ? player.alliance : player.team;
       let colorValue = colorSystem[groupId]?.color || '#00bf00';
       colorValue = colorValue.replace('#', '');
 
-      const overlayImage = `/images/${territoryMapping[player.territory]}${colorValue}.png`;
+      const overlayImage = `/images/${territoryKey}${colorValue}.png`;
 
       territoryOverlays += DEMO_CARD_TEMPLATE.TERRITORY_OVERLAY
         .replace('{{OVERLAY_IMAGE}}', overlayImage)
         .replace('{{TERRITORY}}', player.territory)
+        .replace('{{TERRITORY_KEY}}', territoryKey)
+        .replace('{{PLAYER_NAME}}', (player.name || '').toUpperCase())
         .replace('{{Z_INDEX}}', index + 2);
     }
   });
@@ -229,6 +292,9 @@ async function createDemoCard(demo) {
 
   const demoCardHtml = replaceTemplate(DEMO_CARD_TEMPLATE.MAIN_STRUCTURE, templateInsertions);
   demoCard.innerHTML = demoCardHtml;
+
+  const overlays = demoCard.querySelectorAll('.territory-overlay');
+  overlays.forEach(overlay => centerLabelOnOverlay(overlay));
   
   return demoCard;
 }
