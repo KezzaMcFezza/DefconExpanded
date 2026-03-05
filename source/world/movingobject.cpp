@@ -790,7 +790,7 @@ void MovingObject::RenderHistory2D()
     if( gameScale < 0.01f ) gameScale = 1.0f;
     float trailMult = 2.0f - zf;
     int trailMin = (int)(2.0f * trailMult + 0.5f);
-    int sizeCap = (int)(80.0f * zf * trailMult / gameScale);
+    int sizeCap = (int)(160.0f * zf * trailMult / gameScale);
     if( sizeCap < trailMin ) sizeCap = trailMin;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
@@ -799,7 +799,7 @@ void MovingObject::RenderHistory2D()
         {
             case TypeNuke:
             {
-                int nukeCap = (int)(12.0f * zf * trailMult / gameScale);
+                int nukeCap = (int)(24.0f * zf * trailMult / gameScale);
                 if( nukeCap < trailMin ) nukeCap = trailMin;
                 sizeCap = nukeCap;
                 break;
@@ -861,21 +861,28 @@ void MovingObject::RenderHistory2D()
     if( m_history.Size() > 0 )
     {
         Vector3<float> lastPos( predictedLongitude, predictedLatitude, 0 );
+        int numSteps = maxSize * 2;
 
-        for( int i = 0; i < maxSize; ++i )
+        for( int i = 0; i < numSteps; ++i )
         {
-            Vector3<float> historyPos, thisPos;
-			thisPos = historyPos = *m_history[i];
+            float histIdx = (float)i * 0.5f;
+            int idx0 = (int)histIdx;
+            int idx1 = (idx0 + 1 < maxSize) ? idx0 + 1 : idx0;
+            float frac = histIdx - (float)idx0;
+
+            Vector3<float> pos0( m_history[idx0]->x.DoubleValue(), m_history[idx0]->y.DoubleValue(), 0.0f );
+            Vector3<float> pos1( m_history[idx1]->x.DoubleValue(), m_history[idx1]->y.DoubleValue(), 0.0f );
+            Vector3<float> thisPos = pos0 * (1.0f - frac) + pos1 * frac;
 
             if( lastPos.x < -170 && thisPos.x > 170 )       thisPos.x = -180 - ( 180 - thisPos.x );        
             if( lastPos.x > 170 && thisPos.x < -170 )       thisPos.x = 180 + ( 180 - fabs(thisPos.x) );        
 
             Vector3<float> diff = thisPos - lastPos;
             lastPos += diff * 0.1f;
-            colour.m_a = 255 - 255 * (float) i / (float) maxSize;
-            
+            colour.m_a = 255 - 255 * histIdx / (float) maxSize;
+
             g_renderer2d->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
-            lastPos = historyPos;
+            lastPos = thisPos;
         }
     }
 }
@@ -901,7 +908,7 @@ void MovingObject::RenderHistory3D()
     if( gameScale3d < 0.01f ) gameScale3d = 1.0f;
     float trailMult3d = 2.0f - zf3d;
     int trailMin3d = (int)(2.0f * trailMult3d + 0.5f);
-    int sizeCap = (int)(80.0f * zf3d * trailMult3d / gameScale3d);
+    int sizeCap = (int)(160.0f * zf3d * trailMult3d / gameScale3d);
     if( sizeCap < trailMin3d ) sizeCap = trailMin3d;
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
@@ -910,7 +917,7 @@ void MovingObject::RenderHistory3D()
         {
             case TypeNuke:
             {
-                int nukeCap3d = (int)(12.0f * zf3d * trailMult3d / gameScale3d);
+                int nukeCap3d = (int)(24.0f * zf3d * trailMult3d / gameScale3d);
                 if( nukeCap3d < trailMin3d ) nukeCap3d = trailMin3d;
                 sizeCap = nukeCap3d;
                 break;
@@ -978,33 +985,40 @@ void MovingObject::RenderHistory3D()
         lastNormal.Normalise();
         lastPos3D += lastNormal * GLOBE_ELEVATION;
 
-        for( int i = 0; i < maxSize; ++i )
+        int numSteps = maxSize * 2;
+
+        for( int i = 0; i < numSteps; ++i )
         {
-            Vector3<float> historyPos2D, thisPos2D;
-            thisPos2D = historyPos2D = *m_history[i];
+            float histIdx = (float)i * 0.5f;
+            int idx0 = (int)histIdx;
+            int idx1 = (idx0 + 1 < maxSize) ? idx0 + 1 : idx0;
+            float frac = histIdx - (float)idx0;
+
+            Vector3<float> pos0_2D( m_history[idx0]->x.DoubleValue(), m_history[idx0]->y.DoubleValue(), 0.0f );
+            Vector3<float> pos1_2D( m_history[idx1]->x.DoubleValue(), m_history[idx1]->y.DoubleValue(), 0.0f );
+            Vector3<float> thisPos2D = pos0_2D * (1.0f - frac) + pos1_2D * frac;
 
             if( lastPos2D.x < -170 && thisPos2D.x > 170 )       thisPos2D.x = -180 - ( 180 - thisPos2D.x );
             if( lastPos2D.x > 170 && thisPos2D.x < -170 )       thisPos2D.x = 180 + ( 180 - fabs(thisPos2D.x) );
 
             Vector3<float> diff = thisPos2D - lastPos2D;
             lastPos2D += diff * 0.1f;
-            
+
             Vector3<float> lineStart3D = globeRenderer->ConvertLongLatTo3DPosition(lastPos2D.x, lastPos2D.y);
             Vector3<float> lineEnd3D = globeRenderer->ConvertLongLatTo3DPosition(thisPos2D.x, thisPos2D.y);
-            
+
             Vector3<float> startNormal = lineStart3D;
             startNormal.Normalise();
             lineStart3D += startNormal * GLOBE_ELEVATION;
-            
             Vector3<float> endNormal = lineEnd3D;
             endNormal.Normalise();
             lineEnd3D += endNormal * GLOBE_ELEVATION;
-            
-            colour.m_a = 255 - 255 * (float) i / (float) maxSize;
 
-            g_renderer3d->Line3D( lineStart3D.x, lineStart3D.y, lineStart3D.z, 
+            colour.m_a = 255 - 255 * histIdx / (float) maxSize;
+
+            g_renderer3d->Line3D( lineStart3D.x, lineStart3D.y, lineStart3D.z,
                                   lineEnd3D.x, lineEnd3D.y, lineEnd3D.z, colour );
-            lastPos2D = historyPos2D;
+            lastPos2D = thisPos2D;
         }
     }
 }

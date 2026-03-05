@@ -40,7 +40,7 @@ Nuke::Nuke()
     strcpy( bmpImageFilename, "graphics/nuke.bmp" );
 
     m_radarRange = 0;
-    m_speed = Fixed::Hundredths(16);
+    m_speed = Fixed::Hundredths(10);
     m_selectable = true;
     m_maxHistorySize = -1;
     m_range = Fixed::MAX;

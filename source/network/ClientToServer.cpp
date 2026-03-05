@@ -1764,16 +1764,7 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
 				// If player attempts to set invalid name, use a default instead
 				if( !Team::IsValidName( teamName ) )
 				{
-					if( update->HasData( NET_DEFCON_SPECTATOR ) )
-					{
-						strcpy( defaultName, LANGUAGEPHRASE("dialog_c2s_default_name_spectator") );
-					}
-					else
-					{
-						strcpy( defaultName, LANGUAGEPHRASE("dialog_c2s_default_name_player") );
-						LPREPLACEINTEGERFLAG( 'T', teamId, defaultName );
-					}
-
+					strcpy( defaultName, " " );
 					teamName = defaultName;
 				}
 
@@ -1812,28 +1803,34 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
                     // Team renaming itself
                     Team *team = g_app->GetWorld()->GetTeam( teamId );
                     
-                    if( team &&
-                        strcmp( team->m_name, teamName ) != 0 )
+                    if( team )
                     {
-                        char msg[256];
-                        if( team->m_nameSet )
+                        bool nameChanged = ( strcmp( team->m_name, teamName ) != 0 );
+                        if( nameChanged )
                         {
-                            strcpy( msg, LANGUAGEPHRASE("dialog_c2s_team_renamed") );
-							LPREPLACESTRINGFLAG( 'T', team->m_name, msg );
-							LPREPLACESTRINGFLAG( 'N', teamName, msg );
+                            char msg[256];
+                            if( team->m_nameSet )
+                            {
+                                strcpy( msg, LANGUAGEPHRASE("dialog_c2s_team_renamed") );
+                                LPREPLACESTRINGFLAG( 'T', team->m_name, msg );
+                                LPREPLACESTRINGFLAG( 'N', teamName, msg );
+                            }
+                            else
+                            {
+                                strcpy( msg, LANGUAGEPHRASE("dialog_c2s_team_joined_game") );
+                                LPREPLACESTRINGFLAG( 'T', teamName, msg );
+                            }
+                            g_app->GetWorld()->AddChatMessage( team->m_teamId, CHATCHANNEL_PUBLIC, msg, -1, false );
+
+                            team->SetTeamName( teamName );
                         }
-                        else
+                        if( !team->m_nameSet )
                         {
-                            strcpy( msg, LANGUAGEPHRASE("dialog_c2s_team_joined_game") );
-							LPREPLACESTRINGFLAG( 'T', teamName, msg );
                             team->m_nameSet = true;
                         }
-                        g_app->GetWorld()->AddChatMessage( team->m_teamId, CHATCHANNEL_PUBLIC, msg, -1, false );
-
-                        team->SetTeamName( teamName );
 
                         bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
-                        if( teamId == g_app->GetWorld()->m_myTeamId && !isRecordingPlayback )
+                        if( nameChanged && teamId == g_app->GetWorld()->m_myTeamId && !isRecordingPlayback )
                         {
                             if( strcmp( teamName, LANGUAGEPHRASE("gameoption_PlayerName") ) == 0 )
                             {

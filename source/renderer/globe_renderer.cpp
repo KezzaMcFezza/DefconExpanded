@@ -1890,7 +1890,7 @@ void GlobeRenderer::Render3DNukeTrajectories()
             // Calculate trail length based on zoom 
 
             int maxSize = history.Size();
-            int sizeCap = (int)(80 * 0.5f); 
+            int sizeCap = (int)(80 * 1.0f);
             
             //
             // Account for increased sampling rate to maintain trail length
@@ -1913,9 +1913,9 @@ void GlobeRenderer::Render3DNukeTrajectories()
             bool hasTrajectory = CalculateNukeTrajectoryConstants(nuke, trajectoryConstants);
             
             //
-            // Use 4x more segments to match renderhistory sampling rate
+            // Use 2x more segments for denser trails
             
-            int maxTrailLength = fmaxf(4, fminf(maxSize, 128));
+            int maxTrailLength = fmaxf(4, fminf(maxSize, 256));
             Vector3<float> prevPos = currentPos;
             float lineWidth = 1.5f;
             float invMaxTrailLength = 1.0f / (float)maxTrailLength;

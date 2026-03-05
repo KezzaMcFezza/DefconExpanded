@@ -49,6 +49,7 @@ public:
     int     m_lobbyEffects;
     int     m_cursorCoords;
     int     m_coordSnap;
+    int     m_nodes;
     
 public:
     GraphicsOptionsWindow();

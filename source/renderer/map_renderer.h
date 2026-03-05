@@ -23,6 +23,7 @@ class AnimatedIcon;
 #define    PREFS_GRAPHICS_OUTLINES                    "RenderObjectOutlines"
 #define    PREFS_GRAPHICS_CURSORCOORDS                "RenderCursorCoords"
 #define    PREFS_GRAPHICS_COORDSNAP                   "RenderCursorCoordsSnap"
+#define    PREFS_GRAPHICS_NODES                       "RenderNodes"
 
 #define    STYLE_WORLD_COASTLINES                     "WorldCoastlines"
 #define    STYLE_WORLD_BORDERS                        "WorldBorders"

@@ -1282,10 +1282,9 @@ void World::InitialiseTeam ( int teamId, int teamType, int clientId )
         m_myTeamId = teamId;
     }    
 
-    char teamName[256];
-	strcpy( teamName, LANGUAGEPHRASE("dialog_c2s_default_name_player") );
-	LPREPLACEINTEGERFLAG( 'T', teamId, teamName );
-    team->SetTeamName( teamName );
+    team->SetTeamName( " " );
+    if( teamType == Team::TypeAI )
+        team->m_nameSet = true;
 
     if( teamType == Team::TypeAI )
     {
@@ -1318,7 +1317,7 @@ void World::InitialiseSpectator( int _clientId )
     // Register as spectator
 
     Spectator *spec = new Spectator();
-    strcpy( spec->m_name, LANGUAGEPHRASE("dialog_c2s_default_name_spectator") );
+    strcpy( spec->m_name, " " );
     spec->m_clientId = _clientId;
 
     m_spectators.PutData( spec );

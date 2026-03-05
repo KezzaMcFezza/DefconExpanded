@@ -16,6 +16,7 @@
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
+#include "world/worldobject.h"
 
 AnimatedIcon::AnimatedIcon()
 :   m_longitude(0.0f),
@@ -72,14 +73,53 @@ void ActionMarker::Render2D()
         if( m_targetType > WorldObject::TargetTypeValid )
         {
             img = NULL;
+            int launchType = -1;
+            int teamId = obj ? obj->m_teamId : -1;
             switch( m_targetType )
             {
-                case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
-                case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
-                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
-                case WorldObject::TargetTypeLaunchLACM:         img = g_resource->GetImage( "graphics/lacm.bmp" );    break;
-                case WorldObject::TargetTypeLaunchCBM:          img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
+                case WorldObject::TargetTypeLaunchFighter:
+                    if( obj )
+                    {
+                        if( obj->IsCarrierClass() )
+                        {
+                            if( obj->m_currentState <= 1 )      launchType = WorldObject::TypeFighter;
+                            else                               launchType = WorldObject::TypeFighterNavyStealth;
+                        }
+                        else
+                        {
+                            if( obj->m_currentState <= 1 )      launchType = WorldObject::TypeFighterLight;
+                            else if( obj->m_currentState <= 3 ) launchType = WorldObject::TypeFighter;
+                            else if( obj->m_currentState <= 5 ) launchType = WorldObject::TypeFighterNavyStealth;
+                            else                               launchType = WorldObject::TypeFighterStealth;
+                        }
+                    }
+                    break;
+                case WorldObject::TargetTypeLaunchBomber:
+                    if( obj )
+                    {
+                        if( obj->m_currentState <= 9 )       launchType = WorldObject::TypeBomber;
+                        else if( obj->m_currentState <= 11 ) launchType = WorldObject::TypeBomberFast;
+                        else                                launchType = WorldObject::TypeBomberStealth;
+                    }
+                    break;
+                case WorldObject::TargetTypeLaunchAEW:
+                    launchType = WorldObject::TypeAEW;
+                    break;
+                case WorldObject::TargetTypeLaunchTanker:
+                    launchType = WorldObject::TypeTanker;
+                    break;
+                case WorldObject::TargetTypeLaunchNuke:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
+                case WorldObject::TargetTypeLaunchLACM:
+                    img = g_resource->GetImage( "graphics/lacm.bmp" );
+                    break;
+                case WorldObject::TargetTypeLaunchCBM:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
             }
+            if( launchType >= 0 )
+                img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( launchType, teamId ) );
 
             if( img )
             {
@@ -123,14 +163,53 @@ void ActionMarker::Render3D()
         if( m_targetType > WorldObject::TargetTypeValid )
         {
             img = NULL;
+            int launchType = -1;
+            int teamId = obj ? obj->m_teamId : -1;
             switch( m_targetType )
             {
-                case WorldObject::TargetTypeLaunchFighter:      img = g_resource->GetImage( "graphics/fighter.bmp" );       break;
-                case WorldObject::TargetTypeLaunchBomber:       img = g_resource->GetImage( "graphics/bomber.bmp" );        break;
-                case WorldObject::TargetTypeLaunchNuke:         img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
-                case WorldObject::TargetTypeLaunchLACM:         img = g_resource->GetImage( "graphics/lacm.bmp" );    break;
-                case WorldObject::TargetTypeLaunchCBM:          img = g_resource->GetImage( "graphics/nuke.bmp" );    break;
+                case WorldObject::TargetTypeLaunchFighter:
+                    if( obj )
+                    {
+                        if( obj->IsCarrierClass() )
+                        {
+                            if( obj->m_currentState <= 1 )      launchType = WorldObject::TypeFighter;
+                            else                               launchType = WorldObject::TypeFighterNavyStealth;
+                        }
+                        else
+                        {
+                            if( obj->m_currentState <= 1 )      launchType = WorldObject::TypeFighterLight;
+                            else if( obj->m_currentState <= 3 ) launchType = WorldObject::TypeFighter;
+                            else if( obj->m_currentState <= 5 ) launchType = WorldObject::TypeFighterNavyStealth;
+                            else                               launchType = WorldObject::TypeFighterStealth;
+                        }
+                    }
+                    break;
+                case WorldObject::TargetTypeLaunchBomber:
+                    if( obj )
+                    {
+                        if( obj->m_currentState <= 9 )       launchType = WorldObject::TypeBomber;
+                        else if( obj->m_currentState <= 11 ) launchType = WorldObject::TypeBomberFast;
+                        else                                launchType = WorldObject::TypeBomberStealth;
+                    }
+                    break;
+                case WorldObject::TargetTypeLaunchAEW:
+                    launchType = WorldObject::TypeAEW;
+                    break;
+                case WorldObject::TargetTypeLaunchTanker:
+                    launchType = WorldObject::TypeTanker;
+                    break;
+                case WorldObject::TargetTypeLaunchNuke:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
+                case WorldObject::TargetTypeLaunchLACM:
+                    img = g_resource->GetImage( "graphics/lacm.bmp" );
+                    break;
+                case WorldObject::TargetTypeLaunchCBM:
+                    img = g_resource->GetImage( "graphics/nuke.bmp" );
+                    break;
             }
+            if( launchType >= 0 )
+                img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( launchType, teamId ) );
 
             if( img )
             {

@@ -1186,6 +1186,7 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         g_preferences->SetInt( PREFS_GRAPHICS_CURSORCOORDS, gow->m_cursorCoords );
         g_preferences->SetInt( PREFS_GRAPHICS_COORDSNAP, gow->m_coordSnap );
+        g_preferences->SetInt( PREFS_GRAPHICS_NODES, gow->m_nodes );
         
         g_app->GetEarthData()->LoadCoastlines();
 
@@ -1202,9 +1203,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 390, 500 );
+    SetSize( 390, 530 );
 #else
-    SetSize( 390, 460 );
+    SetSize( 390, 490 );
 #endif
 
     Centralise();
@@ -1225,6 +1226,7 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
     m_cursorCoords  = g_preferences->GetInt( PREFS_GRAPHICS_CURSORCOORDS );
     m_coordSnap     = g_preferences->GetInt( PREFS_GRAPHICS_COORDSNAP );
+    m_nodes         = g_preferences->GetInt( PREFS_GRAPHICS_NODES );
 }
 
 
@@ -1321,6 +1323,13 @@ void GraphicsOptionsWindow::Create()
     dropDown->RegisterInt( &m_coordSnap );
     RegisterButton(dropDown);
 
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Show Travel Nodes", x, y+=h, w, 20, "dialog_travelnodes", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_nodes );
+    RegisterButton(dropDown);
+
     CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
     RegisterButton( cancel );
@@ -1357,6 +1366,7 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_cursorcoords") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coordsnap") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_travelnodes") );
 }
 
 

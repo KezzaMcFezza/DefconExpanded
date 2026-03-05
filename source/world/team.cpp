@@ -142,18 +142,7 @@ void Team::SetTeamName( const char *name )
 bool Team::IsValidName( const char *name )
 {
 	size_t len = strlen(name);
-	bool isBlank = true;
-	
-	for (int i = 0; i < len; i++)
-	{
-		if (!isspace(name[i]))
-		{
-			isBlank = false;
-			break;
-		}
-	}
-	
-	return len <= MAX_TEAM_NAME && !isBlank;
+	return len > 0 && len <= MAX_TEAM_NAME;
 }
 
 Colour Team::GetTeamColour()

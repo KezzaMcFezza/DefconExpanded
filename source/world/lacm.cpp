@@ -42,7 +42,7 @@ LACM::LACM()
 
     m_stealthType = 66;
     m_radarRange = 0;
-    m_speed = Fixed::Hundredths(10);
+    m_speed = Fixed::Hundredths(6);
     m_initspeed = m_speed;
     m_selectable = true;
     m_maxHistorySize = 32;

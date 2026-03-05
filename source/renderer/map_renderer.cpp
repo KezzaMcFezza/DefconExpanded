@@ -3545,11 +3545,13 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
 
 void MapRenderer::RenderNodes()
 {
-    if( g_preferences->GetInt( "RenderNodes" ) != 1 )
+    if( g_preferences->GetInt( PREFS_GRAPHICS_NODES ) != 1 )
     {
         return;
     }
 
+    float gameScale = g_app->GetWorld()->GetGameScale().DoubleValue();
+    if( gameScale < 0.01f ) gameScale = 0.01f;  // Avoid division by zero
 
     //
     // Placement points
@@ -3560,7 +3562,7 @@ void MapRenderer::RenderNodes()
 
         Colour col(0,255,0,55);
 
-        g_renderer2d->CircleFill( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), 0.5, 20, col );
+        g_renderer2d->CircleFill( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), 0.5f / gameScale, 20, col );
     }
 
 
@@ -3592,14 +3594,15 @@ void MapRenderer::RenderNodes()
         }
 
         Colour col(255,0,0,255);
-        
+        float circleSize = 1.0f / gameScale;
+
         if( inRange )
         {
-            g_renderer2d->CircleFill( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), 1, 20, col );
+            g_renderer2d->CircleFill( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), circleSize, 20, col );
         }
         else
         {
-            g_renderer2d->Circle( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), 1, 20, col );
+            g_renderer2d->Circle( thisPoint->x.DoubleValue(), thisPoint->y.DoubleValue(), circleSize, 20, col );
         }
     }
 
@@ -3609,28 +3612,32 @@ void MapRenderer::RenderNodes()
 
     g_renderer->SetFont( NULL, true );
 
+    float nodeCircleSize = 1.0f / gameScale;
+    float textOffset = 0.5f / gameScale;
+    float textSize = 2.0f / gameScale;
+    if( textSize < 0.5f ) textSize = 0.5f;  // Keep text readable at high scales
+    float lineWidth = 1.5f / gameScale;
+    if( lineWidth < 0.25f ) lineWidth = 0.25f;  // Minimum visible line width
+
     for( int i = 0; i < g_app->GetWorld()->m_nodes.Size(); ++i )
     {
         if( g_app->GetWorld()->m_nodes.ValidIndex(i) )
         {
             Node *node = g_app->GetWorld()->m_nodes[i];
-            g_renderer2d->CircleFill( node->m_longitude.DoubleValue(), node->m_latitude.DoubleValue(), 1.0f, 20, Colour(255,255,255,150) );
+            g_renderer2d->CircleFill( node->m_longitude.DoubleValue(), node->m_latitude.DoubleValue(), nodeCircleSize, 20, Colour(255,255,255,150) );
             char num[16];
             sprintf(num, "%d", i );
 
-            g_renderer2d->Text( node->m_longitude.DoubleValue() + 0.5f, 
-                              node->m_latitude.DoubleValue() + 0.5f, White, 2.0f, num );
+            g_renderer2d->Text( node->m_longitude.DoubleValue() + textOffset, 
+                              node->m_latitude.DoubleValue() + textOffset, White, textSize, num );
             
             for( int j = 0; j < node->m_routeTable.Size(); ++j )
             {
                 Node *nextNode = g_app->GetWorld()->m_nodes[node->m_routeTable[j]->m_nextNodeId];
-                float lineWidth = 1.5f;
 
-                g_renderer2d->Line(node->m_longitude.DoubleValue(), 
-                                 node->m_latitude.DoubleValue(), 
-                                 nextNode->m_longitude.DoubleValue(), 
-                                 nextNode->m_latitude.DoubleValue(), 
-                                 Colour(255,255,255,35), lineWidth );
+                RenderActionLine( node->m_longitude.DoubleValue(), node->m_latitude.DoubleValue(),
+                                 nextNode->m_longitude.DoubleValue(), nextNode->m_latitude.DoubleValue(),
+                                 Colour(255,255,255,35), lineWidth, false );
             }
         }
     }

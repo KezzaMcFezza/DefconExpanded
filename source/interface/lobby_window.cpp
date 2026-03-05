@@ -513,12 +513,7 @@ public:
                               team->m_type != Team::TypeAI;
 
                 char teamNameFull[256];                
-                if( team->m_type == Team::TypeAI )
-				{
-                    strcpy( teamNameFull, LANGUAGEPHRASE("dialog_cpu_team_name") );
-					LPREPLACESTRINGFLAG( 'T', teamName, teamNameFull );
-				}
-                else if( !team->m_nameSet )
+                if( !team->m_nameSet )
 				{
                     strcpy( teamNameFull, LANGUAGEPHRASE("dialog_joining") );
 				}
