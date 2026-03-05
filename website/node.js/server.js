@@ -644,7 +644,7 @@ jsonWatcher
     .on('add', async (jsonPath) => {
         const fileName = path.basename(jsonPath);
         
-        if (!fileName.match(/^(game_|game8p_|game10p_).*\.json$/)) {
+        if (!fileName.endsWith('_full.json')) {
             return;
         }
         
@@ -949,6 +949,17 @@ cron.schedule('0 3 * * *', async () => {
     scheduled: true,
     timezone: "Europe/London" // because fuck utc
 });
+
+// Clear pending lists and rescan so stale dcrecs/jsons get picked up
+const CLEAR_PENDING_INTERVAL_MS = 30 * 60 * 1000;
+setInterval(async () => {
+    try {
+        await debugUtils.clearPendingLists();
+        console.log('Scheduled clearpending completed.');
+    } catch (error) {
+        console.error('Scheduled clearpending failed:', error);
+    }
+}, CLEAR_PENDING_INTERVAL_MS);
 
 const server = http.listen(port, async () => {
     console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
