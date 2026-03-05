@@ -165,7 +165,8 @@ function generateSpectatorsSection(demo) {
 function generateDemoActions(demo, canViewId) {
   
   let result = DEMO_CARD_TEMPLATE.DEMO_ACTIONS
-    .replace(/\{\{DEMO_NAME\}\}/g, demo.name)  
+    .replace(/\{\{DEMO_NAME\}\}/g, demo.name)
+    .replace(/\{\{DEMO_NAME_ENCODED\}\}/g, encodeURIComponent(demo.name))
     .replace('{{DEMO_ID}}', demo.id)
     .replace('{{DOWNLOAD_COUNT}}', demo.download_count || 0)
     .replace('{{WATCH_COUNT}}', demo.watch_count || 0);
@@ -252,7 +253,7 @@ async function launchReplayViewer(demoName) {
   
   try {
     try {
-      await fetch(`/api/watch/${demoName}`, {
+      await fetch(`/api/watch/${encodeURIComponent(demoName)}`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -260,7 +261,7 @@ async function launchReplayViewer(demoName) {
       console.warn('Failed to increment watch count:', watchError);
     }
 
-    const apiUrl = `/api/replay-viewer/launch/${demoName}`;
+    const apiUrl = `/api/replay-viewer/launch/${encodeURIComponent(demoName)}`;
   
     const response = await fetch(apiUrl, {
       method: 'GET',

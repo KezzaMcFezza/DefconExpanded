@@ -199,7 +199,7 @@ const DEMO_CARD_TEMPLATE = {
     
     DEMO_ACTIONS: `
         <div class="demo-actions">
-            <a href="/api/download/{{DEMO_NAME}}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
+            <a href="/api/download/{{DEMO_NAME_ENCODED}}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
             <button class="download-btn-demo" style="border: none; max-width: 150px; min-height: 30.39px;" onclick="launchReplayViewer('{{DEMO_NAME}}')"><i class="fas fa-play"></i> Watch Online</button>
             <div class="demo-stats">
                 <span class="downloads-count"><i class="fas fa-download"></i> {{DOWNLOAD_COUNT}}</span>

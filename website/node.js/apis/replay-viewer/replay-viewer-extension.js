@@ -291,7 +291,7 @@ router.get('/api/replay-viewer/launch/:demoName', checkAuthToken, async (req, re
             });
         }
 
-        const replayViewerUrl = `/replay-viewer/${demo.name}`;
+        const replayViewerUrl = `/replay-viewer/${encodeURIComponent(demo.name)}`;
         
         debug.level2('Replay viewer URL constructed:', replayViewerUrl);
         debug.apiResponse(200, { success: true, replayUrl: replayViewerUrl }, 2);

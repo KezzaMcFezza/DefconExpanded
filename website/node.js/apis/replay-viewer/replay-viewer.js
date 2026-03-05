@@ -40,7 +40,7 @@ router.use('/replay-viewer', (req, res, next) => {
 // serve the .dcrec files directly for the replay viewer
 router.get(/^\/replay-viewer\/files\/.+\.dcrec$/, checkAuthToken, async (req, res) => {
     const startTime = debug.enter('serveDcrecFile', [req.path], 2);
-    const filename = path.basename(req.path);
+    const filename = decodeURIComponent(path.basename(req.path));
     
     debug.apiRequest('GET', req.originalUrl, req.user, 2);
     debug.level2('Serving .dcrec file:', filename);
@@ -147,7 +147,7 @@ router.get('/replay-viewer/:filename', checkAuthToken, async (req, res) => {
                     window.Module.preRun.push(async function() {
                         
                         try {
-                            const response = await fetch('/replay-viewer/files/${filename}');
+                            const response = await fetch('/replay-viewer/files/${encodeURIComponent(filename)}');
                             
                             if (!response.ok) {
                                 throw new Error(\`HTTP error! status: \${response.status}\`);
