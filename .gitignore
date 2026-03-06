@@ -22,7 +22,7 @@
 # macOS metadata
 .DS_Store
 
-/test_recordings
+/all_recordings
 
 # CMake generated files
 /CMakeCache.txt
