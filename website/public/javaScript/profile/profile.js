@@ -271,11 +271,11 @@ function updateTerritoryStats(userProfile, territories) {
         const worstTerritory = userProfile.territoryStats?.worstTerritory;
 
         if (territories[bestTerritory]) {
-            mapContainer.innerHTML += `<img src="/images/${territories[bestTerritory]}00bf00.png" class="territory-overlay" alt="${bestTerritory}" style="position: absolute; top: 0; left: 0; width: 100%;">`;
+            mapContainer.innerHTML += `<img src="/images/${territories[bestTerritory]}00bf00.png" class="territory-overlay-profile" alt="${bestTerritory}" style="position: absolute; top: 0; left: 0; width: 100%;">`;
         }
 
         if (territories[worstTerritory]) {
-            mapContainer.innerHTML += `<img src="/images/${territories[worstTerritory]}ff4949.png" class="territory-overlay" alt="${worstTerritory}" style="position: absolute; top: 0; left: 0; width: 100%;">`;
+            mapContainer.innerHTML += `<img src="/images/${territories[worstTerritory]}ff4949.png" class="territory-overlay-profile" alt="${worstTerritory}" style="position: absolute; top: 0; left: 0; width: 100%;">`;
         }
     }
 }
@@ -467,7 +467,8 @@ async function loadRecentGame(defconUsername) {
         if (recentGameContainer) {
             if (demos && demos.length > 0) {
                 const demoCard = await createDemoCard(demos[0]);
-                recentGameContainer.innerHTML = demoCard.outerHTML;
+                recentGameContainer.innerHTML = '';
+                recentGameContainer.appendChild(demoCard);
             } else {
                 recentGameContainer.innerHTML = '<p>No recent games available.</p>';
             }

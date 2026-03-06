@@ -387,13 +387,14 @@
     z-index: 1;
 }
 
-.territory-overlay {
+.territory-overlay-profile {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: auto;
     z-index: 2;
+    opacity: 0.7;
 }
 
 .contributions-container {
