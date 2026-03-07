@@ -172,10 +172,19 @@ function generateTerritoryMap(demo, parsedPlayers, colorSystem, usingAlliances) 
     .replace('{{TERRITORY_OVERLAYS}}', territoryOverlays);
 }
 
+function zeroScoreCheck(parsedPlayers) {
+  if (!Array.isArray(parsedPlayers) || parsedPlayers.length === 0) {
+    return false;
+  }
+
+  return parsedPlayers.every(player => Number(player.score) === 0);
+}
+
 function generateResultsTable(parsedPlayers, sortedGroups, colorSystem, highestScore, usingAlliances) {
   let tableRows = '';
 
   if (parsedPlayers.length > 0) {
+    const allPlayersZero = zeroScoreCheck(parsedPlayers);
     sortedGroups.forEach(([groupId, _]) => {
       const groupColor = colorSystem[groupId]?.color || '#00bf00';
       parsedPlayers
@@ -195,7 +204,7 @@ function generateResultsTable(parsedPlayers, sortedGroups, colorSystem, highestS
             .replace('{{PLAYER_ICON}}', playerIconLink)
             .replace('{{PLAYER_NAME}}', playerNameWithCrown)
             .replace('{{TERRITORY}}', player.territory || 'undefined')
-            .replace('{{SCORE}}', player.score === 0 ? '???' : player.score);
+            .replace('{{SCORE}}', player.score === 0 && allPlayersZero ? '???' : player.score);
         });
     });
   } else {
