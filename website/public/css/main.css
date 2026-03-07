@@ -12,6 +12,10 @@
 * Last Edited 02-03-2026
 */
 
+/* ==========================================================================
+   Fonts & base
+   ========================================================================== */
+
 @font-face {
     font-family: 'Kremlin';
     src: url('/css/kremlin.ttf') format('truetype');
@@ -71,6 +75,10 @@ textarea:focus,
 input:focus {
     outline: none;
 }
+
+/* ==========================================================================
+   User dropdown (account menu)
+   ========================================================================== */
 
 .user-actions {
     display: flex;
@@ -166,7 +174,10 @@ input:focus {
     transform: rotate(180deg);
 }
 
-/* Modlist navbar dropdown */
+/* ==========================================================================
+   Top navigation
+   ========================================================================== */
+
 .top-nav .list-items .modlist-dropdown {
     position: relative;
     height: 100%;
@@ -411,6 +422,10 @@ input:focus {
     margin-left: 0.25rem;
 }
 
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
 #sidebar {
     width: 320px;
     background: radial-gradient(1200px 600px at 10% -10%, rgb(64 0 255 / 18%), #0c0c0c 60%), radial-gradient(900px 500px at 120% 10%, rgb(0 213 255 / 33%), #ff000024 60%), linear-gradient(0deg, #00d0ff17 0%, #060913 100%);
@@ -523,6 +538,10 @@ input:focus {
     background-color: #1a1a1a;
 }
 
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
 header {
     height: 56px;
     margin: auto;
@@ -541,6 +560,9 @@ header {
     display: flex;
 }
 
+/* ==========================================================================
+   Discord widget
+   ========================================================================== */
 
 .discord-widget {
     border-radius: 8px;
@@ -620,6 +642,10 @@ header {
     transition: filter 0.3s;
 }
 
+/* ==========================================================================
+   Main layout & containers
+   ========================================================================== */
+
 .container {
     display: flex;
     width: 100%;
@@ -630,45 +656,6 @@ header {
 
 .modlist-main-container {
     padding: 0rem 2rem 2rem 2rem
-}
-
-.section-cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: left;
-    gap: 29px;
-    padding: 20px 0;
-}
-
-.game-tile {
-    position: relative;
-    width: 284px;
-    height: 350px;
-    overflow: hidden;
-    border-radius: 10px;
-    transition: transform 0.3s ease;
-    text-decoration: none;
-}
-
-.game-tile:hover {
-    transform: scale(1.05);
-}
-
-.game-tile .art {
-    width: 100%;
-    height: 100%;
-}
-
-.game-tile img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-}
-
-
-.containerdemos {
-    width: 85%;
-    margin: 0 auto;
 }
 
 main {
@@ -692,6 +679,10 @@ main {
 .actions-container-mobile {
     display: none;
 }
+
+/* ==========================================================================
+   Cards (generic card styles)
+   ========================================================================== */
 
 .card {
     background-color: #1c1c2e17;
@@ -749,159 +740,6 @@ main {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     max-height: 450px;
     max-width: 700px;
-}
-
-.demo-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-    color: #888;
-}
-
-.btn-report {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease;
-}
-
-.btn-banner {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease;
-}
-
-.btn-report:hover {
-    color: #f00;
-}
-
-.btn-banner:hover {
-    color: rgb(0, 153, 255);
-}
-
-.report-dropdown {
-    position: absolute;
-    background-color: #1a1a1a;
-    border-radius: 4px;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    right: 10px;
-    margin-top: 5px;
-}
-
-.sad-face::after {
-    content: " 😞";
-}
-
-.report-dropdown button {
-    color: #fff;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    text-align: left;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.report-dropdown button:hover {
-    background-color: #444;
-}
-
-.demo-content-main {
-    display: flex;
-    justify-content: center;
-}
-
-.demo-content-container {
-    display: flex;
-    flex-direction: column;
-    align-items: baseline;
-    margin-bottom: 10px;
-}
-
-.demo-card {
-    position: relative;
-    background: radial-gradient(1200px 600px at 10% -10%, rgb(64 0 255 / 0%), #0c0c0c 60%), radial-gradient(900px 500px at 120% 10%, rgb(0 213 255 / 5%), #ff000008 60%), linear-gradient(360deg, #00d0ff0f 0%, #06091300 100%);
-    border-radius: 20px;
-    padding: 1.5rem;
-    text-shadow: 0px 0px 1.5px currentColor;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 370px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: inline-block;
-    overflow: visible;
-}
-
-.demo-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url("/images/demobackground.png");
-    background-size: cover;
-    background-position: center;
-    opacity: 0.08;
-    border-radius: 20px;
-    z-index: 0;
-}
-
-.demo-card>* {
-    position: relative;
-    z-index: 1;
-}
-
-.download-section {
-    background-color: #1c1c2e17;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    opacity: 1;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.download-section-recent {
-    background-color: #1c1c2e17;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    max-height: 570px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    opacity: 1;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.matchroom-title {
-    color: #4da6ff;
-    font-size: 1.3rem;
-    margin-top: 0;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.demo-card h3 {
-    color: #4da6ff;
-    font-size: 1.9rem;
-    line-height: 1.3;
-    letter-spacing: 1px;
-    margin-top: 0;
-    text-align: center;
-    margin-bottom: 0.1rem;
 }
 
 .card-title {
@@ -997,6 +835,10 @@ main {
     margin: 10px;
 }
 
+/* ==========================================================================
+   Headings & typography
+   ========================================================================== */
+
 .headerresources {
     color: #4da6ff;
     font-size: 2rem;
@@ -1044,6 +886,10 @@ li {
     margin-left: 0;
 }
 
+/* ==========================================================================
+   Project contributors
+   ========================================================================== */
+
 .project-contributors {
     background-color: #1c1c2e17;
     border-radius: 10px;
@@ -1088,33 +934,9 @@ li {
     transition: all 0.3s ease;
 }
 
-.games-played {
-    font-size: 1.2rem;
-    text-align: center;
-    margin-bottom: 1rem;
-    font-weight: 400;
-    color: rgb(197 197 197);
-}
-
-.game-results td {
-    color: #ffffff;
-}
-
-.game-results td[style*="color: red"] {
-    color: #d13b3b;
-}
-
-.game-results td[style*="color: green"] {
-    color: #40d340;
-}
-
-.game-results td[style*="color: blue"] {
-    color: #3488d6;
-}
-
-.game-results td[style*="color: orange"] {
-    color: #bb7b3b;
-}
+/* ==========================================================================
+   Search (mod list pages, etc.)
+   ========================================================================== */
 
 .search-container button:hover {
     background-color: #3a8ad6;
@@ -1123,23 +945,6 @@ li {
 .search-container {
     display: flex;
     justify-content: center;
-}
-
-.date-input {
-    background-color: rgb(20 20 20 / 50%);
-    border: 1px solid #333;
-    color: #b8b8b8;
-    padding: 0.4rem;
-    border-radius: 5px;
-}
-
-.player-input {
-    background-color: rgb(20 20 20 / 50%);
-    border: 1px solid #333;
-    color: #fff;
-    height: 10px;
-    padding: 0.65rem;
-    border-radius: 4px 0 0 4px;
 }
 
 .search-container input {
@@ -1165,15 +970,9 @@ li {
     background-color: #3a8ad6;
 }
 
-.demo-heading {
-    display: flex;
-    justify-content: center;
-}
-
-.demo-label {
-    color: #4da6ff;
-    font-size: 45px;
-}
+/* ==========================================================================
+   About & resources pages
+   ========================================================================== */
 
 .about-container-main {
     padding: 0rem 2rem 2rem 2rem;
@@ -1194,15 +993,6 @@ li {
     padding: 2rem;
     width: 50%;
     opacity: 0.95;
-}
-
-.filter-title {
-    color: #4da6ff;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .main-resources-container {
@@ -1242,48 +1032,6 @@ li {
     margin-top: 50px;
 }
 
-.demo-container {
-    justify-content: center;
-    display: flex;
-    gap: 1.5rem;
-    padding: 1rem 0;
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-.spectators-toggle {
-    background-color: transparent;
-    cursor: pointer;
-    border: none;
-    font-size: 0.93rem;
-    text-shadow: 0px 0px 1.5px currentColor;
-    color: #4da6ff;
-}
-
-.spectators-section {
-    margin-bottom: 1.2rem;
-}
-
-.spectators-list {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.2s ease;
-}
-
-.spectators-list.show {
-    max-height: 500px;
-    transition: max-height 1s ease;
-}
-
-.demo-column {
-    max-width: 413px;
-}
-
-.recent-games {
-    flex: 1;
-    margin: 0px 32px 0px 32px;
-}
-
 .resource-item img {
     width: 80px;
     height: 80px;
@@ -1305,103 +1053,9 @@ li {
     height: 200px;
 }
 
-.version-history-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 5px;
-    margin-bottom: 1rem;
-}
-
-.demo-card th {
-    padding: 0.5rem 0.5rem 0.5rem 0.3rem;
-    text-align: left;
-    color: #4da6ff;
-    background-color: rgba(77, 166, 255, 0) !important;
-    font-size: 1.1rem;
-}
-
-.demo-card td {
-    padding: 0.5rem;
-    text-align: left;
-    font-size: 0.93rem;
-    background-color: rgb(255 255 255 / 0%) !important;
-    color: #b8b8b8;
-}
-
-.version-history-table th {
-    padding: 0.5rem;
-    text-align: left;
-    color: #4da6ff;
-    background-color: rgba(77, 166, 255, 0.1);
-    font-size: 1.1rem;
-}
-
-.version-history-table td {
-    padding: 0.5rem;
-    text-align: left;
-    font-size: 0.9rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #b8b8b8;
-}
-
-.version-history-table .td2 {
-    color: #ff8400;
-    font-weight: bold;
-    font-size: 17px;
-}
-
-.demo-card .btn-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-}
-
-.btn-download {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.9rem;
-    border-radius: 5px;
-    display: inline-grid;
-    text-decoration: none;
-    border: 0;
-    transition: all 0.3s ease;
-    text-align: center;
-    justify-content: center;
-    font-weight: bold;
-    flex: 1;
-    background-color: #0067b8;
-    color: #fff;
-    margin-left: 0px;
-}
-
-.downloads-count {
-    margin-left: auto;
-}
-
-.demo-stats {
-    display: flex;
-    gap: 15px;
-    margin-left: auto;
-    align-items: center;
-}
-
-.download-btn-demo {
-    display: flex;
-    padding: 4px 16px;
-    background-color: #0067b8;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    align-items: center;
-    justify-content: flex-end;
-    max-width: 80px;
-    margin-right: 10px;
-}
-
-.download-btn-demo i {
-    margin-right: 5px;
-}
+/* ==========================================================================
+   Auth & action buttons
+   ========================================================================== */
 
 .login-signup {
     padding: 0.3rem 1.2rem;
@@ -1468,119 +1122,14 @@ li {
     margin-left: 0px;
 }
 
-.btn-matchroom {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.9rem;
-    border-radius: 5px;
-    display: inline-grid;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    text-align: center;
-    justify-content: center;
-    font-weight: bold;
-    flex: 1;
-    background-color: #0067b8;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-download:hover {
-    background-color: #3a8ad6;
-    cursor: pointer;
-}
-
-.download-btn-demo:hover {
-    background-color: #3a8ad6;
-    cursor: pointer;
-}
-
 .btn-download-dedcon:hover {
     background-color: #686868;
-    cursor: pointer;
-}
-
-.btn-matchroom:hover {
-    background-color: #3a8ad6;
     cursor: pointer;
 }
 
 .btn-delete:hover {
     background-color: #3a8ad6;
     cursor: pointer;
-}
-
-.pagination {
-    text-align: center;
-    margin-top: 2rem;
-}
-
-.pagination button {
-    background-color: #1c1c2e;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    margin: 0.25rem 0.25rem;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-.pagination-ellipsis {
-    padding: 5px 10px;
-    color: #b8b8b8;
-}
-
-.custom-page-container {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 10px;
-}
-
-.custom-page-input {
-    width: 80px;
-    padding: 0.5rem 1rem;
-    margin-right: 5px;
-    border: none;
-    border-radius: 5px;
-    background: #1c1c2e;
-    color: #b8b8b8;
-    -webkit-appearance: textfield;
-    -moz-appearance: textfield;
-    appearance: textfield;
-}
-
-.custom-page-input::-webkit-outer-spin-button,
-.custom-page-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.custom-page-input {
-    -moz-appearance: textfield;
-}
-
-.custom-page-go {
-    padding: 5px 10px;
-    border: 1px solid #b8b8b8;
-    border-radius: 4px;
-    background: #1c1c2e;
-    color: #b8b8b8;
-    cursor: pointer;
-}
-
-.custom-page-go:hover {
-    background: #3d3d3d;
-}
-
-
-#pagination button:hover {
-    background: #3d3d3d;
-}
-
-#pagination button.active {
-    background: #00bf00;
-    color: #ffffff;
 }
 
 .user-dropdown .dropdown-content-page {
@@ -1592,6 +1141,10 @@ li {
 .user-dropdown.open .dropdown-content-page {
     display: block;
 }
+
+/* ==========================================================================
+   Icons (sidebar/footer)
+   ========================================================================== */
 
 .icons {
     display: flex;
@@ -1629,6 +1182,10 @@ li {
 .icons a.mail-icon {
     color: #bebebe;
 }
+
+/* ==========================================================================
+   Leaderboard page
+   ========================================================================== */
 
 .leaderboard-container {
     display: flex;
@@ -1828,82 +1385,9 @@ li {
     background-color: #970000;
 }
 
-.sort-container {
-    margin-bottom: 1rem;
-    text-align: right;
-}
-
-.dropdown-territory {
-    display: flex;
-    align-items: center;
-
-}
-
-#game-mode-dropdown {
-    background-color: #0067b8;
-    color: #fff;
-    margin: 0;
-    margin-top: 0;
-    border: none;
-    padding: 3px;
-    border-radius: 5px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
-}
-
-#sort-select {
-    background-color: #0067b8;
-    color: #fff;
-    border: none;
-    padding: 0.35rem 0.75rem;
-    border-radius: 5px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
-}
-
-.server-select {
-    background-color: #0067b8;
-    color: #fff;
-    border: none;
-    padding: 0.35rem;
-    border-radius: 5px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
-    max-width: 250px;
-}
-
-.server-select::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-    background-color: #1a1a1a;
-}
-
-.server-select::-webkit-scrollbar-thumb {
-    background: #008a9ccc;
-    border-radius: 4px;
-}
-
-.server-select::-webkit-scrollbar-thumb:hover {
-    background: #ffffff;
-}
-
-.server-select::-webkit-scrollbar-track {
-    background: #0068b800;
-    border-radius: 4px;
-}
-
-.server-select {
-    scrollbar-width: thin;
-    scrollbar-color: #333 #1a1a1a;
-}
-
-#sort-select:hover {
-    background-color: #005aa3;
-}
-
-.server-select:hover {
-    background-color: #005aa3;
-}
+/* ==========================================================================
+   Form labels & headings
+   ========================================================================== */
 
 label {
     color: #4da6ff;
@@ -1932,6 +1416,10 @@ h6 {
     text-align: center;
     margin-bottom: 1rem;
 }
+
+/* ==========================================================================
+   Buttons & utilities
+   ========================================================================== */
 
 @keyframes pulse {
 
@@ -2028,6 +1516,10 @@ a {
     text-decoration: none;
     cursor: pointer;
 }
+
+/* ==========================================================================
+   Patchnotes
+   ========================================================================== */
 
 .patchnotes-container {
     max-width: 1200px;
