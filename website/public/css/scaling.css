@@ -956,6 +956,7 @@
 
     .normal-sort-options {
         flex-direction: column;
+        gap: 0px;
     }
 
     .active-players-sort {
@@ -1046,10 +1047,6 @@
         width: 56%;
     }
 
-    .advanced-filters-toggle {
-        padding: 0.2rem;
-    }
-
     .advanced-filters-div {
         display: flex;
         justify-content: center;
@@ -1065,6 +1062,7 @@
 
     .server-select {
         width: 60%;
+        margin-bottom: 10px;
         max-width: none;
     }
 
