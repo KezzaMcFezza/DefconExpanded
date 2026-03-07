@@ -777,6 +777,10 @@
         padding: 1.2rem !important;
     }
 
+    .demo-stats {
+        gap: 10px;
+    }
+
     .settings-grid {
         display: flex !important;
         flex-direction: column !important;
