@@ -194,7 +194,6 @@ function generateResultsTable(parsedPlayers, sortedGroups, colorSystem, highestS
         })
         .sort((a, b) => b.score - a.score)
         .forEach(player => {
-          const playerNameWithCrown = `${player.name}${player.score === highestScore ? ' 👑' : ''}`;
           const playerIconLink = player.profileUrl
             ? `<a href="${player.profileUrl}" target="_blank"><i class="fa-solid fa-square-up-right"></i></a>`
             : '';
@@ -202,7 +201,7 @@ function generateResultsTable(parsedPlayers, sortedGroups, colorSystem, highestS
           tableRows += DEMO_CARD_TEMPLATE.RESULTS_ROW
             .replace('{{GROUP_COLOR}}', groupColor)
             .replace('{{PLAYER_ICON}}', playerIconLink)
-            .replace('{{PLAYER_NAME}}', playerNameWithCrown)
+            .replace('{{PLAYER_NAME}}', player.name)
             .replace('{{TERRITORY}}', player.territory || 'undefined')
             .replace('{{SCORE}}', player.score === 0 && allPlayersZero ? '???' : player.score);
         });
