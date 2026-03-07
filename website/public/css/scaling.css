@@ -183,6 +183,19 @@
         flex-grow: 1;
     }
 
+    .filter-newplayer {
+        border-top: 2px solid #333333;
+        margin-top: 30px;
+    }
+
+    .filter-buttons {
+        display: flex;
+        padding-top: 0px;
+        gap: 0px;
+        justify-content: center;
+        flex-direction: column;
+    }
+
     .filters-toggle-btn,
     .toggle-container {
         width: 100%;
@@ -631,6 +644,12 @@
 
     .top-nav .nav-links .list-items li:last-child {
         border-bottom: none;
+        padding: 12px 15px;
+    }
+
+    .top-nav .nav-modlist-btn {
+        padding: 0px;
+        font-size: 1rem;
     }
 
     .top-nav .nav-links .list-items {
@@ -649,7 +668,7 @@
         display: none;
         border-top: 1px solid #333;
         border-bottom: 1px solid #333;
-        padding: 12px 15px;
+        padding: 10px 12px;
         margin-left: 10px;
         background: #000000;
     }
@@ -667,7 +686,8 @@
 
     .top-nav .nav-dropdown-account .logged-out-actions a,
     .top-nav .nav-dropdown-account .login-signup {
-        margin: 0;
+        margin-right: 5px;
+        margin-left: 0px;
         color: #c5d4ff;
     }
 
@@ -959,6 +979,10 @@
         gap: 0px;
     }
 
+    .score-div {
+        gap: 4px;
+    }
+
     .active-players-sort {
         margin-left: 0 !important;
     }
@@ -968,7 +992,7 @@
     }
 
     .advanced-filters {
-        padding: 0 10px;
+        padding: 0px;
     }
 
     .filter-section {
@@ -1009,12 +1033,6 @@
         width: 100%;
     }
 
-    .filter-buttons {
-        margin-top: 20px;
-        border-top: 2px solid #333333;
-        justify-content: space-around;
-    }
-
     .territory-main {
         border-top: 2px solid #333333;
         margin-top: 20px;
@@ -1027,9 +1045,7 @@
 
     .apply-filters-btn,
     .reset-filters-btn {
-        margin-top: 20px;
-        width: fit-content;
-        margin-top: 20px;
+        margin-top: 10px;
     }
 
     .player-filter {
