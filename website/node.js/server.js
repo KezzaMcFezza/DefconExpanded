@@ -397,8 +397,8 @@ app.get('/modlist/overhauls', checkAuthToken, (req, res) => sendHtml(res, 'overh
 app.get('/modlist/moddingtools', checkAuthToken, (req, res) => sendHtml(res, 'moddingtools.html'));
 app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'));
 app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
-app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
-app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
+app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpassword.html'));
+app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword.html'));
 
 // admin routes
 app.get('/adminpanel', authenticateToken, checkPermission(permissions.PAGE_ADMIN_PANEL), serveAdminPage('admin-panel', permissions.PAGE_ADMIN_PANEL));
