@@ -86,6 +86,11 @@
   color: #b8b8b8;
 }
 
+.fa-square-up-right {
+  color: rgb(155, 155, 155);
+  margin-right: 5px;
+}
+
 .demo-card .btn-container {
   display: flex;
   justify-content: space-between;
