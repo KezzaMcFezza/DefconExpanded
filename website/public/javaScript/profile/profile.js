@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (profilePictureElement) {
             const profilePicture = userProfile.profile_picture
                 ? `${userProfile.profile_picture}`  
-                : '/images/Icon3expanded.png';
+                : '/images/defconexpanded-icon.png';
             
             profilePictureElement.src = profilePicture;
         }

@@ -298,7 +298,7 @@ async function createTerritoryMap(players, territoryImages, usingAlliances, team
       ].includes(player.territory);
     });
 
-    const baseMapFile = isUKMod ? 'basemapuk.png' : 'base_map.png';
+    const baseMapFile = isUKMod ? 'base_mapuk.png' : 'base_map.png';
     const baseMap = await loadImage(path.join(publicDir, 'images', baseMapFile));
     ctx.drawImage(baseMap, 0, 0, 800, 400);
 

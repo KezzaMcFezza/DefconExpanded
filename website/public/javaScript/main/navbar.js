@@ -14,7 +14,7 @@
 const NAVBAR_HTML = `
 <div class="top-nav-inner">
   <a href="/" class="nav-brand">
-    <img src="/images/Icon3expanded.png" alt="" class="nav-brand-icon">
+    <img src="/images/defconexpanded-icon.png" alt="" class="nav-brand-icon">
     <span class="nav-brand-text">DefconExpanded</span>
   </a>
   <button type="button" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><i class="fas fa-bars"></i></button>

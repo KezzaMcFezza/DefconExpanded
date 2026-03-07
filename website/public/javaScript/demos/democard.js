@@ -146,7 +146,7 @@ function generateTerritoryMap(demo, parsedPlayers, colorSystem, usingAlliances) 
   const isUKMod = parsedGameData?.mapMod === 'UK' || 
                  (demo.game_type && (demo.game_type.includes('UK and Ireland') || demo.game_type.includes('UK Mod')));
 
-  const baseMap = isUKMod ? 'basemapuk.png' : 'base_map.png';
+  const baseMap = isUKMod ? 'base_mapuk.png' : 'base_map.png';
   
   let territoryOverlays = '';
   parsedPlayers.forEach((player, index) => {

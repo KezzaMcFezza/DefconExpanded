@@ -476,7 +476,7 @@ const ReportsModule = (() => {
     
         const headerImagePath = mod.preview_image_path
             ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
-            : '/modpreviews/Icon3expanded.png';
+            : '/modpreviews/defconexpanded-icon.png';
     
         modCard.innerHTML = `
             <div class="mod-header">
