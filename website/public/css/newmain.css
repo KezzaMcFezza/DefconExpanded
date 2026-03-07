@@ -14,7 +14,7 @@
 
 @font-face {
     font-family: 'Kremlin';
-    src: url('/CSS/kremlin.ttf') format('truetype');
+    src: url('/css/kremlin.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
